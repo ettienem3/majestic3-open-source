@@ -6,7 +6,8 @@
 
 A great place to get up-to-speed quickly is the Majestic 3 Wiki and Website
 
-https://majestic3.com
+http://www.majestic3.com
+
 https://wiki.majestic3.com
 
 
