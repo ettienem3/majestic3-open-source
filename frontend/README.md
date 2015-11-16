@@ -46,7 +46,7 @@ We are sure you might be able to get the package running in a Windows or Mac env
 
 The application is built using PHP, Zend Framework 2 (ZF2) and jQuery. It goes without saying that you will need PHP knowledge at least. A very strong and fundamental understanding of Object Orientated Programming is required to grasp an understanding of how the different modules and classes fit together.
 
-Since the application is built with the Zend Framework 2 environment, so some understanding of the framework will benefit you greatly. Although the framework is used, not all best practises are followed to the letter. There are a number of reasons for this, the biggest being to try and keep it simple. 
+Since the application is built with the Zend Framework 2 environment, some understanding of the framework will benefit you greatly. Although the framework is used, not all best practises are followed to the letter. There are a number of reasons for this, the biggest being to try and keep it simple and straight forward. 
 
 In most cases, comments on classes and functions are adequate for a proper IDE to follow the code. We use Eclipse, but PHP Storm and Netbeans have been heard to be ok as well.
 
@@ -67,7 +67,7 @@ You will need to create a vendor folder in the root, so you will end up with a /
 
 Once all this has been completed, it is time to create a server/virtual server within you web server. This server's location will need to point to the public folder, eg: /home/m3front/public
 
-Following is a sample of a configuration used in Debian and Apache2:
+Following is a simple sample of a configuration used in Debian and Apache2:
 
 DocumentRoot /home/m3front/public
 ServerName demo.majestic3.com
@@ -139,10 +139,10 @@ An explanation of each section:
 	The database structure is made available in the /installation/db.sql folder
 	
 #logged_in_user_settings
-	In combination with frontend_db_config, this enabled caching of users and/or operations. The configuration is set to use mysql as the storage engine, the alternative is \\FrontUsers\\Storage\\UserFileSystemStorage, which makes use for the ./data folder to store data.
+	In combination with frontend_db_config, this enables caching of users and/or operations. The configuration is set to use mysql as the storage engine, the alternative is \\FrontUsers\\Storage\\UserFileSystemStorage, which makes use for the ./data folder to store data.
 
 Congratulations, this deals with the installation. 
-Tip: if you are having problems with configuring your environment, try installing and configuring the Zend Framework 2 Skeleton application. If that runs, there is no reason why this installation should not run. Make sure to check you error logs.
+Tip: if you are having problems with configuring your environment, try installing and configuring the Zend Framework 2 Skeleton application. If that runs, there is no reason why this installation should not run. Make sure to check your error logs.
 
 
 ~NEXT STEPS~
@@ -162,18 +162,20 @@ You should be presented with a login screen.
 
 To assist with debugging, enable or tweak php error reporting in the /home/m3front/public/index.php file. These options could be moved elsewhere within you application.
 
-Resouces such as images, stylesheets and scripts are loaded from http://cdn-aws.majestic3.com. This location can be set within the global.php file under the cdn_config section. This can also be set from the domain specific configuration file. The global and domain configuration files are merged, with the domain content superceeding the global contents. In other words, the two arrays are merged and items could be overwritten by the array contained with the domain specific config file.
+Resouces such as images, stylesheets and scripts are loaded from https://cdn-aws.majestic3.com. This location can be set within the global.php file under the cdn_config section. This can also be set from the domain specific configuration file. The global and domain configuration files are merged, with the domain content superceeding the global contents. In other words, the two arrays are merged and items could be overwritten by the array contained with the domain specific config file.
 
 Once you have your installation running, we urge you to make changes to you environment to remove the api key field from the login screen to avoid irratation by your clients and make it more secure. Tip, once the user has logged in the first time successfully, the api key can be stored locally using the storage models provided.
 
 
 ~CLOSING~
 *********
-This is the second Beta version of the open source project and there are bound to be issues, bugs or other issues coming out of the woodwork. Please share your experiences, frustrations, idea and happines with us in order to try and make it even better for the next release.
+This is the second Beta version of the open source project and there are bound to be issues, bugs or other issues coming out of the woodwork. Please share your experiences, frustrations, ideas and happines with us in order to try and make it even better for the next release at issues@majestic3.com.
+
+Once this release has become more stable and is ready for a formal release, will we endeaviour to put together a simple manual to assist with coding, highlight which code to target for which specific operations, more in depth explanations etc etc.
 
 ~FEEDBACK~
 **********
-Feedback can be sent to issues@majestic3.com. Information obtained from here will be collected, filtered, comipled and shared via the wiki.majestic3.com website. So be sure to check if out from time to time.
+Feedback can be sent to issues@majestic3.com. Information obtained from here will be collected, filtered, compiled and shared via the https://wiki.majestic3.com website. So be sure to check if out from time to time.
 
 We do look forward to your feedback and wish you all the best of luck in your endeavours!
 
