@@ -1,0 +1,59 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		
+		//activate the contact comms section
+		jQuery(".contact_comms").click(function (e) {
+			e.preventDefault();
+
+			//set contact id
+			var contact_id = jQuery(this).attr("data-contact-id");
+			if (contact_id == "")
+			{
+			     return false;
+			}//end if
+
+			//set class
+			var contact_modal_class = 'contact_comms_modal_' + contact_id;
+			//create modal
+			var modal_content = '<div class="modal fade ' + contact_modal_class + '" role="dialog"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title">Send a Journey</h4></div><div class="modal-body">Loading...</div><div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div></div></div></div>';
+	
+			jQuery('body').append(jQuery(modal_content));
+			
+			//set ajax target url
+			var ajax_comms_url = "<?php echo $this->url("front-contact-comms", array("id" => "10001000"));?>"
+			ajax_comms_url = ajax_comms_url.replace("10001000", contact_id);
+
+			//load the dialog
+			jQuery("." + contact_modal_class).modal();
+
+			//now wait for load to complete and then start ajax call
+			jQuery("." + contact_modal_class).on('shown.bs.modal', function (e) {
+				//set container element
+				var element = jQuery(this).find(".modal-body");
+				element.html("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+
+				//load dialog content via ajax
+				jQuery.ajax({
+					url: ajax_comms_url,
+					type: "GET"
+				})
+				.done (
+					function (data) {
+						element.hide();
+						element.html(data);						
+						element.show("fast");
+				})
+				.fail(
+					function (data) {
+						element.html("An error occured....<br>" + data);
+				});
+			});
+
+			//once closed, cleared modal content
+			jQuery("." + contact_modal_class).on('hidden.bs.modal', function (e) {
+				jQuery(this).remove();
+			});
+			return false;
+		}); //end function
+	});
+</script>

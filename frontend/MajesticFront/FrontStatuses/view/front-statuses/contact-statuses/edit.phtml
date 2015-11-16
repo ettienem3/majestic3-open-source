@@ -1,0 +1,21 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_CONTACT_STATUS_HTML .'&nbsp; Edit Status '); ?>
+
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-statuses"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+		$form = $this->form;
+		$form->setAttribute("class", "form system-form form-e-link");
+		$form->setAttribute("action", $this->url("front-statuses", array("action" => "edit", "id" => $this->objContactStatus->get("id"))));
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this);
+		?>
+
+	</div>
+
+</div>

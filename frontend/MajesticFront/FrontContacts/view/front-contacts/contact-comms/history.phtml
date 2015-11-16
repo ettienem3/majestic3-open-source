@@ -1,0 +1,59 @@
+<table  class="table-simple-style data-table mj3-table table table-striped dataTable" width="100%">
+	<tr>
+		<th>Journey</th>
+		<th>Communication</th>
+		<th>Date</th>
+	</tr>
+<?php 
+foreach ($this->objCommsData as $objComm)
+{
+	echo "<tr>";
+	echo 	"<td>" . $objComm->journeys_journey . "</td>";
+	echo 	"<td>" . $objComm->comms_subject . "</td>";
+	
+	switch ($objComm->comm_via)
+	{
+		case "__sms":
+			$icon = ICON_SMALL_SMS_HTML . "&nbsp;";
+			break;
+			
+		case "__email":
+			$icon = ICON_SMALL_EMAIL_HTML . "&nbsp;";
+			break;
+			
+		case "__fax":
+			$icon = ICON_SMALL_FAX_HTML . "&nbsp;";
+			break;
+			
+		default:
+			$icon = ""; 
+			break;
+	}//end switch
+	
+	//@TODO set comm preview link to view historic comm
+	//@TODO create css classes for display content
+	switch ($objComm->comm_codes_code)
+	{
+		case "0-0":
+			echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #ffb900\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+			break;
+			
+		default: 
+			$comm_code = substr(strstr($objComm->comm_codes_code,'-'), 1);
+			if ($comm_code != "0") 
+			{
+				if ($comm_code % 2) 
+				{
+					echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: red\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+				} else {
+					echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #00ff00\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+				}//end if
+			} else {
+				//unknown
+				echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #ffb900\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+			}//end if
+			break;
+	}//end switch
+	
+	echo "</tr>";
+}//end foreach

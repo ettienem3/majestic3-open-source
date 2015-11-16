@@ -1,0 +1,71 @@
+
+<?php
+if (isset($flashMessages_errors) || isset($flashMessages_success) || isset($flashMessages_info))
+{
+	echo '<div class="bs-example">';
+		/**
+		 * Generate the flash messages
+		 */
+		if(isset($flashMessages_errors)) : ?>
+			<div class="alert alert-danger">
+				<a href="#" class="close" data-dismiss="alert">&times;</a>
+				<strong>Error!</strong>
+				<ul>
+	  				<?php
+	  					foreach ($flashMessages_errors as $flashMessage)
+	  					{
+	  						$string_errors .= "<li>" . $flashMessage . "</li>";
+	  					}//end foreach
+	  					echo $string_errors;
+	  				?>
+	  			</ul>
+			</div>
+		<?php endif; ?>
+		<?php
+		/**
+		 * Generate the Flash Messages
+		 */
+		if(isset($flashMessages_success)) : ?>
+			<div class="alert alert-success">
+	    		<a href="#" class="close" data-dismiss="alert">&times;</a>
+	    		<strong>Success!</strong>
+	    		<ul>
+		    		<?php
+		    			foreach ($flashMessages_success as $flashMessage)
+		    			{
+		    				$string_success .=  "<li>" . $flashMessage . "</ul>";
+		    			}//end foreach
+
+		    			echo $string_success;
+		    		?>
+		    	</ul>
+			</div>
+		<?php endif;?>
+		<?php
+		/**
+		 * Generate the flash messages
+		 */
+		if(isset($flashMessages_info)) : ?>
+			<div class="alert alert-info" role="alert">
+				<a href="#" class="close" data-dissmiss="alert">&times;</a>
+				<strong>Info!</strong>
+				<ul>
+					<?php
+						foreach($flashMessages_info as $flashMessage)
+						{
+							$string_info .= "<li>" . $flashMessage . "</li>";
+						}//end foreach
+						echo $string_info;
+					?>
+				</ul>
+			</div>
+		<?php endif;
+	echo "</div>";
+}//end if
+
+//check for domain specific layouts
+$template = $_SERVER["HTTP_HOST"] . "/layout/flash-messages";
+if ($this->resolver($template))
+{
+	echo $this->render($template);
+}//end if

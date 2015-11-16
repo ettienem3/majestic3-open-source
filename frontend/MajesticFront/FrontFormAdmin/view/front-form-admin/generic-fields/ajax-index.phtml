@@ -1,0 +1,17 @@
+<?php
+//prepare data
+if (count($this->objFields) > 0)
+{
+	echo "<ul>";
+	foreach ($this->objFields as $objField)
+	{
+		if (!isset($objField->id))
+		{
+			continue;
+		}//end if
+
+		echo "<li class=\"draggable\">#generic" . $objField->id . "</li>";
+	}//end foreach
+	
+	echo "</ul>";
+}//end if

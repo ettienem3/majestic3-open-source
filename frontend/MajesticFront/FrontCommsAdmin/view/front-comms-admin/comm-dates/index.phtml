@@ -1,0 +1,54 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_SYNC_HTML .'&nbsp; Recurring Events'); ?>
+<ul class="nav nav-tabs">
+	<li class="mj3_btnchangeform">
+		<a href="<?php echo $this->url("front-comms-admin/dates", array('action' => "create")); ?>" title="Create Recurring Event" class="btn btn-success" data-toggle="tooltip"><?php echo ICON_LARGE_ADD_HTML .'&nbsp;Add Recurring Event'; ?></a>
+	</li>
+</ul>
+	<div class="mj3_table_contain clearfix">
+<?php
+/**
+ * Prepare data
+ */
+
+foreach ($this->objCommDates as $key => $objCommDate)
+{
+	if (!isset($objCommDate->id))
+	{
+		continue;
+	}//end if
+	//$arr_data["id"] = $objCommDate->id;
+	$arr_data["description"] = $objCommDate->description;
+	$arr_data["Start journey"] = $objCommDate->fk_journey_id;
+	$arr_data["Time"] = $objCommDate->send_time;
+	$arr_data["Date Field"] = $objCommDate->send_string;
+	$arr_data["Yearly"] = $objCommDate->yearly;
+	$arr_data["Restart journey"] = $objCommDate->restart;
+
+	if ($objCommDate->active == 1)
+	{
+		$arr_data["activate_commdate"] = "<a href=\"" . $this->url("front-comms-admin/dates", array("action" => "status", "id" => $objCommDate->id)) . "\" title=\"This event is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+
+	} else {
+		$arr_data["activate_commdate"] = "<a href=\"" . $this->url("front-comms-admin/dates", array("action" => "status", "id" => $objCommDate->id)) . "\" title=\"This event is inactive\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+	}//end if
+
+	$edit_url = "<a href=\"" . $this->url("front-comms-admin/dates", array("action" => "edit", "id" => $objCommDate->id)) . "\" title=\"Edit Event\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+	$delete_commdate = "<a href=\"" . $this->url("front-comms-admin/dates", array("action" => "delete", "id" => $objCommDate->id)) . "\" title=\"Delete Event\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+	$arr_data["url"] = $edit_url . "&nbsp;" . $delete_commdate;
+
+	$arr[] = $arr_data;
+}//end foreach
+
+
+//create the add Commdate
+
+$css_id = str_replace(".", "", microtime(TRUE));
+echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+echo $this->renderSimpleHTMLTable($arr, array("Description", "Start Journey", "Time", "Date Field", "Start every year", "Restart Journey", "Active", $add_commdate), array("id" => $css_id));
+?>
+
+	</div>
+
+</div>
+

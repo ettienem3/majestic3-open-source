@@ -1,0 +1,230 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Allocate Field to Form'); ?>
+
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->objForm->get("id"))); ?>?ftype=<?php echo $this->objForm->get("form_types_behaviour");?>" title="Back" data-toggle="tooltip"><span style=""><?php echo ICON_MEDIUM_BACK_HTML;?></span></a></li>
+
+		<?php
+			switch (strtolower(str_replace("_", "", $this->objForm->form_types_behaviour)))
+			{
+				case "web":
+				case "viral":
+					echo "<li role=\"presentation\"><a href=\"" . $this->url("majestic-external-forms/bf", array("fid" => $this->objForm->id)) . "\" title=\"Preview Form\" target=\"_blank\" data-toggle=\"tooltip\">" . ICON_MEDIUM_SEARCH_HTML . "</a></li>";
+					break;
+
+				case "salesfunnel":
+					echo "<li role=\"presentation\"><a href=\"" . $this->url("front-form-admin/sales-funnel", array("action" => "sf-advanced-settings", "id" => $this->objForm->id)) . "?form_id=" . $this->objForm->id . "\" title=\"Configure advanced Tracker Options\" class=\"\" data-toggle=\"tooltip\">" . ICON_SMALL_SETTINGS_HTML . "</a></li>";
+					break;
+			}//end switch
+		?>
+	</ul>
+
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//monitor auto allocate urls
+			jQuery(".auto-allocate-field").click(function (e) {
+				e.preventDefault();
+				var element = jQuery(this);
+				element.html("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\"/>");
+				element.attr("disabled", "disabled");
+
+				jQuery.ajax({
+					url: element.attr("href")
+				})
+				.done(function (data) {
+					var objResponse = jQuery.parseJSON(data);
+
+					if (objResponse.error == 1)
+					{
+						alert(objResponse.response);
+						return false;
+					}//end if
+
+					element.hide("fast");
+				})
+				.fail(function () {
+					alert("An unkown error has occured. Field could be allocated to form");
+				});
+			});
+		});
+	</script>
+	<?php
+		$objFormFieldEntities = $this->objForm->getFormFieldEntities();
+		//display form summary
+	?>
+
+	<div class="mj3_table_contain clearfix">
+
+		<h3>Form Details</h3>
+
+		<br>
+
+		<p><strong>Description:</strong> <?php echo $this->objForm->get("form"); ?></p>
+		<?php
+			switch (strtolower(str_replace("_", "", $this->objForm->get("form_types_behaviour"))))
+			{
+				case "salesfunnel":
+					echo "<p><strong>Type:</strong> Tracker</p>";
+					break;
+
+				default:
+					echo "<p><strong>Type:</strong> " . $this->objForm->get("form_types_form_type") . "</p>";
+					break;
+			}//end switch
+		?>
+
+		<br>
+
+	</div>
+
+	<?php if (strtolower(str_replace("_", "", $this->objForm->get("form_types_behaviour"))) != "salesfunnel") :?>
+	<div class="mj3_table_contain clearfix">
+
+		<h3>Standard Fields</h3>
+
+		<?php
+		//display standard fields
+		foreach ($this->objStandardFields as $objField)
+		{
+			//reset field already allocated flag
+			$flag_field_allocated_already = FALSE;
+
+			if (is_object($objFormFieldEntities))
+			{
+				//check if this field is already allocated to the form
+				foreach ($objFormFieldEntities as $objFormField)
+				{
+					//determine if field is a standard or custom field
+					if ($objField->get("viral_field") != "" || $objField->get("bulk_field") != "")
+					{
+						//standard field
+						$id_field = "field_std_id";
+					} else {
+						//custom field
+						$id_field = "field_custom_id";
+					}//end if
+
+					if ($objFormField->get($id_field) == $objField->get("id"))
+					{
+						$flag_field_allocated_already = TRUE;
+						break;
+					}//end if
+				}//end foreach
+			}//end if
+
+			if ($flag_field_allocated_already === TRUE)
+			{
+				//skip this field and move to the next field
+				continue;
+			}//end if
+
+			//exclude fields where item where blank
+			if ($objField->get("description") == "")
+			{
+				continue;
+			}//end if
+
+			$arr_field = array();
+			$arr_field["description"] = $objField->get("description");
+			$allocate_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array(
+												"action" => "assign-field",
+												"form_id" => $this->objForm->get("id"),
+												"field_id" => $objField->get("id"),
+												"field_type" => "standard",
+										)) . "\" title=\"Allocate field to form and modify\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+
+			$auto_allocate_url = "<a class=\"auto-allocate-field standard-field\" id=\"" . $objField->get("id") . "\" href=\"" . $this->url("front-form-admin/form-fields", array(
+					"action" => "auto-assign-field",
+					"form_id" => $this->objForm->get("id"),
+					"field_id" => $objField->get("id"),
+					"field_type" => "standard",
+			)) . "\" title=\"Allocate this field to your form\" data-toggle=\"tooltip\">" . ICON_SMALL_ADD_HTML . "</a>";
+
+			$arr_field["urls"] = $allocate_url . "&nbsp;" . $auto_allocate_url;
+
+			$arr_standard_fields[] = $arr_field;
+		}//end foreach
+
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => FALSE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr_standard_fields, array("Standard Fields", "&nbsp;"), array("id" => $css_id));
+		?>
+	</div>
+	<?php endif;?>
+
+	<div class="mj3_table_contain clearfix">
+		<ul class="nav nav-tabs">
+			<li><h3>Custom Fields</h3></li>
+			<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/fields", array("action" => "create-field")); ?>?fid=<?php echo $this->objForm->get("id");?>" title="Create a new Custom Field" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . ' Add Field'; ?></a></li>
+		</ul>
+
+		<?php
+		//display custom fields
+		foreach ($this->objCustomFields as $objField)
+		{
+			//reset field already allocated flag
+			$flag_field_allocated_already = FALSE;
+
+			if (is_object($objFormFieldEntities))
+			{
+				//check if this field is already allocated to the form
+				foreach ($objFormFieldEntities as $objFormField)
+				{
+					//determine if field is a standard or custom field
+					if ($objField->get("viral_field") != "" || $objField->get("bulk_field") != "")
+					{
+						//standard field
+						$id_field = "field_std_id";
+					} else {
+						//custom field
+						$id_field = "field_custom_id";
+					}//end if
+
+					if ($objFormField->get($id_field) == $objField->get("id"))
+					{
+						$flag_field_allocated_already = TRUE;
+						break;
+					}//end if
+				}//end foreach
+			}//end if
+
+			if ($flag_field_allocated_already === TRUE)
+			{
+				//skip this field and move to the next field
+				continue;
+			}//end if
+
+			if ($objField->get("id") == "" || $objField->get("field") == "")
+			{
+				continue;
+			}//end if
+
+			$arr_field = array();
+			$arr_field["description"] = $objField->get("description");
+			$allocate_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array(
+					"action" => "assign-field",
+					"form_id" => $this->objForm->get("id"),
+					"field_id" => $objField->get("id"),
+					"field_type" => "custom",
+			)) . "\" title=\"Allocate and Modify this to your form\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+
+			$auto_allocate_url = "<a class=\"auto-allocate-field custom-field\" id=\"" . $objField->get("id") . "\" href=\"" . $this->url("front-form-admin/form-fields", array(
+					"action" => "auto-assign-field",
+					"form_id" => $this->objForm->get("id"),
+					"field_id" => $objField->get("id"),
+					"field_type" => "custom",
+			)) . "\" title=\"Allocate this field to your form\" data-toggle=\"tooltip\">" . ICON_SMALL_ADD_HTML . "</a>";
+
+			$arr_field["allocate_url"] = $allocate_url . "&nbsp;" . $auto_allocate_url;
+
+			$arr_custom_fields[] = $arr_field;
+		}//end foreach
+
+		echo $this->renderDataTableHelper(array("return_script" => FALSE), "dataTableCustomFields");
+		echo $this->renderSimpleHTMLTable($arr_custom_fields, array("Custom Fields", "&nbsp;"), array("id" => "dataTableCustomFields"));
+		?>
+
+	</div>
+
+</div>

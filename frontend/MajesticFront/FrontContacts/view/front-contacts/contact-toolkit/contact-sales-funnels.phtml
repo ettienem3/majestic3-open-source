@@ -1,0 +1,49 @@
+<script type="text/javascript">
+	jQuery(document).ready(function (){
+		//monitor sales funnel add link
+		jQuery(".iframe-sales-funnels-link").click(function (e) {
+			e.preventDefault();
+			window.top.location.href = jQuery(this).attr("href");
+		});
+	});
+</script>
+
+<a href="<?php echo $this->url("front-sales-funnels", array("reg_id" => $this->contact_id)); ?>?create-tracker=1" class="btn btn-primary iframe-sales-funnels-link"><?php ICON_MEDIUM_ADD_HTML;?> Add Tracker</a>
+
+<div class="clearboth"></div>
+
+<?php
+
+echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+echo 	"<tr>";
+echo 		"<th>Tracker</th>";
+echo 		"<th>Status</th>";
+echo 		"<th>Date</th>";
+echo 		"<th>Action</th>";
+echo 		"<th>User</th>";
+echo 	"</tr>";
+
+foreach ($this->objSalesFunnels as $objForm)
+{
+	if (!is_object($objForm) || !is_numeric($objForm->get("id")))
+	{
+		continue;
+	}//end if
+
+	echo "<tr>";
+	if ($objForm->get("forms_form") == "")
+	{
+		$form_name = "Tracker";
+	} else {
+		$form_name = $objForm->get("forms_form");
+	}//end if
+
+	echo 	"<td>$form_name</td>";
+	echo 	"<td>" . $objForm->get("sf_status") . "</td>";
+	echo 	"<td>" . date("d/m/Y H:i", $objForm->get("tstamp")) . "</td>";
+	echo 	"<td><a href=\"" . $this->url("front-sales-funnels", array("reg_id" => $objForm->get("reg_id"), "id" => $objForm->get("id"), "action" => "edit")) . "\" title=\"View/Update Tracker\" data-toggle=\"tooltip\" class=\"iframe-sales-funnels-link\">" . ICON_SMALL_MODIFY_HTML . "</a></td>";
+	echo 	"<td>" . $objForm->get("users_uname") . "</td>";
+	echo "</tr>";
+}//end foreach
+
+echo "</table>";

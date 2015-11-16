@@ -1,0 +1,13 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .' Delete Field' ); ?>
+	<div class="mj3_forms clearfix">
+	<form method="POST">
+		<h3>Are you sure you would like to delete "<?php echo $this->objField->get("description");  ?>" ?<br/>
+			This cannot be undone and any data saved within this field will be lost.</h3>
+		<div>
+			<input type="submit" name="del" value="Delete" class="btn btn-danger" />
+	    	<input type="submit" name="del" value="Cancel" class="btn btn-success"/>
+		</div>
+	</form>
+	</div>
+</div>

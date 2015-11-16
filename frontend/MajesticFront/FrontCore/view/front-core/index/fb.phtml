@@ -1,0 +1,37 @@
+<?php 
+$app_secret = 'de2fd431ef813cd69208725ab988183c';
+$app_id = '1457887347845195';
+?>
+
+<h2>FB Sandbox</h2>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1457887347845195',
+      xfbml      : true,
+      version    : 'v2.3'
+    });
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<script>
+// Only works after `FB.init` is called
+function myFacebookLogin() {
+  FB.login(function(){
+	  FB.api('/me', function(response) {
+			console.log(response);
+		 });
+	 }, {scope: 'email'});
+  
+}
+</script>
+<button onclick="myFacebookLogin()">Login with Facebook</button>

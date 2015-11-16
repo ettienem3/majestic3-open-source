@@ -1,0 +1,44 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp; My Panels'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-panels-display"); ?>" title="Display Panels" data-toggle="tooltip"><?php echo ICON_LARGE_LOADING_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-panels-setup", array("action" => "user-sort-panels")); ?>" title="Sort Panels" data-toggle="tooltip"><?php echo ICON_LARGE_ORDER_HTML; ?></a></li>
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-panels-setup", array("action" => "user-allocate-panel")); ?>" title="Add a Panel to my profile" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML;?> Add Panels</a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		foreach ($this->objUserPanels as $objPanel)
+		{
+			if (!is_numeric($objPanel->get("id")))
+			{
+				//continue;
+			}//end if
+
+			$arr_panel["name"] = "<span title=\"" . $objPanel->get("panels_description") . "\">" . $objPanel->get("panels_name") . "</span>";
+
+			if ($objPanel->get("panels_active") == 1)
+			{
+				$arr_panel["active"] = ICON_SMALL_ACTIVE_HTML;
+			} else {
+				$arr_panel["active"] = ICON_SMALL_INACTIVE_HTML;
+			}//end if
+
+			$delete_url = "<a href=\"" . $this->url("front-panels-setup", array("action" => "user-remove-panel", "id" => $objPanel->get("fk_id_panels"))) . "\" title=\"Remove Panel\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			$arr_panel["urls"] = $delete_url;
+
+			$arr[] = $arr_panel;
+		}//end foreach
+
+		//create add url
+		$add_url = "";
+		echo $this->renderSimpleHTMLTable($arr, array("Panel", "Status", $add_url));
+		echo $this->renderDataTableHelper(array("return_script" => true));
+		?>
+
+	</div>
+
+</div>

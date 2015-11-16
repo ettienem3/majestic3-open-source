@@ -1,0 +1,43 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_BULK_HTML . '&nbsp; Send a Bulk Journey')?>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-comms-bulksend-admin"); ?>" title="View Requests" class="btn btn-success" data-toggle="tooltip">View Requests</a></li>
+	</ul>
+
+	<div class="mj3_table_contain">
+
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+
+				//monitor journey drop down. redirect to set criteria page where journey is selected
+				jQuery("#journey_id").change(function () {
+					if (jQuery.isNumeric(jQuery(this).val()))
+					{
+						var link = "<?php echo $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => "id"))?>";
+						//redirect to page
+						window.location.href = link.replace("id", jQuery(this).val());
+					}//end if
+				});
+			});
+		</script>
+
+		<form action="" method="post" id="form-id" class="form-vertical">
+
+			<label class="control-label" for="journey_id">Select Journey</label>
+			<select name="journey_id" id="journey_id" data-form-field-type="dropdown" class="form-control">
+				<option value="">--select--</option>
+				<?php
+					foreach ($this->objJourneys as $objJourney) {
+						echo "<option value=\"$objJourney->id\">$objJourney->journey</option>";
+
+					} //end foreach
+				?>
+			</select>
+
+		</form>
+
+	</div>
+
+</div>

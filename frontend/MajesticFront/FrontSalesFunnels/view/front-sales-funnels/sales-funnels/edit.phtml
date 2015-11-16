@@ -1,0 +1,27 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_TRACKER_HTML .'&nbsp;Tracker - Edit'); ?>
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//activate toolkit section
+			var iframe_container_url = "<?php echo $this->url("front-contacts", array("action" => "iframe-contact-toolkit-sections", "id" => $this->objContact->get("reg_id_encoded")));?>";
+			var iframe_container = jQuery(".m3-view-toolkit-container").mj_toolkit_section("");
+			jQuery(".mj3-view-toolkit-container").click(function (e) {
+				if (iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src") == "")
+				{
+					iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src", iframe_container_url);
+				}//end if
+			});
+		});
+	</script>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-sales-funnels", array("reg_id" => $this->objContact->get("id"))); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("id" => $this->objContact->get("id"), "action" => "view-contact")); ?>" title="View Contact" data-toggle="tooltip"><?php echo ICON_MEDIUM_PROFILE_HTML; ?></a></li>
+	</ul>
+ 	<div class="mj3_forms clearfix">
+			<?php
+				$form = $this->form;
+				$form->prepare();
+				echo $this->renderSystemFormHelper($form, $this);
+			?>
+	</div>
+</div>

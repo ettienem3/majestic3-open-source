@@ -1,0 +1,62 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_BULK_HTML . '&nbsp; Bulk Send Requests'); ?>
+
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-comms-bulksend"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		foreach ($this->objBulkSendRequests as $objRequest)
+		{
+			if (!is_numeric($objRequest->id))
+			{
+				continue;
+			}//end if
+
+			$arr_request["journey"] = "<a href=\"" . $this->url("front-comms-bulksend-admin", array("action" => "review", "id" => $objRequest->id)) . "\" title=\"Review Request\" data-toggle=\"tooltip\">" . $objRequest->journeys_journey . "</a>";
+			$arr_request["description"] = $objRequest->journeys_description;
+			$arr_request["datetime_created"] = $objRequest->datetime_created;
+
+			//set approval status
+			if ($objRequest->fk_approved_user_id < 1 && $objRequest->fk_approved_admin_user_id < 1)
+			{
+				//not approved
+				$arr_request["approved"] = "Not Approved";
+				$arr_request["approve_user"] = "NA";
+				$arr_request["approved_date"] = "NA";
+				$arr_request["admin_approve_url"] = "&nbsp;";
+			} elseif ($objRequest->fk_approved_user_id > 0 && $objRequest->fk_approved_admin_user_id < 1) {
+				//first level approval
+				$arr_request["approved"] = "Requires Admin Approval";
+
+				//load user data
+				$objUser = $this->model_front_comms_bulk_send->fetchUser($objRequest->fk_approved_user_id);
+				$arr_request["approve_user"] = $objUser->get("uname") . " (" . $objUser->get("fname") . " " . $objUser->get("sname") . ")";
+				$arr_request["approved_date"] = $objRequest->datetime_approved;
+				$arr_request["admin_approve_url"] = "<a href=\"" . $this->url("front-comms-bulksend-admin", array("action" => "authorize", "id" => $objRequest->id)) . "\" title=\"Authorize Bulk Send Request\" data-toggle=\"tooltip\">" . ICON_SMALL_NEXT_HTML . "</a>";
+			} elseif ($objRequest->fk_approved_user_id > 0 && $objRequest->fk_approved_admin_user_id > 0) {
+				//admin approval
+				$arr_request["approved"] = "Approved";
+
+				//load user data
+				$objUser = $this->model_front_comms_bulk_send->fetchUser($objRequest->fk_approved_admin_user_id);
+				$arr_request["approve_user"] = $objUser->get("uname") . " (" . $objUser->get("fname") . " " . $objUser->get("sname") . ")";
+				$arr_request["approved_date"] = $objRequest->datetime_approved_admin;
+				$arr_request["admin_approve_url"] = "&nbsp;";
+			}//end if
+
+			$arr[] = $arr_request;
+		}//end foreach
+
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("Journey", "Description", "Created", "Approval Status", "Approval User", "Approval Date", "&nbsp;"));
+
+		?>
+
+	</div>
+
+</div>

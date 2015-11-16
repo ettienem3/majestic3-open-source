@@ -1,0 +1,106 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_WARNING_HTML .'&nbsp; Oops'); ?>
+	
+	<h3>We encountered a problem which we were unable to recover from...</h3>
+	
+	<?php 
+		if(isset($this->exception) && $this->exception instanceof Exception)
+		{
+			if (strpos($this->exception->getMessage(), "||") !== FALSE)
+			{
+				$arr_t = explode("||", $this->exception->getMessage());
+				$reason = array_pop($arr_t);
+			} else {
+				$arr_t = explode(":", $this->exception->getMessage());
+				$reason = array_pop($arr_t);
+			}//end if
+		
+			//check if messsage is json
+			$objResponse = @json_decode($reason);
+			if (is_object($objResponse) && isset($objResponse->HTTP_RESPONSE_MESSAGE))
+			{
+				$arr_tt = explode(":", $objResponse->HTTP_RESPONSE_MESSAGE);
+				$reason = array_pop($arr_tt);
+			}//end if
+			
+			echo "<dl>";
+			echo 	"<dt>" . $this->translate('Generated at :') . "</dt>";
+			
+			//extract file
+			$arr_tt = explode("/", $this->exception->getFile());
+			$file = ".....";
+			$start_file = FALSE;
+			foreach ($arr_tt as $section)
+			{
+				if ($section == "MajesticFront")
+				{
+					$start_file = TRUE;
+				}//end if
+				
+				if ($start_file == TRUE)
+				{
+					$file .= "/$section";
+				}//end if
+			}//end foreach
+			
+			//remove possible sensitive values
+			if (strpos($reason, "apikey") !== FALSE)
+			{
+				$i = strpos($reason, "apikey");
+				$reason = substr($reason, 0, $i);
+				$reason .= substr($reason, ($i + 60));
+			}//end if
+			
+			if (strpos($reason, "digest") !== FALSE)
+			{
+				$i = strpos($reason, "digest");
+				$reason = substr($reason, 0, $i);
+				$reason .= substr($reason, ($i + 60));
+			}//end if
+			
+			echo    "<dd><pre class=\"prettyprint linenums\">" . $file . " : Line " . $this->exception->getLine() . "</pre></dd>";
+			
+			echo 	"<dt>With message :</dt>";
+			echo 	"<dd><pre class=\"prettyprint linenums\">$reason</pre></dd>";
+			
+			//anaylyse the reason for possible causes...
+			if (strpos($this->exception->getMessage(), "Read timed out after") !== FALSE)
+			{
+				echo 	"<dt>Possible causes :</dt>";
+				echo 	"<p>Unable to connect to the backend servers</p>";
+				echo 	"<p>Manage to connect, but the connection was lost</p>";
+				echo 	"<p>The backend server took too long to respond</p>";
+				echo 	"<script type=\"text/javascript\">";
+				echo 		"jQuery(document).ready(function () {
+								jQuery('.reload_page').click(function (e) {
+									e.preventDefault();
+									location.reload();
+								});
+							});";
+				echo 	"</script>";
+				echo 	"<h4><a href=\"#\" class=\"reload_page\">Try again</a>&nbsp;|&nbsp;<a href=\"" . $this->url("home") . "\" title=\"Take me to the home page\">Go to my home page</a></h4>";
+			}//end if
+			
+			echo "</dl>";
+		}//end if
+		
+		if (isset($_GET["debug_display_errors"]) && $_GET["debug_display_errors"] == 1)
+		{
+			if (isset($this->api_logs))
+			{
+				echo "<div class=\"api_logs\">";
+				foreach ($this->api_logs as $log)
+				{
+					echo "<pre>URL: " . $log->url . "</pre>";
+					$objData = @json_decode($log->response);
+					echo "<pre>Response: " . print_r($objData, TRUE) . "</pre>";
+					echo "<pre>Raw: " . $log->rawResponse . "</pre>";
+				}//end foreach
+				echo "</div>";
+			}//end if
+			
+			//var_dump($this->exception);
+			var_dump($this->exception->getPrevious());
+		}//end if
+	?>
+</div>

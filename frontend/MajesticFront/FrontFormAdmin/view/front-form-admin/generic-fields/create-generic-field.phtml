@@ -1,0 +1,15 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FIELDS_HTML .'&nbsp; Create Generic Field'); ?>
+
+<ul class="nav nav-tabs">
+	<li role="presentation"><a href="<?php echo $this->url("front-form-admin/generic-fields"); ?>" title="Back" data-toggle="tooltip" class="page-e-link"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+</ul>
+	<div class="mj3_forms clearfix">
+		<?php
+
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div>
+</div>

@@ -1,0 +1,179 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//monitor journeys to be started links
+		jQuery("a.span-journey-start").click(function () {
+			var journey_start_confirmed = confirm("Confirm: " + jQuery(this).attr("alt") + "?");
+
+			if (!journey_start_confirmed)
+			{
+				return false;
+			}//end if
+
+			//send request
+			return executeJourneyOperations(jQuery(this));
+		});
+
+		//monitor journeys to be stopped links
+		jQuery("a.span-journey-stop").click(function () {
+			var journey_stop_confirmed = confirm("Confirm: " + jQuery(this).attr("alt") + "?");
+
+			if (!journey_stop_confirmed)
+			{
+				return false;
+			}//end if
+
+			//send request
+			return executeJourneyOperations(jQuery(this));
+		});
+
+		//monitor journeys to be restarted links
+		jQuery("a.span-journey-restart").click(function () {
+			var journey_restart_confirmed = confirm("Confirm: " + jQuery(this).attr("alt") + "?");
+
+			if (!journey_restart_confirmed)
+			{
+				return false;
+			}//end if
+
+			//send request
+			return executeJourneyOperations(jQuery(this));
+		});
+	});
+
+	function executeJourneyOperations(element)
+	{
+		//update text to display starting in progress
+		element.parent().prepend("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+
+		//set starting status
+		if (element.hasClass("span-journey-start"))
+		{
+			element.parent().prepend("Starting...");
+		}//end if
+
+		//set restarting status
+		if (element.hasClass("span-journey-restart"))
+		{
+			element.parent().prepend("Restarting...");
+		}//end if
+
+		//set stopping status
+		if (element.hasClass("span-journey-stop"))
+		{
+			element.parent().prepend("Stopping...");
+		}//end if
+
+		//disable other links
+		element.parent().find("a").hide();
+		element.parent().find("span").hide();
+
+		//execute request
+		jQuery.ajax({
+			type: "GET",
+			url: element.attr("href"),
+			dataType: 'json',
+			success: function (data) {
+				if (!data.result)
+				{
+					alert(data.error);
+					return false;
+				}//end if
+
+				//update text to display link returned;
+				element.parent().html(data.html);
+			}, //end function
+			fail: function (data) {
+				console.log(data);
+			} //end function
+		});
+
+		return false;
+	}//end function
+</script>
+<?php
+//extract contact journeys into array for easier mapping
+$arr_contact_journeys = array();
+foreach ($this->objContactJourneys as $objContactJourney)
+{
+	$arr_contact_journeys[$objContactJourney->get("journey_id")][] = $objContactJourney;
+}//end foreach
+
+echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+echo 	"<tr>";
+echo 		"<th colspan=\"2\">Journey</th>";
+echo 		"<th colspan=\"6\">&nbsp;</th>";
+echo 	"</tr>";
+
+foreach ($this->objJourneys as $objJourney)
+{
+	if ($objJourney->id == "")
+	{
+		continue;
+	}//end if
+
+	echo "<tr>";
+	echo 	"<td title=\"" . $objJourney->description . "\">" . $objJourney->journey . "</td>";
+
+	//add start link to every journey
+	echo "<td>";
+	echo 	"<a class=\"span-journey-start\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-start-journey", "comms_id" => $objJourney->id )) . "\" alt=\"Start " . $objJourney->journey . "\">Start</a>";
+	echo "</td>";
+
+	//check if the contact has received this journey already
+	if (array_key_exists($objJourney->id, $arr_contact_journeys))
+	{
+		echo "<td colspan=\"6\">";
+		echo 	"<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+		echo 		"<tr>";
+		echo 			"<th>&nbsp;</th>";
+		echo 			"<th>Status</th>";
+		echo 			"<th>Next Comm</th>";
+		echo			"<th>Started</th>";
+		echo 			"<th>Latest</th>";
+		//echo 			"<th>History</th>"; //@TODO build history links
+		echo 		"</tr>";
+		$journey_count = 0;
+		foreach ($arr_contact_journeys[$objJourney->id] as $k => $objContactJourney)
+		{
+			echo "<tr>";
+
+			if ($journey_count == 0)
+			{
+				echo "<td>";
+				echo 	"<a class=\"span-journey-stop\" title=\"Stop this journey\" alt=\"Are you sure you want to stop " . $objJourney->journey . "\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-stop-journey", "comms_id" => $objContactJourney->get("id"))) . "\">Stop</a>&nbsp;";
+
+				//check if journey is not already in a restarted state
+				if ($objContactJourney->restarted != 1)
+				{
+					echo 	"<a class=\"span-journey-restart\" title=\"Restart this journey\" alt=\"Are you sure you want to restart " . $objJourney->journey . "\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-restart-journey", "comms_id" => $objContactJourney->get("id"))) . "\">Restart</a>";
+				}//end if
+
+				echo "</td>";
+			} else {
+				echo "<td>&nbsp;</td>";
+			}//end if
+
+			if ($objContactJourney->restarted == 1)
+			{
+				echo 	"<td>Restarted</td>";
+			} else {
+				echo 	"<td>" . $objContactJourney->comm_status_data_status . "</td>";
+			}//end if
+
+			echo	"<td align=\"center\">" . $objContactJourney->next_comm . "</td>";
+			echo 	"<td>" . date("d/m/Y H:m:s", $objContactJourney->tstamp) . "</td>";
+			echo 	"<td>" . $objContactJourney->datetime_last . "</td>";
+			//echo 	"<td>history link here</td>";
+			echo "</tr>";
+
+			$journey_count++;
+		}//end foreach
+		echo 	"</table>";
+		echo "</td>";
+
+		continue;
+	}//end if
+
+	echo "</tr>";
+}//end foreach
+echo "</table>";

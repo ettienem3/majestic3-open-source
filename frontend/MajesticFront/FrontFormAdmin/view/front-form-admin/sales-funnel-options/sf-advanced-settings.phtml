@@ -1,0 +1,76 @@
+<div class="mj3_tables clearfix">
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			jQuery('input[type=submit]').addClass("btn btn-primary");
+			jQuery('input[name=remove_sf_status_field]').toggleClass("btn-primary btn-danger");
+		});
+	</script>
+	<?php
+	echo $this->renderStandardViewHeader(ICON_MEDIUM_FORMS_HTML .'&nbsp; Advanced Tracker Options');
+	?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation">
+			<?php echo "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->id)) . "\" title=\"Back\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>";?>
+		</li>
+	</ul>
+	<div class="mj3_forms clearfix mj_adv_tracker">
+	<?php
+		echo "<fieldset><legend>Deal Number</legend>";
+			$deal_number_form = $this->deal_number_form;
+			$deal_number_form->prepare();
+			echo $this->renderSystemFormHelper($deal_number_form, $this);
+		echo "</fieldset>";
+
+
+		echo "<fieldset><legend>Deal Status</legend>";
+			if (!$this->objDealStatusField)
+			{
+				echo "<p>There is no status field specified for this Tracker</p>";
+				echo "<form method=\"post\">";
+					echo "<label for=\"allocate_sf_status_field\">Allocate Field</label>";
+					echo "<select name=\"allocate_sf_status_field\" id=\"allocate_sf_status_field\" title=\"Only fields already allocated to the Tracker will appear\" data-toggle=\"tooltip\">";
+						echo "<option value=''>--select--</option>";
+
+				foreach ($this->objForm->getFormFieldEntities() as $objField)
+				{
+					if ($objField->get('fields_custom_input_type') == "select" && $objField->get("sf_id_field") == 0 && strtolower($objField->get('fields_custom_field_type')) == "dropdown")
+					{
+						echo "<option value=\"" . $objField->get("fields_custom_id") . "\">" . $objField->get("field_custom_description") . "</option>";
+					}//end if
+				}//end foreach
+
+					echo "</select>";
+					echo "<br/>";
+
+					echo "<input class=\"btn btn-primary\" type=\"submit\" name=\"create_sf_status_field\" value=\"Add Field\"/>";
+				echo "</form>";
+
+			} else {
+				$deal_status_form = $this->deal_status_form;
+
+				//add remove field option
+				$deal_status_form->add(array(
+						"name" => "sf_status_field_id",
+						"type" => "hidden",
+						"attributes" => array(
+							"id" => "sf_status_field_id",
+							"value" => $this->objDealStatusField->get("fields_custom_id"),
+						),
+				));
+
+				$deal_status_form->add(array(
+						"name" => "remove_sf_status_field",
+						"type" => "submit",
+						"attributes" => array(
+							"value" => "Remove Status Field",
+						),
+				));
+
+				$deal_status_form->prepare();
+				echo $this->renderSystemFormHelper($deal_status_form, $this);
+			}//end if
+		echo "</fieldset>";
+	?>
+	</div>
+</div>

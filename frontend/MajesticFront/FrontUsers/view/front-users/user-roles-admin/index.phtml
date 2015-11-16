@@ -1,0 +1,57 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_ROLES_HTML .'&nbsp; User Roles')?>
+
+<ul class="nav nav-tabs">
+	<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-users-roles/admin", array("action" => "create-role"));  ?>" title="Create a new Role" class="btn btn-success" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML .'Create a new Role'; ?></a></li>
+</ul>
+
+	<div class="mj3_table_contain">
+<?php
+/**
+ * Prepare data
+ */
+foreach ($this->objRoles->data as $objRole)
+{
+	if (!isset($objRole->id))
+	{
+		continue;
+	}//end if
+
+	if ($objRole->standard_roles_role_name != "")
+	{
+		$objRole->role_name = $objRole->role_name . " [Standard Role] " . $objRole->standard_roles_role_name;	
+	}//end if
+	
+	$arr_data["role_name"] = "<span title=\"" . $objRole->role_description . "\">" . $objRole->role_name . "</span>";
+	$arr_data["run_level"] = $objRole->role_acl_run_level;
+
+	if ($objRole->role_active == 1)
+	{
+		$arr_data["active_url"] = "<a href=\"" . $this->url("front-users-roles/admin", array("action" => "toggle-role", "id" => $objRole->id)) . "\" title=\"Deactivate the Role\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+	} else {
+		$arr_data["active_url"] = "<a href=\"" . $this->url("front-users-roles/admin", array("action" => "toggle-role", "id" => $objRole->id)) . "\" title=\"Activate the Role\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+	}//end if
+
+	if ($objRole->fk_id_common_user_roles == "")
+	{
+		$acl_url = "<a href=\"" . $this->url("front-role-acl-links/admin", array("role_id" => $objRole->id, "action" => "index")) . "\" title=\"Manage Resources\"  data-toggle=\"tooltip\">ACL</a>";
+	} else {
+		$acl_url = "";
+	}//end if
+	
+	$edit_url = "<a href=\"" . $this->url("front-users-roles/admin", array("action" => "edit-role", "id" => $objRole->id)) . "\" title=\"Edit Role\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+	$delete_url = "<a href=\"" . $this->url("front-users-roles/admin", array("action" => "delete-role", "id" => $objRole->id)) . "\" title=\"Delete Role\"  data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+	$arr_data["url"] = $acl_url . "&nbsp;" . $edit_url . "&nbsp;" . $delete_url;
+
+	$arr[] = $arr_data;
+}//end foreach
+
+echo $this->renderDataTableHelper();
+echo $this->renderSimpleHTMLTable($arr, array("Role", "Run Level", "Active", $add_url));
+?>
+	</div>
+
+</div>
+
+

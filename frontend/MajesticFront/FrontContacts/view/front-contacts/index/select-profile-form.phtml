@@ -1,0 +1,17 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_MEDIUM_CONTACTS_HTML .'&nbsp;Please select a form layout'); ?>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+			$form = $this->form;
+
+			//set form action
+			$form->setAttribute("action", $this->url("front-contacts", array("action" => "select-profile-form")) . "?redirect=$this->redirect");
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+
+	</div>
+
+</div>

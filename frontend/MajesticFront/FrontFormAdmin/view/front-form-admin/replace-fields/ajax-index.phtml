@@ -1,0 +1,58 @@
+<?php
+
+//sort data into categories
+$arr_fields = array();
+foreach ($this->objFields as $objField)
+{
+	if (!isset($objField->replace_field))
+	{
+		continue;
+	}//end if
+	
+	//set field section
+	if (!isset($objField->section) || $objField->section == "")
+	{
+		$objField->section = "General";	
+	}//end if
+	
+	$arr_fields[$objField->category][$objField->section][] = $objField;
+}//end foreach
+
+echo "<div class=\"panel-group\" id=\"replace-fields-accordion\" aria-multiselectable=\"true\">";
+
+foreach ($arr_fields as $category => $arr_sections)
+{
+	echo "<div class=\"panel panel-default\">";
+	//heading
+	$category_id = str_replace(array(" ", "."), "", $category);
+	echo 	"<div class=\"panel-heading\" role=\"tab\" id=\"heading$category\">";
+	echo 		"<h4 class=\"panel-title\">";
+	echo 			"<a role=\"button\" data-toggle=\"collapse\" data-parent=\"#replace-fields-accordion\" href=\"#fields$category_id\" aria-expanded=\"true\" aria-controls=\"fields$category_id\">" . $category . "</a>";
+	echo 		"</h4>";
+	echo 	"</div>";
+	
+	//content
+	echo 	"<div id=\"fields$category_id\" class=\"panel-collapse collapse clearfix\" role=\"tabpanel\" aria-labelledby=\"headingOne\">";
+	foreach ($arr_sections as $section => $objFields)
+	{
+		echo			"<p class=\"mj_sectiontitle\">$section</p>";
+		echo 			"<ul>";
+		foreach ($objFields as $objField)
+		{
+			if (isset($objField->section) && $objField->section != "")
+			{
+				$section = " ($objField->section)";
+			} else {
+				$section = "";
+			}//end if
+		
+			echo "<li title=\"$objField->replace_field\" data-replace-field=\"$objField->replace_field\" data-drag-and-drop-value=\"$objField->replace_field\" class=\"replace-field-item btndrag grab\">" . $objField->field_description . $section . " - " . $objField->replace_field . "</li>";
+		}//end foreach
+			echo 		"</ul>";
+	}//end foreach
+	echo 	"</div>";
+	
+	echo "</div>";
+}//end foreach
+
+echo "</div>";

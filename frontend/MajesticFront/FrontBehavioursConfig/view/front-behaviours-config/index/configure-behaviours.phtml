@@ -1,0 +1,118 @@
+<?php
+echo "<div class=\"mj3_tables clearfix\">";
+if ($this->behaviours_header != "")
+{
+	echo "<h3>" . $this->behaviours_header . "</h3>";
+} else {
+	echo "<h3>Behaviours</h3>";
+}//end if
+
+echo $this->partial("layout/flash-messages");
+
+//add required css and java files
+echo $this->headScript()->appendFile($this->basePath() . '/js/plugins/mj-behaviour-plugins.js');
+
+if (is_array($this->arr_behaviour_params))
+{
+	foreach ($this->arr_behaviour_params as $key => $value)
+	{
+		$additional_url_params .= "$key=$value&";
+	}//end foreach
+
+	$additional_url_params = "?" . rtrim($additional_url_params, "&");
+} else {
+	$additional_url_params = "";
+}//end if
+
+if (is_object($this->objBehaviours) || is_array($this->objBehaviours))
+{
+	foreach ($this->objBehaviours as $objBehaviour)
+	{
+		if (!isset($objBehaviour->id))
+		{
+			continue;
+		}//end if
+
+		$arr_behaviour["action"] = $objBehaviour->action_title;
+		if ($objBehaviour->active == 1)
+		{
+			$arr_behaviour["active"] = "<a href=\"" . $this->url("front-behaviours-config", array("action" => "set-behaviour-status", "id" => $objBehaviour->id)) . $additional_url_params . "\" title=\"Deactive Behaviour\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+		} else {
+			$arr_behaviour["active"] = "<a href=\"" . $this->url("front-behaviours-config", array("action" => "set-behaviour-status", "id" => $objBehaviour->id)) . $additional_url_params . "\" title=\"Activate Behaviour\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+		}//end if
+
+		$edit_url = "<a href=\"" . $this->url("front-behaviours-config", array("action" => "edit-behaviour", "id" => $objBehaviour->id)) . $additional_url_params . "\" title=\"Edit Behaviour\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+		$delete_url = "<a href=\"" . $this->url("front-behaviours-config", array("action" => "delete-behaviour", "id" => $objBehaviour->id)) . $additional_url_params . "\" title=\"Delete Behaviour\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+		$arr_behaviour["urls"] = $edit_url . "&nbsp;" . $delete_url;
+
+		$arr[] = $arr_behaviour;
+	}//end foreach
+
+	echo "<div class=\"mj3_table_contain clearfix\">";
+
+	$add_url = "Add Behaviour";
+	echo $this->renderDataTableHelper();
+	echo $this->renderSimpleHTMLTable($arr, array("Action", "Active", $add_url));
+}//end if
+
+	echo "</div>";
+
+//load additional view files for the behaviour and action
+if (isset($this->arr_behaviour_params) && $this->arr_behaviour_params["behaviour"] != "")
+{
+	//check if folder exists
+	$folder = str_replace("_", "-", $this->arr_behaviour_params["behaviour"]);
+	if (substr($folder, 0, 2) == "--")
+	{
+		$folder = substr($folder, 2);
+	}//end if
+
+	$folder_path = "./MajesticFront/FrontBehavioursConfig/view/front-behaviours-config/index/behaviour-additional-views/$folder";
+	if (is_dir($folder_path))
+	{
+		$arr_files = scandir($folder_path);
+
+		//load general file
+		if (in_array("general.phtml", $arr_files))
+		{
+			echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/general.phtml");
+		}//end if
+	}//end if
+
+	//load specific action files where set
+	if ($this->arr_behaviour_params["beh_action"] != "")
+	{
+		$action = str_replace("_", "-", strtolower($this->arr_behaviour_params["beh_action"]));
+		if (substr($action, 0, 2) == "--")
+		{
+			$action = substr($action, 2);
+		}//end if
+
+		foreach ($arr_files as $file)
+		{
+			if (substr(strtolower($file), 0, strlen($action)) == $action)
+			{
+				echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/$file");
+			}//end if
+		}//end if
+	}//end if
+}//end if
+
+/**
+ * Render form section
+ */
+echo "<h3>Create Behavior</h3>";
+
+//display action title ontop of form
+if (isset($this->arr_behaviour_params["beh_action"]) && $this->arr_behaviour_params["beh_action"] != "")
+{
+	echo "<h4>" . $this->arr_descriptors[$this->arr_behaviour_params["beh_action"]] . "</h4>";
+}//end if
+echo "<div class=\"mj3_forms clearfix\">";
+$form = $this->form;
+$form->prepare();
+echo $this->renderSystemFormHelper($form, $this);
+
+echo "</fieldset>";
+echo "</div>";
+echo "</div>";

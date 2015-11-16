@@ -1,0 +1,190 @@
+@CHARSET "UTF-8";
+body {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+	background-color:#FFFFFF;
+}
+
+a:active,a:hover,a:link,a:visited {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:underline;	
+}
+
+.inactive {
+	color:#999999;
+}
+
+/*USER LOGGED IN
+You are currently logged in as #username*/
+a:active.user_logged_in_text,a:hover.user_logged_in_text,a:link.user_logged_in_text,a:visited.user_logged_in_text {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:underline;	
+}
+
+td.user_logged_in_text {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+/*USER LOGGED IN ENDS*/
+
+/*FWD WARNING
+"Click here is you are not #fname #sname"*/
+a:active.fwd_warning,a:hover.fwd_warning,a:link.fwd_warning,a:visited.fwd_warning {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:underline;	
+}
+
+td.fwd_warning {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;	
+}
+/*FWD WARNING ENDS*/
+
+/*CONTENT*/
+td {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+/*pre submit (above form)*/
+.content_top {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+/*pre submit (below form)*/
+.content_bot {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+/*mandatory fields (if not in popup)*/
+.form_errors {
+	color:#FF0000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;	
+}
+
+/*field description rule*/
+td.field_description {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+/*post submit*/
+.content_post {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+/*appointment form*/
+.content_appointment {
+	color:#000000;
+	font-weight:bold;
+}
+/*CONTENT ENDS*/
+
+/*FORM FIELDS*/
+input {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+select {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+textarea {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+	width:200px;
+	height:70px;
+}
+
+/*readonly*/
+input.readonly {
+	background-color:#DEE5E7;
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+
+textarea.readonly {
+	background-color:#DEE5E7;
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+	width:200px;
+	height:70px;
+}
+/*readonly ends*/
+
+/*pre submit terms & conditions*/
+textarea.terms {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	font-weight:normal;
+	text-decoration:none;	
+	width:300px;
+	height:100px;
+}
+
+/*submit button*/
+input.button {
+	color:#000000;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	font-weight:normal;
+	text-decoration:none;
+}
+/*FORM FIELDS ENDS*/

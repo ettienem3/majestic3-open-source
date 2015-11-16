@@ -1,0 +1,176 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FILE_MANAGER_HTML .'&nbsp; File Manager'); ?>
+
+
+	<!-- search ends here -->
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><?php
+				//add file manager css file
+				switch ($this->disable_upload)
+				{
+					case 1:
+						//do nothing
+						break;
+
+					case 0:
+					default:
+						echo '<a href="' . $this->url("front-profile-file-manager", array("action" => "upload-file")) . '" title="Upload Files" data-toggle="tooltip" class="btn btn-success">' . ICON_MEDIUM_ADD_HTML .  '&nbsp; Upload File</a>';
+						break;
+				}//end switch
+				?></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+		$arr_images = array();
+		$arr_documents = array();
+
+		foreach ($this->objFiles as $objFile) {
+
+			//ignore folders for now
+			if ($objFile->type != "file") {
+				continue;
+			}//end if
+
+			//set delete url
+			$delete_url = $this->url("front-profile-file-manager", array("action" => "delete-file", "location" => $objFile->location));
+
+			$arr_data = array(
+						"url" => $objFile->url,
+						"location" => $objFile->location,
+						"delete_url" => $delete_url,
+					);
+			//sort files into groups
+			switch ($objFile->mode)
+			{
+				case "document":
+				case "documents":
+					$arr_documents[] = $arr_data;
+					break;
+
+				case "image":
+				case "images":
+					$arr_images[] = $arr_data;
+					break;
+			}//end switch
+		}//end foreach
+
+		if ($this->mode == "" || $this->mode == "document" || $this->mode == "documents")
+		{
+			echo '<div class="files-container-documents">';
+			echo 	"<h4>Documents</h4>";
+			foreach ($arr_documents as $arr_document)
+			{
+				//determine file type
+				$arr_t = explode(".", $arr_document["location"]);
+				//set file name
+				$arr_n = explode("/", $arr_document["location"]);
+				$filename = array_pop($arr_n);
+				$location = $arr_document["location"];
+
+				switch (strtolower(array_pop($arr_t)))
+				{
+					case "csv":
+						$class = "file-type-csv";
+						break;
+
+					case "xls":
+					case "xlsx":
+						$class = "file-type-xls";
+						break;
+
+					case "doc":
+					case "docx":
+						$class = "file-type-doc";
+						break;
+
+					case "txt":
+						$class = "file-type-txt";
+						break;
+
+					case "pdf":
+						$class = "file-type-pdf";
+						break;
+
+					case "css":
+						$class = "file-type-css";
+						break;
+
+					case "js":
+						$class = "file-type-js";
+						break;
+
+					case "html":
+						$class = "file-type-html";
+						break;
+
+					default:
+						$class = "file-type-blank";
+						break;
+
+				} //end switch
+
+				?>
+
+				<div class="file-container mj3-file-manager">
+					<div class="<?php echo $class; ?> file-type clearfix">
+						<div class="filename"><?php echo $filename; ?></div>
+						<div class="file_options" data-file-location="<?php echo $location; ?>">
+							<a href="<?php echo $arr_document["url"]; ?>" class="open " target="_blank"  title="Open <?php echo $filename; ?>" data-toggle="tooltip">
+								<?php echo ICON_MEDIUM_DUPLICATE_HTML; ?>
+							</a>
+							<a href="<?php echo $this->url("front-profile-file-manager", array("action" => "delete-file")) . "?location=" . $location . "&mode=document"; ?>" class="delete" title="Delete <?php echo $filename; ?>" data-toggle="tooltip">
+								<?php echo ICON_MEDIUM_DELETE_HTML; ?>
+							</a>
+						</div>
+					</div>
+				</div>
+
+
+				<?php
+
+			} //end foreach
+
+			echo '<div>';
+			echo '<div class="clearboth"></div>';
+
+		}//end if
+
+		if ($this->mode == "" || $this->mode == "image" || $this->mode == "images")
+		{
+			echo "<div class=\"files-container-images\">";
+			echo 	"<h4>Images</h4>";
+			foreach ($arr_images as $arr_image) { ?>
+
+				<div class="image-container mj3-image-manager clearfix" style="background-image: url(<?php echo $arr_image["url"]; ?>)">
+					<a href="<?php echo $arr_image["url"]; ?>" target="_blank" title="<?php echo $arr_image["location"]; ?>">
+
+					</a>
+					<div class="file_options" data-file-location="<?php echo $arr_image["location"]; ?>" data-file-url="<?php echo $arr_image["url"]; ?>">
+						<a href="<?php echo $arr_image["url"]; ?>" target="_blank" title="<?php echo $arr_image["location"]; ?>" data-toggle="tooltip">
+							<?php echo ICON_MEDIUM_DUPLICATE_HTML; ?>
+						</a>
+						<a href="<?php echo $this->url("front-profile-file-manager", array("action" => "delete-file")) . "?location=" . $arr_image["location"] . "&mode=image"; ?>" class="delete" title="Delete Image" data-toggle="tooltip">
+							<?php echo ICON_MEDIUM_DELETE_HTML; ?>
+						</a>
+					</div>
+				</div>
+
+				<?php
+
+			} //end foreach
+
+			echo "</div>";
+			echo "</div>";
+			echo "</div>";
+
+			echo "<br><br>";
+
+		} //end if
+		?>
+
+	</div>
+
+</div>

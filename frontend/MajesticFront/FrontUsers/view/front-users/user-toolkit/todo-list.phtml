@@ -1,0 +1,56 @@
+<?php
+foreach ($this->objUserTasks as $objUserTask)
+{
+	if ($objUserTask->get("id") == "")
+	{
+		continue;
+	}//end if
+
+	$arr_task["contact"] = "<a href=\"" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objUserTask->get("reg_id"))) . "\" class=\"toolkit_iframe_parent_link\" title=\"View Contact\" data-toggle=\"tooltip\">" . $objUserTask->get("registrations_fname") . " " . $objUserTask->get("registrations_sname") . "</a>";
+	$arr_task["content"] = $objUserTask->get("content");
+	$arr_task["created"] = $objUserTask->get("datetime_created");
+	$arr_task["due"] = $objUserTask->get("datetime_reminder");
+
+	if ($objUserTask->get("set_by_user_uname") == "")
+	{
+		$arr_task["task_create_by_user"] = "&nbsp;";
+	} else {
+		$arr_task["task_create_by_user"] = $objUserTask->get("set_by_user_uname");
+	}//end if
+
+	if ($objUserTask->get("complete") == 1)
+	{
+//@TODO temp removal of completed tasks from the list, update controller to only load incomplete tasks
+continue;
+		if ($objUserTask->get("completed_by_user_id") != $objUserTask->get("user_id"))
+		{
+			$arr_task["completed"] = "<span title=\"Completed by " . $objUserTask->get("completed_by_user_uname") . "\" class=\"user-task-completed\">Yes</span>";
+		} else {
+			$arr_task["completed"] = "<span class=\"user-task-completed\">Yes</span>";
+		}//end if
+
+		$delete_url = "<a href=\"" . $this->url("front-users-tasks", array("action" => "delete", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "\" class=\"toolkit_iframe_parent_link\" title=\"Delete Task\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+		$arr_task["urls"] = $delete_url;
+	} else {
+		//calculate days to due date
+		$days = floor((strtotime($objUserTask->get("datetime_reminder")) - time()) / 86400);
+
+		if ($days < 0)
+		{
+			//task is overdue
+			$arr_task["completed"] = "<span title=\"Task is " . abs($days) . " Days overdue\" class=\"user-task-overdue\">No</span>";
+		} else {
+			$arr_task["completed"] = "<span title=\"$days Days remaining\" class=\"user-task-due\">No</span>";
+		}//end if
+
+		$edit_url = "<a href=\"" . $this->url("front-users-tasks", array("action" => "edit", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "\" class=\"toolkit_iframe_parent_link\" title=\"Edit Task\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+		$complete_url = "<a href=\"" . $this->url("front-users-tasks", array("action" => "complete-task", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "\" class=\"toolkit_iframe_parent_link\" title=\"Mark task as complete\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+		$delete_url = "<a href=\"" . $this->url("front-users-tasks", array("action" => "delete", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "\" class=\"toolkit_iframe_parent_link\" title=\"Delete Task\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+		$arr_task["urls"] = $edit_url . "&nbsp;" . $complete_url . "&nbsp;" . $delete_url;
+	}//end if
+
+	$arr[] = $arr_task;
+}//end foreach
+
+echo $this->renderDataTableHelper();
+echo $this->renderSimpleHTMLTable($arr, array("Contact", "Task", "Created", "Due", "Created By", "Completed", "&nbsp;"));

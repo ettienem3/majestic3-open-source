@@ -1,0 +1,19 @@
+<div class="mj3_forms clearfix">
+<?php
+	echo $this->renderStandardViewHeader(ICON_LARGE_USER_HTML .'&nbsp; Edit User - ' . $this->objUser->uname);
+?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-users"); ?>" data-toggle="tooltip" title="Back"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li><a href="<?php echo $this->url("front-users-roles/user", array("action" => "list-user-roles", 'user_id' => $this->objUser->id)); ?>" data-toggle="tooltip" title="Manage User Roles"><?php echo  ICON_MEDIUM_ROLES_HTML; ?></a></li>
+		<li><a href="<?php echo $this->url("front-user-data-acl-rules", array("user_id" => $this->objUser->id, "action" => "create-rule"));?>" title="Manage User Data Access Rules" data-toggle="tooltip"><?php echo ICON_MEDIUM_USER_DATA_ACL_HTML;?></a></li>
+	</ul>
+	<div class="mj3_forms clearfix">
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this, array("generate_field_groups" => TRUE, "enable_accordion" => TRUE));
+		?>
+
+	</div>
+
+</div>

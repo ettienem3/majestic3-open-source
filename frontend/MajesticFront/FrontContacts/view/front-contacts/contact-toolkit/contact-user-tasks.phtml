@@ -1,0 +1,113 @@
+<button href="#" id="activate-contact-create-user-task" class="btn btn-primary" title="Create a new Task" data-toggle="tooltip">Add Task</button><br/>
+
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//monitor create task link
+		jQuery("#activate-contact-create-user-task").click(function (e) {
+			e.preventDefault();
+
+			//load the dialog
+			jQuery("#create-contact-user-task-section").modal();
+			return false;
+		});
+
+		jQuery("#save-contact-task").click(function (e) {
+			e.preventDefault();
+
+			//submit data
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-contact-toolkit", array("action" => "contact-user-tasks", "id" => $this->contact_id)); ?>",
+				type: "POST",
+				async: false,
+				data: {
+					reg_id: 					"<?php echo $this->contact_id; ?>",
+					user_id: 					jQuery("#user_id").val(),
+					content: 					jQuery("#content").val(),
+					datetime_reminder: 			jQuery("#datetime_reminder").val() + " 00:00", //@TODO allow picker to do hour and minute as well
+					notify_user: 				jQuery("#notify_user").val(),
+					date_email_reminder: 		jQuery("#date_email_reminder").val()
+				}
+			})
+			.done( function (data) {
+				alert("Task created successfully");
+				location.reload();
+			})
+			.fail( function () {
+				alert("An error occurred creating the task");
+			});
+
+			//close the dialog
+			jQuery("#create-contact-comment").modal('toggle');
+			return false;
+		});
+
+		//configure date fields to use date picker
+		jQuery("#datetime_reminder").datetimepicker({
+			format: "Y-m-d H:i",
+			step: 15,
+			closeOnDateSelect: false,
+		}).attr("readonly", "readonly");
+
+		jQuery("#date_email_reminder").datepicker({
+			format: "yyyy-mm-dd",
+			clearBtn: true,
+			todayHighlight: true,
+			autoclose: true,
+			todayBtn: true
+		}).attr("readonly", true);
+	});
+</script>
+<?php
+echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+echo 	"<tr>";
+echo 		"<th>Date Due</th>";
+echo 		"<th>Task</th>";
+echo 		"<th>&nbsp;</th>";
+echo 	"</tr>";
+
+foreach ($this->objUserTasks as $objUserTask)
+{
+	if (!is_object($objUserTask) || !is_numeric($objUserTask->get("id")))
+	{
+		continue;
+	}//end if
+
+	echo "<tr>";
+	echo 	"<td>" . $objUserTask->get("datetime_reminder") . "</td>";
+	echo 	"<td>" . $objUserTask->get("content") . "</td>";
+	if ($objUserTask->get("complete") == 1)
+	{
+		"<td>&nbsp;</td>";
+	} else {
+		echo 	"<td>";
+		echo 		"<a href=\"" . $this->url("front-users-tasks", array("action" => "edit", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "?redirect_url=" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objUserTask->get("reg_id"))) . "\" title=\"Update Task\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>&nbsp;";
+		echo 		"<a href=\"" . $this->url("front-users-tasks", array("action" => "complete-task", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "?redirect_url=" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objUserTask->get("reg_id"))) . "\" title=\"Complete Task\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+		echo 	"</td>";
+	}//end if
+
+	echo "</tr>";
+}//end foreach
+echo "</table>";
+?>
+<div id="create-contact-user-task-section" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+ 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        		<h4 class="modal-title">Tasks</h4>
+			</div>
+			<div class="modal-body">
+				<?php
+					$form = $this->form;
+					$form->remove("submit");
+					$form->prepare();
+					echo $this->renderSystemFormHelper($form, $this);
+				?>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal" id="save-contact-task">Save</button>
+        		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        	</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,18 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_BULK_HTML . '&nbsp; Bulk Send Requests - Authorize'); ?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-comms-bulksend-admin"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+	<div class="mj3_forms clearfix">
+
+		<form method="post">
+		<h3>You are about to approve this Bulk Send Request. <br />Once approved, communications will be queued and sent.</h3>
+			<?php
+			echo 	"<label  for=\"confirmation_code\">Please enter the confirmation code for the request - " . $this->objBulkSendRequest->get("confirmation_code") . "</label><br/>";
+			echo 	"<input type=\"text\" required=\"required\" name=\"confirmation_code\" id=\"confirmation_code\" />";
+			echo "<input type=\"submit\" value=\"Submit\" class=\"btn btn-primary\">";
+			?>
+		</form>
+	</div>
+
+</div>

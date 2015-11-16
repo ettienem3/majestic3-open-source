@@ -1,0 +1,32 @@
+<?php
+echo $this->doctype();
+?>
+<html>
+	<?php
+		//insert header
+ 		echo $this->partial("layout/header");
+	?>
+
+	<body class="mj3-toolkit-body">
+
+			<!-- Main content -->
+			<div class="col-md-9" role="main">
+
+				<div class="bs-docs-section">
+					<!-- Module View Content -->
+					<?php
+						echo $this->partial("layout/body-pane");
+					?>
+					<!-- Module View Content ends -->
+				</div>
+				<div class="clearboth"></div>
+
+			<?php
+				/**
+				 * Generate any scripts that might be needed
+				 */
+				echo $this->inlineScript();
+			?>
+
+	</body>
+</html>

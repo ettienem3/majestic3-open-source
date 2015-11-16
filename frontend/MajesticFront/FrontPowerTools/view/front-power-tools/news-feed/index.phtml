@@ -1,0 +1,37 @@
+<h2>NewsFeed</h2>
+<script type="text/javascript">
+	var update_polling = false;
+	jQuery(document).ready(function () {
+		readQueue();
+		//start counter
+		window.setInterval(readQueue, 20000);
+	});
+
+	function readQueue()
+	{
+		if (update_polling == false)
+		{
+			update_polling = true;
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-power-tools/news-feed", array("action" => "ajax-read-queue"));?>"
+			})
+			.done (function (data) {			
+				var objData = jQuery.parseJSON(data);
+	
+				jQuery.each(objData, function(i, str) {
+					obj = jQuery.parseJSON(str);
+	
+					//add content to news panel
+					jQuery("#m3-news-feed-container").prepend("<div><p>" + obj.date + "</p><p>" + obj.entry + "</p></div>");
+				});
+
+				update_polling = false;
+			});
+		}//end if
+	}//end function
+</script>
+
+<div id="news-feed-status"></div>
+<div id="m3-news-feed-container">
+</div>
+

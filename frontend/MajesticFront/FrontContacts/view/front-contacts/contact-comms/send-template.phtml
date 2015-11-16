@@ -1,0 +1,134 @@
+<?php 
+
+//check comm action param
+switch($this->comm_action)
+{
+	case "send":
+		var_dump($this->send_confirmation);
+		return;
+		break;
+		
+	case "preview":
+		//add javascript to manage submit section for sending
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				jQuery("#form").submit(function () {
+					jQuery(".comm_template_form").hide("fast");
+					jQuery(".comm_template_form_submit_status").css("visibility", "visible").show("fast");
+
+					//submit the form via ajax
+					jQuery.ajax({
+						type: "POST",
+						async: true,
+						url: jQuery(this).attr("action"),
+						data: jQuery(this).serialize(),
+						success: function (data) {
+							jQuery(".comm_template").html(data);
+							//hide status
+							jQuery(".comm_template_form_submit_status").hide();
+							jQuery(".comm_template").show("fast");
+						}, //end success function
+						fail: function (data) {
+
+						} //end fail function
+					});
+					return false;
+				});
+			});
+		</script>
+		<?php 
+		break;
+
+	default:
+		echo "<div class=\"comm_template\"></div>";
+		//add javascript to manage preview submit
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				jQuery("#form").submit(function () {
+					jQuery(".comm_template_form").hide("fast");
+					jQuery(".comm_template_form_submit_status").html("Please wait while information is being processed...").css("visibility", "visible");
+
+					//submit the form via ajax
+					jQuery.ajax({
+						type: "POST",
+						async: true,
+						url: jQuery(this).attr("action"),
+						data: jQuery(this).serialize(),
+						success: function (data) {
+							jQuery(".comm_template").html(data);
+							//hide status
+							jQuery(".comm_template_form_submit_status").hide();
+						}, //end success function
+						fail: function (data) {
+
+						} //end fail function
+					});
+					return false;
+				});
+			});
+		</script>
+		
+		<?php 
+		break;
+}//end switch
+
+echo "<div class=\"comm_template_form\">";
+switch(strtolower($this->objComm->get("comm_via_data_behaviour")))
+{
+	case "__email":
+		echo "<table>";
+		echo 	"<tr>";
+		echo 		"<td>To:</td>";
+		echo 		"<td>" . $this->objContact->get("email") . "</td>";
+		echo 	"</tr>";
+		echo 	"<tr>";
+		echo 		"<td>From:</td>";
+		echo 		"<td>" . $this->objComm->get("comm_from_name") . " &lt" . $this->objComm->get("comm_from") . "&gt</td>";
+		echo 	"</tr>";
+		echo 	"<tr>";
+		echo 		"<td>Reply-to:</td>";
+		echo 		"<td>" . $this->objComm->get("reply_to") . "</td>";
+		echo	"</tr>";
+		echo "</table>";
+		break;
+		
+	case "__sms":
+		
+		break;
+		
+	case "__fax":
+		
+		break;
+}//end switch
+
+//check comm action param
+switch($this->comm_action)
+{
+	case "preview":
+		//set form to preview mode after changes have been made and is submitted for sending
+		$this->form->setAttribute("action", $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "send-template", "comms_id" => $this->comms_id)) . "?comm_action=send");
+		
+		//manually render the form to create communicaion layout feel
+//$this->form->setAttribute("action", $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "send-template", "comms_id" => $this->objComm->get("id"))) . "?comm_action=preview");
+//start setting up the form
+$form = $this->form;
+$form->prepare();
+echo $this->renderSystemFormHelper($form, $this);
+echo "</div>";
+		break;
+		
+	default:
+
+		//set form to preview mode after changes have been made and is submitted for sending
+		$this->form->setAttribute("action", $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "send-template", "comms_id" => $this->objComm->get("id"))) . "?comm_action=preview");
+		//start setting up the form
+		$form = $this->form;
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this);
+		echo "</div>";
+		break;
+}//end switch
+
+echo "<div class=\"comm_template_form_submit_status\" style=\"visibility: hidden\"></div>";

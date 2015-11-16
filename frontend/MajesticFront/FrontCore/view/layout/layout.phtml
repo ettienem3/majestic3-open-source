@@ -1,0 +1,212 @@
+<?php
+//load native profile settings
+use FrontProfileSettings\Models\NativeProfileSettingsModel;
+use FrontUserLogin\Models\FrontUserSession;
+$this->objProfileSettings = NativeProfileSettingsModel::readProfileSettings();
+$objUserPreferences = FrontUserSession::readUserLocalData("cookie_data");
+
+	echo $this->doctype();
+?>
+<html>
+
+	<?php
+		//insert header
+		echo $this->partial("layout/header");
+	?>
+
+	<body>
+
+		<!-- First Level Navigation -->
+		<?php
+			//insert first level navigation
+			echo $this->partial("layout/navigation-first-level");
+		?>
+		<!-- First Level Navigation ends -->
+
+		<div class="wrapper">
+
+			<!-- Main content -->
+			<div class="col-md-9 m3-content-section-main" role="main">
+
+				<div class="bs-docs-section">
+
+					<!-- Flash Messages -->
+					<?php
+						echo $this->partial("layout/flash-messages");
+					?>
+					<!-- Flash Messages ends -->
+
+					<!-- Module View Content -->
+					<?php
+						echo $this->partial("layout/body-pane");
+					?>
+					<!-- Module View Content ends -->
+
+				</div><!-- bs-docs-section ends -->
+
+
+				<div class="clearboth"></div><!-- 1st clear -->
+
+				<!-- Footer -->
+				<?php
+				if ($this->objProfileSettings->get("enable_footer") == "1")
+				{
+					echo $this->partial("layout/footer-pane");
+				}//end if
+				?>
+
+				<?php
+					echo $this->partial("layout/api-data");
+					echo $this->partial("layout/query-details");
+				?>
+				<!-- Footer Ends -->
+
+			</div><!--  col-md-9 m3-content-section-main ends here -->
+
+				<!-- East Pane Content -->
+				<div class="col-md-3 m3-content-section-east" role="complimentary">
+					<?php
+						echo $this->partial("layout/east-pane");
+					?>
+				</div>
+			<!-- East Pane Content Ends -->
+
+			<div class="clearboth"></div><!-- 2nd clear -->
+			<!-- Main content ends -->
+
+			<!-- Toolkit Section -->
+			<div class="mj3-view-toolkit-container" style="display: none;" >
+				<script type="text/javascript">
+					//trigger autoload of different tabs
+					var mj3_view_contact_specific_container_loaded = 0;
+					jQuery(document).ready(function () {
+						jQuery(".mj3-view-toolkit-container").click(function () {
+					 		jQuery('.mj3-toolkit, .mj3-user-toolkit').resizable({
+								handles: 'w',
+								start: function(event, ui) {
+									jQuery('iframe').css('pointer-events','none');
+								},
+								stop: function(event, ui) {
+									jQuery('iframe').css('pointer-events','auto');
+								}
+							});
+
+							if (mj3_view_contact_specific_container_loaded == 0)
+							{
+								//find iframe
+								var iframe = jQuery(this).parent().find("iframe");
+
+								//identify iframe tabs
+								var tabs = iframe.contents().find("#toolkitTabs").find("li");
+								var user_selected_tab = "<?php if (isset($objUserPreferences->contacts_toolkit_default_tab)) {echo $objUserPreferences->contacts_toolkit_default_tab;}?>";
+								jQuery.each(tabs, function (i, element) {
+									var link = jQuery(element).find("a");
+									var id = jQuery(link).attr("id");
+
+									if (user_selected_tab != "")
+									{
+										if (user_selected_tab == id)
+										{
+											jQuery(link)[0].click();
+											return;
+										}//end if
+									} else {
+										switch (id)
+										{
+											case "comments":
+												jQuery(link)[0].click();
+												break;
+										}//end switch
+									}//end if
+								});
+
+								mj3_view_contact_specific_container_loaded = 1;
+							}//end if
+						});
+					});
+				</script>
+				<a href="#" class="mj3-js-toolkit"><?php echo ICON_MEDIUM_SETTINGS_HTML; ?></a>
+
+				<!-- Toolkit Content Source -->
+				<div class="mj3-toolkit">
+					<iframe id="mj3-toolkit-iframe" src="" seamless></iframe>
+					<a class="mj3-js-toolkit" href="#"><?php echo ICON_MEDIUM_SETTINGS_HTML; ?></a>
+				</div>
+				<!-- Toolkit Content Source ends -->
+
+			</div>
+			<!-- Toolkit Section ends -->
+
+			<!-- User Specific Section -->
+			<div class="mj3-view-user-specific-container" style="display: none;" >
+				<script type="text/javascript">
+					//trigger autoload of different tabs
+					var mj3_view_user_specific_container_loaded = 0;
+					jQuery(document).ready(function () {
+						jQuery(".mj3-js-user-toolkit").click(function () {
+					 		jQuery('.mj3-toolkit, .mj3-user-toolkit').resizable({
+								handles: 'w',
+								start: function(event, ui) {
+									jQuery('iframe').css('pointer-events','none');
+								},
+								stop: function(event, ui) {
+									jQuery('iframe').css('pointer-events','auto');
+								}
+							});
+							if (mj3_view_user_specific_container_loaded == 0)
+							{
+								//find iframe
+								var iframe = jQuery(this).parent().find("iframe");
+
+								//check if iframe has been loaded
+								if (iframe.attr("src") == "")
+								{
+									iframe.attr("src", "<?php echo $this->url("front-users-toolkit", array("action" => "iframe-user-toolkit-section"));?>");
+								}//end if
+
+								//identify iframe tabs
+								var tabs = iframe.contents().find("#toolkitTabs").find("li");
+								var user_selected_tab = "<?php if (isset($objUserPreferences->user_toolkit_default_tab)) {echo $objUserPreferences->user_toolkit_default_tab;} ?>";
+								jQuery.each(tabs, function (i, element) {
+									var link = jQuery(element).find("a");
+									var id = jQuery(link).attr("id");
+
+									if (user_selected_tab == id)
+									{
+										jQuery(link)[0].click();
+										return;
+									}//end if
+								});
+
+								mj3_view_user_specific_container_loaded = 1;
+							}//end if
+						});
+					});
+				</script>
+				<a href="#" class="mj3-js-user-toolkit"><?php echo ICON_MEDIUM_USERS_HTML;?></a>
+				<!-- Toolkit Content Source -->
+				<div class="mj3-user-toolkit">
+					<iframe id="mj3-user-iframe" src="" seamless></iframe>
+					<a class="mj3-js-user-toolkit" href="#"><?php echo ICON_MEDIUM_USERS_HTML;?></a>
+				</div>
+				<!-- User Specific Section Source ends -->
+			</div>
+			<script type="text/javascript">
+				jQuery(document).ready(function () {
+					//activate user toolkit section
+					//display toolkit section
+					var container = jQuery(".mj3-view-user-specific-container");
+					//display toolkit container
+					container.css("display", "block");
+				});
+			</script>
+			<!-- User Specific Section ends -->
+
+			<?php
+				// Generate any scripts that might be needed
+				echo $this->inlineScript();
+			?>
+
+		</div>
+	</body>
+</html>

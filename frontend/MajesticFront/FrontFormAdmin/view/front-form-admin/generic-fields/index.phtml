@@ -1,0 +1,39 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_FIELDS_HTML .'&nbsp; Generic Fields');
+?>
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/generic-fields", array("action" => "create-generic-field")); ?>" title="Create Generic field" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML .'Create Generic Field'; ?></a></li>
+	</ul>
+
+<div class="mj3_table_contain clearfix">
+<?php
+//prepare data
+if (count($this->objFields) > 0)
+{
+	foreach ($this->objFields as $objField)
+	{
+		if (!isset($objField->id))
+		{
+			continue;
+		}//end if
+
+		$arr_data["content"] = $objField->content;
+		$arr_data["field"] = "#generic." . $objField->id;
+
+		$edit_url = "<a href=\"" . $this->url("front-form-admin/generic-fields", array("id" => $objField->id, "action" => "edit-generic-field")) . "\" title=\"Edit Generic Field\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+		$delete_url = "<a href=\"" . $this->url("front-form-admin/generic-fields", array("id" => $objField->id, "action" => "delete-generic-field")) . "\" title=\"Delete Generic Field\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+		$arr_data["url"] = $edit_url . "&nbsp;" . $delete_url;
+
+		$arr[] = $arr_data;
+	}//end foreach
+}//end if
+
+$add_url = "";
+
+$css_id = str_replace(".", "", microtime(TRUE));
+echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+echo $this->renderSimpleHTMLTable($arr, array("Content", "Field", $add_url), array("id" => $css_id));
+?>
+	</div>
+</div>

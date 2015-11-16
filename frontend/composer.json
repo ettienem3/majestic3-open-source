@@ -1,0 +1,9 @@
+{
+    "require": {
+	"videlalvaro/php-amqplib": "2.2.*",
+	"bjyoungblood/bjy-profiler": "dev-master",
+	"zendframework/zendframework": "~2.4",
+    "phpmailer/phpmailer": "^5.2",
+    "ezyang/htmlpurifier": "^4.7",
+    }
+}

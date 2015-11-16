@@ -1,0 +1,179 @@
+.mj3-js-toolkit,
+.mj3-js-user-toolkit {
+	background: #222;
+	@include border-radius(4px 0 0 4px);
+	color: #d0d0d0;
+	font-size: 20px;
+	padding: 10px 12px 6px 13px;
+	position: fixed;
+	right: 0;
+	top: 75px;
+	
+	&:hover,
+	&:active {
+		color: #fff;
+		text-decoration: none;
+	}
+}
+
+.mj3-toolkit,
+.mj3-user-toolkit {
+	background: #222;
+	border-left: 4px solid #444;
+	display: none;
+	left: auto !important;
+	padding: 20px 0 0;
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 100% !important;
+	width: 50%;
+	z-index: 9;
+
+	&:hover,
+	&:active {
+		border-left: 4px solid #666;
+	}
+
+	iframe {
+		border: 0;
+		height: 100%;
+		width: 100%;
+	}
+
+	.mj3-js-toolkit,
+	.mj3-js-user-toolkit {
+		right: auto;
+		left: -45px;
+		position: absolute;
+
+		span {
+			margin-right: 0 !important;
+		}
+	}
+}
+
+.mj3-toolkit-body {
+	background: #222;
+	color: #fff;
+
+	h2 {
+		color: #fff;
+		padding-bottom: 15px;
+	}
+
+	.modal-content {
+		margin-top: 50px;
+		
+		button {
+			margin-left: 10px !important;
+		}
+
+		.selector-width {
+			position: static;
+			float: left;
+			margin: 4px 10px 15px -20px;
+		}
+
+		.modal-body {
+			color: #333 !important;
+		}
+	}
+
+	.table-responsive {
+		border: 0 !important;
+	}
+	
+	table, table * {
+		border-color: #333 !important;
+	}
+
+	.mj3-table th.sorting_asc,
+	.mj3-table th.sorting_desc {
+		background: #333;
+	}
+
+	.odd td {
+		background: #444;
+	}
+
+	.mj3-table .even td.sorting_1 {
+		background: #333;
+	}
+	
+	.pagination { 
+		
+		* {
+			border-color: #222 !important;
+		}
+
+		a {
+			background-color: #333;
+			color: #fff;
+			
+			&:hover {
+				background-color: #eee;
+			}
+		}
+
+		.active a {
+			background-color: #3490c9;
+		}
+	}
+	
+	.nav-tabs {
+		border-bottom: 1px solid #444;
+	}
+
+	#toolkitTabs {
+		
+		li {
+
+			a {
+				background: #444;
+				color: #efefef;
+				outline: none;
+
+				&:hover {
+					border: 1px solid #444;
+				}
+			}
+
+			a[aria-expanded=true] {
+				background: #ccc;
+				color: #333;
+
+				&:hover {
+					border: 1px solid #ccc;
+				}
+			}
+		}
+	}
+}
+
+.ui-resizable-helper {
+	display: none !important;
+}
+
+.mj3-js-user-toolkit {
+	top: 122px;	
+}
+
+#toolkitTabsContent {
+	border: 1px solid #444;
+	padding: 20px;
+
+	th {
+		background: #ccc;
+		color: #333;
+	}
+
+	.table-striped > tbody > tr:nth-of-type(2n+1) {
+		background-color: transparent;
+	}
+
+	.btn.btn-primary {
+		float: right;
+		margin: 0 0 15px;
+	}
+}

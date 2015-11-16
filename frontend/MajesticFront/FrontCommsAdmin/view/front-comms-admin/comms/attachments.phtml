@@ -1,0 +1,143 @@
+<div class="mj3_forms clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . '&nbsp;Communication Attachments'); ?>
+<ul class="nav nav-tabs">
+	<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "action" => "index")); ?>" title="Back to Communications" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	<li class="mj3_btnchangeform"><a href="" class="btn btn-success" title="Add Communication attachment" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML .'Add attachment'; ?></a></li>
+</ul>
+
+
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//monitor the add files link
+		jQuery(".attachment_add_files").click(function (e) {
+			e.preventDefault();
+
+			//open dialog and load files manager page
+			jQuery.ajax({
+				url: '<?php echo $this->url("front-profile-file-manager"); ?>?dialog-layout=1&disable_uploads=1',
+			})
+			.done(function (data) {
+				jQuery(".dialog_files").html(data);
+
+				//remove file options
+				jQuery(".dialog_files").find(".file_options").html('<a href="#" class="comm_attach_file" title="Attach File"><?php echo ICON_LARGE_ADD_HTML; ?></a>');
+
+				jQuery(".comm_attach_file").click(function (e) {
+					e.preventDefault();
+
+					//set file location
+					var file_location = jQuery(this).parent().attr("data-file-location");
+					if (file_location == "")
+					{
+						alert("File could not be attached. Location is not set");
+						return false;
+					}//end if
+
+					jQuery.ajax({
+						url: "<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "id" => $this->objCommAdmin->get("id"), "action" => "ajax-add-comm-attachment")); ?>",
+						type: "post",
+						data: {
+							file_name: file_location
+						}
+					})
+					.done(function (data) {
+						var objData = jQuery.parseJSON(data);
+
+						if (objData.error == 1)
+						{
+							alert(objData.response);
+							console.log(objData.response);
+							return false;
+						}//end if
+					})
+					.fail(function () {
+						alert("File could not be attached. An unknown error has occurred");
+						return false;
+					});
+				});
+			});
+
+			jQuery(".dialog_files").dialog({
+				modal: true,
+				title: "File Manager",
+				width: "70%",
+				buttons: {
+					Close: function () {
+						jQuery(".dialog_files").dialog("close");
+					}
+				}
+
+			});
+		});
+
+		//monitor the remove attachment link
+		jQuery(".attachment_remove_file").click(function (e) {
+			e.preventDefault();
+
+			if (!confirm("Are you sure you want to remove the attachment?"))
+			{
+				return false;
+			}//end if
+
+			var remove_url = jQuery(this).attr("href");
+			var parent_element = jQuery(this).closest("tr");
+
+			jQuery.ajax({
+				url: remove_url,
+				type: "post",
+			})
+			.done(function (data) {
+				objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					alert(objData.response);
+					console.log(objData.response);
+					return false;
+				}//end if
+
+				//remove the element from the table
+				parent_element.hide("fast");
+			})
+			.fail(function () {
+				alert("An unknown error has occurred. Attachment could not be removed");
+			});
+		});
+	});
+</script>
+<div class="mj3_table_contain clearfix">
+
+
+<?php
+//echo "<a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "action" => "index")) . "\" title=\"Back to Communications\">" . ICON_MEDIUM_BACK_HTML . "</a>";
+
+foreach ($this->objAttachments as $objAttachment)
+{
+	if ($objAttachment->id == "")
+	{
+		continue;
+	}//end if
+
+	//extract filename
+	$arr_t = explode("/", $objAttachment->file_name);
+	$file_name = array_pop($arr_t);
+
+	$arr_attachment["file"] = $file_name;
+
+	//set urls
+	$remove_url = "<a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "id" => $this->objCommAdmin->get("id"), "action" => "ajax-remove-comm-attachment")) . "?attachment_id=" . $objAttachment->id . "&debug_display_errors=1\" class=\"attachment_remove_file\" title=\"Remove attachment\">" . ICON_SMALL_DELETE_HTML . "</a>";
+	$view_url = "<a href=\"" . $objAttachment->url . "\" target=\"_blank\" title=\"View attachment\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+
+	$arr_attachment["urls"] = $remove_url . "&nbsp;" . $view_url;
+
+	$arr[] = $arr_attachment;
+}//end foreach
+
+$add_url = "";
+echo $this->renderDataTableHelper();
+echo $this->renderSimpleHTMLTable($arr, array("File", $add_url));
+
+?>
+	</div><!--  table closing div -->
+</div>
+<div class="dialog_files" style="display: none; z-index: 1100;"><h4>Loading...</h4><img src="<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif" /></div>

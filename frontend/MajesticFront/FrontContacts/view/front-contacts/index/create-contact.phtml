@@ -1,0 +1,19 @@
+<div class="mj3_forms clearfix">
+
+<?php
+
+	echo $this->renderStandardViewHeader(ICON_LARGE_CONTACTS_HTML . ' &nbsp; Create Contact Details');
+	?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-contacts"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li class="mj3_btnchangeform"><a class="btn btn-success" href="<?php echo $this->url("front-contacts", array("action" => "select-profile-form")); ?>?redirect=<?php echo $this->url("front-contacts", array("action" => "create-contact")); ?>" title="Change Contact Profile Form" data-toggle="tooltip"><?php echo ICON_MEDIUM_LAYOUT_HTML .'&nbsp;Change Form';?></a></li>
+	</ul>
+	<div class="mj3_tables clearfix">
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div><!-- mj3_tables closing div -->
+</div><!-- mj3_forms closing div -->

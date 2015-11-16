@@ -1,0 +1,165 @@
+<div class="mj3_tables clearfix">
+
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//activate behaviours views
+			jQuery(".behaviours_view").mj_behaviours_view();
+
+			jQuery(".ajax-dropdown").change(function () {
+				if (jQuery(this).val() == "_load_data_")
+				{
+					loadSearchFormData(jQuery(this).attr("id"), jQuery(this));
+				}//end if
+			});
+
+			//monitor quick search button
+			jQuery(".quick-search-button").click(function (e) {
+				e.preventDefault();
+
+				//populate values into search form
+				jQuery("#search-form").find("#journeys_journey").val(jQuery("#quick-search-keyword").val());
+
+				//submit the form
+				jQuery("#search-form").submit();
+			});
+		});
+	</script>
+
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#form-search-form">
+					<span class="sr-only">Toggle navigation</span>
+
+				</button>
+
+				<span class="navbar-brand">
+					<?php echo ICON_LARGE_COMMS_HTML; ?>&nbsp;
+					My Journeys
+				</span>
+			</div>
+
+			<div class="navbar-collapse" id="form-search-form">
+				<form class="navbar-form navbar-right form-inline" role="search">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Quick search" id="quick-search-keyword" value="<?php if ($this->arr_params["journeys_journey"] != "") {echo $arr_params["journeys_journey"];}?>">
+					</div>
+					<button type="submit" class="btn btn-primary quick-search-button">Search</button>
+					<a class="btn btn-default" data-toggle="collapse" data-target="#advsearch" aria-expanded="false" aria-controls="advsearch">Advanced</a>
+				</form>
+			</div>
+<!-- Search -->
+			<div class="collapse" id="advsearch">
+				<div class="well clearfix">
+					<form method="post" id="search-form">
+						<div class="form-group">
+							<label for="journeys_journey">Title:</label>
+							<input type="text" class="form-control" name="journeys_journey" id="journeys_journey" placeholder="e.g. Welcome Journey" value="<?php if ($this->arr_params["journeys_journey"] != "") {echo $arr_params["journeys_journey"];}?>"/>
+
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="journeys_status">Status:</label>
+									<select name="journeys_status" id="journeys_status" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="1">Active</option>
+										<option value="0">Inactive</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<input type="submit" value="Search" class="btn btn-primary pull-right"/>
+					</form>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform">
+			<a href="<?php echo $this->url("front-comms-admin/journeys", array("action" => "create")); ?>" class="btn btn-success" title="Create a new Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML .'&nbsp; Add Journey'; ?> </a>
+		</li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+		//load session for plugins enabled
+		$objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+		$arr_plugins = (array) $objUserSession->profile->plugins_enabled;
+		
+		/**
+		 * prepare the data
+		 */
+		foreach ($this->objJourneys as $key => $objJourney)
+		{
+			if (!isset($objJourney->id))
+			{
+				continue;
+			}//end if
+
+			$arr_data["journey"]		= $objJourney->journey;
+			$arr_data["description"]	= $objJourney->description;
+			$arr_data["comms"]			= $objJourney->comms;
+
+			if ($objJourney->active == 1)
+			{
+				$arr_data["activate_journey"]	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "status", "id" => $objJourney->id)) . "\" title=\"This Journey is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>" . "</td>";
+			} else {
+				$arr_data["activate_journey"]	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "status", "id" => $objJourney->id)) . "\" title=\"This Journey is inactive\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>" . "</td>";
+			}//end if
+
+			if ($objJourney->date_expiry != "0000-00-00")
+			{
+				$arr_ex = explode("-", $objJourney->date_expiry);
+				$ex_time = mktime(0, 0, 0, $arr_ex[1], $arr_ex[2], $arr_ex[0]);	
+				
+				if (time() > $ex_time)
+				{
+					$expiry = "<span class=\"text-danger bg-danger\">" . $objJourney->date_expiry . "</span>";
+				} else {
+					$expiry = $objJourney->date_expiry;
+				}//end if
+				
+				$arr_data["expiry"] = $expiry;
+			} else {
+				$arr_data["expiry"] = $objJourney->date_expiry;
+			}//end if
+			
+			$arr_data["priority"] = $objJourney->priority;
+
+			$edit_url 			= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "edit", "id" => $objJourney->id)) . "\" title=\"Edit Journey Settings\" data-toggle=\"tooltip\" >" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_journey 	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "delete", "id" => $objJourney->id)) . "\" title=\"Delete Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			$comms_url 			= "<a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $objJourney->id)) . "\" title=\"View \\ Edit specific Communications\" data-toggle=\"tooltip\">" . ICON_SMALL_LOAD_HTML . "</a>";
+// 			$journey_diagram 	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "journey-flow", "id" => $objJourney->id)) . "\" title=\"View Journey Flow\" data-toggle=\"tooltip\">" . ICON_SMALL_LINE_CHART_HTML . "</a>";
+			$bulk_comm_url 		= "<a href=\"" . $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => $objJourney->id)) . "\" title=\"Request Bulk Send\" data-toggle=\"tooltip\">" . ICON_SMALL_EMAIL_HTML . "</a>";
+
+			//check if behaviours are enabled
+			if (in_array("behaviours_basic", $arr_plugins) || in_array("behaviours_advanced", $arr_plugins))
+			{
+				$behaviours_url 	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "journey-behaviours", "id" => $objJourney->id)) . "?journey_id=" . $objJourney->id . "\" title=\"Configure Journey Behaviours\" data-toggle=\"tooltip\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+			} else {
+				$behaviours_url 	= "";
+			}//end if
+			
+			$arr_data["url"] = $edit_url . "&nbsp;" . $comms_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_journey;
+
+			$arr[] = $arr_data;
+		}//end foreach
+
+		//create the add Journey
+		$add_journey = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("Journey", "Description", "Number of Communications", "Active", "Expiry", "Priority", $add_journey), array("id" => $css_id));
+
+		//insert pagination data
+		echo $this->renderPaginationHelper($this->objJourneys->hypermedia->pagination, $this->url("front-comms-admin/journeys"));
+		?>
+
+	</div>
+
+	<div id="manage-behaviours-section" class="modal fade"></div>
+
+</div>

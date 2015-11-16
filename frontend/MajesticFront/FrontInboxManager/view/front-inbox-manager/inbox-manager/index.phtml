@@ -1,0 +1,117 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_INBOX_HTML .'&nbsp;Inbox'); ?>
+
+	<div class="mj3_table_contain clearfix">
+
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				//monitor read message link clicks
+				jQuery(".read-message").click(function (e) {
+					e.preventDefault();
+
+					//set waiting spinner
+					jQuery("#dialog-read-message").html("<h3>Loading...</h3><img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+
+					var message_url = "<?php echo $this->url("front-inbox-manager", array("id" => "11223a", "action" => "ajax-read-message"));?>";
+					var archive_url = "<?php echo $this->url("front-inbox-manager", array("id" => "11223a", "action" => "archive-message"));?>";
+					var delete_url = "<?php echo $this->url("front-inbox-manager", array("id" => "11223a", "action" => "delete-message"));?>";
+
+					//set message id
+					message_url = message_url.replace("11223a", jQuery(this).attr("id"));
+					archive_url = archive_url.replace("11223a", jQuery(this).attr("id"));
+					delete_url = delete_url.replace("11223a", jQuery(this).attr("id"));
+
+					//request content
+					jQuery.ajax({
+						url: message_url,
+					})
+					.done(function (data) {
+						var objData = jQuery.parseJSON(data);
+
+						if (objData.error == 1)
+						{
+							alert(objData.response);
+							return false;
+						}//end if
+
+						jQuery("#dialog-read-message").hide().html(objData.response).show("fast");
+					})
+					.fail(function () {
+						alert("Inbox Message could not be loaded. An unknown error has occured");
+						return false;
+					});
+
+					jQuery("#dialog-read-message").dialog({
+						title: "Message Received",
+						modal: true,
+						height: "auto",
+						width: "auto",
+						buttons: {
+							Close: function () {
+								jQuery(this).dialog("close");
+							}, //end close button
+							Archive: function () {
+								window.location.href = archive_url;
+
+								//close the dialog
+								jQuery(this).dialog("close");
+							}, //end archive button
+							Delete: function () {
+								window.location.href = delete_url;
+
+								//close the dialog
+								jQuery(this).dialog("close");
+							} //end delete button
+						} //end buttons
+					});
+				});
+			});
+		</script>
+
+		<?php
+		foreach ($this->objMessages as $objMessage)
+		{
+			if ($objMessage->get("id") == "")
+			{
+				continue;
+			}//end if
+
+			$arr_message["from"] = "<a href=\"" . $this->url("front-contacts", array("id" => $objMessage->get("fk_reg_id"), "action" => "view-contact"))  . "\" title=\"View Contact\" data-toggle=\"tooltip\">{$objMessage->get("from_name")}</a>";
+			$arr_message["subject"] = "<a class=\"read-message\" id=\"" . $objMessage->get("id") . "\" href=\"" . $this->url("front-inbox-manager", array("id" => $objMessage->get("id"), "action" => "read-message"))  . "\" title=\"View Message\" data-toggle=\"tooltip\">{$objMessage->get("email_subject")}</a>";
+
+			if ($objMessage->get("new") == 1)
+			{
+				$arr_message["date"] = "<span style=\"font-weight:bold;\">" . date("d/m/Y H:m", $objMessage->get("tstamp")) . "</span>";
+			} else {
+				$arr_message["date"] = "<span style=\"\">" . date("d/m/Y H:m", $objMessage->get("tstamp")) . "</span>";
+			}//end if
+
+			//$arr_message["reply_to"] = "<a href=\"" . $this->url("front-inbox-manager", array())  . "\" title=\"TODO Set proper link Click to view\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+			$arr_message["user"] = "<a href=\"" . $this->url("front-inbox-manager", array())  . "\" title=\"\" class=\"page-e-link\">User</a>";
+
+			//set urls
+			if ($objMessage->get("archived") == 0)
+			{
+				$archive_url = "<a href=\"" . $this->url("front-inbox-manager", array("id" => $objMessage->get("id"), "action" => "archive-message"))  . "\" title=\"Archive this message\" data-toggle=\"tooltip\">" . ICON_SMALL_SAVE_HTML . "</a>";
+			} else {
+				$archive_url = "&nbsp;";
+			}//end if
+
+			//$contact_edit_url = "<a href=\"" . $this->url("front-contacts", array("id" => $objMessage->get("fk_reg_id"), "action" => "edit-contact"))  . "\" title=\"Edit Contact Details\" data-toggle=\"tooltip\">" . ICON_SMALL_PROFILE_HTML . "</a>";
+			$delete_message_url = "<a href=\"" . $this->url("front-inbox-manager", array("id" => $objMessage->get("id"), "action" => "delete-message"))  . "\" title=\"Delete Message\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+
+			$arr_message["url"] = $archive_url . "&nbsp;" . $delete_message_url;
+
+			$arr[] = $arr_message;
+		}//end foreach
+
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("From", "Subject", "Date", "User", "&nbsp;"), array("id" => $css_id));
+
+		?>
+		<div id="dialog-read-message" style="display: none;"></div>
+
+	</div>
+
+</div>

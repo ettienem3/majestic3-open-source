@@ -1,0 +1,43 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_LOCATION_HTML .'&nbsp;Provinces'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-locations"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		/**
+		 * Prepare data
+		 */
+		foreach ($this->objProvinces as $objProvince)
+		{
+			if (!isset($objProvince->id))
+			{
+				continue;
+			}//end if
+
+			$arr_data["province"] = $objProvince->province;
+
+			if ($objProvince->active == 1)
+			{
+				$arr_data["active"] = ICON_SMALL_ACTIVE_HTML;
+			} else {
+				$arr_data["active"] = ICON_SMALL_INACTIVE_HTML;
+			}//end if
+
+			$arr_data["country"] = $objProvince->country;
+
+			$arr[] = $arr_data;
+		}//end foreach
+
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("Province", "Active", "Country"), array("id" => $css_id));
+		?>
+
+	</div>
+
+</div>

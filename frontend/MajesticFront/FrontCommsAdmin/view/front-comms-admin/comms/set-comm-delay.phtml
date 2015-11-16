@@ -1,0 +1,72 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		jQuery("#send_delay").click(function (e) {
+			e.preventDefault();
+
+			//submit values
+			jQuery.ajax({
+				url: '<?php echo $this->url("front-comms-admin/comms", array("action" => "set-comm-delay", "id" => $objCommAdmin->id, "journey_id" => 11)); ?>',
+				async: false,
+				data: jQuery("#send_delay_ajax_form").serialize(),
+				method: "post"
+			})
+			.done(function (data) {
+				objData = jQuery.parseJSON(data);
+				jQuery("#send_time").val(objData.data.send_time);
+				jQuery("#send_time_dialog_text").html(objData.data.send_text + "&nbsp;");
+				jQuery(".send_time_dialog").dialog("close");
+			});
+		});
+	});
+</script>
+<form class="uk-form" id="send_delay_ajax_form">
+	<label for="send_days">Days</label>
+	<select name="send_days">
+		<?php
+			for($i = 0; $i < 366; $i++)
+			{
+				if (isset($this->arr_times) && is_array($this->arr_times) && isset($this->arr_times["days"]) && $i == $this->arr_times["days"])
+				{
+					echo "<option selected=\"selected\" value=\"$i\">$i</option>";
+				} else {
+					echo "<option value=\"$i\">$i</option>";
+				}//end if
+			}//end for
+		?>
+	</select>
+	<br/>
+
+	<label for="send_hours">Hours</label>
+	<select name="send_hours">
+		<?php
+			for($i = 0; $i < 25; $i++)
+			{
+				if (isset($this->arr_times) && is_array($this->arr_times) && isset($this->arr_times["hours"]) && $i == $this->arr_times["hours"])
+				{
+					echo "<option selected=\"selected\" value=\"$i\">$i</option>";
+				} else {
+					echo "<option value=\"$i\">$i</option>";
+				}//end if
+			}//end for
+		?>
+	</select>
+	<br/>
+
+	<label for="send_mins">mins</label>
+	<select name="send_mins">
+		<?php
+			for($i = 0; $i < 60; $i++)
+			{
+				if (isset($this->arr_times) && is_array($this->arr_times) && isset($this->arr_times["minutes"]) && $i == $this->arr_times["minutes"])
+				{
+					echo "<option selected=\"selected\" value=\"$i\">$i</option>";
+				} else {
+					echo "<option value=\"$i\">$i</option>";
+				}//end if
+			}//end for
+		?>
+	</select>
+	<br/>
+
+	<input type="submit" id="send_delay" value="Update"/>
+</form>

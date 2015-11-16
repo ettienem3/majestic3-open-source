@@ -1,0 +1,40 @@
+		<meta charset="utf-8">
+        <?php
+        	echo $this->headTitle($_SERVER["HTTP_HOST"])->setSeparator(' - ')->setAutoEscape(false);
+			echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0')->appendHttpEquiv('X-UA-Compatible', 'IE=edge');
+
+			//load javascript
+		echo $this->headScript()
+				->prependFile($this->layout()->cdn_url . "/js/vendor/jquery/jquery-2.1.1.min.js")
+				->appendFile($this->layout()->cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.js")
+				->appendFile($this->layout()->cdn_url . '/js/plugins/mj-plugins.js')
+				->appendFile($this->basePath() . '/js/main.js')
+
+				//load bootstrap and items
+				->appendFile($this->layout()->cdn_url . '/bootstrap/js/bootstrap.min.js')
+				->appendFile($this->layout()->cdn_url . '/bootstrap/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')
+				->appendFile($this->layout()->cdn_url . '/bootstrap/js/alert.js')
+
+				//older browser adaptations
+				->appendFile('https://oss.maxcdn.com/respond/1.4.2/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
+				->appendFile('https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js',   'text/javascript', array('conditional' => 'lt IE 9',))
+				;
+
+		//load css
+		echo $this->headLink(array("rel" => "shortcut icon", "type" => "image/vnd.microsoft.icon", "href" => $this->basePath() . "/img/favicon.ico"))
+				->appendStylesheet($this->layout()->cdn_url . '/bootstrap/css/bootstrap.min.css')
+				->appendStylesheet($this->layout()->cdn_url . '/bootstrap/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css')
+				->appendStylesheet($this->layout()->cdn_url . '/js/vendor/jquery/ui/jquery-ui.min.css')
+				->appendStylesheet($this->basePath() . '/css/main.css')
+				;
+        ?>
+
+        <script type="text/javascript">
+			jQuery(document).ready(function () {
+				//amend menu
+				jQuery(".navigation").menu();
+
+				//disbale browser datepickers by amending the date field to a text field
+				jQuery('input[type="date"]').prop('type','text');
+			});
+		</script>

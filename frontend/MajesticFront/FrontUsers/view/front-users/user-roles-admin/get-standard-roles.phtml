@@ -1,0 +1,24 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_USER_HTML .'&nbsp; Create User Role from Standard Role'); ?>
+<ul class="nav nav-tabs">
+	<li role="presentation"><a href="<?php echo $this->url("front-users-roles/admin"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+</ul>
+	<div class="mj3_table_contain">
+		<?php
+		foreach ($this->objStandardRoles as $objRole)
+		{
+			$arr_role["role_name"] = $objRole->get("role_name");
+
+			//set urls
+			$create_url = "<a href=\"" . $this->url("front-users-roles/admin", array("action" => "create-role-from-standard-role", "id" => $objRole->get("id"))) . "\" title=\"Generate Role from Standard Role\" data-toggle=\"tooltip\">" . ICON_SMALL_NEXT_HTML . "</a>";
+			$arr_role["urls"] = $create_url;
+
+			$arr[] = $arr_role;
+		}//end foreach
+
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("Role", "&nbsp;"));
+		?>
+</div>
+
+</div>

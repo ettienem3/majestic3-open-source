@@ -1,0 +1,64 @@
+<?php
+if (isset($this->objQueryLogs))
+{
+	$i = 0;
+	$start_time = 0;
+	$end_time = 0;
+	$total_time = 0;
+	$arr_elapsed_times = array();
+
+	foreach ($this->objQueryLogs as $objData)
+	{
+		if ($i == 0)
+		{
+			//set start time
+			$start_time = $objData->start;
+		}//end if
+			
+		$html .= "<tr>";
+		$html .=	"<td>Query</td>";
+		$html .=	"<td>Time</td>";
+		$html .=	"<td>Params</td>";
+		$html .=	"<td>Stack Trace</td>";
+		$html .= "</tr>";
+			
+		$html .= "<tr>";
+		$html .=	"<td>" . $objData->sql . "</td>";
+		$html .=	"<td>" . $objData->elapsed . "</td>";
+		$html .=	"<td><pre>" . print_r($objData->parameters, TRUE) . "</pre></td>";
+		$html .=	"<td><pre>" . print_r($objData->stack, TRUE) . "</pre></td>";
+		$html .= "</tr>";
+			
+		//acculumlate elapsed times
+		$arr_elapsed_times[] = $objData->elapsed;
+		$total_time = $total_time + $objData->elapsed;
+		$i++;
+	}//end foreach
+
+	//set end time
+	$end_time = $objData->end;
+
+	echo "<div>";
+	echo 	"<table width=\"100%\" cellpadding=\"2\">";
+	echo 		"<tr><th colspan=\"5\" align=\"center\"><h3>SQL Summary</h3></th></tr>";
+	echo		"<tr>";
+	echo 			"<th>Start</th>";
+	echo 			"<th>End</th>";
+	echo 			"<th>Elapsed</th>";
+	echo 			"<th>Longest</th>";
+	echo 			"<th>Average</th>";
+	echo 		"</tr>";
+	echo		"<tr>";
+	echo 			"<td>" . date("d/m/Y H:i:s", $start_time) . "</td>";
+	echo 			"<td>" . date("d/m/Y H:i:s", $end_time) . "</td>";
+	echo 			"<td>" . $total_time . "</td>";
+	echo 			"<td>" . max($arr_elapsed_times) . "</td>";
+	echo 			"<td>" . (array_sum($arr_elapsed_times) / count($arr_elapsed_times)) . "</td>";
+	echo 		"</tr>";
+	echo 	"</table><br/>";
+
+	echo 	"<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+	echo 		$html;
+	echo 	"</table>";
+	echo "</div>";
+}//end if

@@ -1,0 +1,60 @@
+<?php
+if (!is_array($this->arr_sections))
+{
+	echo "<h2>No content is available";
+	return;
+}//end if
+?>
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		jQuery(".toolkit-section-content").click(function (e) {
+			e.preventDefault();
+
+			//display tab
+			jQuery(this).tab('show');
+
+			//set target html section
+			var container = jQuery("#content-" + jQuery(this).attr("id") + " .content");
+			//set target url
+			var target_url = jQuery("#content-" + jQuery(this).attr("id") + " .section-ajax-url").text();
+
+			if (container.text() != "")
+			{
+				//content already loaded
+				return false;
+			}//end if
+
+			container.html("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\"/>");
+			jQuery.ajax({
+				url: target_url
+			})
+			.done(function (data) {
+				container.html(data);
+			})
+			.fail(function () {
+				container.html("An unknown error has occured. This section could not be loaded. Please retry in a while.");
+			});
+		});
+	});
+</script>
+<ul id="toolkitTabs" class="nav nav-tabs" role="tablist">
+	<?php
+		foreach($this->arr_sections as $id => $arr_section)
+		{
+			echo "<li role='presentation'>";
+			echo 	"<a id=\"$id\" class=\"toolkit-section-content\" href=\"#content-$id\" title=\"Click to open\" aria-expanded=\"true\" data-toggle=\"tooltip\" role=\"tab\">" . $arr_section["title"] . "</a>";
+			echo "</li>";
+		}//end foreach
+	?>
+</ul>
+<div id="toolkitTabsContent" class="tab-content">
+	<?php
+		foreach ($this->arr_sections as $id => $arr_section)
+		{
+			echo "<div id=\"content-$id\" class=\"tab-pane fade active in\" role=\"tabpanel\">";
+			echo 	"<div class=\"section-ajax-url\" style=\"display: none;\">" . $arr_section["url"] . "</div>";
+			echo 	"<div class=\"content\"></div>";
+			echo "</div>";
+		}//end foreach
+	?>
+</div>

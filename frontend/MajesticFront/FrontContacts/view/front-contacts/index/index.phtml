@@ -1,0 +1,296 @@
+<div class="mj3_tables clearfix">
+
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			jQuery(".ajax-dropdown").change(function () {
+				if (jQuery(this).val() == "_load_data_")
+				{
+					loadSearchFormData(jQuery(this).attr("id"), jQuery(this));
+				}//end if
+			});
+
+			//monitor quick search button
+			jQuery(".quick-search-button").click(function (e) {
+				e.preventDefault();
+
+				//populate values into search form
+				jQuery("#search-form").find("#keyword").val(jQuery("#quick-search-keyword").val());
+
+				//submit the form
+				jQuery("#search-form").submit();
+			});
+		});
+
+		function loadSearchFormData(param, element)
+		{
+			//set element data
+			element.empty();
+			element.append(jQuery("<option></option>").text("--loading--"));
+
+			var param_url = "<?php echo $this->url("front-contacts", array("action" => "ajax-search-values")) . "?param=#param";?>";
+
+			//request data
+			jQuery.ajax({
+				url: param_url.replace("#param", param),
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					//reset element
+					element.append(jQuery("<option></option>").text("--select--"));
+					element.append(jQuery("<option></option>").val("_load_data_").text("--select--"));
+					alert("An error occured: " + objData.response);
+					return false;
+				}//end if
+
+				element.empty();
+				element.append(jQuery("<option></option>").val("").text("--select--"));
+				jQuery.each(objData.response, function (i, obj) {
+					element.append(jQuery("<option></option>").val(obj.id).text(obj.val));
+				});
+			})
+			.fail(function () {
+				alert("Data could not be loaded. An unkown error has occured");
+				return false;
+			});
+		}//end function
+	</script>
+
+	 <!-- search here -->
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+
+				</button>
+
+				<span class="navbar-brand">
+				<?php echo ICON_LARGE_CONTACTS_HTML ;?>
+					 &nbsp;
+					My Contacts
+				</span>
+			</div>
+
+			<div class="navbar-collapse" id="bs-example-navbar-collapse-1">
+				<form class="navbar-form navbar-right form-inline" role="search">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Quick search" id="quick-search-keyword" value="<?php if (isset($this->arr_params["keyword"]) && $this->arr_params["keyword"] != "") {echo $arr_params["keyword"];}?>">
+					</div>
+					<button type="submit" class="btn btn-primary quick-search-button">Search</button>
+					<a class="btn btn-default" data-toggle="collapse" data-target="#advsearch" aria-expanded="false" aria-controls="advsearch">Advanced</a>
+				</form>
+			</div>
+
+			<div class="collapse" id="advsearch">
+				<div class="well clearfix">
+					<form method="post" id="search-form">
+						<div class="form-group">
+							<label for="keyword">Keyword:</label>
+							<input type="text" class="form-control" name="keyword" id="keyword" placeholder="e.g. First Name / Email" value="<?php if (isset($this->arr_params["keyword"]) && $this->arr_params["keyword"] != "") {echo $arr_params["keyword"];}?>"/>
+						</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_date_created_start">From date:</label>
+									<input type="text" class="form-control" data-provide="datepicker" placeholder="from date" name="regtbl_date_created_start" readonly="readonly" value="<?php if (isset($this->arr_params["regtbl_date_created_start"]) && $this->arr_params["regtbl_date_created_start"] != "") {echo $arr_params["regtbl_date_created_start"];}?>"/>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_date_created_end">To date:</label>
+									<input type="text" class="form-control" data-provide="datepicker" placeholder="to date" name="regtbl_date_created_end" readonly="readonly" value="<?php if (isset($this->arr_params["regtbl_date_created_end"]) && $this->arr_params["regtbl_date_created_end"] != "") {echo $arr_params["regtbl_date_created_end"];}?>"/>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_source">Source:</label>
+									<select name="regtbl_source" id="regtbl_source" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_status">Contact status:</label>
+									<select name="regtbl_status" id="regtbl_status" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_user">User:</label>
+									<select name="regtbl_user" id="regtbl_user" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+
+
+						<input type="submit" value="Search" class="btn btn-primary pull-right"/>
+
+					</form>
+				</div>
+			</div>
+		</div>
+	</nav>
+	 <!-- search ends here -->
+
+	<ul class="nav nav-tabs">
+
+		<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("action" => "select-profile-layout")); ?>" class="btn btn-primary" title="Change screen layout" data-toggle="tooltip"><?php echo ICON_MEDIUM_LAYOUT_HTML . '&nbsp; Change Layout'; ?></a></li>
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-contacts", array("action" => "create-contact")); ?>" title="Create a new Contact" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . '&nbsp; Add Contact'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+	<?php
+
+		//start setting display fields
+		$arr_normal_display_fields["ID"] = "id";
+
+		//check if layout fields are specified
+		if (is_object($this->objForm))
+		{
+			$objFields = $this->objForm->getFormFieldEntities();
+
+			//create fields array
+			foreach ($objFields as $objField)
+			{
+				if ($objField->get("display_on_index") == 1)
+				{
+					//add to cpp display fields array
+
+					//check if this is a custom or standard field
+					if (is_numeric($objField->get("field_custom_id")))
+					{
+						//custom field
+						$arr_cpp_display_fields[$objField->get("field_custom_description")] = $objField->get("field_custom_field");
+					} else {
+						//standard field
+						$arr_cpp_display_fields[$objField->get("field_std_description")] = $objField->get("field_std_field");
+					}//end if
+				}//end if
+			}//end if
+		} else {
+			$arr_normal_display_fields["Email"] = "email";
+		}//end if
+
+		if (isset($arr_cpp_display_fields) && is_array($arr_cpp_display_fields))
+		{
+			$arr_normal_display_fields = array_merge($arr_normal_display_fields, $arr_cpp_display_fields);
+		}//end if
+
+
+		//add further display fields
+		$arr_normal_display_fields["Source"] = "source";
+		$arr_normal_display_fields["Reference"] = "reference";
+		$arr_normal_display_fields["User"] = "users_uname";
+
+		foreach ($this->objContacts as $objContact)
+		{
+			if (!isset($objContact->id))
+			{
+				continue;
+			}//end if
+
+			//deal with numbers and comm destinations
+			$objContact->email = $objContact->comm_destinations_email;
+			if ($objContact->comm_destinations_cell_num == "")
+			{
+				$objContact->cell_num = "";
+			} else {
+				$objContact->cell_num = $objContact->comm_destinations_cell_num_country_dialing_code . $objContact->comm_destinations_cell_num;
+			}//end if
+
+			if ($objContact->comm_destinations_fax_num == "")
+			{
+				$objContact->fax_num = "";
+			} else {
+				$objContact->fax_num = $objContact->comm_destinations_fax_num_country_dialing_code . $objContact->comm_destinations_fax_num;
+			}//end if
+
+			if ($objContact->work_code != "")
+			{
+				$objContact->work_num = $objContact->work_code . $objContact->work_num;
+			}//end if
+
+			if ($objContact->fax_code != "")
+			{
+				$objContact->fax_code = $objContact->fax_code . $objContact->fax_num;
+			}//end if
+
+			foreach ($arr_normal_display_fields as $key => $value)
+			{
+				switch ($key)
+				{
+					case "User":
+						$arr_contact["User"] = $objContact->user_uname;
+						break;
+
+					case "ID":
+						$arr_contact[$key] = "<a href=\"" . $this->url("front-contacts", array("action" => "edit-contact", "id" => $objContact->id)) . "\" title=\"Edit Contact\"><span style=\"background-color: " . $objContact->registration_status_colour . "\" class=\"label label-info\" data-toggle=\"tooltip\" title=\"" . $objContact->registration_status_status . "\">" . $objContact->{$value} . "</span></a>";
+						break;
+
+					default:
+						$arr_contact[$key] = "<a href=\"" . $this->url("front-contacts", array("action" => "edit-contact", "id" => $objContact->id)) . "\" title=\"Edit Contact\" data-toggle=\"tooltip\">" . $objContact->{$value} . "</a>";
+						break;
+				}//end switch
+
+				//check if value got populated
+				if ($arr_contact[$key] == "")
+				{
+					$arr_contact[$key] = "&nbsp;";
+				}//end if
+			}//end foreach
+
+
+			$view_url = "<a href=\"" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objContact->id)) . "\" title=\"View Contact\" data-toggle=\"tooltip\">" . ICON_SMALL_PROFILE_HTML . "</a>";
+			$edit_url = "<a href=\"" . $this->url("front-contacts", array("action" => "edit-contact", "id" => $objContact->id)) . "\" title=\"Edit Contact\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+
+			$comms_url = "<a href=\"" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objContact->id)) . "\" class=\"contact_comms\" data-contact-id=\"" .$objContact->id . "\" title=\"Send a Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_COMMS_HTML . "</a>";
+			$arr_contact["Links"] = $view_url . "&nbsp;" . $edit_url . "&nbsp;" . $comms_url;
+
+			$arr[] = $arr_contact;
+		}//end foreach
+
+		//set table headers
+		foreach ($arr_normal_display_fields as $key => $value)
+		{
+			//$arr_header_fields[] = $key;
+			$arr_header_fields[] = array(
+				"value" => $key,
+			);
+		}//end foreach
+
+		//append add contact link
+		$arr_header_fields[] = array(
+				"value" => "&nbsp;",
+		);
+
+
+		//render the display table
+		$css_id = str_replace(".", "", microtime(TRUE));
+		//echo $this->renderDataTableHelper(array("return_script" => true), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, $arr_header_fields, array("id" => $css_id));
+
+		//insert pagination data
+		echo $this->renderPaginationHelper($this->objContacts->hypermedia->pagination, $this->url("front-contacts"));
+
+		//insert contact journey manager
+		echo $this->partial("contact_send_comms_js");
+	?>
+
+	</div>
+
+</div><!--  closing div -->

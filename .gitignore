@@ -1,0 +1,15 @@
+.gitignore~
+.buildpath
+.project
+.settings*
+/frontend/.buildpath
+/frontend/.project
+/frontend/.settings*
+/frontend/vendor
+/frontend/data/profiles/settings/*
+/frontend/data/tmp/uploads/*
+/frontend/data/user_storage/*
+/frontend/data/cache/*
+/frontend/config/autoload/domains/demo.majestic3.local.php
+/frontend/MajesticFront/FrontCore/src/FrontCore/Models/ApiRequestModelComplete.php
+

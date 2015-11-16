@@ -1,0 +1,1512 @@
+/*
+	Project: Majestic3
+	Author: Ninjas For Hire
+	Author URL: http://www.ninjasforhire.co.za
+*/
+@font-face {
+  font-family: 'lineicons';
+  src: url("../fonts/lineicons.eot?waiu35");
+  src: url("../fonts/lineicons.eot?#iefixwaiu35") format("embedded-opentype"), url("../fonts/lineicons.ttf?waiu35") format("truetype"), url("../fonts/lineicons.woff?waiu35") format("woff"), url("../fonts/lineicons.svg?waiu35#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+/* line 12, ../scss/helpers/_lineicons.scss */
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'lineicons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* generic */
+/* line 3, ../scss/helpers/_generic.scss */
+hr {
+  border-top: 1px solid #efefef;
+}
+
+/* line 7, ../scss/helpers/_generic.scss */
+.clearfix {
+  *zoom: 1;
+}
+
+/* line 11, ../scss/helpers/_generic.scss */
+.clearfix:before,
+.clearfix:after {
+  content: "";
+  display: table;
+  line-height: 0;
+}
+
+/* line 18, ../scss/helpers/_generic.scss */
+.clearfix:after {
+  clear: both;
+}
+
+/* line 22, ../scss/helpers/_generic.scss */
+.clearboth {
+  clear: both;
+}
+
+/* line 26, ../scss/helpers/_generic.scss */
+.wrapper {
+  display: block;
+  margin: 0 12px;
+  padding: 40px 0 0;
+  width: auto;
+}
+
+/* line 33, ../scss/helpers/_generic.scss */
+.mj3-spacer {
+  height: 150px;
+}
+
+/* line 37, ../scss/helpers/_generic.scss */
+.page-header {
+  border-bottom: 1px solid #efefef;
+}
+
+/* line 41, ../scss/helpers/_generic.scss */
+.mj3-btn-page {
+  margin: 20px 0;
+}
+
+/* line 45, ../scss/helpers/_generic.scss */
+.ui-resizable-helper {
+  border-left: 1px solid #333;
+  margin: 1px;
+  height: 100%;
+}
+
+/* CSS overides */
+/* line 49, ../scss/helpers/_generic.scss */
+.selector-width {
+  margin-right: 10px;
+}
+
+/* line 53, ../scss/helpers/_generic.scss */
+.bs-docs-section {
+  padding-top: 50px;
+}
+
+/* line 57, ../scss/helpers/_generic.scss */
+.m3-panel-subsection {
+  cursor: pointer;
+}
+
+/* line 61, ../scss/helpers/_generic.scss */
+.grab {
+  cursor: url("data:image/vnd.microsoft.icon;base64,AAACAAEAICACAAcABQAwAQAAFgAAACgAAAAgAAAAQAAAAAEAAQAAAAAAAAEAAAAAAAAAAAAAAgAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8AAAA/AAAAfwAAAP+AAAH/gAAB/8AAA//AAAd/wAAGf+AAAH9gAADbYAAA2yAAAZsAAAGbAAAAGAAAAAAAAA//////////////////////////////////////////////////////////////////////////////////////gH///4B///8Af//+AD///AA///wAH//4AB//8AAf//AAD//5AA///gAP//4AD//8AF///AB///5A////5///8="), all-scroll;
+  cursor: -moz-grab;
+  cursor: -o-grab;
+  cursor: -ms-grab;
+  cursor: grab;
+}
+
+/* navbar */
+/* line 3, ../scss/partials/_navbar.scss */
+.navbar-brand img {
+  height: 20px;
+}
+/* line 6, ../scss/partials/_navbar.scss */
+.navbar-brand img:hover {
+  fill: #ff0000;
+}
+
+/* line 11, ../scss/partials/_navbar.scss */
+nav.navbar {
+  border: 0;
+}
+/* line 14, ../scss/partials/_navbar.scss */
+nav.navbar ul ul {
+  font-size: 12px;
+}
+/* line 18, ../scss/partials/_navbar.scss */
+nav.navbar ul ul ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* line 24, ../scss/partials/_navbar.scss */
+nav.navbar ul ul ul a {
+  color: #666;
+  display: block;
+  padding: 4px 10px 4px 30px;
+}
+/* line 29, ../scss/partials/_navbar.scss */
+nav.navbar ul ul ul a:hover {
+  background-color: #f5f5f5;
+  text-decoration: none;
+}
+/* line 36, ../scss/partials/_navbar.scss */
+nav.navbar .dropdown-header {
+  text-transform: uppercase;
+}
+
+/* tables */
+/* line 5, ../scss/partials/_tables.scss */
+.mj3-table th {
+  cursor: pointer;
+}
+/* line 9, ../scss/partials/_tables.scss */
+.mj3-table th.sorting_asc,
+.mj3-table th.sorting_desc {
+  background: #f9f9f9;
+  -moz-border-radius: 4px 4px 0 0;
+  -webkit-border-radius: 4px;
+  border-radius: 4px 4px 0 0;
+}
+/* line 15, ../scss/partials/_tables.scss */
+.mj3-table .even td.sorting_1 {
+  background: #f9f9f9;
+}
+
+/* line 1, ../scss/partials/_sidebar.scss */
+.mj3-sidenav {
+  margin-bottom: 20px;
+}
+
+/* line 2, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav > li > a {
+  display: block;
+  padding: 4px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #767676;
+}
+
+/* line 3, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav > li > a:focus,
+.mj3-sidebar .nav > li > a:hover {
+  padding-left: 19px;
+  color: #3490c9;
+  text-decoration: none;
+  background-color: transparent;
+  border-left: 1px solid #3490c9;
+}
+
+/* line 5, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav > .active:focus > a,
+.mj3-sidebar .nav > .active:hover > a,
+.mj3-sidebar .nav > .active > a {
+  padding-left: 18px;
+  font-weight: 700;
+  color: #3490c9;
+  background-color: transparent;
+  border-left: 2px solid #3490c9;
+}
+
+/* line 8, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav .nav {
+  display: none;
+  padding-bottom: 10px;
+}
+
+/* line 9, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav .nav > li > a {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 30px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* line 10, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav .nav > li > a:focus,
+.mj3-sidebar .nav .nav > li > a:hover {
+  padding-left: 29px;
+}
+
+/* line 12, ../scss/partials/_sidebar.scss */
+.mj3-sidebar .nav .nav > .active:focus > a,
+.mj3-sidebar .nav .nav > .active:hover > a,
+.mj3-sidebar .nav .nav > .active > a {
+  padding-left: 28px;
+  font-weight: 500;
+}
+
+/* line 15, ../scss/partials/_sidebar.scss */
+.back-to-top,
+.mj3-theme-toggle {
+  display: none;
+  padding: 4px 10px;
+  margin-top: 10px;
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #999;
+}
+
+/* line 17, ../scss/partials/_sidebar.scss */
+.back-to-top:hover,
+.mj3-theme-toggle:hover {
+  color: #3490c9;
+  text-decoration: none;
+}
+
+/* line 19, ../scss/partials/_sidebar.scss */
+.mj3-theme-toggle {
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  /* line 21, ../scss/partials/_sidebar.scss */
+  .back-to-top, .mj3-theme-toggle {
+    display: block;
+  }
+}
+@media (min-width: 992px) {
+  /* line 22, ../scss/partials/_sidebar.scss */
+  .mj3-sidebar .nav > .active > ul {
+    display: block;
+  }
+
+  /* line 22, ../scss/partials/_sidebar.scss */
+  .mj3-sidebar.affix, .mj3-sidebar.affix-bottom {
+    width: 213px;
+  }
+
+  /* line 22, ../scss/partials/_sidebar.scss */
+  .mj3-sidebar.affix {
+    position: fixed;
+    top: 80px;
+  }
+
+  /* line 22, ../scss/partials/_sidebar.scss */
+  .mj3-sidebar.affix-bottom {
+    position: absolute;
+  }
+
+  /* line 22, ../scss/partials/_sidebar.scss */
+  .mj3-sidebar.affix .mj3-sidenav, .mj3-sidebar.affix-bottom .mj3-sidenav {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+@media (min-width: 1200px) {
+  /* line 23, ../scss/partials/_sidebar.scss */
+  .mj3-sidebar.affix, .mj3-sidebar.affix-bottom {
+    width: 263px;
+  }
+}
+/* line 25, ../scss/partials/_sidebar.scss */
+.mj3-section {
+  margin-bottom: 60px;
+}
+
+/* line 25, ../scss/partials/_sidebar.scss */
+.mj3-section:last-child {
+  margin-bottom: 0;
+}
+
+/* line 25, ../scss/partials/_sidebar.scss */
+h1[id] {
+  padding-top: 20px;
+  margin-top: 0;
+}
+
+/* line 1, ../scss/partials/_toolsbar.scss */
+.mj3-js-toolkit,
+.mj3-js-user-toolkit {
+  background: #222;
+  -moz-border-radius: 4px 0 0 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px 0 0 4px;
+  color: #d0d0d0;
+  font-size: 20px;
+  padding: 10px 12px 6px 13px;
+  position: fixed;
+  right: 0;
+  top: 75px;
+}
+/* line 12, ../scss/partials/_toolsbar.scss */
+.mj3-js-toolkit:hover, .mj3-js-toolkit:active,
+.mj3-js-user-toolkit:hover,
+.mj3-js-user-toolkit:active {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* line 19, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit,
+.mj3-user-toolkit {
+  background: #222;
+  border-left: 4px solid #444;
+  display: none;
+  left: auto !important;
+  padding: 20px 0 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100% !important;
+  width: 50%;
+  z-index: 9;
+}
+/* line 33, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit:hover, .mj3-toolkit:active,
+.mj3-user-toolkit:hover,
+.mj3-user-toolkit:active {
+  border-left: 4px solid #666;
+}
+/* line 38, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit iframe,
+.mj3-user-toolkit iframe {
+  border: 0;
+  height: 100%;
+  width: 100%;
+}
+/* line 44, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit .mj3-js-toolkit,
+.mj3-toolkit .mj3-js-user-toolkit,
+.mj3-user-toolkit .mj3-js-toolkit,
+.mj3-user-toolkit .mj3-js-user-toolkit {
+  right: auto;
+  left: -45px;
+  position: absolute;
+}
+/* line 50, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit .mj3-js-toolkit span,
+.mj3-toolkit .mj3-js-user-toolkit span,
+.mj3-user-toolkit .mj3-js-toolkit span,
+.mj3-user-toolkit .mj3-js-user-toolkit span {
+  margin-right: 0 !important;
+}
+
+/* line 56, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body {
+  background: #222;
+  color: #fff;
+}
+/* line 60, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body h2 {
+  color: #fff;
+  padding-bottom: 15px;
+}
+/* line 65, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .modal-content {
+  margin-top: 50px;
+}
+/* line 68, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .modal-content button {
+  margin-left: 10px !important;
+}
+/* line 72, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .modal-content .selector-width {
+  position: static;
+  float: left;
+  margin: 4px 10px 15px -20px;
+}
+/* line 78, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .modal-content .modal-body {
+  color: #333 !important;
+}
+/* line 83, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .table-responsive {
+  border: 0 !important;
+}
+/* line 87, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body table, .mj3-toolkit-body table * {
+  border-color: #333 !important;
+}
+/* line 91, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .mj3-table th.sorting_asc,
+.mj3-toolkit-body .mj3-table th.sorting_desc {
+  background: #333;
+}
+/* line 96, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .odd td {
+  background: #444;
+}
+/* line 100, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .mj3-table .even td.sorting_1 {
+  background: #333;
+}
+/* line 106, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .pagination * {
+  border-color: #222 !important;
+}
+/* line 110, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .pagination a {
+  background-color: #333;
+  color: #fff;
+}
+/* line 114, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .pagination a:hover {
+  background-color: #eee;
+}
+/* line 119, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .pagination .active a {
+  background-color: #3490c9;
+}
+/* line 124, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body .nav-tabs {
+  border-bottom: 1px solid #444;
+}
+/* line 132, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body #toolkitTabs li a {
+  background: #444;
+  color: #efefef;
+  outline: none;
+}
+/* line 137, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body #toolkitTabs li a:hover {
+  border: 1px solid #444;
+}
+/* line 142, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body #toolkitTabs li a[aria-expanded=true] {
+  background: #ccc;
+  color: #333;
+}
+/* line 146, ../scss/partials/_toolsbar.scss */
+.mj3-toolkit-body #toolkitTabs li a[aria-expanded=true]:hover {
+  border: 1px solid #ccc;
+}
+
+/* line 154, ../scss/partials/_toolsbar.scss */
+.ui-resizable-helper {
+  display: none !important;
+}
+
+/* line 158, ../scss/partials/_toolsbar.scss */
+.mj3-js-user-toolkit {
+  top: 122px;
+}
+
+/* line 162, ../scss/partials/_toolsbar.scss */
+#toolkitTabsContent {
+  border: 1px solid #444;
+  padding: 20px;
+}
+/* line 166, ../scss/partials/_toolsbar.scss */
+#toolkitTabsContent th {
+  background: #ccc;
+  color: #333;
+}
+/* line 171, ../scss/partials/_toolsbar.scss */
+#toolkitTabsContent .table-striped > tbody > tr:nth-of-type(2n+1) {
+  background-color: transparent;
+}
+/* line 175, ../scss/partials/_toolsbar.scss */
+#toolkitTabsContent .btn.btn-primary {
+  float: right;
+  margin: 0 0 15px;
+}
+
+/* line 1, ../scss/partials/_mj3basic.scss */
+.mj3_formselect {
+  padding: 0 0 30px;
+}
+/* line 4, ../scss/partials/_mj3basic.scss */
+.mj3_formselect .col-md-6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+/* line 12, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form .mj3-error {
+  color: #e20404;
+  font-weight: bold;
+}
+/* line 17, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form #frm-toggle-help {
+  float: right;
+  margin-bottom: -15px;
+}
+/* line 22, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form .control-label {
+  padding-bottom: 10px;
+}
+/* line 26, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form > div {
+  clear: both !important;
+}
+/* line 29, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form > div div {
+  float: none;
+}
+/* line 34, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form .form-element-remember_form {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* line 38, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form .form-element-remember_form label {
+  float: right;
+  font-weight: normal;
+  max-width: none;
+  padding-left: 20px;
+  width: auto;
+}
+/* line 46, ../scss/partials/_mj3basic.scss */
+.mj3_formselect form .form-element-remember_form .selector-width {
+  float: left;
+  margin: 3px 0 0;
+  padding: 0;
+}
+
+/* line 55, ../scss/partials/_mj3basic.scss */
+.mj3_systemfields {
+  border: 1px solid #efefef;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  padding: 25px;
+}
+/* line 60, ../scss/partials/_mj3basic.scss */
+.mj3_systemfields legend {
+  border-bottom: 0;
+}
+/* line 64, ../scss/partials/_mj3basic.scss */
+.mj3_systemfields table {
+  border-top: 1px solid #efefef;
+  border-right: 1px solid #efefef;
+  width: 50%;
+  margin-bottom: 15px;
+}
+/* line 70, ../scss/partials/_mj3basic.scss */
+.mj3_systemfields table th {
+  border-bottom: 1px solid #efefef;
+  border-left: 1px solid #efefef;
+  padding: 5px 10px;
+  text-align: left;
+}
+/* line 77, ../scss/partials/_mj3basic.scss */
+.mj3_systemfields table td {
+  border-bottom: 1px solid #efefef;
+  border-left: 1px solid #efefef;
+  padding: 5px 10px;
+}
+
+/* line 85, ../scss/partials/_mj3basic.scss */
+.mj3_forms {
+  padding: 0 0 30px;
+}
+/* line 88, ../scss/partials/_mj3basic.scss */
+.mj3_forms .col-md-6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+/* line 94, ../scss/partials/_mj3basic.scss */
+.mj3_forms #frm-toggle-help {
+  float: right;
+  margin-bottom: -5px;
+}
+/* line 99, ../scss/partials/_mj3basic.scss */
+.mj3_forms .nav-tabs {
+  border-bottom: 0 !important;
+  margin: 0 0 10px;
+}
+/* line 103, ../scss/partials/_mj3basic.scss */
+.mj3_forms .nav-tabs .mj3_btnchangeform {
+  float: right;
+  margin: 0 0 10px;
+}
+/* line 107, ../scss/partials/_mj3basic.scss */
+.mj3_forms .nav-tabs .mj3_btnchangeform a {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 110, ../scss/partials/_mj3basic.scss */
+.mj3_forms .nav-tabs .mj3_btnchangeform a:hover, .mj3_forms .nav-tabs .mj3_btnchangeform a:focus, .mj3_forms .nav-tabs .mj3_btnchangeform a:active {
+  background: #53a253;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #53a253;
+}
+/* line 121, ../scss/partials/_mj3basic.scss */
+.mj3_forms form {
+  border: 1px solid #efefef;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  margin: 0 0 25px;
+  padding: 25px;
+}
+/* line 127, ../scss/partials/_mj3basic.scss */
+.mj3_forms form label {
+  /*clear: both;*/
+  display: block;
+  font-size: 13px;
+  margin: 0;
+  padding: 0 0 10px;
+}
+/* line 135, ../scss/partials/_mj3basic.scss */
+.mj3_forms form input[type=text],
+.mj3_forms form select,
+.mj3_forms form textarea {
+  margin-bottom: 20px;
+}
+/* line 141, ../scss/partials/_mj3basic.scss */
+.mj3_forms form input[type=text] {
+  height: auto !important;
+  width: 100% !important;
+}
+/* line 146, ../scss/partials/_mj3basic.scss */
+.mj3_forms form textarea {
+  min-height: 100px !important;
+}
+/* line 150, ../scss/partials/_mj3basic.scss */
+.mj3_forms form .form-group {
+  margin-bottom: 20px !important;
+  width: 100%;
+}
+/* line 154, ../scss/partials/_mj3basic.scss */
+.mj3_forms form .form-group label input {
+  float: left;
+  margin: 3px 10px 0 0;
+}
+/* line 162, ../scss/partials/_mj3basic.scss */
+.mj3_forms form .checkbox-inline input {
+  float: left;
+  margin: 3px 10px 0 0;
+}
+/* line 170, ../scss/partials/_mj3basic.scss */
+.mj3_forms .page-e-link {
+  border-bottom: 1px solid #ccc;
+  display: block;
+  padding: 10px 0;
+}
+/* line 176, ../scss/partials/_mj3basic.scss */
+.mj3_forms .form-group {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto;
+}
+/* line 184, ../scss/partials/_mj3basic.scss */
+.mj3_forms .checkbox-inline label {
+  font-weight: normal;
+  max-width: none;
+  padding-left: 20px;
+  padding-top: 2px;
+}
+/* line 191, ../scss/partials/_mj3basic.scss */
+.mj3_forms .checkbox-inline input {
+  float: left !important;
+  margin: 3px 0 0;
+  padding: 0;
+}
+/* line 198, ../scss/partials/_mj3basic.scss */
+.mj3_forms input.btn {
+  margin: 15px 0 0;
+}
+
+/* line 203, ../scss/partials/_mj3basic.scss */
+.mj3_tables {
+  padding: 0 0 30px;
+}
+/* line 206, ../scss/partials/_mj3basic.scss */
+.mj3_tables .col-md-6 {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+/* line 212, ../scss/partials/_mj3basic.scss */
+.mj3_tables #frm-toggle-help {
+  float: right;
+  margin-bottom: -5px;
+}
+/* line 217, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs {
+  border-bottom: 0;
+  margin: 0 0 10px;
+}
+/* line 221, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs li > a.btn-primary {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 0;
+}
+/* line 225, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs li > a.btn-primary:hover {
+  background: #286090;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 0;
+}
+/* line 232, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnchangeform {
+  float: right;
+  margin: 0 0 10px;
+}
+/* line 236, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnchangeform a {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 239, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnchangeform a:hover {
+  background: #53a253;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #53a253;
+}
+/* line 247, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnhelp {
+  float: right;
+  margin: 0 0 10px 5px;
+  font-weight: bold !important;
+  font-size: 20px;
+}
+/* line 254, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnhelp a {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  height: 42px;
+}
+/* line 259, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnhelp a:hover {
+  background: #fff;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+/* line 265, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnhelp a img {
+  width: 20px;
+  margin-top: -2px;
+}
+/* line 271, ../scss/partials/_mj3basic.scss */
+.mj3_tables .nav-tabs .mj3_btnhelp span {
+  margin: 0;
+}
+
+/* line 280, ../scss/partials/_mj3basic.scss */
+.panel-title span {
+  margin-right: 10px;
+}
+
+/* line 287, ../scss/partials/_mj3basic.scss */
+.accordion-section .selector-width {
+  float: left !important;
+  margin: 3px 0 0 !important;
+  position: static !important;
+}
+/* line 293, ../scss/partials/_mj3basic.scss */
+.accordion-section .control-label {
+  padding-left: 10px;
+  width: auto !important;
+}
+
+/* line 299, ../scss/partials/_mj3basic.scss */
+.mj3_table_contain {
+  border: 1px solid #efefef;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  margin: 0 0 25px;
+  padding: 25px;
+}
+/* line 305, ../scss/partials/_mj3basic.scss */
+.mj3_table_contain table {
+  width: 100%;
+}
+/* line 309, ../scss/partials/_mj3basic.scss */
+.mj3_table_contain.htmltemplates td img {
+  display: block;
+  height: auto;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* line 317, ../scss/partials/_mj3basic.scss */
+.mj3_webform {
+  border: 1px solid #EFEFEF;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  margin: 0px 0px 25px;
+  padding: 25px;
+}
+/* line 323, ../scss/partials/_mj3basic.scss */
+.mj3_webform label {
+  display: block;
+}
+/* line 327, ../scss/partials/_mj3basic.scss */
+.mj3_webform select,
+.mj3_webform input[type=text] {
+  width: 250px;
+  margin-bottom: 20px;
+}
+/* line 333, ../scss/partials/_mj3basic.scss */
+.mj3_webform input[type=text],
+.mj3_webform option {
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #888;
+}
+/* line 341, ../scss/partials/_mj3basic.scss */
+.mj3_webform input[type=checkbox],
+.mj3_webform input[type=radio] {
+  width: auto;
+  margin-bottom: 20px;
+}
+
+/* line 348, ../scss/partials/_mj3basic.scss */
+.commspace {
+  background: #fff;
+  height: 40px;
+  border-top: 2px solid #dddddd !important;
+}
+
+/* line 355, ../scss/partials/_mj3basic.scss */
+[class^="icon-"], [class*=" icon-"] {
+  font-size: 18px;
+  margin-right: 10px;
+  text-decoration: none !important;
+}
+
+/* line 361, ../scss/partials/_mj3basic.scss */
+.page-e-link:hover,
+.page-e-link:focus,
+.page-e-link:active {
+  text-decoration: none !important;
+  border-bottom: 0;
+}
+/* line 367, ../scss/partials/_mj3basic.scss */
+.page-e-link:hover span,
+.page-e-link:focus span,
+.page-e-link:active span {
+  text-decoration: none !important;
+}
+
+/* line 375, ../scss/partials/_mj3basic.scss */
+.mj3-view-user-specific-container [class^="icon-"], .mj3-view-user-specific-container [class*=" icon-"],
+.mj3-view-toolkit-container [class^="icon-"],
+.mj3-view-toolkit-container [class*=" icon-"] {
+  font-size: 20px;
+  margin: 0;
+}
+
+/* line 381, ../scss/partials/_mj3basic.scss */
+.newsfeed_side {
+  border-top: 1px solid #efefef;
+  padding: 30px 0;
+  margin-top: 30px;
+}
+/* line 386, ../scss/partials/_mj3basic.scss */
+.newsfeed_side .navbar-header {
+  background: #f8f8f8;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+/* line 394, ../scss/partials/_mj3basic.scss */
+.newsfeed_side #m3-news-feed-content {
+  padding: 20px;
+}
+/* line 397, ../scss/partials/_mj3basic.scss */
+.newsfeed_side #m3-news-feed-content .date {
+  font-size: 11px;
+  font-style: italic;
+}
+/* line 403, ../scss/partials/_mj3basic.scss */
+.newsfeed_side #news-feed-status {
+  text-align: right;
+}
+/* line 406, ../scss/partials/_mj3basic.scss */
+.newsfeed_side #news-feed-status button {
+  max-height: 33px;
+}
+/* line 410, ../scss/partials/_mj3basic.scss */
+.newsfeed_side #news-feed-status [class^="icon-"], .newsfeed_side #news-feed-status [class*=" icon-"] {
+  font-size: 18px;
+  margin: 0 10px 0 0;
+}
+/* line 416, ../scss/partials/_mj3basic.scss */
+.newsfeed_side .btn_text {
+  display: block;
+  float: right;
+  margin-bottom: -5px;
+}
+
+/* line 427, ../scss/partials/_mj3basic.scss */
+.btn-success [class^="icon-"], .btn-success [class*=" icon-"],
+.btn-default [class^="icon-"],
+.btn-default [class*=" icon-"],
+.btn-primary [class^="icon-"],
+.btn-primary [class*=" icon-"] {
+  display: inline-block;
+  font-size: 18px;
+  margin: 0 5px 0 0;
+  float: left;
+}
+
+/* line 435, ../scss/partials/_mj3basic.scss */
+.btn-success:focus {
+  background: #53a253 !important;
+  border-color: #4cae4c !important;
+}
+
+/* line 439, ../scss/partials/_mj3basic.scss */
+.btn-primary:focus {
+  background: #286090 !important;
+  border-color: #2f81b5 !important;
+}
+
+/* line 444, ../scss/partials/_mj3basic.scss */
+.btn-default:active,
+.btn-default.active {
+  background: #fff !important;
+}
+
+/* line 449, ../scss/partials/_mj3basic.scss */
+.mj_checkbox {
+  display: block;
+  float: left;
+  width: auto;
+  margin: 3px 7px 0 2px !important;
+}
+
+/* line 458, ../scss/partials/_mj3basic.scss */
+.mj_panelticks input {
+  margin-right: 10px;
+}
+/* line 462, ../scss/partials/_mj3basic.scss */
+.mj_panelticks label {
+  display: block;
+  padding: 8px 0 !important;
+}
+
+/* line 470, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion ul, #replace-fields-accordion li {
+  list-style-type: none;
+  padding: 0 10px;
+}
+/* line 475, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion .panel-body {
+  padding: 10px !important;
+}
+/* line 479, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion .panel-heading {
+  padding: 0;
+  height: auto;
+}
+/* line 484, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion .panel-title {
+  color: #fff;
+}
+/* line 487, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion .panel-title a {
+  background: #3490c9;
+  box-shadow: none;
+  display: block !important;
+  height: 100%;
+  padding: 15px;
+  transition: background 0.4s ease;
+  width: 100%;
+}
+/* line 496, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion .panel-title a:hover, #replace-fields-accordion .panel-title a:active, #replace-fields-accordion .panel-title a:focus {
+  background: #2a73a0 !important;
+  text-decoration: none;
+}
+/* line 505, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion .mj_sectiontitle {
+  background: #eee;
+  padding: 10px 15px;
+}
+/* line 510, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion li.btndrag {
+  background: #f8f8f8;
+  border-radius: 4px;
+  border: 1px solid #efefef;
+  font-size: 12px;
+  margin: 0 0 5px;
+  padding: 10px;
+  transition: background 0.4s ease;
+}
+/* line 519, ../scss/partials/_mj3basic.scss */
+#replace-fields-accordion li.btndrag:hover {
+  background: #fff;
+}
+
+/* line 527, ../scss/partials/_mj3basic.scss */
+.mj_adv_tracker fieldset {
+  margin: 0 0 30px;
+}
+
+/* line 532, ../scss/partials/_mj3basic.scss */
+.js-help-toggle.active {
+  border-color: #3490c9;
+}
+
+/* line 536, ../scss/partials/_mj3basic.scss */
+.help-block {
+  background: #ecf1ef;
+  border: 1px solid #ecf1ef;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  clear: both;
+  color: #8F8F8F;
+  font-size: 14px;
+  padding: 10px;
+  position: relative;
+  width: 100%;
+}
+/* line 547, ../scss/partials/_mj3basic.scss */
+.help-block:after, .help-block:before {
+  bottom: 100%;
+  left: 19px;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+/* line 558, ../scss/partials/_mj3basic.scss */
+.help-block:after {
+  border-color: rgba(136, 183, 213, 0);
+  border-bottom-color: #3490c9;
+  border-width: 5px;
+  margin-left: -5px;
+}
+/* line 564, ../scss/partials/_mj3basic.scss */
+.help-block:before {
+  border-color: rgba(194, 225, 245, 0);
+  border-bottom-color: #3490c9;
+  border-width: 6px;
+  margin-left: -6px;
+}
+
+/* line 572, ../scss/partials/_mj3basic.scss */
+.glyphicon-question-sign {
+  font-size: 19px;
+  margin-top: -1px;
+  color: #3490c9;
+}
+
+/* line 1, ../scss/partials/_dockreplacefields.scss */
+.dock-replace-fields {
+  border: 0;
+  margin-top: 50px;
+}
+/* line 5, ../scss/partials/_dockreplacefields.scss */
+.dock-replace-fields .panel-heading {
+  border-bottom: 0;
+  padding: 15px 15px;
+  font-size: 18px;
+  line-height: 20px;
+  height: 50px;
+}
+
+/* login */
+/* line 3, ../scss/pages/_login.scss */
+.mj3-login {
+  height: 100%;
+  padding-top: 14%;
+}
+/* line 7, ../scss/pages/_login.scss */
+.mj3-login img {
+  margin-bottom: 30px !important;
+}
+/* line 11, ../scss/pages/_login.scss */
+.mj3-login .mj3-login-status {
+  margin: 0 auto;
+  max-width: 300px;
+}
+/* line 15, ../scss/pages/_login.scss */
+.mj3-login .mj3-login-status ul {
+  margin: 0;
+  padding: 10px 0 0 20px;
+}
+/* line 21, ../scss/pages/_login.scss */
+.mj3-login .m3logo_main {
+  display: block;
+  margin: 0 auto;
+  width: 90px;
+}
+/* line 27, ../scss/pages/_login.scss */
+.mj3-login .tagline {
+  padding: 15px 0 25px;
+  text-align: center;
+}
+/* line 32, ../scss/pages/_login.scss */
+.mj3-login .mj3-loginbox {
+  margin: 0 auto;
+  max-width: 300px;
+}
+/* line 36, ../scss/pages/_login.scss */
+.mj3-login .mj3-loginbox .btn-primary {
+  width: 100%;
+}
+/* line 40, ../scss/pages/_login.scss */
+.mj3-login .mj3-loginbox .forgot {
+  font-size: 12px;
+  padding: 10px 0;
+  text-align: center;
+}
+/* line 45, ../scss/pages/_login.scss */
+.mj3-login .mj3-loginbox .forgot a {
+  color: #ccc;
+}
+
+/* line 1, ../scss/pages/_home.scss */
+.mj3_home {
+  box-sizing: border-box;
+}
+/* line 4, ../scss/pages/_home.scss */
+.mj3_home *, .mj3_home *:before, .mj3_home *:after {
+  box-sizing: inherit;
+}
+/* line 8, ../scss/pages/_home.scss */
+.mj3_home .m3-panel {
+  margin-bottom: 10px;
+  padding: 0 5px;
+}
+/* line 12, ../scss/pages/_home.scss */
+.mj3_home .m3-panel .dash-tools {
+  border: solid #efefef;
+  -moz-border-radius: 4px 4px 0 0;
+  -webkit-border-radius: 4px;
+  border-radius: 4px 4px 0 0;
+  border-width: 1px 1px 0;
+  font-size: 16px;
+  height: 45px;
+  line-height: 35px;
+  margin: 0;
+  padding: 5px 10px;
+}
+/* line 22, ../scss/pages/_home.scss */
+.mj3_home .m3-panel .dash-tools .btn {
+  border: 0;
+  border-left: 1px solid #ccc;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  margin: 0 !important;
+}
+/* line 29, ../scss/pages/_home.scss */
+.mj3_home .m3-panel .dash-tools .btn-group {
+  float: right;
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* line 37, ../scss/pages/_home.scss */
+.mj3_home .m3-panel .dash-tools .btn-group [class^="icon-"], .mj3_home .m3-panel .dash-tools .btn-group [class*=" icon-"] {
+  margin: 0 !important;
+}
+/* line 43, ../scss/pages/_home.scss */
+.mj3_home .m3-panel .panel-content {
+  border: 1px solid #efefef;
+  -moz-border-radius: 0 0 4px 4px;
+  -webkit-border-radius: 0;
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+  padding: 10px;
+}
+/* line 49, ../scss/pages/_home.scss */
+.mj3_home .m3-panel .panel-content [class^="icon-"], .mj3_home .m3-panel .panel-content [class*=" icon-"] {
+  font-size: 35px;
+  margin: 0 0 0 5px !important;
+}
+/* line 56, ../scss/pages/_home.scss */
+.mj3_home .panel-icon-large {
+  width: 20%;
+}
+/* line 59, ../scss/pages/_home.scss */
+.mj3_home .panel-icon-large .panel-content {
+  border: 0;
+  background: #3490c9;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  font-size: 30px;
+  padding: 10px 10px 5px;
+  max-height: 60px;
+}
+/* line 67, ../scss/pages/_home.scss */
+.mj3_home .panel-icon-large .panel-content a {
+  color: #fff;
+}
+/* line 70, ../scss/pages/_home.scss */
+.mj3_home .panel-icon-large .panel-content a > span {
+  float: left;
+}
+/* line 74, ../scss/pages/_home.scss */
+.mj3_home .panel-icon-large .panel-content a em {
+  float: left;
+  font-size: 13px;
+  font-style: normal;
+  height: 40px;
+  overflow: hidden;
+  padding: 10px 0 0 15px;
+  vertical-align: middle;
+  display: inline-block;
+}
+/* line 86, ../scss/pages/_home.scss */
+.mj3_home .panel-icon-large .panel-content:hover {
+  opacity: 0.85;
+}
+/* line 92, ../scss/pages/_home.scss */
+.mj3_home .panel-widget-medium {
+  width: 40%;
+}
+/* line 97, ../scss/pages/_home.scss */
+.mj3_home .panel-widget-medium .panel-content h2 {
+  font-size: 20px;
+  margin: 0;
+  padding: 0 0 15px;
+}
+/* line 105, ../scss/pages/_home.scss */
+.mj3_home .panel-widget-chart {
+  width: 60%;
+}
+/* line 113, ../scss/pages/_home.scss */
+.mj3_home .panel-widget-small {
+  width: 40%;
+}
+/* line 118, ../scss/pages/_home.scss */
+.mj3_home .panel-widget-small .panel-content h2 {
+  font-size: 20px;
+  margin: 0;
+  padding: 0 0 15px;
+}
+/* line 126, ../scss/pages/_home.scss */
+.mj3_home .panel-table-large {
+  width: 100%;
+}
+
+@media (max-width: 1000px) {
+  /* line 139, ../scss/pages/_home.scss */
+  .mj3_home .panel-icon-large {
+    width: 25%;
+  }
+  /* line 143, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-medium {
+    width: 75%;
+  }
+  /* line 147, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-chart {
+    width: 75%;
+  }
+  /* line 151, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-small {
+    width: 50%;
+  }
+}
+@media (max-width: 800px) {
+  /* line 161, ../scss/pages/_home.scss */
+  .mj3_home .panel-icon-large {
+    width: 50%;
+  }
+  /* line 165, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-medium {
+    width: 100%;
+  }
+  /* line 169, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-chart {
+    width: 100%;
+  }
+  /* line 173, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-small {
+    width: 50%;
+  }
+}
+@media (max-width: 480px) {
+  /* line 183, ../scss/pages/_home.scss */
+  .mj3_home .panel-icon-large {
+    width: 100%;
+  }
+  /* line 187, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-medium {
+    width: 100%;
+  }
+  /* line 191, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-chart {
+    width: 100%;
+  }
+  /* line 195, ../scss/pages/_home.scss */
+  .mj3_home .panel-widget-small {
+    width: 100%;
+  }
+}
+@media (max-width: 405px) {
+  /* line 207, ../scss/pages/_home.scss */
+  .mj3_home .m3-panel h4 {
+    height: auto;
+    overflow: hidden;
+    text-align: center;
+  }
+  /* line 212, ../scss/pages/_home.scss */
+  .mj3_home .m3-panel h4 .btn-group {
+    float: none;
+    margin: 0 0 10px;
+    padding: 0 !important;
+  }
+}
+/* file manager */
+/* line 5, ../scss/pages/_filemanager.scss */
+.files-container-documents h4 {
+  padding: 30px 0 15px;
+}
+
+/* line 10, ../scss/pages/_filemanager.scss */
+.filemanager-right {
+  float: right;
+  padding: 10px;
+}
+
+/* line 15, ../scss/pages/_filemanager.scss */
+.mj3-file-manager {
+  border-bottom: 1px solid #ccc !important;
+  display: block;
+  padding: 7px 5px;
+  position: relative;
+}
+/* line 22, ../scss/pages/_filemanager.scss */
+.mj3-file-manager .filename {
+  float: left;
+  padding: 10px 15px 10px 45px !important;
+}
+/* line 27, ../scss/pages/_filemanager.scss */
+.mj3-file-manager .file-type {
+  background-repeat: no-repeat;
+  background-position: 5px 50%;
+}
+
+/* line 33, ../scss/pages/_filemanager.scss */
+.mj3-image-manager {
+  background-repeat: no-repeat;
+  background-position: 10px 50%;
+  background-size: auto 60%;
+  border-bottom: 1px solid #ccc !important;
+  display: block;
+  margin: 5px;
+  padding: 7px 0;
+  position: relative;
+}
+
+/* line 46, ../scss/pages/_filemanager.scss */
+.file-type .filename {
+  font-size: 10px;
+  word-wrap: break-word;
+  text-decoration: none;
+}
+
+/* line 53, ../scss/pages/_filemanager.scss */
+.file-type-csv {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_csv.svg");
+}
+
+/* line 57, ../scss/pages/_filemanager.scss */
+.file-type-xls {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_xls.svg");
+}
+
+/* line 61, ../scss/pages/_filemanager.scss */
+.file-type-doc {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_doc.svg");
+}
+
+/* line 65, ../scss/pages/_filemanager.scss */
+.file-type-txt {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_txt.svg");
+}
+
+/* line 69, ../scss/pages/_filemanager.scss */
+.file-type-pdf {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_pdf.svg");
+}
+
+/* line 73, ../scss/pages/_filemanager.scss */
+.file-type-css {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_css.svg");
+}
+
+/* line 77, ../scss/pages/_filemanager.scss */
+.file-type-js {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_js.svg");
+}
+
+/* line 81, ../scss/pages/_filemanager.scss */
+.file-type-html {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_html.svg");
+}
+
+/* line 85, ../scss/pages/_filemanager.scss */
+.file-type-blank {
+  background-image: url("https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_blank.svg");
+}
+
+/* line 89, ../scss/pages/_filemanager.scss */
+.file_options {
+  padding: 6px 10px;
+  float: right;
+}
+
+/* line 95, ../scss/pages/_filemanager.scss */
+#file_drop_handler {
+  border: 1px dashed #3490c9;
+  border-radius: 4px;
+  background: #f5fbff;
+  padding: 100px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* line 104, ../scss/pages/_filemanager.scss */
+.statusbar {
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+/* line 108, ../scss/pages/_filemanager.scss */
+.statusbar .progressBar div {
+  color: #fff;
+  padding: 5px;
+}
+
+/* line 114, ../scss/pages/_filemanager.scss */
+#frm-toggle-help {
+  display: none;
+}
+
+/* line 1, ../scss/pages/_contacts.scss */
+.mj3_contactutilbar {
+  border-bottom: 1px solid #dddddd;
+  margin: 0 0 30px;
+  padding: 10px 0;
+}
+/* line 6, ../scss/pages/_contacts.scss */
+.mj3_contactutilbar .mj3_newcontactbtn {
+  float: left;
+}
+/* line 10, ../scss/pages/_contacts.scss */
+.mj3_contactutilbar .mj3_changelayoutbtn {
+  float: right;
+}
+
+/* line 15, ../scss/pages/_contacts.scss */
+.mj3_contactutilbarft {
+  margin: 15px 0 30px;
+  padding: 10px 0;
+}
+/* line 19, ../scss/pages/_contacts.scss */
+.mj3_contactutilbarft .mj3_newcontactbtn {
+  float: left;
+}

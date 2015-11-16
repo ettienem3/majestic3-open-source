@@ -1,0 +1,105 @@
+<div class="mj3_forms clearfix">
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//monitor the add link
+		jQuery(".add_embedded_image").click(function (e) {
+			e.preventDefault();
+
+			//open dialog and load files manager page
+			jQuery.ajax({
+				url: '<?php echo $this->url("front-profile-file-manager"); ?>?dialog-layout=1&mode=images&disable_uploads=1',
+			})
+			.done(function (data) {
+				jQuery(".dialog_files").html(data);
+
+				//remove file options
+				jQuery(".dialog_files").find(".file_options").html('<a href="#" class="comm_attach_file" title="Embed Image"><?php echo ICON_LARGE_ADD_HTML; ?></a>');
+
+				jQuery(".comm_attach_file").click(function (e) {
+					e.preventDefault();
+
+					//set file location
+					var file_location = jQuery(this).parent().attr("data-file-location");
+					if (file_location == "")
+					{
+						alert("Image could not be embedded. Location is not set");
+						return false;
+					}//end if
+
+					jQuery.ajax({
+						url: "<?php echo $this->url("front-comms-admin/comm-embedded-images", array("journey_id" => $this->journey_id, "comm_id" => $this->comm_id, "action" => "ajax-create-image")); ?>",
+						type: "post",
+						data: {
+							file_name: file_location
+						}
+					})
+					.done(function (data) {
+						var objData = jQuery.parseJSON(data);
+
+						if (objData.error == 1)
+						{
+							alert(objData.response);
+							return false;
+						}//end if
+					})
+					.fail(function () {
+						alert("Image could not be embedded. An unknown error has occurred");
+						return false;
+					});
+				});
+			});
+
+			jQuery(".dialog_files").dialog({
+				modal: true,
+				title: "File Manager",
+				width: "70%",
+				buttons: {
+					Close: function () {
+						jQuery(".dialog_files").dialog("close");
+					}
+				}
+
+			});
+		});
+	});
+</script>
+	<?php echo $this->renderStandardViewHeader('&nbsp; Embedded Images'); ?>
+	<?php
+	foreach ($this->objImages as $objImage)
+	{
+		if ($objImage->get("id") == "")
+		{
+			continue;
+		}//end if
+
+		$arr_image["file_name"] = $objImage->get("file_name");
+		$arr_image["type"] = $objImage->get("content_type");
+
+		$edit_url = "<a href=\"" . $this->url("front-comms-admin/comm-embedded-images", array("journey_id" => $this->journey_id, "comm_id" => $this->comm_id, "id" => $objImage->get("id"), "action" => "edit-image")) . "\" title=\"Edit Image\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+		$delete_url = "<a href=\"" . $this->url("front-comms-admin/comm-embedded-images", array("journey_id" => $this->journey_id, "comm_id" => $this->comm_id, "id" => $objImage->get("id"), "action" => "delete-image")) . "\" title=\"Remove Image\">" . ICON_SMALL_DELETE_HTML . "</a>";
+		$arr_image["urls"] = $edit_url . "&nbsp;" . $delete_url;
+
+		$arr[] = $arr_image;
+	}//end foreach
+
+	?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id)); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li class="mj3_btnchangeform"><a class="btn btn-success" title="Add Image" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML . 'Add Image'; ?></a></li>
+		</ul>
+	<div class="mj3_table_contain">
+
+
+
+<?php
+
+$add_url = "";
+echo $this->renderDataTableHelper();
+echo $this->renderSimpleHTMLTable($arr, array("File", "Content Type", $add_url));
+
+?>
+
+	</div><!--  mj3-table_contain closing div -->
+
+</div><!-- mj3_forms closing div -->
+<div class="dialog_files" style="display: none; z-index: 1100;"><h4>Loading...</h4><img src="<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif" /></div>

@@ -1,0 +1,128 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_TRACKER_HTML .'&nbsp; Trackers - <a href="' . $this->url("front-contacts", array("id" => $this->objContact->get("id"), "action" => "view-contact")) . '" title="View Contact" data-toggle="tooltip">' . $this->objContact->get("fname") . " " . $this->objContact->get("sname")) . "</a>";?>
+
+	<ul class="nav nav-tabs">
+
+		<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("id" => $this->objContact->get("id"), "action" => "view-contact")); ?>" title="View Contact" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li class="mj3_btnchangeform"><a id="create_sales_funnel" href="<?php echo $this->url("front-sales-funnels", array("reg_id" => $this->objContact->get("id"), "action" => "create")); ?>" title="Create Tracker" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML .'&nbsp; Add New Tracker to Contact'; ?></a></li>
+
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//activate toolkit section
+			var iframe_container_url = "<?php echo $this->url("front-contacts", array("action" => "iframe-contact-toolkit-sections", "id" => $this->objContact->get("reg_id_encoded")));?>";
+			var iframe_container = jQuery(".m3-view-toolkit-container").mj_toolkit_section("");
+			jQuery(".mj3-view-toolkit-container").click(function (e) {
+				if (iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src") == "")
+				{
+					iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src", iframe_container_url);
+				}//end if
+			});
+			
+			if (window.location.href.indexOf("?create-tracker=1") >= 0 )
+			{
+				loadAvailableTrackers();
+			}//end if
+
+			jQuery("#create_sales_funnel").click(function (e) {
+				e.preventDefault();
+
+				//load sales funnel forms
+				jQuery.ajax({
+					url: "<?php echo $this->url("front-sales-funnels", array("reg_id" => $this->objContact->id, "action" => "ajax-load-sales-funnels")); ?>"
+				})
+				.done(function (data) {
+					var objData = jQuery.parseJSON(data);
+					if (objData.error == 1)
+					{
+						alert(objData.response);
+						return false;
+					}//end if
+
+					//load modal
+					jQuery("#sales-funnel-select-modal").modal("show");
+
+					loadAvailableTrackers();
+				});
+			});
+		});
+
+		function loadAvailableTrackers()
+		{
+			//load modal
+			jQuery("#sales-funnel-select-modal").modal("show");
+
+			//load sales funnel forms
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-sales-funnels", array("reg_id" => $this->objContact->id, "action" => "ajax-load-sales-funnels")); ?>"
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+				if (objData.error == 1)
+				{
+					alert(objData.response);
+					return false;
+				}//end if
+
+				jQuery("#dialog_list_forms").html(objData.response);
+			})
+			.fail(function () {
+				alert("Tracker could not be loaded. An unknown error occured");
+				return false;
+			});
+		}//end function
+		</script>
+
+		<div class="modal fade" id="sales-funnel-select-modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+       	 				<h4 class="modal-title" id="myModalLabel">Select Tracker</h4>
+					</div>
+
+					<div class="modal-body" id="dialog_list_forms">
+						<h4>Please wait, trackers are loading...</h4>
+						<img src="<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif"/>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+
+		foreach ($this->objSalesFunnels as $objSalesFunnel) {
+
+			if(!is_numeric($objSalesFunnel->get("id"))) {
+				continue;
+			} //end if
+
+			$arr_sales_funnel["form"] = $objSalesFunnel->get("forms_form");
+			$arr_sales_funnel["status"] = $objSalesFunnel->get("sf_status");
+			$arr_sales_funnel["deal_number"] = $objSalesFunnel->get("sf_deal_number");
+			$arr_sales_funnel["date"] = date("d/m/Y H:i", $objSalesFunnel->get("tstamp"));
+
+			//set urls
+
+
+			$edit_url = "<a href=\"" . $this->url("front-sales-funnels", array("id" => $objSalesFunnel->get("id"), "reg_id" => $this->objContact->id, "action" => "edit")) . "?fid=" . $objSalesFunnel->get("fk_form_id") . "\" title=\"Update Tracker\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-sales-funnels", array("id" => $objSalesFunnel->get("id"), "reg_id" => $this->objContact->id, "action" => "delete")) . "\" title=\"Delete Tracker\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+
+			$arr_sales_funnel["url"] = $edit_url . "&nbsp;" . $delete_url;
+
+			$arr[] = $arr_sales_funnel;
+		} //end foreach
+
+		$add_url = "";
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("Tracker", "Status", "Deal Number", "Created", $add_url));
+		?>
+	</div>
+</div>

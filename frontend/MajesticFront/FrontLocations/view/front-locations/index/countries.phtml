@@ -1,0 +1,49 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_LOCATION_HTML .'&nbsp;Countries'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-locations"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		/**
+		 * Prepare data
+		 */
+		foreach ($this->objCountries as $objCountry)
+		{
+			if (!isset($objCountry->id))
+			{
+				continue;
+			}//end if
+
+			$arr_data["country"] = $objCountry->country;
+
+			if ($objCountry->active == 1)
+			{
+				$arr_data["active"] = ICON_SMALL_ACTIVE_HTML;
+			} else {
+				$arr_data["active"] = ICON_SMALL_INACTIVE_HTML;
+			}//end if
+
+			$arr_data["code"] = $objCountry->code;
+			$arr_data["currency"] = $objCountry->currency;
+			$arr_data["currency_code"] = $objCountry->currency_code;
+			$arr_data["dialing_code"] = $objCountry->dialing_code;
+
+			$arr[] = $arr_data;
+		}//end foreach
+
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("Country", "Active", "Country Code", "Currency", "Currency Code", "Dialing Code"), array("id" => $css_id));
+
+		//insert pagination data
+		echo $this->renderPaginationHelper($this->objCountries->hypermedia->pagination, $this->url("front-locations/countries"));
+		?>
+
+	</div>
+
+</div>

@@ -1,0 +1,51 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_WEBHOOK_HTML .'&nbsp; Manage Webhooks'); ?>
+
+
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a class="btn btn-success" href="<?php echo $this->url("front-power-tools/webhooks", array("action" => "create-webhook")); ?>" title="Create a Webhook" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML;?> Create Webhook</a></li>
+		<li role="presentation"><a class="btn btn-primary" href="<?php echo $this->url("front-power-tools/webhooks", array("action" => "webhook-urls")); ?>" title="Manage Urls / Endpoints" data-toggle="tooltip"><?php //echo ICON_MEDIUM_ADD_HTML;?> Manage Urls / Endpoints</a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		foreach ($this->objWebhooks as $objWebhook) {
+
+			if ($objWebhook->get("id") == "") {
+				continue;
+			} //end if
+
+			$arr_webhook["title"] = $objWebhook->get("title");
+			$arr_webhook["description"] = $objWebhook->get("description");
+			$arr_webhook["method"] = $objWebhook->get("http_method");
+
+			if ($objWebhook->get("active") == 1) {
+
+				$arr_webhook["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-status", "id" => $objWebhook->get("id"))) . "\" title=\"Deactivate Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+			} else {
+				$arr_webhook["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-status", "id" => $objWebhook->get("id"))) . "\" title=\"Activate Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+			} //end if
+
+			//set urls
+			$edit_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "edit-webhook", "id" => $objWebhook->get("id"))) . "\" title=\"Edit Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$headers_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "webhook-headers")) . "?webhook_id=" . $objWebhook->get("id") . "\" title=\"Webhook Headers\" data-toggle=\"tooltip\">Headers</a>";
+			$delete_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "delete-webhook", "id" => $objWebhook->get("id"))) . "\" title=\"Delete Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			$arr_webhook["urls"] = $edit_url . "&nbsp;" . $headers_url . "&nbsp;" . $delete_url;
+
+			$arr[] = $arr_webhook;
+
+		} //end foreach
+
+// 		$add_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "create-webhook")) . "\" title=\"Create a Webhook\" data-toggle=\"tooltip\">" . ICON_MEDIUM_ADD_HTML . "</a>";
+		$add_url = "";
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("Title", "Description", "Method", "Active", $add_url));
+
+		?>
+
+	</div>
+
+</div>

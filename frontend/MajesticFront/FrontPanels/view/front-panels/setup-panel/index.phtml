@@ -1,0 +1,45 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp; Profile Panels'); ?>
+
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-panels-setup", array("action" => "create")); ?>" title="" data-toggle="tooltip" class="btn btn-success" data-original-title="Makes Panels available to users"><?php echo ICON_MEDIUM_ADD_HTML .'Add Profile Panel'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+		foreach ($this->objPanels as $objPanel)
+		{
+			if (!is_numeric($objPanel->get("id")))
+			{
+				//continue;
+			}//end if
+
+			$arr_panel["name"] = "<span title=\"" . $objPanel->get("description") . "\">" . $objPanel->get("name") . "</span>";
+
+			if ($objPanel->get("active") == 1)
+			{
+				$arr_panel["active"] = "<a href=\"" . $this->url("front-panels-setup", array("action" => "status", "id" => $objPanel->get("id"))) . "\" title=\"Deactivate Panel\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+			} else {
+				$arr_panel["active"] = "<a href=\"" . $this->url("front-panels-setup", array("action" => "status", "id" => $objPanel->get("id"))) . "\" title=\"Activate Panel\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+			}//end if
+
+			$edit_url = "<a href=\"" . $this->url("front-panels-setup", array("action" => "edit", "id" => $objPanel->get("id"))) . "\" title=\"Update Panel\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";;
+			$delete_url = "<a href=\"" . $this->url("front-panels-setup", array("action" => "delete", "id" => $objPanel->get("id"))) . "\" title=\"Delete Panel\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";;
+			$arr_panel["urls"] = $edit_url . "&nbsp;" . $delete_url;
+
+			$arr[] = $arr_panel;
+		}//end foreach
+
+		//create add url
+		$add_url = "";
+
+		echo $this->renderSimpleHTMLTable($arr, array("Panel", "Status", $add_url));
+		echo $this->renderDataTableHelper(array("return_script" => true));
+
+		?>
+
+	</div>
+
+</div>

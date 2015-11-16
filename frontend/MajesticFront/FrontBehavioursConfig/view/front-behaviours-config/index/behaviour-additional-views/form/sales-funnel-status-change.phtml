@@ -1,0 +1,36 @@
+<?php 
+echo "TODO create functions to load sales funnel status field";
+?>
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//hide the field value field
+		jQuery(".form-element-field_value").hide();
+
+		//monitor the sales funnel field for changes
+		jQuery("#fk_form_id2").change(function () {
+			//clear the field value field
+			jQuery("#field_value").hide().empty().append(new Option("--select--", ""));
+
+			//request sales funnel status data
+			jQuery.ajax({
+				type: 'GET',
+				url : '<?php echo $this->url("front-form-admin/form", array("action" => "ajax-load-form-data", "id" => $this->objForm->get("id")));?>',
+				dataType: 'json',
+				async: false,
+				success: function (data) {
+					//convert data received to array
+					jQuery.each(data.field_values_data, function (id, field_value) {
+						jQuery("#field_value").append(new Option(field_value, id));
+					});
+
+					//show the field again
+					jQuery("#field_value").show("fast");
+				}, //end function
+				fail: function () {
+					alert("Data could not be loaded");
+					return false;
+				}//end function
+			});
+		});
+	});
+</script>

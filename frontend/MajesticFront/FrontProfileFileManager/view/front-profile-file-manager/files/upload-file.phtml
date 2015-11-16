@@ -1,0 +1,237 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_UPLOAD_HTML .'&nbsp; File Manager - Upload a file'); ?>
+
+
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-profile-file-manager"); ?>" title="Back to File Manager" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<div style="display: none;" id="file_drop_handler_container">
+				<div id="file_drop_handler">Drag and drop files here...</div>
+				<br/><br/><br/><br/><br/>
+		</div>
+
+		<div id="div-front-profile-file-manager-uploads">
+			<h4>Or, Manually upload File</h4>
+			<?php
+
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+
+			/**
+			 * Drap and drop uploading below
+			 */
+			?>
+			</div>
+
+		<script type="text/javascript">
+			var global_image_upload_url = "<?php echo $this->url("front-profile-file-manager", array("action" => "ajax-upload-file"));?>";
+			jQuery(document).ready(function () {
+
+				//prevent events where files are dropped anywhere else on the page
+				jQuery(document).on('dragenter', function (e)
+				{
+					e.stopPropagation(); 	//stop events from happening
+					e.preventDefault();		//really stop events from happening
+				});
+
+				jQuery(document).on('dragover', function (e)
+				{
+					e.stopPropagation(); 	//stop events from happening
+					e.preventDefault();		//really stop events from happening
+				  obj.css('border', '1px dotted #0B85A1');
+				});
+
+				jQuery(document).on('drop', function (e)
+				{
+					e.stopPropagation(); 	//stop events from happening
+					e.preventDefault();		//really stop events from happening
+				});
+
+				//file drop handler events
+				var obj = jQuery("#file_drop_handler");
+				obj.on("dragenter", function (e) {
+					e.stopPropagation(); 	//stop events from happening
+					e.preventDefault();		//really stop events from happening
+				});
+
+				obj.on("dragover", function (e) {
+					e.stopPropagation(); 	//stop events from happening
+					e.preventDefault();		//really stop events from happening
+				});
+
+				obj.on("drop", function (e) {
+					jQuery(this).css("border", "2px dotted #0B85A1");
+					e.preventDefault();		//really stop events from happening
+					var files = e.originalEvent.dataTransfer.files;
+
+					//do something with the files
+					handleFileUpload(files, obj);
+				});
+
+				//activate the drag and drop section
+				//add delay to allow everyting to get loaded
+				setTimeout(function() {jQuery("#file_drop_handler_container").css("display", "block");}, 1000);
+
+				jQuery("#tmp_file").change(function () {
+					if (jQuery("#filename").val() == "")
+					{
+						var t = jQuery(this).val();
+						t = t.replace("\\", "/").split("/");
+						jQuery("#filename").val(t.pop());
+					}//end if
+				});
+			});
+
+			function handleFileUpload(files, obj)
+			{
+				//disable manual upload form
+				jQuery("#div-front-profile-file-manager-uploads").hide("fast");
+
+			   for (var i = 0; i < files.length; i++)
+			   {
+			        var fd = new FormData();
+			        fd.append('file', files[i]);
+			        fd.append("images", 1);
+
+			        var status = new createStatusbar(obj); //Using this we can set progress.
+			        status.setFileNameSize(files[i].name,files[i].size);
+			        sendFileToServer(fd,status);
+			   }//end for
+			}//end function
+
+			function sendFileToServer(formData ,status)
+			{
+			    var uploadURL = global_image_upload_url;
+			    var extraData = {}; //Extra Data.
+			    var jqXHR = $.ajax({
+			            xhr: function() {
+			            var xhrobj = $.ajaxSettings.xhr();
+			            if (xhrobj.upload) {
+			                    xhrobj.upload.addEventListener('progress', function(event) {
+			                        var percent = 0;
+			                        var position = event.loaded || event.position;
+			                        var total = event.total;
+			                        if (event.lengthComputable) {
+			                            percent = Math.ceil(position / total * 100);
+			                        }//end if
+			                        //Set progress
+			                        status.setProgress(percent);
+			                    }, false);
+			                }
+			            return xhrobj;
+			        }, //end function
+			        url: uploadURL,
+			        type: "POST",
+			        contentType:false,
+			        processData: false,
+			        cache: false,
+			        data: formData,
+			        success: function(data) {
+				        var objData = jQuery.parseJSON(data);
+				        if (objData.error == "1")
+				        {
+							status.setErrorState(objData.response);
+				        } else {
+				        	status.completeUpload();
+				        }//end if
+			        },//end function
+			        fail: function (data) {
+			        	status.setErrorState("<span title=\"Try dropping less files\">Failed. The connection was either lost, or the browser took to long</span>");
+			        }//end function
+			    });
+
+			    status.setAbort(jqXHR);
+			}//end function
+
+			var rowCount=0;
+			function createStatusbar(obj)
+			{
+			     rowCount++;
+			     var row="odd";
+			     if(rowCount %2 ==0) row ="even";
+
+			     this.filename = jQuery("<div class='filename panel-heading'></div>");
+			     this.statusbar = jQuery("<div class='statusbar "+row+"'></div>");
+
+			     this.size = jQuery("<div class='filesize'></div>").appendTo(this.statusbar);
+			     this.progressBar = jQuery("<div class='progressBar'><p class='bg-primary'></p></div>").appendTo(this.statusbar);
+			     this.abort = jQuery("<div class='abort btn btn-danger'>Abort</div>").appendTo(this.statusbar);
+
+			     this.panel_container = jQuery("<div class='panel panel-primary'></div>");
+			     this.panel_container_body = jQuery("<div class='panel-body'></div>");
+			     this.statusbar.appendTo(this.panel_container_body);
+			     this.panel_container.append(this.filename).append(this.panel_container_body);
+
+			     obj.after(this.panel_container);
+
+			    this.setFileNameSize = function(name,size)
+			    {
+			        var sizeStr="";
+			        var sizeKB = size/1024;
+			        if(parseInt(sizeKB) > 1024)
+			        {
+			            var sizeMB = sizeKB/1024;
+			            sizeStr = sizeMB.toFixed(2)+" MB";
+			        }
+			        else
+			        {
+			            sizeStr = sizeKB.toFixed(2)+" KB";
+			        }
+
+			        this.filename.html('<h3 class="panel-title">Upload: ' + name + '</h3>');
+			        this.size.html(sizeStr);
+			    }
+			    this.setProgress = function(progress)
+			    {
+			        if (progress > 100)
+			        {
+						progress = 100;
+			        }//end if
+			        var progressBarWidth = progress * this.progressBar.width() / 100;	
+		        
+			        this.progressBar.find('p').animate({ width: progressBarWidth }, 10).html(progress + "% ");
+			        if(parseInt(progress) >= 100)
+			        {
+			            this.abort.hide();
+			            this.progressBar.find('p').html("Confirming upload...");
+			        }//end if
+			    }
+			    this.completeUpload = function ()
+			    {
+			    	this.panel_container.toggleClass("panel-primary panel-success");
+			    	this.progressBar.find('p').html("Completed").toggleClass("bg-primary bg-success");
+			    }
+			    this.setErrorState = function (error)
+			    {
+			    	var progressBarWidth = 100 * this.progressBar.width() / 100;
+
+			    	this.panel_container.toggleClass("panel-primary panel-danger");
+			    	this.progressBar.find('p').animate({ width: progressBarWidth }, 10).html("<span title=\"" + error + "\">" + error + "</span>");
+			    	this.progressBar.find('p').css("background-color", "#A8352F");
+			    	this.abort.hide();
+			    }//end function
+			    this.setAbort = function(jqxhr)
+			    {
+			        var sb = this.statusbar;
+			        this.abort.click(function()
+			        {
+			            jqxhr.abort();
+			            sb.hide();
+			        });
+			    }
+			}//end function
+		</script>
+
+		<div class="clearboth"></div>
+
+		<div id="status1"></div>
+
+	</div>
+
+</div>

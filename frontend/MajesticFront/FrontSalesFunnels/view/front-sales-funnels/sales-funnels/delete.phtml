@@ -1,0 +1,28 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_TRACKER_HTML .'&nbsp; Tracker - Delete'); ?>
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//activate toolkit section
+			var iframe_container_url = "<?php echo $this->url("front-contacts", array("action" => "iframe-contact-toolkit-sections", "id" => $this->objContact->get("reg_id_encoded")));?>";
+			var iframe_container = jQuery(".m3-view-toolkit-container").mj_toolkit_section("");
+			jQuery(".mj3-view-toolkit-container").click(function (e) {
+				if (iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src") == "")
+				{
+					iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src", iframe_container_url);
+				}//end if
+			});
+		});
+	</script>
+	<div class="mj3_forms clearfix">
+		<ul class="nav nav-tabs">
+			<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("id" => $this->objContact->get("id"), "action" => "view-contact")); ?>" title="View Contact" data-toggle="tooltip"><?php echo ICON_MEDIUM_PROFILE_HTML; ?></a></li>
+		</ul>
+		<form method="post">
+			<h3>Are you sure you want to remove the "<?php echo $this->objSalesFunnel->get("forms_form");?>" record for the contact?<br />This operation cannot be undone and the data will be lost!</h3>
+			<input type="submit" name="delete" value="Yes" class="btn btn-danger"/>
+			<input type="submit" value="Cancel" class="btn btn-success"/>
+		</form>
+	</div>
+</div>
+
+

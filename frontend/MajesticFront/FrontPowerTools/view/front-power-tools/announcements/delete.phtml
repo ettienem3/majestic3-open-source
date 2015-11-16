@@ -1,0 +1,21 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_ANNOUNCEMENT_HTML .'&nbsp; Delete Announcements'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-power-tools/announcements"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<form method="post">
+
+			<h3>Are you sure you want to delete this announcement? <br />This action cannot be undone.</h3>
+
+			<input type="submit" name="delete" value="Yes" class="btn btn-danger">
+			<input type="submit" value="Cancel" class="btn btn-default">
+
+		</form>
+
+	</div>
+
+</div>

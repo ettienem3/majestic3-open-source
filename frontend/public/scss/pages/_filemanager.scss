@@ -1,0 +1,116 @@
+/* file manager */
+	
+.files-container-documents {
+	
+	h4 {
+		padding: 30px 0 15px;
+	}
+}
+
+	.filemanager-right {
+		float: right;
+		padding: 10px;
+	}
+
+	.mj3-file-manager {
+		border-bottom: 1px solid #ccc !important;
+		display: block;
+		//overflow: hidden;
+		padding: 7px 5px;
+		position: relative;
+		
+		.filename {
+			float: left;
+			padding: 10px 15px 10px 45px !important;
+		}
+
+		.file-type {
+			background-repeat: no-repeat;
+			background-position: 5px 50%;
+		}
+	}
+	
+	.mj3-image-manager {
+		background-repeat: no-repeat;
+		background-position: 10px 50%;
+		background-size: auto 60%;
+		border-bottom: 1px solid #ccc !important;
+		display: block;
+		margin: 5px;
+		padding: 7px 0;
+		position: relative;
+	}
+
+		.file-type {
+			
+			.filename {
+				font-size: 10px;
+				word-wrap: break-word;
+				text-decoration: none;
+			}
+		}
+
+		.file-type-csv {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_csv.svg');
+		}
+
+		.file-type-xls {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_xls.svg');
+		}
+
+		.file-type-doc {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_doc.svg');
+		}
+
+		.file-type-txt {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_txt.svg');
+		}
+
+		.file-type-pdf {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_pdf.svg');
+		}
+
+		.file-type-css {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_css.svg');
+		}
+
+		.file-type-js {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_js.svg');
+		}
+
+		.file-type-html {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_html.svg');
+		}
+
+		.file-type-blank {
+			background-image: url('https://cdn-za1.majestic3.com/images/m3frontend/icons/icon_blank.svg');
+		}
+
+		.file_options {
+			padding: 6px 10px;
+			float: right;
+		}
+	
+
+	#file_drop_handler {
+		border: 1px dashed #3490c9;
+		border-radius: 4px;
+		background: #f5fbff;
+		padding: 100px;
+		text-align: center;
+		margin-bottom: 15px;
+	}
+
+	.statusbar {
+		border-radius: 4px;
+		margin-bottom: 15px;
+
+		.progressBar div {
+			color: #fff;
+			padding: 5px;
+		}
+	}
+
+	#frm-toggle-help {
+		display: none;
+	}

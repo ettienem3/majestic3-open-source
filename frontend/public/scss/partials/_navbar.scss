@@ -1,0 +1,39 @@
+/* navbar */
+
+.navbar-brand img {
+	height: 20px;
+
+	&:hover {
+		fill: #ff0000;
+	}
+}
+
+nav.navbar {
+	border: 0;
+	
+	ul ul {
+		font-size: 12px;
+	}
+
+	ul ul ul {
+		
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		a {
+			color: #666;
+			display: block;
+			padding: 4px 10px 4px 30px;
+
+			&:hover {
+				background-color: #f5f5f5;
+				text-decoration: none;
+			}
+		}
+	}	
+
+	.dropdown-header {
+		text-transform: uppercase;
+	}
+}

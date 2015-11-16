@@ -1,0 +1,20 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_LINK_HTML .'&nbsp; Create Link'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-links"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+
+	</div><!-- mj3_forms clearfix -->
+
+</div><!-- mj3_tables clearfix -->

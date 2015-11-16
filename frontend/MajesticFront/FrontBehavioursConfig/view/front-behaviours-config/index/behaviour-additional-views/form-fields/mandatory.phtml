@@ -1,0 +1,80 @@
+<?php 
+//add field value label field
+$this->form->add(array(
+		"name" => "field_value_label",
+		"type" => "select",
+		"attributes" => array(
+			"id" => "field_value_label",
+		),	
+		"options" => array(
+			"label" => "Field value",
+		),
+));
+
+//set field types to be allowed
+$arr_field_types = array(
+		"select",
+		"radio",
+		"checkbox",	
+);
+
+//set fk_fields_all_id2 dropdown value
+$arr_fields = array();
+$arr_fields_data = array();
+foreach ($this->objForm->getFormFieldEntities() as $objField)
+{
+	//check of this is a custom or standard field
+	if (is_numeric($objField->get("field_std_id")))
+	{
+		//standard field
+		if (in_array($objField->get("field_std_input_type"), $arr_field_types))
+		{
+			$arr_fields[$objField->get("id")] = $objField->get("field_std_description");
+			
+			//create array containing data about the field
+			$arr_fields_data[$objField->get("id")] = array(
+					"input_type" => $objField->get("field_std_input_type"),
+					"fields_all_id" => $objField->get("id"),
+					"field_std_id" => $objField->get("field_std_id"),
+					"field_type" => "standard",
+			);
+		}//end if
+	} else {
+		//custom field
+		if (in_array($objField->get("field_custom_input_type"), $arr_field_types))
+		{
+			$arr_fields[$objField->get("id")] = $objField->get("field_custom_description");
+		}//end if
+		
+		//create array containing data about the field
+		$arr_fields_data[$objField->get("id")] = array(
+				"input_type" => $objField->get("field_custom_input_type"),
+				"fields_all_id" => $objField->get("id"),
+				"field_custom_id" => $objField->get("field_custom_id"),
+				"field_type" => "custom",
+		);
+	}//end if
+}//end foreach
+
+//assign data to the form
+$this->form->get("fk_fields_all_id2")->setValueOptions($arr_fields);
+?>
+
+<script type="text/javascript">
+	//set global variable
+	var JSON_field_info = '<?php echo json_encode($arr_fields_data, JSON_FORCE_OBJECT);?>';
+
+	jQuery(document).ready(function () {
+		//hide some fields
+		jQuery(".form-element-field_operator").hide();
+		jQuery(".form-element-field_value_label").hide();
+
+		//hide the field value form element
+		jQuery(".form-element-field_value").hide();
+		
+		//monitor the fields dropdown
+		jQuery("#fk_fields_all_id2").mj_behaviour_fk_fields_all_id2({
+			url: "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-load-specified-field-values", "id" => "0001122321"));?>"
+		});
+	});
+</script>

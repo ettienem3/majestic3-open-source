@@ -1,0 +1,111 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		var parent_element;
+
+		//monitor add link click
+		jQuery("#activate-contact-create-comment").click(function (e) {
+			e.preventDefault();
+
+			//get parent section for later use
+			parent_element = jQuery(this).parent();
+
+			//load the dialog
+			jQuery("#create-contact-comment").modal();
+			return false;
+		});
+
+		//monitor save comment click
+		jQuery("#save-contact-comment").click(function (e) {
+			//disbale save button
+			jQuery(this).attr("disabled", true);
+			//disable the text area
+			jQuery("#comment").attr("disabled", true);
+
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-contact-toolkit", array("action" => "contactComments", "id" => $this->contact_id));?>",
+				type: "POST",
+				data: {
+					comment: jQuery("#comment").val(),
+				}
+			})
+			.done( function (result) {
+				if (result != "true")
+				{
+					alert(result);
+					return false;
+				}//end if
+
+				//remove modal form
+				jQuery("#create-contact-comment").modal('toggle');
+
+				//enable save button
+				jQuery("#save-contact-comment").attr("disabled", false);
+				//clear comment textarea
+				var comment = jQuery("#comment").val();
+				jQuery("#comment").val('').attr("disabled", false);
+
+				//set date
+				var d = new Date();
+				var yy = d.getFullYear();
+				var mm = parseInt(d.getMonth() + 1);
+				var dd = d.getDate();
+				if (dd < 10)
+				{
+					dd = "0" + dd;
+				}//end if
+
+				var date_string = yy + "-" + mm + "-" + dd;
+				//add comment to table
+				jQuery("#contact-comments-table tr:first").after("<tr><td>" + date_string + "</td><td></td><td>" + comment + "</td></tr>");
+			});
+		});
+	});
+</script>
+
+<button href="#" id="activate-contact-create-comment" title="Create a new Comment" data-toggle="tooltip" class="btn btn-primary">Add Comment</button><br/>
+<?php
+
+if (is_object($this->objComments) || is_array($this->objComments))
+{
+	echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" id=\"contact-comments-table\" width=\"100%\">";
+	echo 	"<tr>";
+	echo 		"<th>Date</th>";
+	echo 		"<th>User</th>";
+	echo 		"<th>Comment</th>";
+	echo 	"</tr>";
+
+	foreach ($this->objComments as $objComment)
+	{
+		echo "<tr>";
+		echo 	"<td>" . $objComment->datetime_created . "</td>";
+		echo 	"<td>" . $objComment->users_uname . "</td>";
+		echo 	"<td>" . $objComment->comment . "</td>";
+		echo "<tr>";
+	}//end foreach
+
+	echo "</table>";
+}//end if
+?>
+
+
+<div id="create-contact-comment" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+ 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        		<h4 class="modal-title">Contact Comments</h4>
+			</div>
+			<div class="modal-body">
+				<form action="#">
+					<label for="comment">Comment</label>
+					<textarea id="comment" name="comment"></textarea>
+					<input type="hidden" id="contact_id" name="contact_id" value="<?php echo $this->contact_id;?>" />
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-dismiss="modal" id="save-contact-comment">Save</button>
+        		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        	</div>
+		</div>
+	</div>
+</div>

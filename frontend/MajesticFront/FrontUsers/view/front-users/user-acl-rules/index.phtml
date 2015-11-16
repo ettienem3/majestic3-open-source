@@ -1,0 +1,23 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_USER_DATA_ACL_HTML .'&nbsp; User Data Access Rules');
+?>
+	<div class="mj3_table_contain clearfix">
+	<?php 
+		foreach ($this->objUsers as $objUser)
+		{
+			if (!is_numeric($objUser->id))
+			{
+				continue;
+			}//end if
+			
+			$arr_user["user"] = "<a href=\"" . $this->url("front-user-data-acl-rules", array("user_id" => $objUser->id, "action" => "create-rule")) . "\" title=\"Manage User Data Access Rules\">" . $objUser->uname . "</a>";
+			
+			$arr[] = $arr_user;
+		}//end foreach
+		
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("User"));
+	?>
+	</div>
+</div>

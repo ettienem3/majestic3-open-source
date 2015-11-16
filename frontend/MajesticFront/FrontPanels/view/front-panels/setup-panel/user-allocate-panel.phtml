@@ -1,0 +1,41 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp; Allocate Panels'); ?>
+
+	<!-- search ends here -->
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-panels-setup", array("action" => "user-panels")); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+		$arr_user_panels = array();
+		foreach ($this->objUserPanels as $objPanel) {
+			$arr_user_panels[] = $objPanel->get("fk_id_panels");
+		} //end if
+		?>
+		<form method="post">
+			<table class="mj_panelticks">
+				<?php
+					foreach ($this->objProfilePanels as $objPanel)
+					{
+						if (in_array($objPanel->get("id"), $arr_user_panels))
+						{
+							$checked = "checked=\"checked\" disabled=\"disabled\" ";
+						} else {
+							$checked = "";
+						}//end if
+						?>
+					<tr>
+						<td><input type="checkbox" name="panels[]" value="<?php echo $objPanel->get("id"); ?>" id="panels" $checked title="<?php echo $objPanel->get("panels_description"); ?>" data-toggle="tooltip" /></td>
+						<td><label class="fl"><?php echo $objPanel->get("name"); ?></label></td>
+					</tr>
+				<?php }//end foreach ?>
+			</table>
+			<input type="submit" value="Save" class="btn btn-primary">
+		</form>
+
+	</div>
+
+</div>

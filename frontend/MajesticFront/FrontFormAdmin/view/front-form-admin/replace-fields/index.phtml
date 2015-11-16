@@ -1,0 +1,37 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_SYNC_HTML .'&nbsp; Replace Fields List'); ?>
+
+	<div class="mj3_forms clearfix">
+		<div class="mj3_table_contain clearfix">
+<?php
+//prepare data
+if (count($this->objFields) > 0)
+{
+	foreach ($this->objFields as $objField)
+	{
+		if (!isset($objField->replace_field))
+		{
+			continue;
+		}//end if
+
+		$arr_data["field_name"] = $objField->field_description;
+		$arr_data["replace_field"] = $objField->replace_field;
+
+// 		$edit_url = "<a href=\"" . $this->url("front-form-admin/replace-fields", array("id" => $objField->id, "action" => "edit-replace-field")) . "\" title=\"Edit Replace Field\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+// 		$delete_url = "<a href=\"" . $this->url("front-form-admin/replace-fields", array("id" => $objField->id, "action" => "delete-replace-field")) . "\" title=\"Delete Replace Field\">" . ICON_SMALL_DELETE_HTML . "</a>";
+// 		$arr_data["url"] = $edit_url . "&nbsp;" . $delete_url;
+
+		$arr[] = $arr_data;
+	}//end foreach
+}//end if
+
+//create add link
+//$add_url = "<a href=\"" . $this->url("front-form-admin/replace-fields", array("action" => "create-replace-field")) . "\" title=\"Create a Replace Field\">" . ICON_MEDIUM_ADD_HTML . "</a>";
+
+$css_id = str_replace(".", "", microtime(TRUE));
+echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+echo $this->renderSimpleHTMLTable($arr, array("Content", "Field"), array("id" => $css_id));
+?>
+		</div>
+	</div>
+</div>

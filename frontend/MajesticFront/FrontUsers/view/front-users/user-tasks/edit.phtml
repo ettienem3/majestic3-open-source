@@ -1,0 +1,38 @@
+<div class="mj3_tables clearfix">
+
+	<script type="text/javascript" src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/datetimepicker/jquery.datetimepicker.js"></script>
+	<link href="<?php echo $this->layout()->cdn_url; ?>/js/vendor/datetimepicker/jquery.datetimepicker.css" media="screen" rel="stylesheet" type="text/css">
+
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//configure date fields to use date picker
+			jQuery("#datetime_reminder").datetimepicker({
+				format: "Y-m-d H:i",
+				step: 15,
+				closeOnDateSelect: false,
+			}).attr("readonly", "readonly");
+
+			jQuery("#date_email_reminder").datepicker({
+				format: "yyyy-mm-dd",
+				clearBtn: true,
+				todayHighlight: true,
+				autoclose: true,
+				todayBtn: true
+			}).attr("readonly", true);
+		});
+	</script>
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_LIST_HTML .'&nbsp; Edit Task'); ?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-users-tasks", array("user_id" => $this->user_id)); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+	<div class="mj3_forms clearfix">
+	<?php
+		$form = $this->form;
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this);
+	?>
+	</div>
+</div>
+
+
+

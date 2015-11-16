@@ -1,0 +1,85 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_LINK_HTML .'&nbsp; Links'); ?>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-links", array("action" => "create")); ?>" title="Create new Communication Link" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . ' Add Link'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				//activate behaviours views
+				jQuery(".behaviours_view").mj_behaviours_view();
+			});
+		</script>
+
+		<?php
+		//load session for plugins enabled
+		$objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+		$arr_plugins = (array) $objUserSession->profile->plugins_enabled;
+		
+		/**
+		 * Prepare data
+		 */
+		foreach ($this->objLinks as $key => $objLink)
+		{
+			if (!isset($objLink->id))
+			{
+				continue;
+			}//end if
+
+			$arr_data["link"] = $objLink->link;
+			$arr_data["link_url"] = $objLink->url;
+			if ($objLink->active == 1)
+			{
+				$arr_data["active_url"] = "<a href=\"" . $this->url("front-links", array("action" => "status", "id" => $objLink->id)) . "\" title=\"This Link is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>" . "</td>";
+			} else {
+				$arr_data["active_url"] = "<a href=\"" . $this->url("front-links", array("action" => "status", "id" => $objLink->id)) . "\" title=\"This Link is inactive\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>" . "</td>";
+			}//end if
+
+			$edit_url = "<a href=\"" . $this->url("front-links", array("action" => "edit", "id" => $objLink->id)) . "\" title=\"Edit Link\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-links", array("action" => "delete", "id" => $objLink->id)) . "\" title=\"Delete Link\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+
+			if (in_array("behaviours_basic", $arr_plugins) || in_array("behaviours_advanced", $arr_plugins))
+			{
+				$behaviours_url = "<a href=\"" . $this->url("front-links", array("action" => "links-behaviours", "id" => $objLink->id)) . "?link_id=" . $objLink->id . "\" title=\"Configure Link Behaviours\" data-toggle=\"tooltip\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+			} else {
+				$behaviours_url = "";
+			}//end if
+			
+			$arr_data["url"] = $behaviours_url . "&nbsp;" . $edit_url . "&nbsp;" . $delete_url;
+
+			$arr[] = $arr_data;
+		}//end foreach
+
+		//create add url
+		$add_url = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => true), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array(
+													array("value" => "Link", "data-options" => "field:'link'", "sortable" => "true"),
+													array("value" => "URL", "data-options" => "field:'url'", "sortable" => "true"),
+													array("value" => "Active", "data-options" => "field:'active'"),
+													array("value" => $add_url, "data-options" => "field:'add_url'", "disable-data-priority" => TRUE)),
+												array(
+														"id" => $css_id,
+														"class" => "data-table mj3-table table table-striped dataTable no-footer",
+														"rownumbers" => "true",
+														"pagination" => "true",
+														"data-role" => "table",
+														"data-mode" => "reflow",
+														));
+
+		//insert pagination data
+		echo $this->renderPaginationHelper($this->objLinks->hypermedia->pagination, $this->url("front-links"));
+
+		?>
+		<div id="manage-behaviours-section" class="modal fade"></div>
+
+		<div class="clearboth"></div>
+
+	</div>
+
+</div>

@@ -1,0 +1,124 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_MEDIUM_USER_DATA_ACL_HTML .'&nbsp; Allocate Resources to Role');
+?>
+
+		<ul class="nav nav-tabs">
+			<li role="presentation">
+				<?php echo "<a href=\"" . $this->url("front-role-acl-links/admin", array("role_id" => $this->objRole->get("id"))) . "\" title=\"Back\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>";?>
+			</li>
+		</ul>
+
+		<div class="mj3_table_contain clearfix">
+		<?php
+			echo "<fieldset><h4>" . $this->objRole->get("role_name") . "</h4>";
+			echo "Role Name : " . $this->objRole->get("role_name") . "<br>";
+			echo "Role Description : " . $this->objRole->get("role_description") . "<br>";
+			echo "Role Active : " . $this->objRole->get("role_active") . "<br>";
+			echo "Role Run Level : " . $this->objRole->get("role_acl_run_level") . "<br>";
+			echo "</fieldset><br />";
+
+// 			echo "<h4>Core Resources</h4>";
+// 			//load core resources
+// 			foreach ($this->objCoreAclResources as $objCoreResource)
+// 			{
+// 				if (!isset($objCoreResource->id))
+// 				{
+// 					continue;
+// 				}//end if
+
+// 				$arr_core_data["section"] = "Core";
+// 				$arr_core_data["type"] = ucfirst($objCoreResource->type);
+// 				$arr_core_data["module"] = $objCoreResource->module;
+
+// 				if ($objCoreResource->model == "")
+// 				{
+// 					$arr_core_data["model"] = "&nbsp;";
+// 				} else {
+// 					$arr_core_data["model"] = $objCoreResource->model;
+// 				}//end if
+
+// 				if ($objCoreResource->table == "")
+// 				{
+// 					$arr_core_data["table"] = "&nbsp;";
+// 				} else {
+// 					$arr_core_data["table"] = $objCoreResource->table;
+// 				}//end if
+
+// 				if ($objCoreResource->function == "")
+// 				{
+// 					$arr_core_data["function"] = "&nbsp;";
+// 				} else {
+// 					$arr_core_data["function"] = $objCoreResource->function;
+// 				}//end if
+
+// 				$arr_core_data["run_level"] = $objCoreResource->acl_run_level;
+
+// 				if ($objCoreResource->description == "")
+// 				{
+// 					$arr_core_data["description"] = "&nbsp;";
+// 				} else {
+// 					$arr_core_data["description"] = $objCoreResource->description;
+// 				}//end if
+
+// 				$arr_core_data["allocate_url"] = "<a href=\"" . $this->url("front-role-acl-links/admin", array("role_id" => $this->objRole->id, "action" => "allocate-acl-resource", "type" => "core", "resource_id" => $objCoreResource->id)) . "\" title=\"Allocate Resource to Role\" data-toggle=\"tooltip\">" . ICON_SMALL_NEXT_HTML . "</a>";
+
+// 				$arr_core[] = $arr_core_data;
+// 			}//end foreach
+
+// 			echo $this->renderDataTableHelper(array(), "dataTableCoreResources");
+// 			echo $this->renderSimpleHTMLTable($arr_core, array("Section", "Type", "Module", "Model", "Table", "Function", "Run Level Required", "Description", "&nbsp;"), array("id" => "dataTableCoreResources"));
+
+			echo "<h3>API Resources</h3>";
+			//load api resources
+			foreach ($this->objApiAclResources as $objApiAclResource)
+			{
+				if (!isset($objApiAclResource->id))
+				{
+					continue;
+				}//end if
+
+				$arr_api_data["Section"] = "API";
+				$arr_api_data["type"] = ucfirst($objApiAclResource->type);
+				$arr_api_data["Module"] = $objApiAclResource->module;
+
+				if ($objApiAclResource->model == "")
+				{
+					$arr_api_data["model"] = "&nbsp;";
+				} else {
+					$arr_api_data["model"] = $objApiAclResource->model;
+				}//end if
+
+				if ($objApiAclResource->controller == "")
+				{
+					$arr_api_data["controller"] = "&nbsp;";
+				} else {
+					$arr_api_data["controller"] = $objApiAclResource->controller;
+				}//end if
+
+				if ($objApiAclResource->function == "")
+				{
+					$arr_api_data["function"] = "&nbsp;";
+				} else {
+					$arr_api_data["function"] = $objApiAclResource->function;
+				}//end if
+
+				$arr_api_data["run_level"] = $objApiAclResource->acl_run_level;
+
+				if ($objApiAclResource->description == "")
+				{
+					$arr_api_data["description"] = "&nbsp;";
+				} else {
+					$arr_api_data["description"] = $objApiAclResource->description;
+				}//end if
+
+				$arr_api_data["allocate_url"] = "<a href=\"" . $this->url("front-role-acl-links/admin", array("role_id" => $this->objRole->id, "action" => "allocate-acl-resource", "type" => "api", "resource_id" => $objApiAclResource->id)) . "\" title=\"Allocate Resource to Role\" data-toggle=\"tooltip\">" . ICON_SMALL_NEXT_HTML . "</a>";
+
+				$arr_api[] = $arr_api_data;
+			}//end foreach
+
+			echo $this->renderDataTableHelper(array(), "dataTableApiResources");
+			echo $this->renderSimpleHTMLTable($arr_api, array("Section", "Type", "Module", "Model", "Table", "Function", "Run Level Required", "Description", "&nbsp;"), array("id" => "dataTableApiResources"));
+		?>
+		</div>
+	</div>

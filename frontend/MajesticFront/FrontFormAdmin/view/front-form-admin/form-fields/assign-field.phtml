@@ -1,0 +1,30 @@
+<div class="mj3_tables clearfix">
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//mark populate field by default
+		jQuery("#populate").attr("checked", true);
+		jQuery("#active").attr("checked", true);
+	});
+</script>
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Allocate Field to ' . $this->objForm->get("form") .''); ?>
+
+	<div class="mj3_forms clearfix">
+		<ul class="nav nav-tabs">
+			<li role="presentation"><?php echo "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->form_id)) . "?ftype=" . $this->objForm->get("form_types_behaviour") . "\" title=\"Back to form\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>"; ?></li>
+		</ul>
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+
+		<!-- load field group selection field -->
+
+
+	</div>
+
+</div>
+
+<?php
+echo $this->partial('form-fields-layout/form-field-helper');

@@ -1,0 +1,33 @@
+<div class="mj3_tables clearfix">
+
+	<?php
+		echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit Form Field');
+	?>
+
+	<div class="mj3_forms clearfix">
+		<ul class="nav nav-tabs">
+			<li role="presentation"><?php echo "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->form_id)) . "?ftype=" . $this->objForm->get("form_types_behaviour") . "\" title=\"Back to form\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>"; ?></li>
+		</ul>
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div>
+</div>
+
+<!-- load field group selection field -->
+<script type="text/javascript">
+	jQuery(document).ready( function () {
+// 		jQuery("#field_group").autocomplete({
+//			source : "<?php echo $this->url("front-form-admin/form-fields", array("action" => "ajax-load-field-groups", "form_id" => $this->form_id, "field_id" => $this->field_id, "field_type" => $this->field_type)); ?>"
+// 		});
+
+		//manage default content field
+	});
+</script>
+
+<?php
+echo $this->partial('form-fields-layout/form-field-helper');
+

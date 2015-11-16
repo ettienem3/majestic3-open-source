@@ -1,0 +1,21 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_BEHAVIOURS_HTML .'&nbsp; Delete Behaviour'); ?>
+	<div class="mj3_forms clearfix">
+		<?php
+			if (isset($this->notifications) && $this->notifications != "")
+			{
+				echo "<h3>" . $this->notifications . "</h3>";
+			}//end if
+		?>
+
+	<form method="post" action="<?php echo $this->url("front-behaviours-config", array("action" => "delete-behaviour", "id" => $this->id)) . "?redirect_url=" . $this->redirect_url;?>">
+		<h3>Are your sure you want to the delete this behaviour action?<br />This action cannot be undone.</h3>
+		<input type="submit" name="delete" value="Yes" class="btn btn-danger"/>
+		<input type="submit" name="delete" value="No" class="btn btn-success"/>
+	</form>
+	</div>
+</div>
+
+
+
+

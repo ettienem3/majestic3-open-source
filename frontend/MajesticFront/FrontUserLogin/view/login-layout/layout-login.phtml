@@ -1,0 +1,62 @@
+<?php 
+echo $this->doctype(); 
+?>
+
+<html lang="en">
+	<head>
+		<?php
+			/**
+			 * Generate Header
+			 */
+			echo $this->partial("layout/login-header");
+		?>
+	</head>
+	<body class="mj3-login">
+			
+		<div>	
+			
+			<?php 
+				if ($this->layout()->app_config["login_page_settings"]["logo"] == "") 
+				{
+					echo '<img src="' . $this->layout()->cdn_url . '/images/m3frontend/m3logo_main.svg" alt="" class="m3logo_main">';
+				} else {
+					echo '<img src="' . $this->layout()->app_config["login_page_settings"]["logo"] . '" alt="" class="m3logo_main">';
+				}//end if
+				
+				if ($this->layout()->app_config["login_page_settings"]["tag_line"] != "")
+				{
+					echo '<p class="tagline">' . $this->layout()->app_config["login_page_settings"]["tag_line"] . "</p>";
+				}//end if
+		
+				if (isset($flashMessages_errors) || isset($flashMessages_success) || isset($flashMessages_info) || isset($flashMessages)):?>
+				<div class="mj3-login-status">
+					<?php echo $this->partial("layout/flash-messages");?>
+				</div>
+			<?php endif;?>
+			
+			<?php echo $this->partial("layout/login/body");?>
+			
+		</div>
+		<?php
+			/**
+			 * Generate debug info where requested
+			 */
+			if (isset($this->api_logs))
+			{
+				echo '<div class="api_logs">';
+				foreach ($this->api_logs as $log)
+				{
+					echo $this->renderNotificationHelper($log, "info", "API Info", "info", TRUE);
+				} //end foreach
+				echo '</div>';
+			} //end if
+			
+			/**
+			 * Generate any scripts that might be needed
+			 */
+			echo $this->inlineScript();
+			
+		?>
+
+</body>
+</html>

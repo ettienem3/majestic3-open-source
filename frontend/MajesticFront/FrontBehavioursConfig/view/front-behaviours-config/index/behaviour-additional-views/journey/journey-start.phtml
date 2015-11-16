@@ -1,0 +1,160 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//hide field value field
+		jQuery(".form-element-field_value").hide();
+		//hide field operator field
+		jQuery(".form-element-field_operator").hide();
+		
+		jQuery("#fk_fields_std_id").change(function () {
+			//set other dropdowns to not selected value
+			jQuery("#fk_reg_status_id").val("");
+			jQuery("#fk_form_id").val("");
+			jQuery("#fk_fields_custom_id").val("");
+			
+			var configured_url = "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-load-specified-field-values", "id" => "0001122333"));?>?field_type=standard&include_field_values=1";
+			//replace url id with field value
+			configured_url = configured_url.replace("0001122333", jQuery(this).val());
+
+			//clear fields
+			jQuery("#field_operator").hide().empty();
+			jQuery("#field_value").hide().empty().append(new Option("--select--", ""));
+
+			if (jQuery(this).val() == "")
+			{
+				return;
+			}//end if
+			
+			//request field values defined
+			jQuery.ajax({
+			    type: 'GET',
+			    url: configured_url,
+			    dataType: 'json',
+			    async: false,
+			    success: function (data) {					    
+					//convert data received to array
+					jQuery.each(data.field_values_data, function (id, field_value) {
+						jQuery("#field_value").append(new Option(field_value, id));
+					});
+
+					//determine field operator value
+					if (data.fields_types_input_type == "select" || data.fields_types_input_type == "radio")
+					{
+						jQuery("#field_operator").append(new Option("is equal to", "equals"));
+						jQuery("#field_operator").append(new Option("is not equal to", "notequals"));
+
+						//hide field value field
+						jQuery(".form-element-field_value").show();
+						//hide field operator field
+						jQuery(".form-element-field_operator").show();
+						//display fields
+						jQuery("#field_operator").show("fast");
+						jQuery("#field_value").show("fast");
+					}//end if
+
+					if (data.fields_types_input_type == "checkbox")
+					{
+						jQuery("#field_operator").append(new Option("is checked", "checked"));
+						jQuery("#field_operator").append(new Option("is not checked", "notchecked"));
+
+						//hide field operator field
+						jQuery(".form-element-field_operator").show();
+						//display fields
+						jQuery("#field_operator").show("fast");
+					}//end if
+			    },
+			    fail: function () {
+					alert("Data could not be loaded");
+					return false;
+			    }
+			});
+		});
+
+		jQuery("#fk_fields_custom_id").change(function () {
+			//set other dropdowns to not selected value
+			jQuery("#fk_reg_status_id").val("");
+			jQuery("#fk_form_id").val("");
+			jQuery("#fk_fields_std_id").val("");
+			
+			var configured_url = "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-load-specified-field-values", "id" => "0001122333"));?>?field_type=custom&include_field_values=1";
+			//replace url id with field value
+			configured_url = configured_url.replace("0001122333", jQuery(this).val());
+
+			//clear fields
+			jQuery("#field_operator").hide().empty();
+			jQuery("#field_value").hide().empty().append(new Option("--select--", ""));
+
+			if (jQuery(this).val() == "")
+			{
+				return;
+			}//end if
+			
+			//request field values defined
+			jQuery.ajax({
+			    type: 'GET',
+			    url: configured_url,
+			    dataType: 'json',
+			    async: false,
+			    success: function (data) {					    
+					//convert data received to array
+					jQuery.each(data.field_values_data, function (id, field_value) {
+						jQuery("#field_value").append(new Option(field_value, id));
+					});
+
+					//determine field operator value
+					if (data.fields_types_input_type == "select" || data.fields_types_input_type == "radio")
+					{
+						jQuery("#field_operator").append(new Option("is equal to", "equals"));
+						jQuery("#field_operator").append(new Option("is not equal to", "notequals"));
+
+						//hide field value field
+						jQuery(".form-element-field_value").show();
+						//hide field operator field
+						jQuery(".form-element-field_operator").show();
+						//display fields
+						jQuery("#field_operator").show("fast");
+						jQuery("#field_value").show("fast");
+					}//end if
+
+					if (data.fields_types_input_type == "checkbox")
+					{
+						jQuery("#field_operator").append(new Option("is checked", "checked"));
+						jQuery("#field_operator").append(new Option("is not checked", "notchecked"));
+
+						//hide field operator field
+						jQuery(".form-element-field_operator").show();
+						//display fields
+						jQuery("#field_operator").show("fast");
+					}//end if
+			    },
+			    fail: function () {
+					alert("Data could not be loaded");
+					return false;
+			    }
+			});
+		});
+
+		jQuery("#fk_reg_status_id").change(function () {
+			//set other dropdowns to not selected value
+			jQuery("#fk_form_id").val("");
+			jQuery("#fk_fields_custom_id").val("");
+			jQuery("#fk_fields_std_id").val("");
+			
+			//hide field value field
+			jQuery(".form-element-field_value").hide();
+			//hide field operator field
+			jQuery(".form-element-field_operator").hide();
+		});
+
+		jQuery("#fk_form_id").change(function () {
+			//set other dropdowns to not selected value
+			jQuery("#fk_reg_status_id").val("");
+			jQuery("#fk_fields_custom_id").val("");
+			jQuery("#fk_fields_std_id").val("");
+			
+			//hide field value field
+			jQuery(".form-element-field_value").hide();
+			//hide field operator field
+			jQuery(".form-element-field_operator").hide();
+		});
+	});
+</script>

@@ -1,0 +1,77 @@
+<?php
+$form = $this->form;
+$form->prepare();
+$html = $this->renderSystemFormHelper($form, $this);
+
+//add javascript
+$html .= '
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//set datasource and hide the field
+		jQuery(".form-element-fk_id_report_datasources").hide();
+		jQuery("#fk_id_report_datasources").val(jQuery("#fk_id_report_datasources option:eq(1)").val()).toggleClass("form-control");
+
+// 		var url = "' . $this->url("front-report-viewer", array("action" => "ajax-load-report-param")) . '?field=";
+// 		jQuery.each(jQuery("#form").find(".form-control"), function (i, obj) {
+// 			//append wait image
+// 			jQuery(obj).after("<span class=\"element_refresh\">" + global_wait_image + "</span>").attr("disabled", true);
+
+// 			//set url
+// 			var field_url = url;
+// 			var element_name = jQuery(obj).attr("name").replace("#", "");
+
+// 			jQuery.ajax({
+// 				url: field_url + element_name
+// 			})
+// 			.done(function (data) {
+// 				var objData = jQuery.parseJSON(data);
+
+// 				if (objData.error == 1)
+// 				{
+// 					jQuery(obj).parent().find(".element_refresh").html(objData.response);
+// 					return false;
+// 				}//end if
+
+// 				if (objData.response != "")
+// 				{
+// 					jQuery(obj).parent().find(".element_refresh").remove();
+
+// 					//extract some attr
+// 					var attr_required = jQuery(obj).attr("required");
+// 					var attr_classes = jQuery(obj).attr("class");
+// 					var attr_name = jQuery(obj).attr("name");
+
+// 					var parent_element = jQuery(obj).parent();
+// 					//remove the element
+// 					jQuery(obj).hide().attr("name", "_ignore_field").after(objData.response);
+
+// 					jQuery("[name=\'" + attr_name + "\']").attr("class", attr_classes).attr("required", attr_required)
+// 				}//end if
+
+// 				jQuery(obj).parent().find(".element_refresh").remove();
+// 			})
+// 			.fail(function () {
+
+// 			});
+//		});
+	});
+</script>
+';
+
+//extract javascript where applicable
+$js = "";
+if (is_array($this->objReport->data->report->form_data) || is_object($this->objReport->data->report->form_data))
+{
+	foreach ($this->objReport->data->report->form_data as $objElement)
+	{	
+		$js .= $objElement->javascript;	
+	}//end foreach
+}//end if
+
+echo json_encode(array(
+	"error" => 0,
+	"form" => $html,
+	"objReport" => $this->objReport,
+	"js" => $js,
+), JSON_FORCE_OBJECT);
+exit;

@@ -1,0 +1,19 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_MEDIUM_SMS_HTML .'&nbsp; Create Sms Account'); ?>
+
+	<ul class="nav nav-bar">
+		<li role="presentation">
+		<?php
+			echo "<a href=\"" . $this->url("front-sms-accounts-admin") . "\" title=\"Back\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>";
+		?>
+		</li>
+	</ul>
+	<div class="mj3_forms clearfix">
+	<?php
+		$form = $this->form;
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this, array("enable_accordion" => TRUE, "generate_field_groups" => TRUE));
+	?>
+	</div>
+</div>

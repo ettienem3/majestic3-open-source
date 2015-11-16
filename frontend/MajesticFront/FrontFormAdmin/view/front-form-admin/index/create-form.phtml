@@ -1,0 +1,36 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//check the populate form checkbox
+		jQuery("#populate_form").attr("checked", "checked");
+	});
+</script>
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Create Form'); ?>
+<?php
+//load session for plugins enabled
+$objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+$arr_plugins = (array) $objUserSession->profile->plugins_enabled;
+?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "create-form")); ?>?ftype=cpp" title="Create a Contact Profile Form" data-toggle="tooltip">Create Contact Profile Form</a></li>
+
+		<?php if (!is_array($arr_plugins) || (is_array($arr_plugins) && in_array("sales_funnels", $arr_plugins))) : ?>
+			<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "create-form")); ?>?ftype=tracker" title="Create a Tracker" data-toggle="tooltip">Create Tracker Form</a></li>
+		<?php endif;?>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+			//add forms admin js
+			echo $this->headScript()->appendFile($this->basePath() . '/js/includes/forms-admin.js');
+
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this, array("enable_accordion" => TRUE, "generate_field_groups" => TRUE));
+		?>
+
+	</div>
+
+</div>

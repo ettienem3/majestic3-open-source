@@ -1,0 +1,321 @@
+<div class="mj3_tables clearfix">
+<script type="text/javascript" src="//code.highcharts.com/highcharts.js"></script>
+<script type="text/javascript" src="//code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/tabletools/2.2.4/js/dataTables.tableTools.min.js"></script>
+<script type="text/javascript" src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/datetimepicker/jquery.datetimepicker.js"></script>
+
+<link href="<?php echo $this->layout()->cdn_url; ?>/js/vendor/datetimepicker/jquery.datetimepicker.css" media="screen" rel="stylesheet" type="text/css">
+<link rel="css" href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css">
+<style>
+.table-col-hidden {
+	color: #7F7F7F;
+}
+</style>
+
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		jQuery("#report_id").change(function () {
+			//set ids
+			var arr_t = jQuery(this).val().split("|");
+			var report_id = arr_t[0];
+			var report_type = arr_t[1];
+
+			//pass control to load form function
+			loadReportForm(report_id, report_type);
+		});
+
+		//load the first page display
+		var arr_t = jQuery("#report_id").val().split("|");
+		var report_id = arr_t[0];
+		var report_type = arr_t[1];
+		loadReportForm(report_id, report_type);
+	});
+
+	function loadReportForm(report_id, report_type)
+	{
+		//update wait containers
+		jQuery(".report-wait-container").html("<h3>Please wait</h3>" + global_wait_image);
+
+		var url = "<?php echo $this->url("front-report-viewer", array("action" => "ajax-load-report-form", "id" => "00112123123231129"));?>?type=sswers&auto_populate_form=1";
+		url = url.replace("00112123123231129", report_id).replace("sswers", report_type);
+		
+		jQuery.ajax({
+			url: url
+		})
+		.done(function (data) {
+//console.log("form");
+			var objData = jQuery.parseJSON(data);
+
+//console.log(objData);
+			if (objData.error == 1)
+			{
+				alert(objData.response);
+
+				//clear report containers
+				jQuery(".report-wait-container").html("An error has occured. Process has been aborted");
+				return false;
+			}//end if
+
+			//set form content
+			jQuery(".report-params-form").html(objData.form).find("input:submit").val("Generate Report");
+			jQuery("body").append(objData.js);
+			interceptFormSubmit();
+
+			//set report container notice
+			jQuery(".report-output-container").html("Set report parameters");
+
+			//perform some last minute operations
+			//start date
+			if (jQuery("[name='#global_start_date']").length)
+			{
+				//configure date fields to use date picker
+				jQuery("[name='#global_start_date']").datetimepicker({
+					format: "Y-m-d H:i",
+					step: 60,
+					closeOnDateSelect: false
+				}).attr("readonly", "readonly");
+			}//end if
+
+			//end date
+			if (jQuery("[name='#global_end_date']").length)
+			{
+				//configure date fields to use date picker
+				jQuery("[name='#global_end_date']").datetimepicker({
+					format: "Y-m-d H:i",
+					step: 60,
+					closeOnDateSelect: false
+				}).attr("readonly", "readonly");
+			}//end if
+
+			//year
+			if (jQuery("[name='#global_year']").length)
+			{
+				jQuery("[name='#global_year']").datepicker({
+					format: "yyyy",
+					clearBtn: true,
+					todayHighlight: true,
+					startView: "year",
+					minViewMode: "years",
+					autoclose: true
+				});
+			}//end if
+
+			//year month
+			if (jQuery("[name='#global_year_month']").length)
+			{
+				jQuery("[name='#global_year_month']").datepicker({
+					format: "yyyy-mm",
+					clearBtn: true,
+					todayHighlight: true,
+					startView: "month",
+					minViewMode: "months",
+					autoclose: true
+				});
+			}//end if
+		})
+		.fail (function () {
+			jQuery(".report-wait-container").html("An unknow error has occured. The requested form could not be loaded");
+		});
+	}//end function
+
+	function loadReportOutput(data)
+	{
+		var arr_t = jQuery("#report_id").val().split("|");
+		var report_id = arr_t[0];
+		var report_type = arr_t[1];
+		var url = "<?php echo $this->url("front-report-viewer", array("action" => "ajax-load-report-output", "id" => "00112123123231129"));?>?type=sswers";
+		url = url.replace("00112123123231129", report_id).replace("sswers", report_type);
+
+		//was a download requested?
+		var download_flag = jQuery("input[name=report_download_mode]:checked").val();
+		url = url + "&download=" + download_flag;
+
+		//set report container content
+		jQuery(".report-output-container").html("<h3>Please wait, report is being generated<h3>" + global_wait_image);
+
+		//execute the request
+		jQuery.ajax({
+			url: url,
+			type: "post",
+			data: data
+		})
+		.done(function (data) {
+//console.log("report");
+			var objData = jQuery.parseJSON(data);
+//console.log(objData);
+			if (objData.error == 1)
+			{
+				alert(objData.response);
+				//remove disabled status from submit button
+				jQuery(".report-params-form").find("input:submit").attr("disabled", false);
+
+				//update container with status
+				jQuery(".report-output-container").html("An error occured");
+				return false;
+			}//end if
+
+			//create report container
+			var element_id = "front_" + objData.objReport.css_id;
+			jQuery(".report-output-container").html("<div id=\"" + element_id + "\"></div>");
+
+			//was a download requested?
+			if (objData.objReport.download_flag != "0")
+			{
+				switch (objData.objReport.download_flag)
+				{
+					case "1":
+					case "2":
+						//single report
+						var text = "<h4><a href=\"https://reports.majestic3.com/report-viewer/" + report_id + "/api-download?file=" + objData.objReport.report_output + "\" target=\"_blank\">Your download will start shortly. If it does not, click here.</a></h4>";
+						text = text + "<iframe style=\"display: none;\" src=\"https://reports.majestic3.com/report-viewer/" + report_id + "/api-download?file=" + objData.objReport.report_output + "\"><iframe>";
+
+						jQuery("#" + element_id).html(text);
+
+						//@TODO deal with receiving multiple report files
+						//remove disabled status from submit button
+						jQuery(".report-params-form").find("input:submit").attr("disabled", false);
+						return false;
+						break;
+				}//end switch
+			}//end if
+
+			//print report into element
+			jQuery("#" + element_id).html(objData.objReport.report_output);
+
+			//add some additional formatting where applicable
+			if (objData.objReport.report_generators_name == "HTML Table")
+			{
+				//check if pagination has been activated
+				var bool_paginate = false;
+
+				if (typeof objData.objReport.paginator === 'undefined')
+				{
+					bool_paginate = true;
+				} else {
+					var paginator_container = jQuery("<div></div>").attr("class", "report-container-paginator");
+					jQuery("#" + element_id).append(paginator_container);
+					jQuery.each(objData.objReport.paginator, function (i, objPage) {
+						var page_number = parseInt(i) + 1;
+						jQuery(".report-container-paginator").append(jQuery("<a></a>").css("font-size", "18px").attr("href", "#").attr("title", "Load page " + page_number).attr("data-request-parameters", objPage.params).attr("class", "report-container-paginator-page").html(page_number + "&nbsp;"));
+					});
+
+					jQuery(".report-container-paginator-page").click(function (e) {
+						e.preventDefault();
+						loadReportOutput(jQuery(this).attr("data-request-parameters"));
+					});
+				}//end if
+
+				var table = jQuery("#" + objData.objReport.css_id).DataTable({
+					"responsive": true,
+					"aaSorting": [], //disable initialsort
+					"bPaginate": bool_paginate,
+					"bLengthChange": false,
+					"bFilter": true,
+					"bSort": true,
+					"bInfo": false,
+					"bAutoWidth": true,
+					'iDisplayLength': 50
+				});
+
+				//create column toggel tool
+				var i = 0;
+				var table_toggle_html = "";
+				jQuery("#" + objData.objReport.css_id + " tr:first th").each(function () {
+					table_toggle_html = table_toggle_html + "<a class=\"toggle-col-vis\" data-column=\"" + i + "\">" + jQuery(this).html() + "</a>&nbsp;";
+					i++;
+				});
+
+				//append element to table
+				jQuery("#" + element_id).find(".report-container").find(".report-container-header").append("<div class=\"report-container-col-toggle\" title=\"Hide / Show table columns\" data-toggle=\"tooltip\">" + table_toggle_html + "</div>");
+
+				//enable click on toggle elements
+				jQuery(".toggle-col-vis").click(function (e) {
+					e.preventDefault();
+			        // Get the column API object
+			        var column = table.column( jQuery(this).attr('data-column') );
+
+			        // Toggle the visibility
+			        column.visible( ! column.visible() );
+
+			        //amend link style
+			        jQuery(this).toggleClass("table-col-hidden");
+				});
+			}//end if
+
+			//remove disabled status from submit button
+			jQuery(".report-params-form").find("input:submit").attr("disabled", false);
+		})
+		.fail(function () {
+
+			//remove disabled status from submit button
+			jQuery(".report-params-form").find("input:submit").attr("disabled", false);
+		});
+	}//end function
+
+	function interceptFormSubmit()
+	{
+		jQuery("#form").submit(function (e) {
+			e.preventDefault();
+
+			loadReportOutput(jQuery(this).serialize());
+			return false;
+		});
+
+		//remove disabled status from submit button
+		jQuery(".report-params-form").find("input:submit").attr("disabled", false);
+	}//end function
+</script>
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_PIE_CHART_HTML .'&nbsp; Report Viewer'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-report-viewer"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+		<div class="form-group form-element-report_id">
+			<label for="report_id" class="control-label">Select Report</label>
+			<select class="form-control" required="required" id="report_id" name="report_id">
+				<option value="">--select--</option>
+				<?php
+					$r_id = $this->objReport->data->report->id;
+					$r_type = $this->objReport->data->report->report_type;
+
+					foreach ($this->objReports as $key => $objReport)
+					{
+						if ($objReport->id == $r_id && $objReport->report_type == $r_type)
+						{
+							$selected = "selected=\"selected\"";
+						} else {
+							$selected = "";
+						}//end if
+
+						echo "<option value=\"" . $objReport->id . "|" . $objReport->report_type . "\" $selected>$objReport->display_title</option>";
+					}//end foreach
+				?>
+			</select>
+		</div>
+
+		<div>
+			<div class="form-group form-element-report_download">
+				<label for="report_download">Report Mode</label>
+				Normal &nbsp;<input type="radio" class="report_download_mode" name="report_download_mode" value="0" checked="checked" title="Report is displayed on this page" data-toggle="tooltip"/>
+				CSV &nbsp;<input type="radio" class="report_download_mode" name="report_download_mode" value="1" title="An attempt is made to format report data into a CSV file" data-toggle="tooltip"/>
+				PDF &nbsp;<input type="radio" class="report_download_mode" name="report_download_mode" value="2" title="An attempt is made to download the report contents in a PDF file"  data-toggle="tooltip"/>
+			</div>
+		</div>
+	</div>
+
+	<div class="mj3_table_contain clearfix">
+		<div class="report-wait-container report-params-form">
+
+		</div>
+	</div>
+
+	<div class="mj3_table_contain clearfix ">
+		<div class="report-wait-container report-output-container">
+
+		</div>
+	</div>
+</div>

@@ -1,0 +1,70 @@
+<?php
+echo $this->doctype();
+?>
+<html>
+
+	<?php
+		//insert header
+		echo $this->partial("layout/header");
+	?>
+
+	<body>
+
+		<!-- First Level Navigation -->
+		<?php
+			//insert first level navigation
+			echo $this->partial("layout/navigation-first-level");
+		?>
+		<!-- First Level Navigation ends -->
+
+		<div class="wrapper">
+
+			<!-- Main content -->
+			<div class="bs-docs-section">
+
+				<!-- Flash Messages -->
+				<?php
+					echo $this->partial("layout/flash-messages");
+				?>
+				<!-- Flash Messages ends -->
+
+				<!-- Module View Content -->
+				<?php
+					echo $this->partial("layout/body-pane");
+				?>
+				<!-- Module View Content ends -->
+
+			</div>
+
+			<div class="clearboth"></div>
+
+			<!-- Footer -->
+			<?php
+				echo $this->partial("layout/footer-pane");
+			?>
+			<!-- Footer Ends -->
+
+			<div class="clearboth"></div>
+			<!-- Main content ends -->
+
+			<!-- Toolkit Section -->
+			<div class="mj3-view-toolkit-container" style="display: none;" >
+				<a href="#" class="mj3-js-toolkit"><?php echo ICON_MEDIUM_SETTINGS_HTML;?></a>
+				<!-- Toolkit Content Source -->
+				<div class="mj3-toolkit">
+					<iframe id="mj3-toolkit-iframe" src="" seamless></iframe>
+					<a class="mj3-js-toolkit" href="#"><?php echo ICON_MEDIUM_SETTINGS_HTML;?></a>
+				</div>
+				<!-- Toolkit Content Source ends -->
+			</div>
+			<!-- Toolkit Section ends -->
+
+			<?php
+				/**
+				 * Generate any scripts that might be needed
+				 */
+				echo $this->inlineScript();
+			?>
+		</div>
+	</body>
+</html>

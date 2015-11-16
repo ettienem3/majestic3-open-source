@@ -1,0 +1,68 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . ' &nbsp; Edit Communication ' . $this->objCommAdmin->get("comm_num"));
+//add comms admin js
+// echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/includes/comms-admin.js');
+// //add editor js
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
+//insert the comm delay layout section
+echo $this->partial("layout-set-comm-delay");
+//insert the comm data additions layout section
+echo $this->partial("layout-comms-data-additions");
+?>
+	<script type="text/javascript">
+		jQuery(document).ready( function () {
+			//lazyload additional files
+			LazyLoad.js([
+			    '<?php echo $this->layout()->cdn_url . '/js/includes/comms-admin.js' ?>',
+			]);
+
+			//dock replace fields
+			<?php
+				$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+				if (in_array("replace_fields", $objUser->profile->plugins_enabled)) {
+			?>
+			jQuery.mj_docker({
+				dock_title: "Replace Fields",
+				dock_collapse: true,
+				dock_region: "m3-content-section-east",
+				dock_ajax_url: "<?php echo $this->url("front-form-admin/replace-fields", array("action" => "ajax-index"));?>",
+				dock_ajax_complete_callback: function () {
+					//add draggable class to replace fields
+					jQuery(".replace-field-item").addClass("draggable");
+
+					//add droppable class to fields
+					jQuery("#subject, #content, #comm_from_name").addClass("droppable");
+
+					//enabled drag and drop
+					jQuery("#content").mj_drag_and_drop();
+				}
+			});
+
+			<?php } //end if?>
+
+			//start text editors
+			jQuery.mj_text_editor({
+				element: jQuery("#content"),
+				enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
+				enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
+				enable_templates: <?php if (in_array("email_html_templates", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
+			});
+		});
+	</script>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "action" => "index")); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML ; ?></a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+		<?php
+		$form = $this->form;
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this, array("generate_field_groups" => TRUE, "enable_accordion" => TRUE));
+		?>
+	</div><!-- mj3_forms clearfix close -->
+
+</div><!-- mj3_tables clearfix close -->
+
+<div class="send_time_dialog" style="display: none"></div>

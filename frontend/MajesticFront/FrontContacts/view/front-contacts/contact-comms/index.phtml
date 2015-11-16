@@ -1,0 +1,99 @@
+<ul class="nav nav-tabs">
+	<li role="presentation"><a class="journeys_tab_link" href="#journeys" role="tab" data-toggle="tab">Journeys</a></li>
+	<!-- <li role="presentation"><a href="#history" role="tab" data-toggle="tab">History</a></li>-->
+</ul>
+
+<div class="tab-content">
+	<div id="journeys" class="tab-pane fade in" role="tabpanel"></div>
+	<!-- <div id="history" class="tab-pane fade in" role="tabpanel"></div>-->
+</div>
+
+
+<script type="text/javascript">
+	//set global activation trackers
+	var templates_loaded = 0;
+	var journeys_loaded = 0;
+	var history_loaded = 0;
+
+	jQuery(document).ready(function () {
+		//monitor links
+		jQuery("a").click(function () {
+			if (jQuery(this).attr("href") == "#templates")
+			{
+				loadTemplates(jQuery(jQuery(this).attr("href")));
+			}//end if
+
+			if (jQuery(this).attr("href") == "#journeys")
+			{
+				loadJourneys(jQuery("#journeys"));
+			}//end if
+
+			if (jQuery(this).attr("href") == "#history")
+			{
+				loadHistory(jQuery("#history"));
+			}//end if
+		});
+
+		//allow rendering to complete and then load data
+		setTimeout(function () {jQuery(".journeys_tab_link").trigger('click')}, 1000);
+	});
+
+	function loadRequestedData(element, url)
+	{
+		jQuery(element).html("<h3>Please wait while information is being loaded</h3><img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+
+		jQuery.ajax({
+			type: "GET",
+			url: url,
+			async: false,
+			success: function (data) {
+				element.html(data);
+			}, //end success function
+			fail: function (data) {
+				element.html("An error occured and data could not be loaded. Response : " + data);
+			}//end fail function
+		});
+	}//end function
+
+	function loadTemplates(element)
+	{
+		//check if element has been populated already
+		if (templates_loaded == 1)
+		{
+			return;
+		}//end if
+
+		//set url to use
+		var url = "<?php echo $this->url("front-contact-comms", array("id" => $this->objContact->get("id"), "action" => "list-templates")); ?>";
+
+		//execute
+		loadRequestedData(element, url);
+	}//end funcion
+
+	function loadJourneys(element)
+	{
+		if (journeys_loaded == 1)
+		{
+			return;
+		}//end if
+
+		//set url to use
+		var url = "<?php echo $this->url("front-contact-comms", array("id" => $this->objContact->get("id"), "action" => "journeys")); ?>";
+
+		//execute
+		loadRequestedData(element, url);
+	}//end function
+
+	function loadHistory(element)
+	{
+		if (history_loaded == 1)
+		{
+			return;
+		}//end if
+
+		//set url to use
+		var url = "<?php echo $this->url("front-contact-comms", array("id" => $this->objContact->get("id"), "action" => "history")); ?>";
+
+		loadRequestedData(element, url);
+	}//end function
+</script>

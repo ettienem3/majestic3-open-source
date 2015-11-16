@@ -1,0 +1,150 @@
+<?php echo $this->doctype(); ?>
+
+<html lang="en">
+	<head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle($this->translate('Fafster.com'))->setSeparator(' - ')->setAutoEscape(false) ?>
+
+        <?php echo $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+
+        <!-- Le styles -->
+        <?php
+        $cdn_url = "https://cdn-aws.majestic3.com";
+        echo $this->headLink(array("rel" => "shortcut icon", "type" => "image/vnd.microsoft.icon", "href" => $icon))
+         				->appendStylesheet($cdn_url . '/bootstrap/css/bootstrap.min.css')
+         				->appendStylesheet($cdn_url . '/bootstrap/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css')
+         				->appendStylesheet($cdn_url . '/js/vendor/jquery/ui/jquery-ui.min.css')
+         				->appendStylesheet($this->basePath() . '/css/main.css')
+        ;
+
+        echo $this->headScript()
+        				->prependFile($cdn_url . "/js/vendor/jquery/jquery-2.1.1.min.js")
+         				->appendFile($cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.js")
+         				->appendFile($cdn_url . '/js/vendor/masonry.pkgd.min.js')
+
+        //load bootstrap and items
+         				->appendFile($cdn_url . '/bootstrap/js/bootstrap.min.js')
+         				->appendFile($cdn_url . '/bootstrap/js/alert.js')
+        				->appendFile($this->basePath() . '/js/main.js')
+
+        //older browser adaptations
+        				->appendFile('https://oss.maxcdn.com/respond/1.4.2/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
+        				->appendFile('https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js',   'text/javascript', array('conditional' => 'lt IE 9',))
+        ;
+         ?>
+	</head>
+
+	<body>
+	<div class="main-wrapper">
+			<div class="main-container">
+
+			<?php
+				 /**
+				  * generates the flash messages
+				  */
+				 if(isset($flashMessages_errors)) : ?>
+                                <div class="flash-messages-error flash-messages">
+
+                                   <?php
+                                   $string_errors = "<ul>";
+                                   foreach ($flashMessages_errors as $flashMessage)
+                                   {
+                                      $string_errors .= "<li class=\"ui-state-error ui-corner-all\">$flashMessage</li>";
+                                   }//end foreach
+
+                                   $string_errors .= "</ul>";
+                                   echo $this->renderNotificationHelper($string_errors, "Error", "error", "error", TRUE);
+                                   ?>
+
+                                </div>
+                <?php endif; ?>
+
+                <?php if(isset($flashMessages_success)) : ?>
+                                <div class="flash-messages-success flash-messages">
+
+                                      <?php
+                                      $string_success = "<ul>";
+                                      foreach ($flashMessages_success as $flashMessage)
+									  {
+										 $string_success .= "<li>" . $flashMessage . "</li>";
+                         			  }//end foreach
+
+                         			  $string_success .= "</ul>";
+                                      echo $this->renderNotificationHelper($string_success, "Success", "success", "success", TRUE);
+                                      ?>
+
+                                </div>
+                <?php endif; ?>
+
+				 <?php
+				 /**
+				  * generates the flash messages
+				  */
+				 if(isset($flashMessages_info)) : ?>
+                                <div class="flash-messages-info flash-messages">
+
+                                   <?php
+                                   $string_info = "<ul>";
+                                   foreach ($flashMessages_info as $flashMessage)
+                                   {
+                                      $string_info .= "<li>" . $flashMessage . "</li>";
+                                   }//end foreach
+
+                                   $string_info .= "</ul>";
+                                   echo $this->renderNotificationHelper($string_info, "Information", "info", "info", TRUE);
+                                   ?>
+
+                                </div>
+                <?php endif; ?>
+
+
+
+				 <?php
+				 /**
+				  * generates the flash messages
+				  */
+				 if(isset($flashMessages)) : ?>
+                                <div class="flash-messages-error flash-messages">
+
+                                   <?php
+                                   $string_message = "<ul>";
+                                   foreach ($flashMessages as $flashMessage)
+                                   {
+                                      $string_message .= "<li>" . $flashMessage . "</li>";
+                                   }//end foreach
+
+                                   $string_message .= "</ul>";
+                                   echo $this->renderNotificationHelper($string_message, "Notice", "notice", "notice", TRUE);
+                                   ?>
+
+                                </div>
+                <?php endif; ?>
+
+				<?php echo $this->content; ?>
+			</div><!-- /container -->
+			<br class="floatFix" /> <!--  corrects the floating elements -->
+
+	<?php
+		/**
+		 * Generate any scripts that might be needed
+		 */
+		echo $this->inlineScript()
+	?>
+
+		<?php
+		echo "<br><br>";
+		if (isset($this->api_logs))
+		{
+			echo "<div class=\"api_logs\">";
+			foreach ($this->api_logs as $log)
+			{
+// 				echo $this->renderNotificationHelper($log, "info", "API Info", "info", TRUE);
+			}//end foreach
+			echo "</div>";
+		}//end if
+	?>
+	</body>
+</html>

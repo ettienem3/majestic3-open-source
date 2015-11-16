@@ -1,0 +1,41 @@
+<?php
+echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+echo 	"<tr>";
+echo 		"<th>Date</th>";
+echo 		"<th>Type</th>";
+echo 		"<th>Form</th>";
+echo 		"<th>User</th>";
+echo 	"</tr>";
+
+foreach ($this->objContactForms as $objForm)
+{
+	if (!is_object($objForm) || !is_numeric($objForm->get("id")))
+	{
+		continue;
+	}//end if
+	
+	//set form url
+	switch (strtolower($objForm->get("form_behaviour")))
+	{
+		case "__web":
+			$form_url = "<a href=\"/forms/bf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id") . "\" title=\"View web form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
+			break;
+			
+		case "__viral":
+			$form_url = "<a href=\"/forms/vbf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id") . "\" title=\"View viral form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
+			break;
+			
+		default:
+			continue;
+			break;
+	}//end switch
+	
+	echo "<tr>";
+	echo 	"<td>" . date("d/m/Y H:m", $objForm->get("tstamp")) . "</td>";
+	echo 	"<td>" . $objForm->get("form_behaviour_label") . "</td>";
+	echo 	"<td>" . $form_url . "</td>";
+	echo 	"<td>" . $objForm->get("uname") . "</td>";
+	echo "</tr>";
+}//end foreach
+
+echo "</table>";

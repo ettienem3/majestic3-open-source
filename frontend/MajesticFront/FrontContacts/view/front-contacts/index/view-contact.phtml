@@ -1,0 +1,113 @@
+<div class="mj3_forms clearfix">
+
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_CONTACTS_HTML . ' &nbsp; View Contact Details'); ?>
+
+	<script type="text/javascript">
+		jQuery(document).ready( function () {
+			//activate toolkit section
+			var iframe_container_url = "<?php echo $this->url("front-contacts", array("action" => "iframe-contact-toolkit-sections", "id" => $this->objContact->get("reg_id_encoded")));?>";
+			var iframe_container = jQuery(".m3-view-toolkit-container").mj_toolkit_section("");
+			jQuery(".mj3-view-toolkit-container").click(function (e) {
+				if (iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src") == "")
+				{
+					iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src", iframe_container_url);
+				}//end if
+			});
+
+			//activate contact system fields update section
+			jQuery("#contact-system-fields-update").click(function () {
+				jQuery('#bootstrap-contact-system-fields').modal('show');
+				//load dialog content via ajax
+				jQuery.ajax({
+					url: "<?php echo $this->url("front-contacts", array("id" => $this->objContact->get("reg_id_encoded"), "action" => "update-contact-system-fields"));?>",
+						type: "GET",
+				})
+				.done (function (data) {
+					jQuery('#bootstrap-contact-system-fields').find(".modal-body").html(data);
+					//jQuery("#contact-system-fields").hide().html(data).show("fast");
+				})
+				.fail(function () {
+
+				});
+			});
+		});
+	</script>
+
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-contacts"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("id" => $this->objContact->get("id"), "action" => "edit-contact")); ?>" title="Edit Contact" data-toggle="tooltip"><?php echo ICON_MEDIUM_MODIFY_HTML; ?></a></li>
+		<li role="presentation"><a href="#" <?php echo $this->objContact->get("id"); ?> class="contact_comms" data-contact-id="<?php echo $this->objContact->get("id"); ?>" title="Send a Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_COMMS_HTML; ?></a></li>
+		<li class="mj3_btnchangeform"><a class="btn btn-success" href="<?php echo $this->url("front-contacts", array("action" => "select-profile-form")); ?>?redirect=<?php echo $this->url("front-contacts", array("action" => "view-contact", "id" => $this->objContact->get("reg_id_encoded"))); ?>" title="Change Contact Profile Form" data-toggle="tooltip"><?php echo ICON_MEDIUM_LAYOUT_HTML . "&nbsp; Change layout"; ?></a></li>
+	</ul>
+
+
+	<?php
+		$this->form->setAttribute("class", $this->form->getAttribute("class"));
+		$form = $this->form;
+		echo $this->renderSystemFormHelper($form, $this, array("disable_help_button" => TRUE));
+	?>
+
+	<div class="clearboth"></div>
+
+	<div class="mj3_systemfields clearfix">
+
+		<fieldset>
+
+			<legend>System Fields</legend>
+
+			<table>
+				<tr>
+					<th>Source</th>
+					<td><?php echo $this->objContact->get("source"); ?></td>
+				</tr>
+				<tr>
+					<th>Reference</th>
+					<td><?php echo $this->objContact->get("reference"); ?></td>
+				</tr>
+				<tr>
+					<th>Status</th>
+					<td><?php echo $this->objContact->get("status"); ?></td>
+				</tr>
+				<tr>
+					<th>User</th>
+					<td><?php echo $this->objContact->get("user_uname") . " ( " . $this->objContact->get("user_fname") . " " . $this->objContact->get("user_sname") . ")"; ?></td>
+				</tr>
+				<tr>
+					<th>Last Updated</th>
+					<td><?php echo $this->objContact->get("datetime_updated"); ?></td>
+				</tr>
+			</table>
+			<button type="button" id="contact-system-fields-update" class="btn btn-primary">Update</button>
+		</fieldset>
+
+	</div>
+
+	<br>
+
+
+
+	<?php
+		echo $this->partial("contact_send_comms_js");
+	?>
+
+</div>
+<!-- add contact source, reference and user update dialog -->
+<div class="modal fade" id="bootstrap-contact-system-fields">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Update Contact Fields</h4>
+      </div>
+      <div class="modal-body">
+        <h4 title="Please be patient, this could take some time" data-toggle="tooltip">Generating form...</h4>
+        <img src="<?php echo $this->layout()->cdn_url?>/images/m3frontend/animations/please_wait.gif" />
+      </div>
+      <div class="clearboth"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

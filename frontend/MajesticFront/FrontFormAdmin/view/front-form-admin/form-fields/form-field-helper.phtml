@@ -1,0 +1,73 @@
+<?php
+//deal with default content and field types
+if ($this->objField->get("fields_custom_id") != "")
+{
+	$field_type = $this->objField->get("fields_custom_input_type");
+	$field_value = $this->objField->get("fields_custom_field_values");
+} else {
+	$field_type = $this->objField->get("fields_std_input_type");
+	$field_value = $this->objField->get("fields_std_field_values");
+}//end if
+
+switch (strtolower($field_type))
+{
+	case "checkbox":
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				//append dropdown
+				var element = jQuery("<select></select>")
+									.attr("id", "default_content_replacement")
+									.append(jQuery("<option></option>").attr("value", "").text("--select--"))
+									.append(jQuery("<option></option>").attr("value", "0").text("Unchecked"))
+									.append(jQuery("<option></option>").attr("value", "1").text("Checked"))
+									.change(function () {
+										jQuery("#default_content").val(jQuery(this).val());
+									});
+
+				if (jQuery("#default_content").val() != "")
+				{
+					element.find('option[value="' + jQuery("#default_content").val() + '"]').attr("selected", true);
+				}//end if
+
+				jQuery("#default_content").css("display", "none").after(element);
+			});
+		</script>
+		<?php
+		break;
+
+	case "radio":
+	case "select":
+		//extract text list
+		$arr_values = explode("\n", $field_value);
+		foreach ($arr_values as $k => $v)
+		{
+			$arr_t[] = str_replace(array("\n", "\r"), "", $v);
+		}//end if
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				var objValues = jQuery.parseJSON('<?php echo json_encode($arr_t, JSON_FORCE_OBJECT);?>');
+
+				var element = jQuery("<select></select>")
+								.attr("id", "default_content_replacement")
+								.append(jQuery("<option></option>").attr("value", "").text("--select--"))
+								.change(function () {
+									jQuery("#default_content").val(jQuery(this).val());
+								});
+				jQuery.each(objValues, function (i, val) {
+					element.append(jQuery("<option></option>").attr("value", val).text(val));
+				});
+
+				if (jQuery("#default_content").val() != "")
+				{
+					element.find('option[value="' + jQuery("#default_content").val() + '"]').attr("selected", true);
+				}//end if
+
+				jQuery("#default_content").css("display", "none").after(element);
+			});
+		</script>
+
+		<?php
+		break;
+}//end switch

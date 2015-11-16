@@ -1,0 +1,195 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . '&nbsp; Bulk Send Criteria'); ?>
+<ul class="nav nav-tabs">
+	<li role="presentation"><a href="<?php echo $this->url("front-comms-bulksend"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+</ul>
+<div class="mj3_table_contain clearfix">
+<?php
+//display journey data
+echo 	"<h3>Journey to be sent: <a href=\"" . $this->url("front-comms-admin/journeys", array("id" => $this->objJourney->get("id"), "action" => "edit")) . "\" title=\"Update Journey\" data-toggle=\"tooltip\">" . $this->objJourney->get("journey") . "</a></h3>";
+echo 	"<div id=\"journey-details-summary\">";
+echo 		"<p>Description : " . $this->objJourney->get("description") . "</p>";
+if ($this->objJourney->isExpired() === TRUE)
+{
+	echo 		"<p style=\"padding: 7px;\" class=\"text-danger bg-danger\">Warning: This journey has expired</p>";
+}//end if
+
+echo 	"</div>";
+echo 		"<h4>Communications</h4>";
+echo 		"<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+echo 			"<tr>";
+echo 				"<th>Number</th>";
+echo 				"<th>Type</th>";
+echo 				"<th>Expires</th>";
+echo 				"<th>Active</th>";
+echo 				"<th>&nbsp;</th>";
+echo 			"<tr>";
+
+foreach ($this->objJourney->get("comms") as $objComm)
+{
+	echo	 "<tr>";
+	echo 		"<td>" . $objComm->comm_num . "</td>";
+	echo 		"<td>" . $objComm->comm_via_data_comm_via . "</td>";
+	echo 		"<td>" . $objComm->date_expiry . "</td>";
+
+	if ($objComm->active == 1)
+	{
+		echo 	"<td>" . ICON_SMALL_ACTIVE_HTML . "</td>";
+	} else {
+		echo 	"<td>" . ICON_SMALL_INACTIVE_HTML . "</td>";
+	}//end if
+
+	echo 		"<td><a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $this->objJourney->get("id"), "id" => $objComm->id, "action" => edit)) . "\" title=\"Edit Communication\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+
+	echo 	"</tr>";
+}//end foreach
+
+?>
+		</table>
+	</div><!-- mj3_table_contain closing div -->
+
+<?php
+
+//insert ajax urls
+echo "<script type=\"text/javascript\">";
+echo 	"var ajax_reg_status_list 			= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-contact-status-list")) . "\";";
+echo 	"var ajax_web_forms_url 			= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-web-forms-list")) . "\";";
+echo 	"var ajax_web_form_fields_url 		= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-web-form-fields-list")) . "\";";
+echo 	"var ajax_sales_funnels_url 		= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-sales-funnels-list")) . "\";";
+echo 	"var ajax_standard_fields_list_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-standard-fields-list")) . "\";";
+echo 	"var ajax_standard_field_data_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-standard-field-criteria")) . "\";";
+echo 	"var ajax_custom_fields_list_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-custom-fields-list")) . "\";";
+echo 	"var ajax_custom_field_data_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-custom-field-criteria")) . "\";";
+echo "</script>";
+?>
+<div class="mj3_forms clearfix">
+<!-- Load bulk send javascript file -->
+<script type="text/javascript" src="/js/bulksend/general.js"></script>
+<form id="bulk_send_criteria" method="post">
+<!--  	<h3>Send Criteria</h3> -->
+ 		<h3>Filter by General Fields</h3>
+	 			<label for="status_operator" class="control-label">Contact Status</label>
+	 			<div>
+		 			<select name="status_operator" id="status_operator" class="form-control">
+		 				<option value="">--select--</option>
+		 				<option value="equals">is equal to</option>
+		 				<option value="notequals">is not equal to</option>
+		 			</select>
+
+		 			 <select name="reg_status_id" id="reg_status_id" class="form-control">
+		 				<option value="">--select--</option>
+		 				<option value="*load_data*">Load Data</option>
+		 			</select>
+		 		</div>
+
+ 			<br/>
+
+ 			<div>
+ 				<label for="date_created_start" class="control-label">Date Created</label>
+ 				<div>
+ 					<input type="text" name="date_created_start" id="date_created_start" class="form-control" readonly="readonly" data-toggle="tooltip" data-uk-datepicker="{format:'DD-MM-YYYY'}"/>&nbsp; -- &nbsp;
+ 					<input type="text" name="date_created_end" id="date_created_end" class="form-control" readonly="readonly" data-toggle="tooltip" data-uk-datepicker="{format:'DD-MM-YYYY'}"/>
+ 				</div>
+ 			</div>
+ 			<br/>
+
+ 			<div>
+ 			 	<label for="email_address" class="control-label">E-mail address</label>
+ 			 	<div>
+		 			<select name="email_address" id="email_address" class="form-control">
+		 				<option value="">--select--</option>
+		 				<option value="1">Valid format</option>
+		 				<option value="2">Not suspended</option>
+		 				<option value="3">Valid format and not suspended</option>
+		 				<option value="4">Invalid format or blank</option>
+		 				<option value="5">Suspended</option>
+		 				<option value="6">Invalid format or blank or suspended</option>
+		 			</select>
+ 			 	</div>
+ 			</div>
+ 			<br/>
+
+ 			<div>
+ 			 	<label for="sms_number" class="control-label">SMS</label>
+ 			 	<div>
+ 			 		<select name="sms_number" id="sms_number" class="form-control">
+		 				<option value="">--select--</option>
+		 				<option value="1">Valid Format</option>
+		 				<option value="2">Invalid format or blank</option>
+		 			</select>
+ 			 	</div>
+ 			</div>
+
+
+ 		<h3>Filter by Forms</h3>
+			<div>
+				<label for="form_id" class="control-label">Web</label>
+				<div>
+					<select name="form_id" id="form_id" class="form-control">
+						<option value="">--select--</option>
+						<option value="*load_data*">Load Data</option>
+					</select>
+					&nbsp;
+					<select name="form_operator" id="form_operator" class="form-control">
+						<option value="">--select--</option>
+						<option value="complete">has been completed</option>
+						<option value="uncomplete">has not been completed</option>
+					</select>
+				</div>
+			</div>
+			<br/>
+
+			<div>
+				<label for="sales_funnel_id" class="control-label">Tracker</label>
+				<div>
+					<select name="sales_funnel_id" id="sales_funnel_id" class="form-control">
+						<option value="">--select--</option>
+						<option value="*load_data*">Load Data</option>
+					</select>
+				</div>
+
+
+ 		<h3>Filter by Fields</h3>
+ 			<div>
+	 			<label for="load_fields_from_from" class="control-label">Use form fields : </label>
+	 			<div>
+		 			<select id="load_fields_from_form" class="form-control">
+		 				<option value="">--select--</option>
+		 				<option value="*load_data*">Load Data</option>
+		 			</select>
+		 		</div>
+	 		</div>
+
+	 		<div>
+	 			<label for="standard_fields_list"  class="control-label">Standard Fields</label>
+	 		</div>
+				<div>
+					<select id="standard_fields_list" class="form-control">
+								<option value="">--select--</option>
+								<option value="*load_data*">Load Data</option>
+							</select>
+							<div id="standard_fields_criteria">
+								<!-- container for standard field criteria -->
+							</div>
+				</div>
+
+				<div>
+					<label for="custom_fields_list" class="control_label">Custom Field</label>
+				</div>
+					<div>
+ 							<select id="custom_fields_list" class="form-control">
+								<option value="">--select--</option>
+								<option value="*load_data*">Load Data</option>
+							</select>
+
+ 							<div id="custom_fields_criteria">
+ 								<!-- container for standard field criteria -->
+ 							</div>
+
+					</div>
+ 	<br/>
+ 	<input type="submit" value="Submit" class="btn btn-primary"/>
+ 	</form>
+	</div><!-- mj3_forms closing div -->
+</div><!-- mj3_tables closing div -->
+</div><!--  mj3_forms second closing div -->

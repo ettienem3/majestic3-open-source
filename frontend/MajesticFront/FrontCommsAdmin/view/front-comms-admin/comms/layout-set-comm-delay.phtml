@@ -1,0 +1,33 @@
+<script type="text/javascript">
+	var global_comm_send_time = '<?php echo $this->objCommAdmin->send_time; ?>';
+	jQuery(document).ready(function () {
+		//hide the send_time input
+		jQuery("#send_time").hide();
+		//add button to set the value
+		jQuery(".form-element-send_time").find(".control-label").append("&nbsp;<span id='send_time_dialog_text'><?php echo $this->send_time_delay_text;?>&nbsp;</span><button id='send_time_dialog_button'>Set</button>");
+
+		//monitor the send time dialog button
+		jQuery("#send_time_dialog_button").click(function(e) {
+			e.preventDefault();
+			//load page content
+			jQuery.ajax({
+				url: '<?php echo $this->url("front-comms-admin/comms", array("action" => "set-comm-delay", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)); ?>?send_time=' + global_comm_send_time,
+				async: false,
+			})
+			.done(function (data) {
+				jQuery(".send_time_dialog").html(data);
+			});
+
+			//load dialog
+			jQuery(".send_time_dialog").dialog({
+				modal: true,
+				title: "Set Communication delay",
+				buttons: {
+					Cancel : function () {
+						jQuery(this).dialog("close");
+					}//end cancel button 
+				}//end buttons
+			});
+		});
+	});
+</script>

@@ -1,0 +1,12 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_SMS_HTML . '&nbsp; View Sms Campaign Reply'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation">
+			<?php echo "<a href=\"" . $this->url("front-comms-sms-campaign-replies", array("sms_campaign_id" => $this->sms_campaign_id)) . "\" title=\"Back\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>";?>
+		</li>
+	</ul>
+	<div class="mj3_table_contain clearfix">
+		<?php var_dump($this->objReply); ?>
+	</div>
+</div>

@@ -1,0 +1,90 @@
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<?php
+		if (!is_object($this->objProfileSettings))
+		{
+			//load native profile settings
+			$this->objProfileSettings = \FrontProfileSettings\Models\NativeProfileSettingsModel::readProfileSettings();
+		}//end if
+
+		//set page title
+		if (isset($this->app_config["profile_config"]["profile_title"]))
+		{
+			$profile_title = $this->app_config["profile_config"]["profile_title"];
+		} else {
+			$profile_title = "Majestic 3";
+		}//end if
+$profile_title = "Fafster.com";
+		//set metatags
+		echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0')->appendHttpEquiv('X-UA-Compatible', 'IE=edge');
+
+		//set page title
+		if (is_object($this->objProfileSettings))
+		{
+			//echo $this->headTitle($this->translate($this->objProfileSettings->get("profile_title", $profile_title)))->setSeparator(' - ')->setAutoEscape(false);
+			echo $this->headTitle($this->translate($profile_title))->setSeparator(' - ')->setAutoEscape(false);
+		}//end if
+
+		$cdn_url = $this->layout()->cdn_url;
+		//load javascript
+		//https://github.com/rgrove/lazyload/ -> js autoload/lazyload
+		echo $this->headScript()->prependFile($cdn_url . "/js/lazyload.js")
+  				->prependFile($cdn_url . "/js/vendor/jquery/jquery-2.1.1.min.js")
+   				->appendFile($cdn_url . '/js/plugins/mj-plugins.js?' . time())
+ 				->appendFile($this->basePath() . '/js/main.js')
+
+				//older browser adaptations
+				->appendFile('https://oss.maxcdn.com/respond/1.4.2/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
+				->appendFile('https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js',   'text/javascript', array('conditional' => 'lt IE 9',))
+				;
+
+		//load css
+		$icon = $this->layout()->cdn_url . "/images/m3frontend/favicon.ico"; //set default icon
+		if (isset($this->app_config["login_page_settings"]["fav_icon"]) && $this->app_config["login_page_settings"]["fav_icon"] != "")
+		{
+			$icon = $this->app_config["login_page_settings"]["fav_icon"];
+		}//end if
+
+		if (is_object($this->objProfileSettings))
+		{
+			$icon = $this->objProfileSettings->get("profile_icon", $icon);
+		}//end if
+
+		echo $this->headLink(array("rel" => "shortcut icon", "type" => "image/vnd.microsoft.icon", "href" => $icon))
+				->appendStylesheet($cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.css")
+				->appendStylesheet($cdn_url . "/bootstrap/css/bootstrap.min.css")
+ 				->appendStylesheet($this->basePath() . '/css/main.css')
+			;
+	?>
+
+	<script type="text/javascript">
+		//define some global javascript vars
+		var global_wait_image = "<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />";
+		var cdn_url = '<?php echo $cdn_url; ?>';
+
+		//lazyload some other css files
+ 		LazyLoad.css([
+			'<?php echo $cdn_url . "/bootstrap/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css";?>',
+			'<?php echo $cdn_url . "/css/frontend/icons.css";?>',
+ 		], function () {
+
+ 		});
+
+		//lazyload additional files
+		LazyLoad.js([
+			'<?php echo $cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.js";?>',
+			'<?php echo $cdn_url . "/bootstrap/js/bootstrap.min.js";?>',
+			'<?php echo $cdn_url . "/bootstrap/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js";?>',
+			'<?php echo $cdn_url . "/bootstrap/js/alert.js";?>',
+		], function () {
+			jQuery('[data-toggle="tooltip"]').tooltip({'placement': 'top'});
+		});
+
+		jQuery(document).ready(function () {
+			//disbale browser datepickers by amending the date field to a text field
+ 			jQuery('input[type="date"]').prop('type','text');
+		});
+	</script>
+</head>
+

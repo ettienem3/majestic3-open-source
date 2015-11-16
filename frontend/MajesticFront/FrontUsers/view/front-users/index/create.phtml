@@ -1,0 +1,20 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_USER_HTML .'&nbsp; Create User'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-users"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+	<div class="mj3_forms clearfix">
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this, array("generate_field_groups" => TRUE, "enable_accordion" => TRUE));
+		?>
+
+	</div>
+
+</div>
+
+
+

@@ -1,0 +1,123 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_CONTACT_STATUS_HTML .'&nbsp;Statuses'); ?>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform">
+
+			<a href="<?php echo $this->url("front-statuses", array("action" => "create")); ?>" class="btn btn-success" title="Create a new Status" data-toggle="tooltip"><?php echo ICON_LARGE_ADD_HTML .' Add Status'; ?></a>
+
+		</li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+				//activate behaviours views
+				jQuery(".behaviours_view").mj_behaviours_view();
+			});
+		</script>
+
+		 <?php
+		 //load session for plugins enabled
+		 $objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+		 $arr_plugins = (array) $objUserSession->profile->plugins_enabled;
+		 
+		/**
+		 * Prepare data
+		 */
+
+		foreach ($this->objContactStatuses as $key => $objContactStatus)
+		{
+			if (!isset($objContactStatus->id))
+			{
+				continue;
+			}//end if
+
+			// Replace "1" with "Yes" and "0" with "&nbsp;"
+			if ($objContactStatus->hidden == 0)
+			{
+				$objContactStatus->hidden = "&nbsp;";
+			} else	{
+				$objContactStatus->hidden = "Yes";
+			}//end if
+
+			if ($objContactStatus->hidden == 0)
+			{
+				$objContactStatus->hidden = "&nbsp;";
+			} else {
+				$objContactStatus->hidden = "Yes";
+			}//end if
+
+			if ($objContactStatus->comm_stop == 0)
+			{
+				$objContactStatus->comm_stop = "&nbsp;";
+			} else {
+				$objContactStatus->comm_stop = "Yes";
+			}//end if
+
+			if ($objContactStatus->diary == 0)
+			{
+				$objContactStatus->diary = "&nbsp;";
+			} else {
+				$objContactStatus->diary = "Yes";
+			}//end if
+
+			if ($objContactStatus->show_on_reports == 0)
+			{
+				$objContactStatus->show_on_reports = "&nbsp;";
+			} else {
+				$objContactStatus->show_on_reports = "Yes";
+			}//end if
+
+			$arr_data["status"] = "<span class=\"label label-info\" style=\"background-color:" . $objContactStatus->colour . "\">" . $objContactStatus->status . "</span>";
+			$arr_data["status_group"] = $objContactStatus->status_group;
+			//$arr_data["hidden"] = $objContactStatus->hidden;
+			//$arr_data["comm_stop"] = $objContactStatus->comm_stop;
+			//$arr_data["diary"] = $objContactStatus->diary;
+			//$arr_data["show_on_reports"] = $objContactStatus->show_on_reports;
+
+			if ($objContactStatus->site_id > 0)
+			{
+				if ($objContactStatus->active == 1)
+				{
+					$arr_data["active_url"] = "<a href=\"" . $this->url("front-statuses", array("action" => "status", "id" => $objContactStatus->id)) . "\" title=\"This Status is Active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+				} else {
+					$arr_data["active_url"] = "<a href=\"" . $this->url("front-statuses", array("action" => "status", "id" => $objContactStatus->id)) . "\" title=\"This Status is Inactive\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+				}//end if
+
+				$edit_url = "<a href=\"" . $this->url("front-statuses", array("action" => "edit", "id" => $objContactStatus->id)) . "\" title=\"Edit Status\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+				$delete_url = "<a href=\"" . $this->url("front-statuses", array("action" => "delete", "id" => $objContactStatus->id)) . "\" title=\"Delete Status\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+				
+				//check if behaviours are active
+				if (in_array("behaviours_basic", $arr_plugins) || in_array("bahviours_advanced", $arr_plugins))
+				{
+					$behaviours_url = "<a href=\"" . $this->url("front-statuses", array("action" => "statusBehaviours", "id" => $objContactStatus->id)) . "\" title=\"Configure Status Behaviours\" data-toggle=\"tooltip\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+				} else {
+					$behaviours_url = "";	
+				}//end if
+				
+				$arr_data["url"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_url;
+			} else {
+				//global status, cannot be changed
+				$arr_data["active_url"] = "&nbsp;";
+				$arr_data["url"] = "&nbsp;";
+			}//end if
+			$arr[] = $arr_data;
+
+		} // end foreach()
+
+		//create add url
+		$add_url = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		//echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Hidden", "Pause Journey", "Follow up with task", "Show on reports", "Active", $add_url), array("id" => $css_id));
+		echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Active", $add_url), array("id" => $css_id));
+
+		?>
+		<div id="manage-behaviours-section" class="modal fade"></div>
+
+	</div>
+
+</div>

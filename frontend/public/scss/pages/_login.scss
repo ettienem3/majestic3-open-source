@@ -1,0 +1,50 @@
+/* login */
+
+.mj3-login {
+	height: 100%;
+	padding-top: 14%;
+	
+	img {
+		margin-bottom: 30px !important;
+	}
+
+	.mj3-login-status {
+		margin: 0 auto;
+		max-width: 300px;
+
+		ul {
+			margin: 0;
+			padding: 10px 0 0 20px;
+		}
+	}
+
+	.m3logo_main {
+		display: block;
+		margin: 0 auto;
+		width: 90px;
+	}
+
+	.tagline {
+		padding: 15px 0 25px;
+		text-align: center;
+	}
+
+	.mj3-loginbox {
+		margin: 0 auto;
+		max-width: 300px;
+
+		.btn-primary {
+			width: 100%;
+		}
+
+		.forgot {
+			font-size: 12px;
+			padding: 10px 0;
+			text-align: center;
+
+			a {
+				color: #ccc;
+			}
+		}
+	}
+}

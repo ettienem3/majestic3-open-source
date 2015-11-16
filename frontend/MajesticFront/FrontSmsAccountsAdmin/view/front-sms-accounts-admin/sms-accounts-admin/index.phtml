@@ -1,0 +1,89 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_MEDIUM_SMS_HTML .'&nbsp; SMS Accounts'); ?>
+
+	<div class="mj3_forms clearfix">
+		<?php
+		foreach ($this->objSmsAccounts as $k => $objSmsAccount)
+		{
+			if ($objSmsAccount->get("id") == "")
+			{
+				continue;
+			}//end if
+
+			$arr_account["vendor"] = $objSmsAccount->get("sms_vendors_description");
+
+			//determine account type
+			if ($objSmsAccount->get("fk_id_users") > 0 && $objSmsAccount->get("fk_id_sms_campaign") == 0)
+			{
+				$account_type = "User";
+			}//end if
+
+			if ($objSmsAccount->get("fk_id_users") == 0 && $objSmsAccount->get("fk_id_sms_campaign") == 0)
+			{
+				$account_type = "Profile";
+			}//end if
+
+			if ($objSmsAccount->get("fk_id_users") == 0 && $objSmsAccount->get("fk_id_sms_campaign") > 0)
+			{
+				$account_type = "SMS Campaign";
+			}//end if
+
+			$arr_account["account_type"] = $account_type;
+
+			switch(strtolower($account_type))
+			{
+				case "user":
+					$arr_account["account_type_owner"] = $objSmsAccount->get("users_uname");
+					break;
+
+				case "profile":
+					$arr_account["account_type_owner"] = "Profile";
+					break;
+
+				case "sms campaign":
+					$arr_account["account_type_owner"] = $objSmsAccount->get("sms_campaigns_description");
+					break;
+			}//end switch
+
+			$arr_account["acc_uname"] = $objSmsAccount->get("sms_uname");
+			$arr_account["acc_pword"] = $objSmsAccount->get("sms_pword");
+
+			if ($objSmsAccount->get("active") == 1)
+			{
+				$arr_account["active_url"] = "<a href=\"" . $this->url("front-sms-accounts-admin", array("id" => $objSmsAccount->get("id"), "action" => "status-sms-account")) . "\" title=\"Deactivate Sms Account\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+			} else {
+				$arr_account["active_url"] = "<a href=\"" . $this->url("front-sms-accounts-admin", array("id" => $objSmsAccount->get("id"), "action" => "status-sms-account")) . "\" title=\"Activate Sms Account\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+			}//end if
+
+			//set urls
+			$edit_url = "<a href=\"" . $this->url("front-sms-accounts-admin", array("id" => $objSmsAccount->get("id"), "action" => "edit-sms-account")) . "\" title=\"Edit Sms Account\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-sms-accounts-admin", array("id" => $objSmsAccount->get("id"), "action" => "delete-sms-account")) . "\" title=\"Delete Sms Account\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+
+			$arr_account["urls"] = $edit_url . "&nbsp;" . $delete_url;
+
+			if ($objSmsAccount->get("vendor_status_update_uri") != "")
+			{
+				$status_updates_url = "<a href=\"#status-updates-url\" onclick=\"alert('Status Updates URL: " . $objSmsAccount->get("vendor_status_update_uri") . "');\" data-toggle=\"tooltip\">" . ICON_SMALL_STATUS_INFO_HTML . "</a>";
+				$arr_account["urls"] .= "&nbsp;" . $status_updates_url;
+			}//end if
+
+			if ($objSmsAccount->get("vendor_replies_url") != "")
+			{
+				$status_updates_url = "<a href=\"#replies-url\" onclick=\"alert('Replies URL: " . $objSmsAccount->get("vendor_replies_url") . "');\" data-toggle=\"tooltip\">" . ICON_SMALL_STATUS_SUCCESS_HTML . "</a>";
+				$arr_account["urls"] .= "&nbsp;" . $status_updates_url;
+			}//end if
+
+			$arr[] = $arr_account;
+		}//end foreach
+		echo "<div class=\"mj3_table_contain clearfix\">";
+		//create add url
+		$add_url = "<a href=\"" . $this->url("front-sms-accounts-admin", array("id" => $objSmsAccount->get("id"), "action" => "create-sms-account")) . "\" title=\"Create Sms Account\" data-toggle=\"tooltip\">" . ICON_MEDIUM_ADD_HTML . "</a>";
+
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("Vendor", "Account Type", "Owner", "SMS Vendor Username", "SMS Vendor Password", "Active", $add_url));
+
+		?>
+		</div><!-- mj3_table_contain closing div -->
+	</div>
+</div>

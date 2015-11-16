@@ -1,0 +1,21 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FILE_MANAGER_HTML .'&nbsp; File Manager - Delete a file'); ?>
+
+
+	<!-- search ends here -->
+
+	<div class="mj3_forms clearfix">
+
+		<form method="post">
+			<h3>
+				Are you sure you want to delete this "<?php echo $this->location; ?>" file?<br />
+				This action cannot be undone.
+			</h3>
+			<input type="submit" value="Yes" name="delete" class="btn btn-danger"/>
+			<input type="submit" value="Cancel" class="btn btn-success"/>
+		</form>
+
+	</div>
+
+</div>

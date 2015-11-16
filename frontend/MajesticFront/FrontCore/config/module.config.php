@@ -1,0 +1,406 @@
+<?php
+return array(
+	'di' => array(),
+    'controllers' => array(
+        'invokables' => array(
+            //'FrontCore\Controller\Index' => 'FrontCore\Controller\IndexController',
+        	'MajesticExternalForms\Controller\Index' => 'MajesticExternalForms\Controller\IndexController',//the external controller
+        ),
+    ),
+
+	'router' => array(
+			'routes' => array(
+					'home' => array(
+							'type' => 'Zend\Mvc\Router\Http\Literal',
+							'options' => array(
+									'route'    => '/',
+// 									'defaults' => array(
+// 											'controller' => 'FrontContacts\Controller\Index',
+// 											'action'     => 'index',
+// 									),
+									'defaults' => array(
+											'controller' => 'FrontPanels\Controller\Panels',
+											'action'     => 'display-panels',
+									),
+							),
+					),
+
+					'frontcore' => array(
+							'type'    => 'segment',
+							'options' => array(
+									'route'    => '/front/core[/:action][/:id]',
+									'constraints' => array(
+											'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+											'id'     => '[0-9]+',
+									),
+									'defaults' => array(
+											'controller' => 'FrontCore\Controller\Index',
+											'action'     => 'index',
+									),
+							),
+					),
+
+
+			),
+	),
+
+	'service_manager' => array(
+				'factories' => array(
+						'navigation' => 'FrontCore\Navigation\FrontNavigationFactory',
+						),
+			),
+
+	'navigation' => array(
+			'default' => array(
+					array(
+							'label' => 'Home',
+							'route' => 'home',
+					),
+			),
+	),
+
+    'view_manager' => array(
+        'display_not_found_reason' => true,
+        'display_exceptions'       => true,
+        'doctype'                  => 'HTML5',
+        'not_found_template'       => 'error/404',
+//         'exception_template'       => 'error/index',
+    	'exception_template'       => 'error/custom',
+        'template_map' => array(
+        		'layout/layout' 						=> __DIR__ . '/../view/layout/layout.phtml',
+        		'layout/dashboard'						=> __DIR__ . '/../view/layout/layout-panel.phtml',
+        		'layout/header' 						=> __DIR__ . '/../view/layout/layout-header.phtml',
+        		'layout/body-pane' 						=> __DIR__ . '/../view/layout/layout-body.phtml',
+        		'layout/behaviours-view'				=> __DIR__ . '/../view/layout/layout-behaviours-view.phtml',
+        		'layout/footer-pane'					=> __DIR__ . '/../view/layout/layout-footer.phtml',
+        		'layout/west-pane'						=> __DIR__ . '/../view/layout/layout-west-pane.phtml',
+        		'layout/east-pane' 						=> __DIR__ . '/../view/layout/layout-east-pane.phtml',
+        		'layout/flash-messages' 				=> __DIR__ . '/../view/layout/layout-flash-messages.phtml',
+        		'layout/api-data' 						=> __DIR__ . '/../view/layout/layout-api-data.phtml',
+        		'layout/query-details' 					=> __DIR__ . '/../view/layout/layout-query-details.phtml',
+        		'layout/navigation-first-level' 		=> __DIR__ . '/../view/layout/layout-navigation-first-level.phtml',
+        		'layout/toolkit-parent'					=> __DIR__ . '/../view/layout/layout-toolkit-parent.phtml',
+        		'layout/toolkit-body'					=> __DIR__ . '/../view/layout/layout-toolkit-body.phtml',
+        		'layout/toolkit-section-standard' 		=> __DIR__ . '/../view/layout/layout-toolkit-sections-standard.phtml',
+        ),
+
+        'template_path_stack' => array(
+            __DIR__ . '/../view',
+        ),
+
+    	'strategies' => array(
+    			'ViewJsonStrategy',
+    	),
+    ),
+
+	/**
+	 * Map front end operations with ACL received from API to assist with navigation management
+	 */
+	'api_route_vs_front_route_map' => array(
+			'front-behaviours-config' => array(
+					'APIBehaviourConfig\Controller\BehaviourConfigController::getList',
+					'APIBehaviourConfig\Controller\BehaviourConfigController::get',
+					'APIBehaviourConfig\Controller\BehaviourConfigController::create',
+					'APIBehaviourConfig\Controller\BehaviourConfigController::update',
+					'APIBehaviourConfig\Controller\BehaviourConfigController::delete',
+					'APIBehaviourConfig\Controller\BehaviourFormsController::getList',
+			),
+			'front-campaigns' => array(
+					'APICampaigns\Controller\CampaignsController::getList',
+					'APICampaigns\Controller\CampaignsController::get',
+					'APICampaigns\Controller\CampaignsController::create',
+					'APICampaigns\Controller\CampaignsController::update',
+					'APICampaigns\Controller\CampaignsController::delete',
+			),
+			'front-comms-admin/comms' => array(
+					'APICommsAdmin\Controller\CommsAdminController::getList',
+					'APICommsAdmin\Controller\CommsAdminController::get',
+					'APICommsAdmin\Controller\CommsAdminController::create',
+					'APICommsAdmin\Controller\CommsAdminController::update',
+					'APICommsAdmin\Controller\CommsAdminController::delete',
+			),
+			'front-comms-admin/comm-embedded-images' => array(
+					'APICommsAdmin\Controller\CommEmbeddedImagesController::getList',
+					'APICommsAdmin\Controller\CommEmbeddedImagesController::get',
+					'APICommsAdmin\Controller\CommEmbeddedImagesController::create',
+					'APICommsAdmin\Controller\CommEmbeddedImagesController::update',
+					'APICommsAdmin\Controller\CommEmbeddedImagesController::delete',
+			),
+			'front-comms-admin/dates' => array(
+					'APICommsAdmin\Controller\CommDatesController::getList',
+					'APICommsAdmin\Controller\CommDatesController::get',
+					'APICommsAdmin\Controller\CommDatesController::create',
+					'APICommsAdmin\Controller\CommDatesController::update',
+					'APICommsAdmin\Controller\CommDatesController::delete',
+			),
+			'front-comms-admin/attachments' => array(
+					'APICommsAdmin\Controller\CommAttachmentsController::getList',
+					'APICommsAdmin\Controller\CommAttachmentsController::get',
+					'APICommsAdmin\Controller\CommAttachmentsController::create',
+					'APICommsAdmin\Controller\CommAttachmentsController::delete',
+			),
+			'front-comms-admin/journeys' => array(
+					'APICommsAdmin\Controller\CommsJourneysController::getList',
+					'APICommsAdmin\Controller\CommsJourneysController::get',
+					'APICommsAdmin\Controller\CommsJourneysController::create',
+					'APICommsAdmin\Controller\CommsJourneysController::update',
+					'APICommsAdmin\Controller\CommsJourneysController::delete',
+			),
+			'front-comms-bulksend' => array(
+					'APICommsBulkSend\Controller\ReadBulkCommRequestController::get',
+					'APICommsBulkSend\Controller\JourneysController',
+					'APICommsBulkSend\Controller\JourneysController::getList',
+					'APICommsBulkSend\Controller\JourneysController::get',
+			),
+			'front-comms-bulksend-admin' => array(
+					'APICommsBulkSend\Controller\BulkCommController::getList',
+					'APICommsBulkSend\Controller\BulkCommController::get',
+					'APICommsBulkSend\Controller\BulkCommController::create',
+					'APICommsBulkSend\Controller\BulkCommController::update',
+					'APICommsBulkSend\Controller\BulkCommController::delete',
+			),
+			'front-comms-templates' => array(
+					'APIHtmlTemplates\Controller\CommTemplatesController::getList',
+					'APIHtmlTemplates\Controller\CommTemplatesController::get',
+					'APIHtmlTemplates\Controller\CommTemplatesController::create',
+					'APIHtmlTemplates\Controller\CommTemplatesController::update',
+					'APIHtmlTemplates\Controller\CommTemplatesController::delete',
+			),
+			'front-contacts' => array(
+					'APIContacts\Controller\ContactsController::getList',
+					'APIContacts\Controller\ContactsController::get',
+					'APIContacts\Controller\ContactsController::create',
+					'APIContacts\Controller\ContactsController::update',
+					'APIContacts\Controller\ContactsController::delete',
+					'APIContacts\Controller\SystemFieldsReferencesController::getList',
+					'APIContacts\Controller\SystemFieldsSourcesController::getList',
+			),
+			'front-contact-toolkit' => array(
+					'APIContacts\Controller\ContactFormsController::get',
+					'APIContacts\Controller\ContactResubscribeController::get',
+					'APIContacts\Controller\ContactResubscribeController::update',
+					'APIContacts\Controller\ContactSalesFunnelsController',
+					'APIContacts\Controller\ContactSalesFunnelsController::get',
+					'APIContacts\Controller\ContactStatusesController::get',
+					'APIContacts\Controller\ContactStatusesController::update',
+					'APIContacts\Controller\ContactUnsubscribeController::get',
+					'APIContacts\Controller\ContactUnsubscribeController::update',
+					'APIContacts\Controller\ContactCommentsController::get',
+					'APIContacts\Controller\ContactCommentsController::create',
+					'APIContacts\Controller\ContactCommsJourneysController::get',
+					'APIContacts\Controller\ContactCommsJourneysController::update',
+					'APIContacts\Controller\ContactCommHistoryController::get',
+			),
+			'front-contact-comms' => array(
+					'APIContacts\Controller\ContactCommsTemplatesController::get',
+					'APIContacts\Controller\ContactCommsTemplatesController::update',
+					'APICommsAdmin\Controller\CommsTemplatesController::getList',
+					'APICommsAdmin\Controller\CommsTemplatesController::get',
+			),
+			'front-form-admin/form' => array(
+					'APIForms\Controller\FormInfoController::get',
+					'APIForms\Controller\FormadminController::getList',
+					'APIForms\Controller\FormadminController::get',
+					'APIForms\Controller\FormadminController::create',
+					'APIForms\Controller\FormadminController::update',
+					'APIForms\Controller\FormadminController::delete',
+			),
+			'front-form-admin/fields' => array(
+					'APIForms\Controller\FieldscustomController::getList',
+					'APIForms\Controller\FieldscustomController::get',
+					'APIForms\Controller\FieldscustomController::create',
+					'APIForms\Controller\FieldscustomController::update',
+					'APIForms\Controller\FieldscustomController::delete',
+					'APIForms\Controller\FieldsstandardController::getList',
+					'APIForms\Controller\FieldsstandardController::get',
+			),
+			'front-form-admin/generic-fields' => array(
+					'APIForms\Controller\FieldsGenericController::getList',
+					'APIForms\Controller\FieldsGenericController::get',
+					'APIForms\Controller\FieldsGenericController::create',
+					'APIForms\Controller\FieldsGenericController::update',
+					'APIForms\Controller\FieldsGenericController::delete',
+			),
+			'front-form-admin/replace-fields' => array(
+					'APIForms\Controller\FieldsReplaceController::getList',
+			),
+			'front-form-admin/form-fields' => array(
+					'APIForms\Controller\FormfieldsController::get',
+					'APIForms\Controller\FormfieldsController::create',
+					'APIForms\Controller\FormfieldsController::update',
+					'APIForms\Controller\FormfieldsController::delete',
+			),
+			'front-form-templates' => array(
+					'APIHtmlTemplates\Controller\FormTemplatesController::getList',
+					'APIHtmlTemplates\Controller\FormTemplatesController::get',
+					'APIHtmlTemplates\Controller\FormTemplatesController::create',
+					'APIHtmlTemplates\Controller\FormTemplatesController::update',
+					'APIHtmlTemplates\Controller\FormTemplatesController::delete',
+			),
+			'front-inbox-manager' => array(
+					'APIInboxManager\Controller\InboxManagerController::getList',
+					'APIInboxManager\Controller\InboxManagerController::get',
+					'APIInboxManager\Controller\InboxManagerController::update',
+					'APIInboxManager\Controller\InboxManagerController::delete',
+			),
+			'front-links' => array(
+					'APILinks\Controller\LinksAdminController::getList',
+					'APILinks\Controller\LinksAdminController::get',
+					'APILinks\Controller\LinksAdminController::create',
+					'APILinks\Controller\LinksAdminController::update',
+					'APILinks\Controller\LinksAdminController::delete',
+			),
+			'front-locations/countries' => array(
+					'APILocations\Controller\CountriesController::getList',
+					'APILocations\Controller\CountriesController::get',
+			),
+			'front-locations/provinces' => array(
+					'APILocations\Controller\ProvincesController::getList',
+					'APILocations\Controller\ProvincesController::get',
+			),
+			'front-locations/cities' => array(
+					'APILocations\Controller\CitiesController::getList',
+					'APILocations\Controller\CitiesController::get',
+			),
+			'front-panels-setup' => array(
+					'APIPanels\Controller\SetupProfilePanelsController::getList',
+					'APIPanels\Controller\SetupProfilePanelsController::get',
+					'APIPanels\Controller\SetupProfilePanelsController::create',
+					'APIPanels\Controller\SetupProfilePanelsController::update',
+					'APIPanels\Controller\SetupProfilePanelsController::delete',
+					'APIPanels\Controller\SetupUserPanelsController::getList',
+					'APIPanels\Controller\SetupUserPanelsController::create',
+					'APIPanels\Controller\SetupUserPanelsController::delete',
+			),
+			'front-panels-display' => array(
+					'APIPanels\Controller\ReadPanelsController::get',
+			),
+			'front-power-tools/announcements' => array(
+					'APIPowerTools\Controller\AnnouncementsController::getList',
+					'APIPowerTools\Controller\AnnouncementsController::get',
+					'APIPowerTools\Controller\AnnouncementsController::create',
+					'APIPowerTools\Controller\AnnouncementsController::update',
+					'APIPowerTools\Controller\AnnouncementsController::delete',
+			),
+			'front-power-tools/webhooks' => array(
+					'APIWebhooks\Controller\WebHookHeadersController::getList',
+					'APIWebhooks\Controller\WebHookHeadersController::get',
+					'APIWebhooks\Controller\WebHookHeadersController::create',
+					'APIWebhooks\Controller\WebHookHeadersController::update',
+					'APIWebhooks\Controller\WebHookHeadersController::delete',
+					'APIWebhooks\Controller\WebHookUrlsController::getList',
+					'APIWebhooks\Controller\WebHookUrlsController::get',
+					'APIWebhooks\Controller\WebHookUrlsController::create',
+					'APIWebhooks\Controller\WebHookUrlsController::update',
+					'APIWebhooks\Controller\WebHookUrlsController::delete',
+					'APIWebhooks\Controller\WebHooksController::getList',
+					'APIWebhooks\Controller\WebHooksController::get',
+					'APIWebhooks\Controller\WebHooksController::create',
+					'APIWebhooks\Controller\WebHooksController::update',
+					'APIWebhooks\Controller\WebHooksController::delete',
+			),
+// 			'front-profile-settings' => array(
+// 					'APIProfiles\Controller\ProfilesController',
+// 					'APIProfiles\Controller\ProfilesController::getList',
+// 					'APIProfiles\Controller\ProfilesController::create',
+// 			),
+			'front-profile-file-manager' => array(
+					'APIProfileFileManager\Controller\FileManagerController::getList',
+					'APIProfileFileManager\Controller\FileManagerController::get',
+					'APIProfileFileManager\Controller\FileManagerController::create',
+					'APIProfileFileManager\Controller\FileManagerController::delete',
+			),
+			'front-sales-funnels' => array(
+					'APISalesFunnels\Controller\SalesFunnelsController::getList',
+					'APISalesFunnels\Controller\SalesFunnelsController::get',
+					'APISalesFunnels\Controller\SalesFunnelsController::create',
+					'APISalesFunnels\Controller\SalesFunnelsController::update',
+					'APISalesFunnels\Controller\SalesFunnelsController::delete',
+			),
+			'front-sms-accounts-admin' => array(
+					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::getList',
+					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::get',
+					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::create',
+					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::update',
+					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::delete',
+			),
+			'front-statuses' => array(
+					'APIStatuses\Controller\ContactStatusesController',
+					'APIStatuses\Controller\ContactStatusesController::getList',
+					'APIStatuses\Controller\ContactStatusesController::get',
+					'APIStatuses\Controller\ContactStatusesController::create',
+					'APIStatuses\Controller\ContactStatusesController::update',
+					'APIStatuses\Controller\ContactStatusesController::delete',
+			),
+			'front-statuses/contact-statuses' => array(
+					'APIStatuses\Controller\ContactStatusesController::getList',
+					'APIStatuses\Controller\ContactStatusesController::get',
+					'APIStatuses\Controller\ContactStatusesController::create',
+					'APIStatuses\Controller\ContactStatusesController::update',
+					'APIStatuses\Controller\ContactStatusesController::delete',
+			),
+			'front-users' => array(
+					'APIUsers\Controller\UsersController::getList',
+					'APIUsers\Controller\UsersController::get',
+					'APIUsers\Controller\UsersController::create',
+					'APIUsers\Controller\UsersController::update',
+					'APIUsers\Controller\UsersController::delete',
+					'APIPanels\Controller\WritePanelController::getList',
+					'APIPanels\Controller\WritePanelController::get',
+					'APIPanels\Controller\WritePanelController::create',
+					'APIPanels\Controller\WritePanelController::update',
+					'APIPanels\Controller\WritePanelController::delete',
+			),
+			'front-users-tasks' => array(
+					'APIUserTasksManager\Controller\UserTasksManagerController::getList',
+					'APIUserTasksManager\Controller\UserTasksManagerController::get',
+					'APIUserTasksManager\Controller\UserTasksManagerController::create',
+					'APIUserTasksManager\Controller\UserTasksManagerController::update',
+					'APIUserTasksManager\Controller\UserTasksManagerController::delete',
+			),
+			'front-users-roles/admin' => array(
+					'APIUsers\Controller\UserRolesAdminController::getList',
+					'APIUsers\Controller\UserRolesAdminController::get',
+					'APIUsers\Controller\UserRolesAdminController::create',
+					'APIUsers\Controller\UserRolesAdminController::update',
+					'APIUsers\Controller\UserRolesAdminController::delete',
+			),
+			'front-users-roles/user' => array(
+					'APIUsers\Controller\UserRolesController::get',
+					'APIUsers\Controller\UserRolesController::create',
+					'APIUsers\Controller\UserRolesController::delete',
+					'APIAccessControl\Controller\FetchResourcesController::getList',
+					'APIAccessControl\Controller\FetchResourcesController::get',
+					'APIAccessControl\Controller\FetchResourcesController::create',
+					'APIAccessControl\Controller\FetchResourcesController::update',
+					'APIAccessControl\Controller\FetchResourcesController::delete',
+					'APIAccessControl\Controller\FetchStandardRolesController::getList',
+					'APIAccessControl\Controller\FetchStandardRolesController::get',
+					'APIAccessControl\Controller\FetchStandardRolesController::update',
+			),
+			'front-role-acl-links/admin' => array(
+					'APIUsers\Controller\RoleAclLinkController::get',
+					'APIAccessControl\Controller\FetchResourcesController',
+					'APIAccessControl\Controller\FetchResourcesController::getList',
+					'APIAccessControl\Controller\FetchResourcesController::get',
+					'APIAccessControl\Controller\FetchResourcesController::create',
+					'APIAccessControl\Controller\FetchResourcesController::update',
+					'APIAccessControl\Controller\FetchResourcesController::delete',
+					'APIAccessControl\Controller\FetchStandardRolesController::getList',
+					'APIAccessControl\Controller\FetchStandardRolesController::get',
+					'APIAccessControl\Controller\FetchStandardRolesController::update',
+			),
+			'front-user-data-acl-rules' => array(
+					'APIUsers\Controller\UserAccessRulesController::getList',
+					'APIUsers\Controller\UserAccessRulesController::create',
+			),
+			'front-report-viewer' => array(
+					'APIReports\Controller\ReportViewerBasicController::getList',
+					'APIReports\Controller\ReportViewerBasicController::get',
+					'APIReports\Controller\ReportViewerBasicController::update',
+					'APIReports\Controller\ReportViewerAdvancedController::getList',
+					'APIReports\Controller\ReportViewerAdvancedController::get',
+					'APIReports\Controller\ReportViewerAdvancedController::update',
+			),
+	),
+);

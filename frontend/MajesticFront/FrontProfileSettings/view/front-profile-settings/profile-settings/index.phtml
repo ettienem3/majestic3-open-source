@@ -1,0 +1,132 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_MEDIUM_PROFILES_HTML . '&nbsp;Advanced Profile Settings');
+?>
+
+	<ul class="nav nav-tabs">
+
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-profile-settings", array("action" => "update")); ?>" title="Update Profile" class="btn btn-success" data-toggle="tooltip">Update Profile</a></li>
+
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-profile-native-settings"); ?>" title="Update Profile Options" class="btn btn-success" data-toggle="tooltip">Update Profile Options</a></li>
+
+	</ul>
+
+	<?php
+		if (is_object($this->objProfile->get("profile_limits"))):
+	?>
+		<script src="//code.highcharts.com/highcharts.js"></script>
+		<script src="//code.highcharts.com/highcharts-more.js"></script>
+		<script src="//code.highcharts.com/modules/solid-gauge.js"></script>
+		<script type="text/javascript">
+        	jQuery(document).ready(function () {
+        	    var gaugeOptions = {
+
+        	            chart: {
+        	                type: 'solidgauge'
+        	            },
+
+        	            title: null,
+
+        	            pane: {
+        	                center: ['50%', '85%'],
+        	                size: '140%',
+        	                startAngle: -90,
+        	                endAngle: 90,
+        	                background: {
+        	                    backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+        	                    innerRadius: '60%',
+        	                    outerRadius: '100%',
+        	                    shape: 'arc'
+        	                }
+        	            },
+
+        	            tooltip: {
+        	                enabled: false
+        	            },
+
+        	            // the value axis
+        	            yAxis: {
+        	                stops: [
+        	                    [0.1, '#55BF3B'], // green
+        	                    [0.5, '#DDDF0D'], // yellow
+        	                    [0.9, '#DF5353'] // red
+        	                ],
+        	                lineWidth: 0,
+        	                minorTickInterval: null,
+        	                tickPixelInterval: 400,
+        	                tickWidth: 0,
+        	                title: {
+        	                    y: -70
+        	                },
+        	                labels: {
+        	                    y: 16
+        	                }
+        	            },
+
+        	            plotOptions: {
+        	                solidgauge: {
+        	                    dataLabels: {
+        	                        y: 5,
+        	                        borderWidth: 0,
+        	                        useHTML: true
+        	                    }
+        	                }
+        	            }
+        	        };
+        	    <?php
+        	    	foreach ($this->objProfile->get("profile_limits") as $k => $objLimit)
+        	    	{
+        	    		if ($objLimit->used < 0)
+        	    		{
+        	    			continue;
+        	    		}//end if
+
+        	    		$element = "container-limit-$k";
+        	    		?>
+        	    		jQuery("#container-limit-guages").append("<div style=\"width: 40%; height:250px; float:left;\" id=\"<?php echo $element;?>\"></div>");
+
+                	    jQuery('#<?php echo $element;?>').highcharts(Highcharts.merge(gaugeOptions, {
+                	        yAxis: {
+                	        	showFirstLabel:false,
+                	            showLastLabel:false,
+                	            min: 0,
+                	            max: <?php echo ($objLimit->limit);?>
+                	        },
+
+                	        credits: {
+                	            enabled: false
+                	        },
+
+                	        series: [{
+                	            //name: '<?php echo $objLimit->description; ?>',
+                	            data: [<?php echo $objLimit->used; ?>],
+                	            dataLabels: {
+                	                format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                	                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                	                       '<span style="font-size:12px;color:silver"><?php echo $objLimit->description; ?><br/> of <?php echo $objLimit->limit;?> allowed</span></div>'
+                	            }
+                	        }]
+                	    }));
+        	    		<?php
+        	    	}//end foreach
+				?>
+        	});
+		</script>
+
+		<h3>Limits</h3>
+		<div id="container-limit-guages"></div>
+		<div class="clearfix"></div>
+	<?php endif;?>
+
+	<h3>Profile Configuration</h3>
+	<div class="mj3_forms clearfix">
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+
+	</div>
+
+</div>

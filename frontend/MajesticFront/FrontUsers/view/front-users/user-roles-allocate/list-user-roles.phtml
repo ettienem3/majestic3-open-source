@@ -1,0 +1,39 @@
+
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_ROLES_HTML .'&nbsp; List User Roles - "'  . $this->objUser->uname . '"'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-users", array("action" => "edit", "id" => $this->objUser->id)); ?>" title="Back to User" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-user-data-acl-rules", array("user_id" => $this->objUser->id, "action" => "create-rule"));?>" title="Manage User Data Access Rules" data-toggle="tooltip"><?php echo ICON_MEDIUM_USER_DATA_ACL_HTML;?></a></li>
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-users-roles/user", array("action" => "allocate-role", "user_id" => $this->objUser->id)); ?>" title="Allocate Roles" class="btn btn-success" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML . 'Allocate Roles'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain">
+<?php
+//format the role data
+if (is_object($this->objUserRoles) || is_array($this->objUserRoles))
+{
+	foreach($this->objUserRoles as $objRole)
+	{
+		if (!isset($objRole->id))
+		{
+			continue;
+		}//end if
+
+		$arr_data["role_name"] = $objRole->role_name;
+		$arr_data["role_description"] = $objRole->role_description;
+		$arr_data["role_run_level"] = $objRole->role_acl_run_level;
+
+		$remove_url = "<a href=\"" . $this->url("front-users-roles/user", array("action" => "remove-role", "user_id" => $this->objUser->id, "id" => $objRole->id)) . "\" title=\"Remove Roles\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+		$arr_data["url"] = $remove_url;
+
+		$arr[] = $arr_data;
+	}//end foreach
+}//end if
+
+echo $this->renderDataTableHelper();
+echo $this->renderSimpleHTMLTable($arr, array("Role", "Description", "Run Level", ""));
+
+?>
+	</div>
+</div>

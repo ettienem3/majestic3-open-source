@@ -1,0 +1,38 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_MEDIUM_USERS_HTML .'&nbsp;Update Profile Settings'); ?>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-profile-settings"); ?>" title="View Profile Information" class="btn btn-success">Profile Information</a></li>
+	</ul>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+			//set groups
+			$arr_groups = array(
+				"Profile" => array(
+						"profile_title",
+						"profile_icon",
+						"profile_logo",
+				),
+				"Menu" => array(
+						"menu_main_relationship",
+						"menu_main_data",
+						"menu_main_sale",
+						"menu_main_administration",
+				),
+				"Footer" => array(
+						"enable_footer",
+						"footer_content",
+				),
+			);
+			$this->form->setAttribute("arr_field_groups", $arr_groups);
+
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this, array("enable_accordion" => TRUE, "generate_field_groups" => TRUE));
+		?>
+
+	</div>
+
+</div>

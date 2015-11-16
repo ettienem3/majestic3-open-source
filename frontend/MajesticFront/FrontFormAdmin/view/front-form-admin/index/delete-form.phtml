@@ -1,0 +1,17 @@
+<div class="mj3_tables clearfix">
+<?php
+	echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Delete Form');
+
+?>
+	<div class="mj3_forms clearfix">
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form"); ?>" title="Back to Forms" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<form method="post">
+		<h3>Are you sure you want to delete form (<?php echo $this->objForm->get("form");?>)?<br />This option cannot be undone.</h3>
+		<input type="submit" name="delete" value="Yes" class="btn btn-danger"/>
+		<input type="submit" value="Cancel" class="btn btn-success"/>
+	</form>
+	</div>
+</div>

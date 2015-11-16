@@ -1,0 +1,44 @@
+<?php
+
+$arr_form = array(
+		"objForm" => array(
+			"id" 			=> $this->objFormRawData->id,
+			"form" 			=> $this->objFormRawData->form,
+			"alias" 		=> $this->objFormRawData->alias,
+			//"layout" 		=> $this->objFormRawData->layout,
+			//"stylesheet" 	=> $this->objFormRawData->stylesheet,
+			//"copy" 			=> $this->objFormRawData->copy,
+			//"copy2" 		=> $this->objFormRawData->copy2,
+			//"terms" 		=> $this->objFormRawData->terms,
+		),
+);
+
+if (isset($this->submit_result))
+{
+	$arr_form["objForm"]["submit_result"] = $this->submit_result;
+} else {
+	$arr_form["objForm"]["submit_result"] = NULL;
+}//end if
+
+if (isset($this->submit_errors))
+{
+	$arr_form["objForm"]["submit_errors"] = $this->submit_errors;
+} else {
+	$arr_form["objForm"]["submit_errors"] = NULL;
+}//end if
+
+foreach ($this->objForm as $objElement)
+{
+	$arr_form["objForm"]["objFormElements"][$objElement->getName()] = array(
+		"name" 				=> $objElement->getName(),
+		"type" 				=> $objElement->getAttribute("type"),
+		"attributes" 		=> $objElement->getAttributes(),
+		"options" 			=> $objElement->getOptions(),
+		"value" 			=> $objElement->getValue(),
+		"label" 			=> $objElement->getLabel(),
+		"label_options" 	=> $objElement->getLabelOptions(),
+		"messages" 			=> $objElement->getMessages(),
+	);
+}//end foreach
+
+echo json_encode(array("error" => 0, "response" => $arr_form), JSON_FORCE_OBJECT);

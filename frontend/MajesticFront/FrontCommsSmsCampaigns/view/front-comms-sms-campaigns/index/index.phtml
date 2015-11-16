@@ -1,0 +1,58 @@
+<div class="mj3_tables clearfix">
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//activate behaviours views
+		jQuery(".behaviours_view").mj_behaviours_view();
+	});
+</script>
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_SMS_HTML . '&nbsp;Sms Campaigns Index Page'); ?>
+<ul class="nav nav-tabs">
+	<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-comms-sms-campaigns", array("action" => "create")); ?>" title="Create Sms Campaign" class="btn btn-success" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML. 'Create Sms Campaign'; ?></a></li>
+</ul>
+<div class="mj3_table_contain clearfix">
+
+
+<?php
+/**
+ * Prepare data
+ */
+
+foreach ($this->objCommsSmsCampaigns as $key => $objCommsSmsCampaign)
+{
+
+	if (!isset($objCommsSmsCampaign->id))
+	{
+		continue;
+	}//end if
+
+	$arr_data["description"] = $objCommsSmsCampaign->description;
+	$arr_data["keyword"] = $objCommsSmsCampaign->keyword;
+	$arr_data["keyword2"] = $objCommsSmsCampaign->keyword2;
+
+	if ($objCommsSmsCampaign->active == 1)
+	{
+		$arr_data["active_url"] = "<a href=\"" . $this->url("front-comms-sms-campaigns", array("action" => "status", "id" => $objCommsSmsCampaign->id)) . "\" title=\"Deactivate Sms Campaign\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+	} else {
+		$arr_data["active_url"] = "<a href=\"" . $this->url("front-comms-sms-campaigns", array("action" => "status", "id" => $objCommsSmsCampaign->id)) . "\" title=\"Activate Sms Campaign\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+	}//end if
+
+	$edit_url = "<a href=\"" . $this->url("front-comms-sms-campaigns", array("action" => "edit", "id" => $objCommsSmsCampaign->id)) . "\" title=\"Edit Sms Campaign\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+	$view_replies_url = "<a href=\"" . $this->url("front-comms-sms-campaign-replies", array("sms_campaign_id" => $objCommsSmsCampaign->id)) . "\" title=\"View Sms Campaign Replies\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+	$behaviours_url = "<a href=\"" . $this->url("front-comms-sms-campaigns", array("action" => "sms-campaign-behaviours", "id" => $objCommsSmsCampaign->id)) . "\" title=\"Configure SMS Campaign Behaviours\" data-toggle=\"tooltip\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+	$delete_url = "<a href=\"" . $this->url("front-comms-sms-campaigns", array("action" => "delete", "id" => $objCommsSmsCampaign->id)) . "\" title=\"Delete Sms Campaign\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+	$arr_data["url"] = $edit_url . "&nbsp;" . $view_replies_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_url;
+	$arr[] = $arr_data;
+} // end foreach()
+
+//create add url
+$add_url = "";
+
+$css_id = str_replace(".", "", microtime(TRUE));
+echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+echo $this->renderSimpleHTMLTable($arr, array("Description", "Used in", "Last response", "Active", $add_url), array("id" => $css_id));
+?>
+
+<div id="manage-behaviours-section" style="visibility: hidden;"></div>
+	</div><!-- Tables closing div -->
+</div><!--  forms closing div -->

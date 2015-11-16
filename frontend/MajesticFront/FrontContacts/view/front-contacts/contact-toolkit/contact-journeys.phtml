@@ -1,0 +1,25 @@
+<?php
+if (is_object($this->objContactJourneys))
+{
+	echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+	echo 	"<tr>";
+	echo 		"<th>Date Started</th>";
+	echo 		"<th>Journey</th>";
+	echo 		"<th>Status</th>";
+	echo 		"<th title=\"Sales Funnel Deal Number where applicable\">&nbsp;</th>";
+	echo 	"</tr>";
+	
+	foreach ($this->objContactJourneys as $objJourney)
+	{
+		echo "<tr>";
+		echo 	"<td>" . date("d/m/Y H:m", $objJourney->get("tstamp")) . "</td>";
+		echo 	"<td>" . $objJourney->get("journey") . "</td>";
+		echo 	"<td>" . $objJourney->get("comm_status_data_status") . "</td>";
+		echo 	"<td>" . "&nbsp;" . "</td>"; //@TODO join sales funnel data on query to extract deal numbers...
+		echo "</tr>";
+	}//end foreach
+	
+	echo "</table>";
+} else {
+	echo "<h3>No Journeys have started";
+}//end if

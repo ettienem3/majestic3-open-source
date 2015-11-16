@@ -1,0 +1,93 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_USER_HTML .'&nbsp; Users'); ?>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform">
+			<a href="<?php echo $this->url("front-users", array("action" => "create")); ?>" class="btn btn-success" title="Create a new User" data-toggle="tooltip"><?php echo ICON_LARGE_ADD_HTML .' Add User'; ?></a>
+		</li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+		/**
+		 * Prepare data
+		 */
+		//check if tasks plugin is available
+		$objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+		if (isset($objUserSession->plugins_enabled))
+		{
+			$arr_plugins = (array) $objUserSession->plugins_enabled;
+			if (in_array("to_do_list", $arr_plugins))
+			{
+				$tasks_plugin = TRUE;
+			} else {
+				$tasks_plugin = FALSE;
+			}//end if
+		} else {
+			$tasks_plugin = TRUE;
+		}//end if
+
+		foreach ($this->objUsers as $key => $objUser)
+		{
+
+			if (!isset($objUser->id))
+			{
+				continue;
+			}
+
+			// Replace "1" with "Yes" and "0" with "&nbsp;"
+			if ($objUser->allocate == 0)
+			{
+				$objUser->allocate = "&nbsp;";
+			} else {
+				$objUser->allocate = "Yes";
+			}
+
+			if ($objUser->notify_form == 0)
+			{
+				$objUser->notify_form = "&nbsp;";
+			} else {
+				$objUser->notify_form = "Yes";
+			}
+
+			$arr_data["id"] = $objUser->id;
+			$arr_data["uname"] = $objUser->uname;
+			$arr_data["fullname"] = $objUser->fname ." ". $objUser->sname;
+			$arr_data["allocate"] = $objUser->allocate;
+			$arr_data["notify_form"] = $objUser->notify_form;
+
+			if ($objUser->active == 1)
+			{
+				$arr_data["active_url"] = "<a href=\"" . $this->url("front-users", array("action" => "status", "id" => $objUser->id)) . "\" title=\"This user is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+			} else {
+				$arr_data["active_url"] = "<a href=\"" . $this->url("front-users", array("action" => "status", "id" => $objUser->id)) . "\" title=\"This user is inactive\" data-toggle=\"tooltip\" >" . ICON_SMALL_INACTIVE_HTML . "</a>";
+			}//end if
+
+			$roles_url = "<a href=\"" . $this->url("front-users-roles/user", array("action" => "list-user-roles", "user_id" => $objUser->id)) . "\" title=\"Manage User Roles\" data-toggle=\"tooltip\">" . ICON_SMALL_ROLES_HTML . "</a>";
+			$data_access_url = "<a href=\"" . $this->url("front-user-data-acl-rules", array("user_id" => $objUser->id, "action" => "create-rule")) . "\" title=\"Manage User Data Access Rules\" data-toggle=\"tooltip\">" . ICON_SMALL_USER_DATA_ACL_HTML . "</a>";
+
+			if ($tasks_plugin === TRUE)
+			{
+				$tasks_url = "<a href=\"" . $this->url("front-users-tasks", array("user_id" => $objUser->id)) . "\" title=\"To Do List\" data-toggle=\"tooltip\">" . ICON_SMALL_LIST_HTML . "</a>";
+			} else {
+				$tasks_url = "";
+			}//end if
+
+			$edit_url = "<a href=\"" . $this->url("front-users", array("action" => "edit", "id" => $objUser->id)) . "\" title=\"Edit User\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-users", array("action" => "delete", "id" => $objUser->id)) . "\" title=\"Delete User\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			$arr_data["url"] = $roles_url . "&nbsp;" . $data_access_url . "&nbsp;" . $tasks_url . "&nbsp;" . $edit_url . "&nbsp;" . $delete_url;
+			$arr[] = $arr_data;
+
+		} // end foreach loop
+
+		//create add url
+		$add_url = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("ID", "Username", "Name", "Allocate", "Notify on form submit", "Status", $add_url), array("id" => $css_id));
+		?>
+
+	</div>
+
+</div>

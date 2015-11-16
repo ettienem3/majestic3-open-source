@@ -1,0 +1,24 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_BEHAVIOURS_HTML .'&nbsp; Edit Behaviour'); ?>
+<ul class="nav nav-tabs">
+<?php $redirect_url = $this->url("front-behaviours-config", array("action" => "edit-behaviour", "id" => $this->id)) . "?redirect_url=" . $this->redirect_url; ?>
+	<li role="presentation"><a href="<?php echo $this->redirect_url; ?>"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+</ul>
+	<div class="mj3_forms clearfix">
+	<?php
+		$form = $this->form;
+
+		//set form action
+		$form->setAttribute("action", $redirect_url);
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this);
+
+		//load additional view files for the behaviour and action
+		// var_dump($this->arr_behaviour_params);
+	?>
+	</div>
+</div>
+
+
+
+

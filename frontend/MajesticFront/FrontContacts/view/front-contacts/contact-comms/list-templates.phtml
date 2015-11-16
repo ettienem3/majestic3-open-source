@@ -1,0 +1,138 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//monitor link clicks
+		//preview a comm
+		jQuery("a.link-template-preview").click(function () {
+			var element = jQuery(this);
+
+			//check if template has been loaded already
+			if (element.parent().find(".contact_comm_template_preview").html() == "")
+			{
+				//set wait image
+				element.html("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+
+				//request the data
+				jQuery.ajax({
+					type: "GET",
+					async: false,
+					url: jQuery(this).attr("href"),
+					success: function (data) {
+						//allocate the data to the correct element
+						element.parent().find(".contact_comm_template_preview").html(data);
+
+						//reset the link
+						element.html("Preview");
+
+					}, //end success function
+					fail: function (data) {
+
+					} //end fail function
+				});
+			}//end if
+
+			jQuery(element.parent().find(".contact_comm_template_preview").dialog({
+				modal: true,
+				async: false,
+				show: {effect: "blind"},
+				title: "Preview Comm Template",
+				open: function () {
+					jQuery(this).css("visibility", "visible");
+				}, //end open
+				buttons: {
+					"Close": function () {
+						jQuery(this).dialog("close");
+					}
+				}
+			}));
+
+			//prevent link from executing redirect
+			return false;
+		});
+
+		//send a comm
+		jQuery("a.link-template-send").click(function () {
+			var element = jQuery(this);
+
+			//set wait image
+			element.html("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+
+			//request the data
+			jQuery.ajax({
+				type: "GET",
+				async: false,
+				url: jQuery(this).attr("href"),
+				success: function (data) {
+					//allocate the data to the correct element
+					element.parent().find(".contact_comm_template_send").html(data);
+
+					//reset the link
+					element.html("Send");
+
+				}, //end success function
+				fail: function (data) {
+
+				} //end fail function
+			});
+
+			jQuery(element.parent().find(".contact_comm_template_send").dialog({
+				modal: true,
+				async: false,
+				show: {effect: "blind"},
+				title: "Send Comm Template",
+				open: function () {
+					jQuery(this).css("visibility", "visible");
+				}, //end open
+				buttons: {
+					"Cancel": function () {
+						jQuery(this).dialog("close");
+					}
+				}
+			}));
+			return false;
+		});
+
+		//view comm history
+		jQuery("a.link-template-contact-history").click(function () {
+			var element = jQuery(this);
+			//set wait image
+			element.parent().find(".contact_comm_template_history").html("<img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\" />");
+			element.css("visibility", "hidden");
+
+			//request the data
+			jQuery.ajax({
+				type: "GET",
+				url: jQuery(this).attr("href"),
+				success: function (data) {
+					element.parent().find(".contact_comm_template_history").html(data);
+				}, //end success function
+				fail: function (data) {
+
+				} //end fail function
+			});
+
+			return false;
+		});
+	});
+
+</script>
+<?php
+if (!is_object($this->objTemplates))
+{
+	//create dummy object for loop
+	$this->objTemplates = (object) array();
+	echo "<div class=\"contact_comm_templates\">There are no Templates available</div>";
+}//end if
+
+foreach ($this->objTemplates as $objTemplate)
+{
+	echo "<div class=\"contact_comm_templates\" style=\"width: 200px; float: left\">";
+	echo 	"<span title=\"" . $objTemplate->journey_description . "\">" . $objTemplate->journey . "</span>";
+	echo 	"<br/>";
+	echo 	"<a href=\"" . $this->url("front-contact-comms", array("action" => "preview-template", "id" => $this->contact_id, "comms_id" => $objTemplate->id)) . "\" class=\"link-template-preview\" title=\"Preview Comm\">Preview</a>&nbsp;|&nbsp;<a href=\"" . $this->url("front-contact-comms", array("action" => "send-template", "id" => $this->contact_id, "comms_id" => $objTemplate->id)) . "\" class=\"link-template-send\" title=\"Send Comm\">Send</a>";
+	echo 	"<br/>";
+	echo 	"<a href=\"" . $this->url("front-contact-comms", array("action" => "view-template-history", "id" => $this->contact_id, "comms_id" => $objTemplate->id)) . "\" class=\"link-template-contact-history\" title=\"View History\">History</a>";
+	echo 	"<br/><div class=\"contact_comm_template_history\"></div>";
+	echo 	"<div class=\"contact_comm_template_preview\" style=\"visibility: hidden\"></div>";
+	echo	"<div class=\"contact_comm_template_send\" style=\"visibility: hidden\"></div>";
+	echo "</div>";
+}//end foreach

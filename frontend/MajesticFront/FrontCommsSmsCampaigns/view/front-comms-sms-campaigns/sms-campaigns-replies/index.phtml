@@ -1,0 +1,42 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_SMS_HTML . '&nbsp; SMS Campaign Replies');
+?>
+	<ul class="nav nav-tabs">
+		<li role="presentation">
+			<?php echo "<a href=\"" . $this->url("front-comms-sms-campaigns") . "\" title=\"Back\">" . ICON_MEDIUM_BACK_HTML . "</a>";?>
+		</li>
+	</ul>
+
+	<div class="mj3_table_contain">
+	<?php
+		foreach ($this->objReplies as $objReply)
+		{
+			if ($objReply->get("id") == "")
+			{
+				continue;
+			}//end if
+
+			$arr_reply["destination"] = $objReply->get("comm_history_destination");
+			$arr_reply["sender"] = $objReply->get("cell_num");
+			$arr_reply["date"] = date("d/m/Y H:m", $objReply->get("tstamp"));
+
+			if ($objReply->get("reply_ok") == 1)
+			{
+				$arr_reply["status"] = ICON_SMALL_ACTIVE_HTML;
+			} else {
+				$arr_reply["status"] = ICON_SMALL_INACTIVE_HTML;
+			}//end if
+
+			//set view url
+			$arr_reply["view_link"] = "<a href=\"" . $this->url("front-comms-sms-campaign-replies", array("action" => "view-reply", "sms_campaign_id" => $this->sms_campaign_id, "reply_id" => $objReply->get("id"))) . "\" title=\"View Reply Details\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+
+			$arr[] = $arr_reply;
+		}//end foreach
+
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("Original Destination", "Sender", "Date", "Reply Status", "&nbsp;"), array("id" => $css_id));
+	?>
+	</div>
+</div>

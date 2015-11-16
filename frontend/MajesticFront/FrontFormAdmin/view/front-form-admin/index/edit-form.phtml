@@ -1,0 +1,231 @@
+<div class="mj3_tables clearfix">
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//activate behaviours views
+		jQuery(".behaviours_view").mj_behaviours_view();
+
+		jQuery(".ajax-cpp-field-view").click(function (e) {
+			e.preventDefault();
+
+			var element = jQuery(this).parent();
+
+			//prepare
+			var request_url = '<?php echo $this->url("front-form-admin/form-fields", array("action" => "ajax-cpp-field-display", "form_id" => $this->objForm->get("id"), "field_id" => "field_id0001", "field_type" => "field_type0001")); ?>';
+			request_url = request_url.replace('field_id0001', element.attr('data-ajax-field-id'));
+			request_url = request_url.replace('field_type0001', element.attr('data-ajax-field-type')) + '?form_field_id=' + element.attr("data-ajax-form-field-id");
+
+			jQuery.ajax({
+				url: request_url
+			})
+			.done(function (data) {
+			 	var objData = jQuery.parseJSON(data);
+				if (objData.error == 1)
+				{
+					alert("Field has not been updated. An error occurred");
+					element.html("Error");
+					return false;
+				}//end if
+
+				switch (objData.response)
+				{
+					case 0:
+						element.find("span").toggleClass("<?php echo ICON_CSS_PREVIEW_NONE_CLASS;?> <?php echo ICON_CSS_PREVIEW_CLASS;?>");
+						element.attr("title", "Add to Contact Profile View");
+						break;
+
+					case 1:
+						element.find("span").toggleClass("<?php echo ICON_CSS_PREVIEW_NONE_CLASS;?> <?php echo ICON_CSS_PREVIEW_CLASS;?> Contact Profile View");
+						break;
+				}//end switch
+			})
+			.fail(function () {
+				alert("Field has not been updated. An unknown error has occurred");
+			});
+		});
+	});
+</script>
+<?php
+// add forms admin js
+echo $this->headScript()->appendFile($this->basePath() . '/js/includes/forms-admin.js');
+
+switch (strtolower(str_replace("_", "", $this->objForm->get("form_types_behaviour"))))
+{
+	case "salesfunnel":
+		$form_header = "Tracker";
+		break;
+
+	default:
+		$form_header = $this->objForm->get("form_types_form_type");
+		break;
+}//end switch
+
+echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit ' . $form_header . " - " . $this->objForm->get("form") . " Form");
+?>
+<div class="mj3_forms clearfix">
+
+	<ul class="nav nav-tabs">
+		<li role="presentation">
+			<a href="<?php echo $this->url("front-form-admin/form"); ?>" data-toggle="tooltip" title="Back"><?php echo ICON_MEDIUM_BACK_HTML; ?></a>
+		</li>
+			<?php
+			//Added switch and to get a preview into the edit part
+				$arr_form["name"] = $objForm->form;
+				$arr_form["form_type"] = $objForm->form_types_form_type;
+
+				switch ($this->objForm->form_types_behaviour)
+				{
+					case "__web":
+					case "__viral":
+						$preview_url = "<a href=\"" . $this->url("majestic-external-forms/bf", array("fid" => $objForm->id)) . "\" target=\"__blank\" data-toggle=\"tooltip\" title=\"Preview Form\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+						$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "form-behaviours", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "\" title=\"Configure Form Behaviours\" class=\"behaviours_view\" data-toggle=\"tooltip\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+						echo '<li role="presentation">' . $preview_url . '</li>';
+					break;
+
+					case "__sales_funnel":
+						$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "form-behaviours", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "&behaviour=form_sales_funnel\" title=\"Configure Tracker Behaviours\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+
+						//use preview url as sales funnel advanced settings url
+						$preview_url = "<a href=\"" . $this->url("front-form-admin/sales-funnel", array("action" => "sf-advanced-settings", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "\" title=\"Configure advanced Tracker Options\" class=\"\" data-toggle=\"tooltip\">" . ICON_SMALL_SETTINGS_HTML . "</a>";
+						echo "<li role=\"presentation\">$preview_url</li>";
+					break;
+
+					default:
+						$preview_url = "";
+					break;
+				}//end switch
+			?>
+	</ul>
+
+	<hr><br>
+
+	<div class="mj3_table_contain clearfix">
+		<h2>Form Fields</h2>
+		<ul class="nav nav-tabs m3-options-disable-form-help-toggle">
+			<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "order-fields", "id" => $this->objForm->get("id"))); ?>" data-toggle="tooltip" title="Sort by Order"><?php echo ICON_LARGE_ORDER_HTML; ?></a></li>
+			<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/form-fields", array("action" => "index", "form_id" => $this->objForm->get("id"))); ?>" title="Allocate Fields to Form" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_LARGE_ADD_HTML;?> Allocate Fields</a></li>
+		</ul>
+
+		<?php
+
+			// set add field url
+			$add_url = "";
+			if (!$this->objForm->getFormFieldEntities()) {
+				echo "There are no fields allocated to this form<br><br>";
+				echo $add_url;
+			} else {
+
+			foreach ($this->objForm->getFormFieldEntities() as $objField) {
+
+				if ($objField->get("field_custom_id") != "") {
+
+					// custom field
+					$edit_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array("action" => "edit-field", "form_id" => $this->objForm->get("id"), "field_id" => $objField->get("field_custom_id"), "field_type" => "custom")) . "\" title=\"Edit Form Field Attributes\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+					$delete_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array("action" => "remove-field", "form_id" => $this->objForm->get("id"), "field_id" => $objField->get("field_custom_id"), "field_type" => "custom")) . "\" title=\"Remove field from form\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+					$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array("action" => "form-field-behaviours", "form_id" => $this->objForm->get("id"), "field_id" => $objField->get("field_custom_id"), "field_type" => "custom")) . "?fields_all_id=" . $objField->get("id") . "\" data-toggle=\"tooltip\" title=\"Configure Form Field Behaviours\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+					$field_type = "custom";
+					$field_id = $objField->get("field_custom_id");
+					$fields_all_id = $objField->get("id");
+				} else {
+
+					// standard field
+					$edit_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array("action" => "edit-field", "form_id" => $this->objForm->get("id"), "field_id" => $objField->get("field_std_id"), "field_type" => "standard")) . "\" data-toggle=\"tooltip\" title=\"Edit Form Field Attributes\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+					$delete_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array("action" => "remove-field", "form_id" => $this->objForm->get("id"), "field_id" => $objField->get("field_std_id"), "field_type" => "standard")) . "\"  data-toggle=\"tooltip\" title=\"Remove field from form\">" . ICON_SMALL_DELETE_HTML . "</a>";
+					$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form-fields", array("action" => "form-field-behaviours", "form_id" => $this->objForm->get("id"), "field_id" => $objField->get("field_std_id"), "field_type" => "standard")) . "?fields_all_id=" . $objField->get("id") . "\"  data-toggle=\"tooltip\" title=\"Configure Form Field Behaviours\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+					$field_type = "standard";
+					$field_id = $objField->get("field_std_id");
+					$fields_all_id = $objField->get("id");
+				} // end if
+
+				$arr_field["description"] = $objField->get("description");
+
+				if ($objField->get("field_duplicate") > 0) {
+
+					switch($objField->get("field_duplicate")) {
+
+						default:
+							$arr_field["duplicate_check"] = "Yes";
+							break;
+
+						case 1:
+							$arr_field["duplicate_check"] = "Yes (AND)";
+							break;
+
+						case 2:
+							$arr_field["duplicate_check"] = "Yes (OR)";
+							break;
+					} // end switch
+
+				} else {
+					$arr_field["duplicate_check"] = "";
+				} // end if
+
+				if ($objField->get("mandatory") == 1) {
+					$arr_field["mandatory"] = "Yes";
+				} else {
+					$arr_field["mandatory"] = "";
+				} // end if
+
+				if ($objField->get("populate") == 1) {
+					$arr_field["populate"] = "Yes";
+				} else {
+					$arr_field["populate"] = "";
+				} // end if
+
+				if ($objField->get("hidden") == 1) {
+					$arr_field["hidden"] = "Yes";
+				} else {
+					$arr_field["hidden"] = "";
+				} // end if
+
+				if ($objField->get("active") == 1) {
+					$arr_field["active"] = ICON_SMALL_ACTIVE_HTML;
+				} else {
+					$arr_field["active"] = ICON_SMALL_INACTIVE_HTML;
+				} //end if
+
+				// create edit and remove urls
+// 				$arr_field["urls"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_url;
+$arr_field["urls"] = $edit_url . "&nbsp;" . $delete_url;
+
+				// is this a CPP form
+				if (strtolower($this->objForm->get("behaviour")) == "__cpp")
+				{
+					//allow fields to be selected to be displayed on the profile index page
+					if ($objField->get("display_on_index") == 1)
+					{
+						$cpp_display_field_url = "<a href=\"#\" title=\"Remove from Contact Profile View\" data-toggle=\"tooltip\" data-ajax-field-id=\"$field_id\" data-ajax-form-field-id=\"$fields_all_id\" data-ajax-field-type=\"$field_type\"><span class=\"" . ICON_CSS_PREVIEW_CLASS . " ajax-cpp-field-view\"></span></a>";
+					} else {
+						$cpp_display_field_url = "<a href=\"#\" title=\"Add to Contact Profile View\" data-toggle=\"tooltip\" data-ajax-field-id=\"$field_id\" data-ajax-form-field-id=\"$fields_all_id\" data-ajax-field-type=\"$field_type\"><span class=\"" . ICON_CSS_PREVIEW_NONE_CLASS . " ajax-cpp-field-view\"></span></a>";
+					}//end if
+
+					$arr_field["urls"] .= "&nbsp;$cpp_display_field_url";
+				}//end if
+
+				$arr[] = $arr_field;
+			}//end foreach
+
+			//set add url
+			$add_url = "";
+			echo $this->renderDataTableHelper();
+			echo $this->renderSimpleHTMLTable($arr, array("Description", "Duplicate Check", "Mandatory", "Populate", "Hidden", "Active", $add_url));
+		} ?>
+
+		</div>
+
+		<div class="mj3_forms clearfix">
+			<h2>Form Settings</h2>
+		<?php
+			$form = $this->form;
+			$form->setAttribute("action", $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->objForm->get("id"))));
+			$form->prepare();
+
+			echo $this->renderSystemFormHelper($form, $this, array("enable_accordion" => TRUE, "generate_field_groups" => TRUE));
+
+		?>
+		</div>
+
+		<div id="manage-behaviours-section" class="modal fade"></div>
+
+	</div>
+
+</div>

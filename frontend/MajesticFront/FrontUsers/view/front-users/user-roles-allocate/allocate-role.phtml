@@ -1,0 +1,16 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_ROLES_HTML .'&nbsp; Allocate Roles to "'  . $this->objUser->uname . '"');
+?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><?php echo "<a href=\"" . $this->url("front-users-roles/user", array("action" => "list-user-roles", 'user_id' => $this->objUser->id)) . "\" title=\"Back\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>";?></li>
+	</ul>
+	<div class="mj3_forms clearfix">
+		<?php
+		$form = $this->form;
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div>
+</div>
+

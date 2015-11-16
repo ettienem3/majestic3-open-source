@@ -1,0 +1,106 @@
+<!-- make sure jq ui is loaded -->
+<script type="text/javascript" src="<?php echo $this->layout()->cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.js";?>"></script>
+
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Order Form Fields'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->objForm->id)); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML;?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<script type="text/javascript">
+			var form_changed = false;
+			jQuery(document).ready(function () {
+
+				jQuery("#sortable").sortable({
+					placeholder: "ui-state-highlight"
+				});
+				jQuery("#sortable").disableSelection();
+
+				//monitor the submit update button
+				jQuery("#update_fields").click(function () {
+					var post_string = "";
+					jQuery("#sortable").find('div').map(function(index, obj) {
+			            var input = jQuery(obj);
+			            post_string = post_string + "&" + input.attr('id') + '=' + (index + 1);
+			        });
+
+					//start ajax process once modal has been displayed
+					jQuery('#modal-fields-wait').on('shown.bs.modal', function () {
+				        //trigger ajax call to update data
+				        jQuery.ajax({
+							url : "<?php echo $this->url("front-form-admin/form-fields", array("action" => "ajax-save-fields-order", "form_id" => $this->objForm->id));?>?debug_display_errors=1",
+							type: "post",
+							data: post_string,
+							async: false
+				        })
+				        .done(function (data) {
+							objData = jQuery.parseJSON(data);
+
+							if (objData.error == 1)
+							{
+								jQuery(".modal-body").html(objData.response);
+								return false;
+							}//end if
+
+							jQuery(".modal-body").html("Redirecting...");
+
+							//update successful, redirect to specified location
+			 				window.location.href = objData.redirect;
+				        })
+				        .fail(function () {
+				        	jQuery(".modal-body").html("An unknown error has occured. Data could not be saved");
+							alert("An unknown error has occured. Data could not be saved");
+				        });
+					});
+
+					//update response area with message
+					jQuery("#modal-fields-wait").modal("show");
+
+					return false;
+				});
+			});
+		</script>
+
+		<div id="sortable">
+			<?php
+			foreach ($this->objForm->getFormFieldEntities() as $objField) {
+
+				if ($objField->get("field_std_id") != "") {
+					$field_type = "standard";
+					$field_id = $objField->get("field_std_id");
+				} else {
+					$field_type = "custom";
+					$field_id = $objField->get("field_custom_id");
+				} //end if
+			?>
+			<div class="panel panel-default m3-panel-subsection ui-state-default" style="cursor:ns-resize;" id="<?php echo $objField->get("id") . "_{$field_type}_{$field_id}"; ?>"><h3 class="panel-title panel-heading "><span class="m3-panel-subsection-icon <?php echo ICON_CSS_MOVE_VERTICAL_CLASS;?>"></span>&nbsp;<?php echo $objField->get("description"); ?></h3></div>
+			<?php } //end foreach
+			?>
+
+		</div>
+
+		<input type="submit" id="update_fields" value="Update" class="btn btn-primary">
+
+	</div>
+</div>
+
+<!-- Modal -->
+<div id="modal-fields-wait" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Saving...</h4>
+      </div>
+      <div class="modal-body">
+        <p>Your changes are being saved. <br/>Please be patient, the page will redirect once completed.</p>
+      </div>
+    </div>
+
+  </div>
+</div>

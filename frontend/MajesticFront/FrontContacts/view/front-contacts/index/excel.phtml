@@ -1,0 +1,71 @@
+<?php
+$this->headLink()->appendStylesheet($this->basePath() . "/js/vendor/pqgrid/pqgrid.min.css");
+$this->headLink()->appendStylesheet($this->basePath() . "/js/vendor/pqgrid/themes/Office/pqgrid.css");
+$this->headScript()->appendFile($this->basePath() . "/js/vendor/pqgrid/pqgrid.min.js");
+
+?>
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+        var tbl = jQuery("#sheet0");
+        var obj = jQuery.paramquery.tableToArray(tbl);
+        var newObj = { 
+                width: 700, 
+                height: 400, 
+                title: "Contacts List", 
+                resizable: true,
+                flexWidth: true,
+                bottomVisible: false 
+            };
+        
+        newObj.dataModel = { data: obj.data, rPP: 20, paging: "local" };
+        newObj.colModel = obj.colModel;
+        jQuery("#grid_table").pqGrid(newObj);
+        tbl.css("display", "none");
+	});
+</script>
+<?php 
+$row = 1;
+foreach ($this->objContacts as $objContact)
+{
+	$col = "A";
+	
+	if ($row == 1)
+	{
+		foreach ($objContact as $key => $value)
+		{
+			if (is_array($value) || is_object($value))
+			{
+				continue;
+			}//end if
+		
+			$this->objPHPExcel->setActiveSheetIndex(0)
+					->setCellValue($col . $row, $key);
+		
+			//increment col
+			$col++;
+		}//end foreach
+		
+		$row++;
+		continue;
+	}//end if
+	
+	foreach ($objContact as $key => $value)
+	{
+		if (is_array($value) || is_object($value))
+		{
+			continue;
+		}//end if
+		
+		$this->objPHPExcel->setActiveSheetIndex(0)
+			->setCellValue($col . $row, $value);
+		
+		//increment col
+		$col++;
+	}//end foreach
+	
+	$row++;
+}//end foreach
+
+$objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'HTML');
+echo $objWriter->save('php://output');
+echo "<div id=\"grid_table\"></div>";

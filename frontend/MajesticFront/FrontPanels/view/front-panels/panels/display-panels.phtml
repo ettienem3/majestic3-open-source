@@ -1,0 +1,217 @@
+<script src="//code.highcharts.com/highcharts.js"></script>
+<script src="//code.highcharts.com/modules/data.js"></script>
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//monitor close buttons
+		jQuery(".panel-close").click(function (e) {
+			e.preventDefault();
+			jQuery(this).parent().parent().parent().remove();
+
+			//refit panels
+			reloadmas();
+		});
+
+		//monitor update buttons
+		jQuery(".panel-refresh").click(function (e) {
+			e.preventDefault();
+
+			//extract element
+			var element = jQuery(this).parent().parent();
+
+			//update panel
+			updatePanel(element);
+		});
+
+		//monitor user panel remove button
+		jQuery(".panel-user-remove").click(function (e) {
+			e.preventDefault();
+
+			//confirm
+			if (confirm("Are you sure you want to remove this panel?") == true)
+			{
+				jQuery(this).parent().parent().parent().hide("fast");
+				var panel_remove_url = '<?php echo $this->url("front-panels-setup", array("action" => "user-remove-panel", "id" => "999121")); ?>';
+
+				//parse json
+				var objPanelData = jQuery.parseJSON(jQuery(this).parent().parent().parent().find('.panel-json-data').text());
+				panel_remove_url = panel_remove_url.replace('999121', objPanelData.panel_id);
+
+				//send ajax request to remove the panel from user options
+				jQuery.ajax({
+					url: panel_remove_url,
+				});
+
+				//refit panels
+				reloadmas();
+			}//end if
+		});
+
+		// sabels won't break with slow load times of widgets
+		setTimeout(linktext, 1000);
+		setTimeout(linktext, 20000);
+		setTimeout(linktext, 60000);
+		setTimeout(reloadmas, 1500);
+	});
+
+	function updatePanel(element) {
+
+		//set dummy url
+		var panel_url = '<?php echo $this->url("front-panels-display", array("id" => '9123123', "action" => "ajax-load-panel")); ?>';
+
+		//extract panel id and data from panel
+		var panel_container = element.attr('data-target-panel');
+
+		//parse json
+		var objPanelData = jQuery.parseJSON(element.find('.panel-json-data').text());
+		panel_url = panel_url.replace('9123123', objPanelData.panel_id);
+
+		//set loading icon
+		if (jQuery("#" + panel_container).html() == "")
+		{
+			jQuery("#" + panel_container).prepend('<div style="position: relative; top: 0; left: 0;"><img src="<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif"></div>');
+		}//end if
+
+		jQuery.ajax({
+			url: panel_url,
+			type: "post",
+			data: objPanelData
+		})
+		.done(function (data) {
+			objData = jQuery.parseJSON(data);
+
+			if (objData.error == 1)
+			{
+				jQuery("#" + panel_container).html(objData.response);
+				return false;
+			}//end if
+
+			//load content
+			jQuery("#" + panel_container).html(objData.response.html);
+
+			//refit panels
+			reloadmas();
+
+			//set tooltips
+			jQuery('[data-toggle="tooltip"]').tooltip({'placement': 'top'});
+		})
+		.fail(function () {
+			//jQuery("#" + panel_container).html("Panel could not be loaded. An unknown error has occured.");
+		});
+	}//end function
+
+	// masonry
+	function reloadmas() {
+		var $container = jQuery('.mj3_home');
+
+		if (typeof $container.masonry == 'function')
+		{
+			$container.masonry({
+				itemSelector: '.m3-panel'
+			});
+		} else {
+			LazyLoad.js(cdn_url + '/js/vendor/masonry.pkgd.min.js', function () {
+				$container.masonry({
+					itemSelector: '.m3-panel'
+				});
+			});
+		}//end if
+	}//end function
+
+	// text in links
+	function linktext() {
+		jQuery('.panel-icon-large').each( function() {
+			var mj3_title = jQuery('a', this).attr("title");
+			jQuery('a', this).attr("title", "");
+			jQuery('a', this).append('<em>'+mj3_title+'</em>');
+		});
+	}//end function
+
+	//lazyload masonry to arrange segments
+	LazyLoad.js([
+		'<?php echo $this->layout()->cdn_url . "/js/vendor/masonry.pkgd.min.js";?>',
+	], function () {
+		
+	});
+</script>
+<div class="mj3_home">
+
+<?php
+$flag_panels_set = FALSE;
+foreach ($this->objUserPanels as $objPanel)
+{
+	$flag_panels_set = TRUE;
+	$html_container = "panel-id-" . $objPanel->get("id");
+	$arr_panel_data = array(
+			"panel_id"							=> $objPanel->get("fk_id_panels"),
+			"panels_name" 						=> $objPanel->get("panels_name"),
+			"panels_categories_category" 		=> $objPanel->get("panels_categories_category"),
+			"panels_unique_identifier"			=> $objPanel->get("panels_unique_identifier"),
+	);
+
+	echo "<div class=\"m3-panel panel-sortable " . $objPanel->get("panels_css") . "\" data-target-panel=\"$html_container\" id=\"panel-parent-block-" . $objPanel->get("id") . "\">";
+	echo 	"<div class=\"panel-json-data\" style=\"display: none;\">" . json_encode($arr_panel_data) . "</div>";
+
+	switch(strtolower($objPanel->get("panels_panel_type"))) {
+
+		case "icon":
+			//do nothing
+			break;
+
+		default:
+			echo '
+
+					<div class="dash-tools clearfix">' . $objPanel->get("panels_name") . '
+
+					<div class="btn-group panel-refresh">
+						<button type="button" class="btn btn-default" title="Refresh" data-toggle="tooltip">
+							<span class="' . ICON_CSS_REFRESH_CLASS . '" aria-hidden="true"></span>
+						</button>
+						<button type="button" class="btn btn-default panel-close"  title="Close for now" data-toggle="tooltip">
+							<span class="' . ICON_CSS_MINIMIZE_CLASS . '" aria-hidden="true"></span>
+						</button>
+						<button type="button" class="btn btn-default panel-user-remove" title="Remove from my panels" data-toggle="tooltip">
+
+
+							<span class="' . ICON_CSS_DELETE_CLASS . '" aria-hidden="true"></span>
+						</button>
+					</div>
+					</div>
+
+				';
+			break;
+	}//end switch
+
+	echo 	'<div class="panel-content" id="'.$html_container.'">';
+	//check for panel preloaded content
+	if ($objPanel->get("html") != "") 
+	{ 
+		echo $objPanel->get("html"); 
+		echo 	'</div>';
+	} else {
+		echo 	'</div>';
+		echo 	'<script type="text/javascript">
+				jQuery(document).ready(function () {
+					updatePanel(jQuery("#panel-parent-block-' . $objPanel->get("id") . '"));
+		
+					//panels_refresh_rate
+					if (' . $objPanel->get("panels_refresh_rate") . ' > 0) {
+						setInterval(function() {
+						    updatePanel(jQuery("#panel-parent-block-' . $objPanel->get("id") . '"));
+						}, ' . ($objPanel->get("panels_refresh_rate") * 1000) . ');
+					} //end if
+				});
+			 </script>';
+	}//end if
+	echo '</div>';
+} //end foreach
+
+echo "<div class=\"clearboth\"></div>";
+?>
+</div>
+<?php
+if ($flag_panels_set == TRUE)
+{
+	echo "<div><a href=\"" . $this->url("front-panels-setup", array("action" => "user-allocate-panel")) . "\" title=\"Allocate Panels\">Add more Panels</a></div>";
+} elseif ($flag_panels_set === FALSE) {
+	echo "<h3>Welcome. Please begin by customising your login screen. <a href=\"" . $this->url("front-panels-setup", array("action" => "user-allocate-panel")) . "\" title=\"Allocate Panels\">Add panels to your login screen now</a></h2>";
+}

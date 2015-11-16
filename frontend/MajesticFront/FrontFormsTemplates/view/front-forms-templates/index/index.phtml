@@ -1,0 +1,49 @@
+
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Form Look and Feels'); ?>
+
+<ul class="nav nav-tabs">
+	<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-templates", array("action" => "create")); ?>" class="btn btn-success" title="Create Look and Feel" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML. 'Create Look and Feel' ?></a></li>
+</ul>
+	<div class="mj3_table_contain clearfix">
+	<?php
+		/**
+	 * Prepare form template data
+	 */
+
+		foreach ($this->objFormsTemplates as $key => $objFormTemplate)
+		{
+			if (!isset($objFormTemplate->id))
+			{
+				continue;
+			}//end if
+			$arr_data["Name"] = $objFormTemplate->template;
+			//$arr_data["Usedin"] = "NA";
+			//$arr_data["Default"] = "&nbsp;";
+
+				if ($objFormTemplate->active == 1)
+				{
+					$arr_data["active_url"] = "<a href=\"" .$this->url("front-form-templates", array("action" => "status", "id"  => $objFormTemplate->id)) . "\" title=\"Look and Feel is active\" data-toggle=\"tooltip\" >" . ICON_SMALL_ACTIVE_HTML . "</a>";
+				} else
+				{
+					$arr_data["active_url"] = "<a href=\"" . $this->url("front-form-templates", array("action" => "status", "id" => $objFormTemplate->id)) . "\" title=\"Look and Feel is not active\" data-toggle=\"tooltip\" >" . ICON_SMALL_INACTIVE_HTML . "</a>";
+				}// end if
+
+				$edit_template = "<a href=\"" . $this->url("front-form-templates", array("action" => "edit", "id" => $objFormTemplate->id)) . "\" title=\"Edit Look and Feel\" data-toggle=\"tooltip\" >" . ICON_SMALL_MODIFY_HTML . "</a>";
+				$delete_template = "<a href=\"" . $this->url("front-form-templates", array("action" => "delete", "id" =>$objFormTemplate->id)) . "\" title=\"Delete Look and Feel\" data-toggle=\"tooltip\" >" . ICON_SMALL_DELETE_HTML . "</a>";
+				$arr_data["url"] = $edit_template . "&nbsp;" . $delete_template;
+
+			$arr[] = $arr_data;
+		}// end for each
+
+		$add_template = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		//echo $this->renderSimpleHtmlTable($arr, array("Name", "Used In", "Default", "Active", $add_template), array("id" => $css_id));
+		echo $this->renderSimpleHtmlTable($arr, array("Name", "Active", $add_template), array("id" => $css_id));
+?>
+
+
+	</div>
+
+</div>

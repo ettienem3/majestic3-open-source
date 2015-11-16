@@ -1,0 +1,59 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp; Create Communication Look and Feel');
+//add editor js
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
+//insert the comm data additions layout section
+echo $this->partial("layout-comm-data-additions");
+?>
+	<!-- search ends here -->
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-comms-templates"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+
+	<script type="text/javascript">
+		jQuery(document).ready( function () {
+			//dock replace fields
+			<?php
+				$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+				if (in_array("replace_fields", $objUser->profile->plugins_enabled)) {
+			?>
+			jQuery.mj_docker({
+				dock_title: "Replace Fields",
+				dock_collapse: true,
+				dock_region: "m3-content-section-east",
+				dock_ajax_url: "<?php echo $this->url("front-form-admin/replace-fields", array("action" => "ajax-index"));?>",
+				dock_ajax_complete_callback: function () {
+					//add draggable class to replace fields
+					jQuery(".replace-field-item").addClass("draggable");
+
+					//enabled drag and drop
+					jQuery("#content").mj_drag_and_drop();
+				}
+			});
+			<?php }//end if?>
+
+			//start text editors
+			jQuery.mj_text_editor({
+				element: jQuery("#content"),
+				enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
+				enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
+			});
+
+			jQuery("#content").attr("required", false);
+		});
+	</script>
+
+	<div class="mj3_forms clearfix">
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+
+	</div>
+
+</div>

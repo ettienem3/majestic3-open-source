@@ -1,0 +1,13 @@
+<?php
+if (isset($this->api_logs))
+{
+	echo "<div class=\"api_logs\">";
+	foreach ($this->api_logs as $log)
+	{
+		echo "<pre>URL: " . $log->url . "</pre>";
+		$objData = @json_decode($log->response);
+		echo "<pre>Response: " . print_r($objData, TRUE) . "</pre>";
+		echo "<pre>Raw: " . $log->rawResponse . "</pre>";
+	}//end foreach
+	echo "</div>";
+}//end if

@@ -1,0 +1,38 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_MEDIUM_USER_DATA_ACL_HTML .'&nbsp; Allocate Resources to Role');
+?>
+	<ul class="nav nav-tabs">
+		<li role="presentation">
+			<?php echo "<a href=\"" . $this->url("front-role-acl-links/admin", array("role_id" => $this->objRole->id)) . "\" title=\"Back\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>";?>
+		</li>
+	</ul>
+	<div class="mj3_forms clearfix">
+	<?php 
+		//display role information
+		echo "<fieldset><legend>Role : " . $this->objRole->get("role_name") . "</legend>";
+		echo "Role Name : " . $this->objRole->get("role_name") . "<br>";
+		echo "Role Description : " . $this->objRole->get("role_description") . "<br>";
+		echo "Role Active : " . $this->objRole->get("role_active") . "<br>";
+		echo "Role Run Level : " . $this->objRole->get("role_acl_run_level") . "<br>";
+		echo "</fieldset><br>";
+		
+		//display resource information
+		echo "<fieldset><legend>Resource</legend>";
+		echo "Type : " . ucfirst($this->objResource->type) . "<br>";
+		echo "Namespace : " . $this->objResource->namespace . "<br>";
+		echo "Run Level Required : " . $this->objResource->acl_run_level . "<br>";
+		echo "Description : " . $this->objResource->description . "<br>";
+		echo "</fieldset><br/>";
+		
+		if ($this->form_message != "")
+		{
+			echo "<h3>$this->form_message</h3>";
+		}//end if
+		
+		$form = $this->form;
+		$form->prepare();
+		echo $this->renderSystemFormHelper($form, $this);
+	?>
+	</div>
+</div>

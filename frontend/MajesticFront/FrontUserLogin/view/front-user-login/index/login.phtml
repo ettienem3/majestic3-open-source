@@ -1,0 +1,95 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		jQuery("form").submit(function () {
+			jQuery(".btn").attr("disabled", true);
+		});
+
+		jQuery(".display_terms").click(function (e) {
+			e.preventDefault();
+
+			//load content from set location
+			var location = "<?php echo $this->layout()->app_config["login_page_settings"]["terms_source_html"];?>";
+			if (location == "")
+			{
+				//disable login
+				jQuery(".btn-primary").remove();
+				jQuery(".user-login").attr("action", "#").attr("method", "get");
+				alert("Terms and Conditions are not available currently. Please retry in a few minutes");
+				return false;
+			}//end if
+
+			jQuery("#modalTCs").modal("show");
+			jQuery.ajax({
+				url: "/user/login/ajax-terms"
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+				if (objData.error == 1)
+				{
+					//disable login
+					jQuery(".btn-primary").remove();
+					jQuery(".user-login").attr("action", "#").attr("method", "get");
+					alert("Terms and Conditions are not available currently. Please retry in a few minutes");
+				}//end if
+
+				jQuery("#modalTCs").find(".modal-body").html(objData.response);
+			});
+
+			return false;
+		});
+	});
+</script>
+
+<div class="mj3-loginbox">
+
+	<div class="blueprint-blue">
+
+		<form id="user-login" class="user-login-form" name="user-login" method="post" action="">
+
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="Username" required="required" id="uname" name="uname" value="">
+			</div>
+
+			<div class="form-group">
+				<input type="password" class="form-control" placeholder="Password" required="required" id="pword" name="pword" value="">
+			</div>
+
+			<div class="form-group apikey_field">
+				<input type="password" class="form-control" placeholder="Authentication Key" required="required" id="apikey" name="apikey" value="">
+			</div>
+
+			<div class="form-group">
+				<input type="checkbox" class="" required="required" id="terms_and_conditions" name="terms_and_conditions" value="1">
+				&nbsp;I accept the <a href="#" class="display_terms">Terms and Conditions</a>
+			</div>
+
+			<input type="submit" class="btn btn-primary" value="<?php if ($this->layout()->app_config["login_page_settings"]["login_button_text"] == "") { echo "Login";} else { echo $this->layout()->app_config["login_page_settings"]["login_button_text"];}?>">
+
+			<?php
+				if ($this->layout()->app_config["login_page_settings"]["forgot_password_link_enabled"] == TRUE)
+				{
+					echo $this->layout()->app_config["login_page_settings"]["forgot_password_link"];
+				}//end if
+			?>
+
+		</form>
+
+	</div>
+</div>
+
+<div class="modal fade" id="modalTCs">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Terms and Conditions</h4>
+      </div>
+      <div class="modal-body">
+        <p>Loading...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

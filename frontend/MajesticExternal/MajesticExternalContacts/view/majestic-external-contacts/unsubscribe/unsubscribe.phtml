@@ -1,0 +1,7 @@
+<h2>Unsubscribe</h2>
+<?php
+$form = $this->form;
+$form->prepare();
+
+echo "<h3>Channels currently subscribed to:</h3>";
+echo $this->renderSystemFormHelper($form, $this);

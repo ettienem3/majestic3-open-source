@@ -1,0 +1,22 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//remove panels from dropdown that already is allocated
+		jQuery("#fk_id_common_panels option:contains(" + 'EXISTS' + ")").remove();
+	});
+</script>
+
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp; Profile Panels - Allocate Panel'); ?>
+
+<ul class="nav nav-tabs">
+	<li role="presentation"><a href="<?php echo $this->url("front-panels-setup"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+</ul>
+	<div class="mj3_forms clearfix">
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div>
+
+</div>

@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+/* External forms overides */
+body {
+	margin: 8px;
+}
+.mj3_webform form {
+	margin: 0;
+	padding: 0;
+	display: block;
+}
+
+.mj3_webform .container {
+	width: auto;
+	padding: 0;
+	margin: 0;
+}
+
+.mj3_webform form .container {
+	width: auto;
+	padding: 0;
+	margin: 0;
+}
+
+.mj3_webform form .container label.label {
+	border-radius: none;
+    color: #000;
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1;
+    margin-bottom: 0px;
+    padding: 0;
+    text-align: left;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+
+
+

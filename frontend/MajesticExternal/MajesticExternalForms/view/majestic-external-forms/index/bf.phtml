@@ -1,0 +1,70 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//request contact data
+		<?php if (isset($this->reg_id) && $this->reg_id != "" && $this->form_posted !== TRUE) : ?>
+		loadContact();
+		<?php endif;?>
+	});
+
+	<?php if (isset($this->reg_id) && $this->reg_id != "" && $this->form_posted !== TRUE) : ?>
+	function loadContact()
+	{
+		var form = jQuery(".form").serialize();
+		jQuery.ajax({
+			url: "/forms/ajax-load-contact",
+			type: "post",
+			data: form + "&r=<?php echo $this->reg_id;?>&f=<?php echo $this->form_id;?>",
+		})
+		.done(function (data) {
+			var objData = jQuery.parseJSON(data);
+
+			if (objData.error == 1)
+			{
+				console.log(objData.response);
+				return false;
+			}//end if
+
+			//populate the form fields
+			jQuery.each(objData.response, function (field, value) {
+				if (jQuery("#" + field).val() == "")
+				{
+					jQuery("#" + field).val(value);
+				}//end if
+			});
+		})
+		.fail(function (data) {
+			//console.log("Error collection form data");
+			//console.log(data);
+		});
+	}//end function
+	<?php endif;?>
+</script>
+
+<div class="mj3_tables clearfix">
+	<div class="mj3_webform">
+
+		<?php
+			//add forms widget
+			echo $this->headScript()->appendFile($this->basePath() . '/js/plugins/mj-forms-widgets.js');
+			$form = $this->form;
+			$form->prepare();
+
+			if (isset($this->additional_data["cid"]) && is_object($this->objContact) && $this->objFormRawData->show_fwd_warn == 1)
+			{
+				$contact_html = "<p><a href=\"" . $this->form_url . "\">Click here if you are not " . $this->objContact->fname . " " . $this->objContact->sname . "</a></p>";
+			} else {
+				$contact_html = "";
+			}//end if
+
+			if (isset($this->objLookAndFeel)) {
+				$html = $this->objLookAndFeel->content;
+				$html = str_replace("#content", $contact_html . $this->renderExternalFormHelper($this->objFormRawData, $form, $this), $html);
+				echo $html;
+			} else {
+				echo $contact_html . $this->renderExternalFormHelper($this->objFormRawData, $form, $this);
+			} //end if
+		?>
+
+	</div>
+
+</div>

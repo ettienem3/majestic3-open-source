@@ -1,0 +1,31 @@
+<?php
+echo $this->doctype();
+?>
+<html>
+	<?php
+		//insert header
+		echo $this->partial("layout/header");
+	?>
+	<body>
+		<div class="wrapper">
+			<div class="main">
+				<div class="bs-docs-section">
+					<!-- Module View Content -->
+					<?php
+						echo $this->content;
+					?>
+					<!-- Module View Content ends -->
+				</div><!-- end bs docs section -->
+
+				<!-- to keep paginator and footer form floating upwards -->
+				<div class="clearboth"></div>
+			</div> <!-- end main -->
+		</div><!-- end wrapper -->
+		<?php
+			/**
+			 * Generate any scripts that might be needed
+			 */
+			echo $this->inlineScript();
+		?>
+	</body>
+</html>

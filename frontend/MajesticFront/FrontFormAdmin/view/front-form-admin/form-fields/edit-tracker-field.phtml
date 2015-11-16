@@ -1,0 +1,29 @@
+<div class="mj3_tables clearfix">
+	<?php
+		echo $this->renderStandardViewheader(ICON_LARGE_TRACKER_HTML .'&nbsp; Edit Tracker Field');
+	?>
+
+	<div class="mj3_forms clearfix">
+		<ul class="nav nav-tabs">
+			<li role="presentation"><?php echo "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->form_id)) . "\" title=\"Back to Tracker\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a>"; ?></li>
+			<li role="presentation"><?php echo "<a href=\"" . $this->url("front-form-admin/sales-funnel", array("action" => "sf-advanced-settings", "id" => $this->form_id)) . "?form_id=" . $this->form_id . "\" title=\"Configure advanced Tracker Options\" class=\"\" data-toggle=\"tooltip\">" . ICON_SMALL_SETTINGS_HTML . "</a>";?></li>
+		</ul>
+
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div>
+
+</div>
+
+<!-- load field group selection field -->
+<script type="text/javascript">
+	jQuery(document).ready( function () {
+		//var source =
+		jQuery("#field_group").autocomplete({
+			source : "<?php echo $this->url("front-form-admin/form-fields", array("action" => "ajax-load-field-groups", "form_id" => $this->form_id, "field_id" => $this->field_id, "field_type" => $this->field_type)); ?>"
+		});
+	});
+</script>

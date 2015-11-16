@@ -1,0 +1,81 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//hide response section
+		jQuery("#update_response").hide();
+
+		jQuery("#sortable").sortable({
+			placeholder: "ui-state-highlight"
+		});
+		jQuery("#sortable").disableSelection();
+
+		//monitor the submit update button
+		jQuery("#update_panels").click(function () {
+			var post_string = "";
+			jQuery("#sortable").find('.panel').map(function(index, obj) {
+	            var input = jQuery(obj);
+	            post_string = post_string + "&" + input.attr('id') + '=' + (index + 1);
+	        });
+
+			//update response area with message
+			jQuery("#update_response").html("Updating panels...").show();
+
+	        //trigger ajax call to update data
+	        jQuery.ajax({
+				url : "<?php echo $this->url("front-panels-setup", array("action" => "ajax-save-user-panel-order"));?>?debug_display_errors=1",
+				type: "post",
+				data: post_string,
+				async: false
+	        })
+	        .done(function (data) {
+				objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					jQuery("#update_response").html(objData.response);
+					return false;
+				}//end if
+
+				jQuery("#update_response").html("Redirecting...");
+
+				//update successful, redirect to specified location
+  				window.location.href = objData.redirect;
+	        })
+	        .fail(function () {
+	        	jQuery("#update_response").html("An unknown error has occured. Data could not be saved");
+				alert("An unknown error has occured. Data could not be saved");
+	        });
+
+	        return false;
+		});
+	});
+</script>
+
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp; Sort Panels'); ?>
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-panels-setup", array("action" => "user-panels")); ?>" title="Back" data-toggle="tooltip"><?php  echo ICON_LARGE_BACK_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-panels-display"); ?>" title="Display Panels" data-toggle="tooltip"><?php echo ICON_LARGE_PANELS_HTML;?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<div id="update_response"></div>
+
+		<div id="sortable">
+			<?php
+			foreach ($this->objUserPanels as $objPanel) {
+				if (!is_numeric($objPanel->get("id"))) {
+					continue;
+				} //end if
+				?>
+				<div class="panel panel-default m3-panel-subsection ui-state-default" style="cursor:ns-resize;" id="<?php echo $objPanel->get("id"); ?>"><h3 class="panel-title panel-heading "><span class="m3-panel-subsection-icon <?php echo ICON_CSS_MOVE_VERTICAL_CLASS; ?>"></span>&nbsp;<?php echo $objPanel->get("panels_name"); ?></h3></div>
+			<?php } //end foreach
+			?>
+
+		</div>
+		<input type="submit" id="update_panels" value="Save" class="btn btn-primary">
+
+	</div>
+
+</div>

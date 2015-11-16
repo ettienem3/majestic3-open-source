@@ -1,0 +1,49 @@
+<div class="mj3_tables clearfix">
+<?php
+echo $this->renderStandardViewHeader(ICON_LARGE_PANELS_HTML .'&nbsp;Communication Look and Feels');
+?>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-comms-templates", array("action" => "create")); ?>" title="Create a new Look and Feel" class="btn btn-success" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML . '&nbsp;Add Look and Feel'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain htmltemplates clearfix">
+
+		<?php
+		/**
+		 * Prepare data
+		 */
+		foreach ($this->objCommsTemplates as $key => $objCommTemplate)
+		{
+			if (!isset($objCommTemplate->id))
+			{
+				continue;
+			}//end if
+
+			$arr_data = array();
+			$arr_data["template"] = $objCommTemplate->template;
+			$arr_data["content"] = $objCommTemplate->content;
+			if ($objCommTemplate->active == 1)
+			{
+				$arr_data["active_url"] = "<a href=\"" . $this->url("front-comms-templates", array("action" => "status", "id" => $objCommTemplate->id)) . "\" title=\"Deactivate Look and Feel\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>" . "</td>";
+			} else {
+				$arr_data["active_url"] = "<a href=\"" . $this->url("front-comms-templates", array("action" => "status", "id" => $objCommTemplate->id)) . "\" title=\"Activate Look and Feel\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>" . "</td>";
+			}//end if
+
+			$edit_url = "<a href=\"" . $this->url("front-comms-templates", array("action" => "edit", "id" => $objCommTemplate->id)) . "\" title=\"Edit Look and Feel\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-comms-templates", array("action" => "delete", "id" => $objCommTemplate->id)) . "\" title=\"Delete Look and Feel\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			$arr_data["url"] = $edit_url . "&nbsp;" . $delete_url;
+
+			$arr[] = $arr_data;
+		}//end foreach
+
+		//create add url
+		$add_url = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("Title", "Content", "Active", $add_url), array("id" => $css_id));
+		?>
+
+	</div>
+
+</div>

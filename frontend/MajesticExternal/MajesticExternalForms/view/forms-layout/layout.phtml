@@ -1,0 +1,21 @@
+<?php
+	/**
+	 * Generate header file
+	 */
+// 	echo $this->partial('layout/header');
+	echo $this->partial('layout/forms/header');
+?>
+<div>
+	<!-- notifications -->
+		<?php echo $this->partial("layout/flash-messages");?>
+	<!-- External content -->
+	<?php echo $this->content; ?>
+</div><!-- div place holder -->
+
+
+<?php echo $this->partial("layout/api-data");?>
+
+
+
+
+

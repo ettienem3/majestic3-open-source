@@ -1,0 +1,13 @@
+<div class="mj3_tables clearfix">
+	<?php echo $this->renderStandardViewHeader('&nbsp; Embedded Images -Edit'); ?>
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/comm-embedded-images", array("journey_id" => $this->journey_id, "comm_id" => $this->comm_id)); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+	</ul>
+	<div class="mj3_forms clearfix">
+		<?php
+			$form = $this->form;
+			$form->prepare();
+			echo $this->renderSystemFormHelper($form, $this);
+		?>
+	</div>
+</div>

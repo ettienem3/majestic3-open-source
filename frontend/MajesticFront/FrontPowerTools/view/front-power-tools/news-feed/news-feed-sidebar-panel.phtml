@@ -1,0 +1,144 @@
+<?php
+use FrontUserLogin\Models\FrontUserSession;
+$objUser = FrontUserSession::isLoggedIn();
+
+//check if user enabled to news feed
+$objUserData = FrontUserSession::readUserLocalData("cookie_data");
+if (is_object($objUserData))
+{
+	switch ($objUserData->news_feed_options)
+	{
+		case "disabled":
+			return;
+			break;
+	}//end switch
+}//end if
+?>
+
+<script type="text/javascript">
+	var nf_update_polling = false;
+	var nf_update_activity = "<?php if (isset($objUser->user_news_feed_activity)) { echo $objUser->user_news_feed_activity; } else { echo 1;} ?>";
+	var nf_arr_items = [];
+
+	jQuery(document).ready(function () {
+
+		//reposition the news feed section to bottom
+
+		readQueue(1);
+		//start counter
+		window.setInterval(function () {readQueue(0);}, 20000);
+
+		if (nf_update_activity == "1")
+		{
+			jQuery("#news-feed-activity-toggle").html("Pause");
+		} else {
+			jQuery("#news-feed-activity-toggle").html("Play");
+		}//end if
+
+		jQuery("#news-feed-activity-toggle").click(function (e) {
+			e.preventDefault();
+			switch(nf_update_activity)
+			{
+				case "1":
+					nf_update_activity = "0";
+					break;
+
+				default:
+					nf_update_activity = "1";
+					break;
+			}//end switch
+
+			//update session
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-power-tools/news-feed", array("action" => "ajax-toggle-feed"));?>?i=" + nf_update_activity
+			});
+
+			if (nf_update_activity == "1")
+			{
+				jQuery("#news-feed-activity-toggle").html("Pause");
+				readQueue(0);
+			} else {
+				jQuery("#news-feed-activity-toggle").html("Play");
+			}//end if
+		});
+	});
+
+	function readQueue(initial)
+	{
+		if (nf_update_activity != "1")
+		{
+			return false;
+		}//end if
+
+		if (nf_update_polling == false)
+		{
+			//flag to prevent overlapping requests
+			nf_update_polling = true;
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-power-tools/news-feed", array("action" => "ajax-read-queue"));?>?i=" + initial
+			})
+			.done (function (data) {
+				var objData = jQuery.parseJSON(data);
+				var new_messages = false;
+
+				jQuery.each(objData, function(i, str) {
+					obj = jQuery.parseJSON(str);
+
+					//is it a valid message
+					if (obj.id == "")
+					{
+						return;
+					}//end if
+
+					//check if message is already on page
+					if (jQuery.inArray(obj.id, nf_arr_items) !== -1)
+					{
+						return;
+					}//end if
+
+					//append message to array
+					nf_arr_items.push(obj.id);
+					if (new_messages === false)
+					{
+						new_messages = true;
+					}//end if
+
+					//add content to news panel
+					jQuery("#m3-news-feed-content").append("<div class=\"new-message\" id=msg-" + obj.id + "><p class=\"date\">" + obj.date + "</p><p class=\"content\">" + obj.entry + "</p></div>");
+				});
+
+				//make polling available
+				nf_update_polling = false;
+			});
+		}//end if
+	}//end function
+</script>
+
+<!-- start newsfeed -->
+<div class="newsfeed_side">
+
+	<div class="navbar-header">
+		<span class="navbar-brand">
+			<?php echo ICON_MEDIUM_NEWSFEED_HTML; ?>
+			 &nbsp;
+			News Feed
+		</span>
+	</div>
+
+	<div class="clearboth"></div>
+
+	<div id="m3-news-feed-content">
+	</div><!--  News feed content here -->
+	<div id="news-feed-status">
+		<span>
+			<button id="news-feed-activity-toggle" class="btn btn-default">
+				<?php echo ICON_MEDIUM_NEWSFEED_STATUS_HTML; ?>
+				<span class="btn_text">Pause</span>
+			</button>
+		</span>
+	</div>
+
+	<div class="clearboth"></div>
+
+</div>
+<!-- end newsfeed -->

@@ -1,0 +1,192 @@
+<div class="mj3_tables clearfix">
+
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			jQuery(".ajax-dropdown").change(function () {
+				if (jQuery(this).val() == "_load_data_")
+				{
+					loadSearchFormData(jQuery(this).attr("id"), jQuery(this));
+				}//end if
+			});
+
+			//monitor quick search button
+			jQuery(".quick-search-button").click(function (e) {
+				e.preventDefault();
+
+				//populate values into search form
+				jQuery("#search-form").find("#fields_custom_description").val(jQuery("#quick-search-keyword").val());
+
+				//submit the form
+				jQuery("#search-form").submit();
+			});
+		});
+
+		function loadSearchFormData(param, element)
+		{
+			//set element data
+			element.empty();
+			element.append(jQuery("<option></option>").text("--loading--"));
+
+			var param_url = "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-search-values")) . "?param=#param";?>";
+
+			//request data
+			jQuery.ajax({
+				url: param_url.replace("#param", param),
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					//reset element
+					element.append(jQuery("<option></option>").text("--select--"));
+					element.append(jQuery("<option></option>").val("_load_data_").text("--select--"));
+					alert("An error occured: " + objData.response);
+					return false;
+				}//end if
+
+				element.empty();
+				element.append(jQuery("<option></option>").val("").text("--select--"));
+				jQuery.each(objData.response, function (i, obj) {
+					element.append(jQuery("<option></option>").val(obj.id).text(obj.val));
+				});
+			})
+			.fail(function () {
+				alert("Data could not be loaded. An unkown error has occured");
+				return false;
+			});
+		}//end function
+	</script>
+
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#form-search-form">
+					<span class="sr-only">Toggle navigation</span>
+
+				</button>
+
+				<span class="navbar-brand">
+					<?php echo ICON_LARGE_FORMS_HTML; ?> &nbsp;
+					Form Fields
+				</span>
+			</div>
+
+			<div class="navbar-collapse" id="form-search-form">
+				<form class="navbar-form navbar-right form-inline" role="search">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Quick search" id="quick-search-keyword" value="<?php if ($this->arr_params["fields_custom_description"] != "") {echo $arr_params["fields_custom_description"];}?>">
+					</div>
+					<button type="submit" class="btn btn-primary quick-search-button">Search</button>
+					<a class="btn btn-default" data-toggle="collapse" data-target="#advsearch" aria-expanded="false" aria-controls="advsearch">Advanced</a>
+				</form>
+			</div>
+
+			<div class="collapse" id="advsearch">
+				<div class="well clearfix">
+					<form method="post" id="search-form">
+						<div class="form-group">
+							<label for="fields_custom_title">Description:</label>
+							<input type="text" class="form-control" name="fields_custom_description" id="fields_custom_description" placeholder="Field Name" value="<?php if ($this->arr_params["fields_custom_description"] != "") {echo $arr_params["fields_custom_description"];}?>"/>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="fields_custom_type_id">Type:</label>
+									<select name="fields_custom_type_id" id="fields_custom_type_id" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="fields_custom_locked_status">Locked Status:</label>
+									<select name="fields_custom_locked_status" id="fields_custom_locked_status" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="1">Locked</option>
+										<option value="0">Unlocked</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="fields_custom_css_class">CSS Class:</label>
+									<input type="text" class="form-control" name="fields_custom_css_class" id="fields_custom_css_class" placeholder="Search using CSS classes" value="<?php if ($this->arr_params["fields_custom_css_class"] != "") {echo $arr_params["fields_custom_css_class"];}?>"/>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="fields_custom_field">Field Name:</label>
+									<input type="text" class="form-control" name="fields_custom_field" id="fields_custom_field" placeholder="Search within field name e.g. field102" value="<?php if ($this->arr_params["fields_custom_field"] != "") {echo $arr_params["fields_custom_field"];}?>"/>
+								</div>
+							</div>
+						</div>
+
+						<input type="submit" value="Search" class="btn btn-primary pull-right"/>
+					</form>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/fields", array("action" => "create-field")); ?>" title="Create a new Custom Field" class="btn btn-success"><?php echo ICON_LARGE_ADD_HTML .' Add Field'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		foreach ($this->objFields as $objField)
+		{
+			if (!is_string($objField->get("id")))
+			{
+				continue;
+			}//end if
+
+			$arr_field["field_name"] = "<span title=\"" . $objField->get("field") . "\">" . $objField->get("description") . "</span>";
+			if (count($objField->get("arr_forms_used")) > 0)
+			{
+				$forms_string = "";
+				foreach($objField->get("arr_forms_used") as $objForm)
+				{
+					if ($objForm->form_title != "")
+					{
+						$forms_string .= "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->id)) . "\" target=\"_blank\" title=\"" . $objForm->form_title . "\" data-toggle=\"tooltip\">" . $objForm->form_title . "</a> | ";
+					}//end if
+				}//end foreach
+
+				$arr_field["used_in"] = rtrim($forms_string, " | ");
+			} else {
+				$arr_field["used_in"] = "&nbsp;";
+			}//end if
+
+			$arr_field["field_type"] = $objField->get("fields_types_field_type");
+
+			if ($objField->get("field_locked") == 1)
+			{
+				$arr_field["field_locked"] = "<span title=\"" . $objField->get("field_locked_description") . "\">Yes</span>";
+			} else {
+				$arr_field["field_locked"] = "";
+			}//end if
+
+			$edit_url = "<a href=\"" . $this->url("front-form-admin/fields", array("action" => "edit-field", "id" => $objField->get("id"))) . "\" title=\"Edit Field\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-form-admin/fields", array("action" => "delete-field", "id" => $objField->get("id"))) . "\" title=\"Delete Field\" data-toggle=\"tooltip\" >" . ICON_SMALL_DELETE_HTML . "</a>";
+			$arr_field["urls"] = $edit_url . "&nbsp;" . $delete_url;
+			$arr[] = $arr_field;
+		}//end function
+
+		//create add url
+		$add_url = "";
+		$css_id = str_replace(".", "", microtime(TRUE));
+		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
+		echo $this->renderSimpleHTMLTable($arr, array("Field", "Used In", "Type", "Field Locked", $add_url), array("id" => $css_id));
+		?>
+
+	</div>
+
+</div>

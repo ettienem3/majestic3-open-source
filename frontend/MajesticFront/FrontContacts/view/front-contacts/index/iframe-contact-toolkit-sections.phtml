@@ -1,0 +1,6 @@
+<script type="text/javascript" src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/datetimepicker/jquery.datetimepicker.js"></script>
+<link href="<?php echo $this->layout()->cdn_url; ?>/js/vendor/datetimepicker/jquery.datetimepicker.css" media="screen" rel="stylesheet" type="text/css">
+
+<?php
+echo "<nav class=\"navbar navbar-default\"><div class=\"container-fluid\"><div class=\"navbar-header\"><span class=\"navbar-brand\">" . $this->objContact->get("fname") . " " . $this->objContact->get("sname") . "</span></div></div></nav>";
+echo $this->partial("layout/toolkit-section-standard");

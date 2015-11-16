@@ -1,0 +1,102 @@
+<?php 
+//set user field as mandatory
+$this->form->get("fk_user_id")->setAttribute("required", "required");
+
+//add field value label field
+$this->form->add(array(
+		"name" => "field_value_label",
+		"type" => "select",
+		"attributes" => array(
+				"id" => "field_value_label",
+		),
+		"options" => array(
+				"label" => "Field value",
+		),
+));
+
+//hide field value field
+$this->form->add(array(
+		"name" => "field_value",
+		"type" => "hidden",
+		"attributes" => array(
+				"id" => "field_value",
+		),
+));
+
+//check the form field type
+if (is_numeric($this->objFormFieldElement->get("field_std_id")))
+{
+	//standard field
+	$field_input_type = strtolower($this->objFormFieldElement->get("field_std_input_type"));
+	$field_type = "standard";
+	$field_id = $this->objFormFieldElement->get("field_std_id");
+} else {
+	//custom field
+	$field_input_type = strtolower($this->objFormFieldElement->get("field_custom_input_type"));
+	$field_type = "custom";
+	$field_id = $this->objFormFieldElement->get("field_custom_id");
+}//end if
+
+//set field types to be allowed
+$arr_field_types = array(
+		"select",
+		"radio",
+		"checkbox",
+);
+
+switch ($field_type)
+{
+	case "checkbox":
+		$this->form->get("field_value_label")->setValueOptions(array(
+		1 => "Checked",
+		0 => "Unchecked",
+		));
+		break;
+
+	default:
+		$this->form->get("field_value_label")->setOptions(array(
+		"label" => "Field value equals",
+		));
+		break;
+}//end switch
+?>
+
+<?php 
+//only generate js where field is allowed
+if (in_array($field_input_type, $arr_field_types)) :?>
+<script type="text/javascript">
+	//specify global vars
+	var field_input_type = "<?php echo $field_input_type;?>";
+	var field_type = "<?php echo $field_type;?>";
+	var fields_all_id = <?php echo $this->objFormFieldElement->get("id");?>;
+	
+	jQuery(document).ready(function () {
+		if (field_input_type == "select" || field_input_type == "radio")
+		{
+			//request field values defined
+			jQuery.ajax({
+			    type: 'GET',
+			    url: "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-load-specified-field-values", "id" => $field_id));?>?field_type=" + field_type + "&fields_all_id=" + fields_all_id + "&include_field_values=1",
+			    dataType: 'json',
+			    async: false,
+			    success: function (data) {					    
+					//convert data received to array
+					jQuery.each(data.field_values_data, function (id, field_value) {
+						jQuery("#field_value_label").append(new Option(field_value, id));
+					});
+			    },
+			    fail: function () {
+					alert("Data could not be loaded");
+					return false;
+			    }
+			});
+
+			//monitor the field value label field
+			jQuery("#field_value_label").change(function () {
+				//assign value to field value field
+				jQuery("#field_value").val(jQuery(this).val());
+			});
+		}//end if
+	});
+</script>
+<?php endif?>

@@ -1,0 +1,41 @@
+<?php
+$content = "<div class=\"form-post-submit-content\" #css-style>";
+
+//load css file where specified
+if ($this->objForm->stylesheet != "")
+{
+	$this->headLink()->appendStylesheet($this->basePath() . "/css/frontcss/test_form_style.css");
+}//end if
+
+//check if form has style attributes
+if ($this->objForm->margins != "")
+{
+	$content = str_replace("#css-style", " style=\"margins : " . $this->objForm->margins . "px;\"", $content);
+} else {
+	$content = str_replace("#css-style", "", $content);
+}//end if
+
+//set submit content
+$content .= $this->objForm->submit_copy;
+
+//set tracking script where applicatable
+if ($this->objForm->submit_tracking_script != "")
+{
+	$content .= $this->objForm->submit_tracking_script;
+}//end if
+
+//close div
+$content .= "</div>";
+
+//apply look and feel where set
+if ($this->objForm->look_and_feel_content !== FALSE)
+{
+	$content = str_replace("#content", $content, $this->objForm->look_and_feel_content);
+}//end if
+
+if (is_string($majestic_content))
+{
+	echo $majestic_content;
+}//end if
+
+echo $content;

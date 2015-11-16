@@ -1,0 +1,46 @@
+<h2>Message Received</h2>
+<?php
+echo "<a href=\"" . $this->url("front-inbox-manager") . "\" title=\"Back to inbox messages\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a><br/>";
+$objMessage = $this->objMessage;
+//format html
+$html .= "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
+$html .=	"<tr>";
+$html .=		"<td>";
+$html .=			"From";
+$html .=		"</td>";
+$html .=		"<td>";
+$html .=			$objMessage->get("from_name") . " (" . $objMessage->get("from_email") . ")";
+$html .=		"</td>";
+$html .=	"</tr>";
+$html .=	"<tr>";
+$html .=		"<td>";
+$html .=			"Date";
+$html .=		"</td>";
+$html .=		"<td>";
+$html .=			$objMessage->get("datetime_received");
+$html .=		"</td>";
+$html .=	"</tr>";
+$html .=	"<tr>";
+$html .=		"<td>";
+$html .=			"Subject";
+$html .=		"</td>";
+$html .=		"<td>";
+$html .=			$objMessage->get("email_subject");
+$html .=		"</td>";
+$html .=	"</tr>";
+$html .=	"<tr>";
+$html .=		"<td>";
+$html .=			"In reply to";
+$html .=		"</td>";
+$html .=		"<td>";
+$html .=			$objMessage->get("comm_history_subject");
+$html .=		"</td>";
+$html .=	"</tr>";
+$html .= "</table>";
+$html .= "<br/>";
+
+$html .= "<fieldset><legend>Content</legend>";
+$html .=	$objMessage->get("inbox_content");
+$html .= "</fieldset>";
+
+echo $html;

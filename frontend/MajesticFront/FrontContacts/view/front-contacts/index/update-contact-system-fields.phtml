@@ -1,0 +1,49 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		jQuery("#source_dropdown").change(function () {
+			jQuery("#source").val(jQuery(this).val());
+		});
+
+		jQuery("#reference_dropdown").change(function () {
+			jQuery("#reference").val(jQuery(this).val());
+		});
+
+		//intercet form submission
+		jQuery("#system-fields-form").submit(function (e) {
+			e.preventDefault();
+
+			var data_string = jQuery("#system-fields-form").serialize();
+			var form_html = jQuery("#system-fields-form").html();
+
+			//set wait message
+			jQuery("#system-fields-form").replaceWith("<span class=\"wait-message\"><img src=\"<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif\"/><h3>Please wait, the page will reload in a moment...</h3></span>");
+
+			//submit form via ajax
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-contacts", array("id" => $this->contact_id, "action" => "update-contact-system-fields"));?>?ajax=1",
+				type: "POST",
+				data: data_string
+			})
+			.done(function (data) {
+				var objResponse = jQuery.parseJSON(data);
+				if (objResponse.error == 1)
+				{
+					jQuery(".wait-message").hide("fast");
+					jQuery(".wait-message").replaceWith(form_html);
+					jQuery("#system-fields-form").prepend(objResponse.error);
+
+					return false;
+				}//end if
+
+				//reload page
+				location.reload();
+			})
+			.fail(function () {
+				alert("An unknown error has occued. Details could not be saved.");
+			});
+		});
+	});
+</script>
+<?php
+$form = $this->form;
+echo $this->renderSystemFormHelper($form, $this);

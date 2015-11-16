@@ -1,0 +1,128 @@
+<div class="modal fade replace-fields-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Replace Fields</h4>
+      </div>
+      <div class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<?php
+$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+if (in_array("file_library", $objUser->profile->plugins_enabled)) {
+?>
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			jQuery(".comms-modal-images").html("<h3>Please wait...<h3>" + global_wait_image + "<p>Close and try again if double click does not work</p>");
+
+			jQuery.ajax({
+				url: "<?php echo $this->url("front-profile-file-manager", array("action" => "ajax-load-files"));?>"
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+				if (objData.error == 1)
+				{
+					//alert(objData.response);
+					jQuery(".comms-modal-images").html("<h3>No data was found...<h3>");
+					console.log(objData.response);
+					return false;
+				}//end if
+
+				jQuery(".comms-modal-images").html("");
+
+				//poplulate files into dropdown
+				jQuery.each(objData.files, function (i, obj) {
+					if (obj.mode == "image")
+					{
+						jQuery(".comms-modal-images").append(jQuery("<img/>").attr("class", "comms-modal-image").attr("src", obj.url).attr("width", "50px").attr("height", "50px").attr("title", "Double click to add").css("padding", "5px"));
+					}//end if
+				});
+			})
+			.fail(function () {
+				//alert("An unknown error has occured. Files could not be loaded");
+			});
+		});
+	</script>
+
+	<div class="modal fade uploaded-images-modal">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Uploaded Images</h4>
+	      </div>
+	      <div class="modal-body comms-modal-images">
+
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+<?php }//end if?>
+
+<?php if (in_array("email_html_templates", $objUser->profile->plugins_enabled)) :?>
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			jQuery(".comms-modal-templates").append("<div id=\"template-wait-loading\"><h3>Please wait...<h3>" + global_wait_image + "</div>");
+
+			jQuery.ajax({
+				url: "<?php echo $this->url('front-power-tools/email-templates', array("action" => "ajax-load-email-templates"));?>"
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					//alert(objData.response);
+					console.log(objData.response);
+					return false;
+				}//end if
+
+				jQuery.each(objData.templates, function (i, objTemplate) {
+					jQuery("#template-name").append(jQuery("<option/>").attr("value", objTemplate.url).text(objTemplate.title));
+				});
+
+				jQuery(".comms-modal-templates").find("#template-wait-loading").remove();
+				jQuery(".comms-modal-templates").find("p").append(jQuery("<iframe/>").attr("id", "template-iframe").attr("width", "800").attr("height", "480px").attr("style", "border:none").attr("src", jQuery("#template-name").first().val()));
+			})
+			.fail(function () {
+				//alert("An unknown error has occured. Templates could not be loaded");
+			});
+
+			jQuery("#template-name").click(function () {
+				jQuery("#template-iframe").attr("src", jQuery(this).val());
+			});
+		});
+	</script>
+
+	<div class="modal fade templates-modal">
+	  <div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Templates</h4>
+	      </div>
+	      <div class="modal-body comms-modal-templates">
+	      		<select id="template-name"></select>
+	      		<br/>
+	      		<p></p>
+	      		<button id="use-template-loaded">Load Template</button>
+
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+<?php endif;?>

@@ -1,0 +1,45 @@
+<div class="mj3_tables clearfix">
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_WEBHOOK_HTML .'&nbsp; Webhooks'); ?>
+
+
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="<?php echo $this->url("front-power-tools/webhooks"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML?></a></li>
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-power-tools/webhooks", array("action" => "create-webhook-url")); ?>" title="Create a new Webhook URL / Endpoint" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML; ?> Create New Webhook Endpoint</a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+		<?php
+
+		foreach ($this->objWebhookUrls as $objWebhookUrl)
+		{
+			if ($objWebhookUrl->get("id") == "")
+			{
+				continue;
+			}//end if
+
+			$arr_webhook_url["url"] = $objWebhookUrl->get("target_url");
+
+			if ($objWebhookUrl->get("active") == 1)
+			{
+				$arr_webhook_url["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-url-status", "id" => $objWebhookUrl->get("id"))) . "\" title=\"Deactivate Webhook Endpoint\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+			} else {
+				$arr_webhook_url["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-url-status", "id" => $objWebhookUrl->get("id"))) . "\" title=\"Activate Webhook Endpoint\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+			}//end if
+
+			//set urls
+			$edit_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "edit-webhook-url", "id" => $objWebhookUrl->get("id"))) . "\" title=\"Edit Webhook Endpoint\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+			$delete_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "delete-webhook-url", "id" => $objWebhookUrl->get("id"))) . "\" title=\"Delete Webhook Endpoint\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			$arr_webhook_url["urls"] = $edit_url . "&nbsp;" . $delete_url;
+
+			$arr[] = $arr_webhook_url;
+		}//end foreach
+
+		$add_url = "";
+		echo $this->renderDataTableHelper();
+		echo $this->renderSimpleHTMLTable($arr, array("Endpoint", "Active", $add_url));
+		?>
+
+	</div>
+
+</div>

@@ -1,0 +1,62 @@
+<?php
+namespace FrontPanels\Panels;
+
+use FrontPanels\Entities\FrontPanelsPanelEntity;
+use FrontPanels\Interfaces\InterfacePanelsProcessor;
+
+class PanelContactsWidgetUsersVsContactsProcessorModel extends AbstractPanelProcessorModel implements InterfacePanelsProcessor
+{
+	/**
+	 * (non-PHPdoc)
+	 * @see \FrontPanels\Interfaces\InterfacePanelsProcessor::processPanel()
+	 */
+	public function processPanel(FrontPanelsPanelEntity $objPanel)
+	{
+		if (!is_object($objPanel->get("panel_read_data")) && !is_array($objPanel->get("panel_read_data")))
+		{
+			return $objPanel;
+		}//end if
+		
+		$html_id = str_replace(".", "", microtime(TRUE));
+		$html = "<script type=\"text/javascript\">";
+		$html .= 	"jQuery(function () {
+						jQuery('#$html_id').highcharts({
+							data: {
+								table: 'users-vs-contacts-count'
+							},
+							chart: {
+								type: 'pie'
+							},
+							title: {
+								text: 'Contacts per User'
+							},
+							yAxis: {
+								allowDecimals: false,
+							},
+						});
+					});";
+		$html .= "</script>";
+		$html .= "<table id=\"users-vs-contacts-count\" style=\"display: none;\">";
+		$html .= 	"<tbody>";
+		
+		foreach ($objPanel->get("panel_read_data") as $k => $objData)
+		{
+			if ($objData->users_uname == "")
+			{
+				$objData->users_uname = "Not Specified";
+		}//end if
+		
+		$html .= "<tr>";
+		$html .=	"<th>" . $objData->users_uname . "</th>";
+		$html .= 	"<td>" . $objData->contact_count . "</td>";
+		$html .= "</tr>";
+		}//end foreach
+		
+		$html .=	"</tbody>";
+		$html .= "</table>";
+		$html .= "<div id=\"$html_id\"></div>";
+		
+		$objPanel->set("html", $html);
+		return $objPanel;
+	}//end function
+}//end class
