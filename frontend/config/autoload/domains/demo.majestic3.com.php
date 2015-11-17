@@ -20,6 +20,9 @@ return array(
 			'apikey' => '***********',
 		),
 
+		/**
+		 * Comment this array to run with NO db installed
+		 */
 		'frontend_db_config' => array(
 				'enabled' => TRUE,
 				'database' => 'm3_frontend_data',
@@ -28,8 +31,19 @@ return array(
 				'hostname' => '127.0.0.1',
 		),
 
+		/**
+		 * Comment this array to run with NO db installed and local storage disabled
+		 */
 		'logged_in_user_settings' => array(
 				'storage_enabled' => TRUE,
 				'storage' => '\\FrontUsers\\Storage\\UserMySqlStorage',
 		),
+
+		/**
+		 * Uncomment this block to enable local storage but not using the db details above
+		 */
+// 		'logged_in_user_settings' => array(
+// 				'storage_enabled' => TRUE,
+// 				'storage' => '\FrontUsers\\Storage\\UserFileSystemStorage',
+// 		),
 );
