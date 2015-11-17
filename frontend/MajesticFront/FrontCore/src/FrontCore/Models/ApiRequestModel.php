@@ -98,12 +98,12 @@ final class ApiRequestModel extends AbstractCoreAdapter
 			}//end if
 
 //@TODO - create own api authentication logic
-throw new \Exception("Implement you api request header logic here");
+throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
 		} else {
 			if ($this->api_key != "")
 			{
 //@TODO - create own api authentication logic
-throw new \Exception("Implement you api request header logic here");
+throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
 			} else {
 				//bypass the keys to perform info request
 				$arr_headers = array();

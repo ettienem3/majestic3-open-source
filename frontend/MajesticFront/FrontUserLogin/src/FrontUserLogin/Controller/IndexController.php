@@ -70,6 +70,12 @@ class IndexController extends AbstractActionController
 						}//end if
 					}//end if
 				} catch (\Exception $e) {
+					if ($e->getCode() == 9999)
+					{
+						ini_set("display_errors", 1);
+						trigger_error($e->getMessage(), E_USER_WARNING);
+					}//end if
+
 					// Set unsuccesful message.
 					$this->flashMessenger()->addErrorMessage("Login failed");
 
