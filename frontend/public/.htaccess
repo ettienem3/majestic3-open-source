@@ -1,8 +1,9 @@
 #Create filter to match files you want to cache 
-<Files ~ "\.(css|js)$">
-Header add "Cache-Control" "max-age=10800"
-</Files>
-
+<IfModule mod_headers.c>
+	<Files ~ "\.(css|js)$">
+	Header add "Cache-Control" "max-age=10800"
+	</Files>
+</IfModule>
 
 RewriteEngine On
 # The following rule tells Apache that if the requested filename
