@@ -44,6 +44,6 @@ return array(
 		 */
 // 		'logged_in_user_settings' => array(
 // 				'storage_enabled' => TRUE,
-// 				'storage' => '\FrontUsers\\Storage\\UserFileSystemStorage',
+// 				'storage' => '\\FrontUsers\\Storage\\UserFileSystemStorage',
 // 		),
 );
