@@ -75,6 +75,17 @@ $arr_primary_menu = array(
 			),
 		),
 
+		"Reports" => array(
+				"nested" => array(
+						"Basic Reports" => array(
+								"route" => "front-report-viewer",
+						),
+						"Dashboards" => array(
+								"route" => "front-dashboard-viewer",
+						),
+				)
+		),
+
 		"advanced" => array(
 			"Create / Update a look and feel" => array(
 				"route" => "front-form-templates",
@@ -96,9 +107,6 @@ $arr_primary_menu = array(
 // 					"route" => "home",
 // 			),
 
-			"Basic Reports" => array(
-				"route" => "front-report-viewer",
-			),
 
 			"Locations" => array(
 				"route" => "front-locations",
@@ -282,8 +290,8 @@ if (is_array($objUser->main_menu_html))
 		{
 			//regenrate html
 		} else {
-//			echo $objUser->main_menu_html["html"];
-//			return;
+			echo $objUser->main_menu_html["html"];
+			return;
 		}//end if
 	}//end if
 }//end if

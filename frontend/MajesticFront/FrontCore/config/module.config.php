@@ -402,5 +402,10 @@ return array(
 					'APIReports\Controller\ReportViewerAdvancedController::get',
 					'APIReports\Controller\ReportViewerAdvancedController::update',
 			),
+			'front-dashboard-viewer' => array(
+					'APIReports\Controller\ReportViewerDashboardController::getList',
+					'APIReports\Controller\ReportViewerDashboardController::get',
+					'APIReports\Controller\ReportViewerDashboardController::update',
+			),
 	),
 );

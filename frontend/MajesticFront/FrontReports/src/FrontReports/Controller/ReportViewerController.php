@@ -28,6 +28,16 @@ class ReportViewerController extends AbstractActionController
 		);
 	}//end function
 
+	public function indexDashboardsAction()
+	{
+		//load reports
+		$objReports = $this->getReportsModel()->fetchDashboards();
+
+		return array(
+				"objReports" => $objReports,
+		);
+	}//end function
+
 	public function ajaxLoadReportFormAction()
 	{
 		$id = $this->params()->fromRoute("id", "");
@@ -135,6 +145,7 @@ class ReportViewerController extends AbstractActionController
 	{
 		$id = $this->params()->fromRoute("id", "");
 		$type = $this->params()->fromQuery("type", "");
+		$op = $this->params()->fromQuery("op", "");
 
 		if ($id == "" || $type == "")
 		{
@@ -143,7 +154,17 @@ class ReportViewerController extends AbstractActionController
 		}//end if
 
 		//load reports list
-		$objReports = $this->getReportsModel()->fetchReports();
+		switch (strtolower($op))
+		{
+			case "dashboard":
+				$objReports = $this->getReportsModel()->fetchDashboards();
+				break;
+
+			default:
+				$objReports = $this->getReportsModel()->fetchReports();
+				break;
+		}//end switch
+
 
 		//load the report requirements
 		$objReport = $this->getReportsModel()->fetchReportParameters($id, (array) $this->params()->fromQuery());
@@ -173,6 +194,7 @@ class ReportViewerController extends AbstractActionController
 			"form" => $form,
 			"objReport" => $objReport,
 			"objReports" => $objReports,
+			"op" => $op,
 		);
 	}//end function
 

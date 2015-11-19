@@ -131,7 +131,7 @@
 			}//end if
 		})
 		.fail (function () {
-			jQuery(".report-wait-container").html("An unknow error has occured. The requested form could not be loaded");
+			jQuery(".report-wait-container").html("An unknown error has occured. The requested form could not be loaded");
 		});
 	}//end function
 
@@ -286,7 +286,19 @@
 <?php echo $this->renderStandardViewHeader(ICON_LARGE_PIE_CHART_HTML .'&nbsp; Report Viewer'); ?>
 
 	<ul class="nav nav-tabs">
-		<li role="presentation"><a href="<?php echo $this->url("front-report-viewer"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
+		<?php
+			switch ($this->op)
+			{
+				case "dashboard":
+					$route = "front-dashboard-viewer";
+					break;
+
+				default:
+					$route = "front-report-viewer";
+					break;
+			}//end switch
+		?>
+		<li role="presentation"><a href="<?php echo $this->url($route); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
 	</ul>
 
 	<div class="mj3_forms clearfix">

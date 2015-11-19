@@ -18,10 +18,14 @@
 					case "composite":
 						$arr_report["type"] = "Composite Report";
 						break;
+
+					case "dashboard":
+						$arr_report["type"] = "Dashboard";
+						break;
 				}//end switch
 
-				$view_url = "<a href=\"" . $this->url("front-report-viewer", array("id" => $objReport->id, "action" => "report-viewer")) . "?type=" . $objReport->report_type . "\" title=\"Generate Report\" alt=\"View\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML  . "</a>";
-				
+				$view_url = "<a href=\"" . $this->url("front-report-viewer", array("id" => $objReport->id, "action" => "report-viewer")) . "?type=" . $objReport->report_type . "\" title=\"View Report\" alt=\"View\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML  . "</a>";
+
 				$arr_report["urls"] = $view_url;
 				$arr[] = $arr_report;
 			}//end foreach

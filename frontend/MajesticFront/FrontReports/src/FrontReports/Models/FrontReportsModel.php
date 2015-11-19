@@ -34,6 +34,19 @@ class FrontReportsModel extends AbstractCoreAdapter
 		return $objReports->data;
 	}//end function
 
+	public function fetchDashboards()
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("reports/dashboard/view");
+
+		//execute
+		$objReports = $objApiRequest->performGETRequest(array())->getBody();
+		return $objReports->data;
+	}//end function
+
 	public function fetchReportParameters($id, array $arr_params)
 	{
 		//create the request object
@@ -42,7 +55,7 @@ class FrontReportsModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("reports/basic/view/$id");
 		$arr_params["download"] = $this->flag_download;
-		
+
 		//execute
 		$objReports = $objApiRequest->performGETRequest($arr_params)->getBody();
 		return $objReports->data;

@@ -1,7 +1,7 @@
 <?php
 $form = $this->form;
 $form->prepare();
-$html = $this->renderSystemFormHelper($form, $this);
+$html = $this->renderSystemFormHelper($form, $this, array("appendJavaScriptUtils" => FALSE));
 
 //add javascript
 $html .= '
@@ -63,8 +63,8 @@ $js = "";
 if (is_array($this->objReport->data->report->form_data) || is_object($this->objReport->data->report->form_data))
 {
 	foreach ($this->objReport->data->report->form_data as $objElement)
-	{	
-		$js .= $objElement->javascript;	
+	{
+		$js .= $objElement->javascript;
 	}//end foreach
 }//end if
 
