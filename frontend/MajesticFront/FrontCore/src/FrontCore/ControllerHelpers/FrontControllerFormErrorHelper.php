@@ -45,9 +45,9 @@ class FrontControllerFormErrorHelper extends AbstractPlugin
 				$objForm->get($objElement->getName())->setMessages(array("An unknown error has occured. Form errors could not be loaded"));
 			}//end foreach
 		} else {
-			if (isset($objResponse->data->error_message))
+			if (isset($objResponse->data->error_messages))
 			{
-				foreach ($objResponse->data->error_message as $field => $objErrors)
+				foreach ($objResponse->data->error_messages as $field => $objErrors)
 				{
 					$arr = array();
 					foreach ($objErrors as $key => $error)
