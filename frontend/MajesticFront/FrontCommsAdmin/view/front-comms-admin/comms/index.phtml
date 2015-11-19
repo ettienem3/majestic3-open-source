@@ -8,7 +8,7 @@
 		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/journeys", array("action" => "delete", "id" => $this->journey_id)); ?>" title="Delete Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_DELETE_HTML; ?></a></li>
 		<!-- <li role="presentation"><a href="<?php echo $this->url("front-comms-admin/journeys", array("action" => "journey-flow", "id" => $this->journey_id)); ?>" title="View Journey Flow" data-toggle="tooltip"><?php echo ICON_MEDIUM_LINE_CHART_HTML; ?></a></li>-->
 		<?php if ($this->objJourney->isExpired() === FALSE) :?>
-			<li role="presentation"><a href="<?php echo $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => $this->journey_id)); ?>" title="Send a Bulk Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_BULK_HTML; ?></a></li>
+			<!-- <li role="presentation"><a href="<?php //echo $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => $this->journey_id)); ?>" title="Send a Bulk Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_BULK_HTML; ?></a></li>-->
 		<?php endif;?>
 		<li class="mj3_btnchangeform"><a class="btn btn-success" href="<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "action" => "create")); ?>"  title="Create Communication for Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML . "Add Communication"; ?></a></li>
 	</ul>
@@ -64,7 +64,7 @@ $attachments_url = ""; //disabled for now because of sending structure...
 			} else {
 				$edit_url = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "edit", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\" title=\"Edit this Communication\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
 			}//end if
-			
+
 			$preview_url			= "<a href=\"" . $this->url("majestic-external-view-comms") . "?cid=" . $objCommAdmin->id_encoded . "\" target=\"_blank\" title=\"Preview Communication\" data-toggle=\"tooltip\" >" . ICON_SMALL_SEARCH_HTML . "</a>";
 			$delete_commadmin		= "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "delete", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\" title=\"Delete Communication\" data-toggle=\"tooltip\"" . ICON_SMALL_DELETE_HTML . "</a>";
 

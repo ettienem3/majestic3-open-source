@@ -76,6 +76,7 @@
 				if (!data.result)
 				{
 					alert(data.error);
+					element.parent().html(data.html);
 					return false;
 				}//end if
 

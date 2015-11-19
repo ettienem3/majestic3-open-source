@@ -19,9 +19,10 @@ $arr_primary_menu = array(
 		),
 
 		"advanced" => array(
-			"Send a bulk journey" => array(
-				"route" => "front-comms-bulksend",
-			),
+//Bulk sending has been deactivated and most likely will be depracated, use behaviours on forms to start journeys
+// 			"Send a bulk journey" => array(
+// 				"route" => "front-comms-bulksend",
+// 			),
 
 			"Create / Update a look and feel" => array(
 				"route" => "front-comms-templates",
@@ -288,7 +289,7 @@ if (is_array($objUser->main_menu_html))
 	{
 		if ((isset($_GET["debug_display_errors"]) && $_GET["debug_display_errors"]) == 1)
 		{
-			//regenrate html
+			//regenerate html
 		} else {
 			echo $objUser->main_menu_html["html"];
 			return;

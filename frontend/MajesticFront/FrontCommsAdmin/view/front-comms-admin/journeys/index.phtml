@@ -88,7 +88,7 @@
 		//load session for plugins enabled
 		$objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 		$arr_plugins = (array) $objUserSession->profile->plugins_enabled;
-		
+
 		/**
 		 * prepare the data
 		 */
@@ -113,27 +113,27 @@
 			if ($objJourney->date_expiry != "0000-00-00")
 			{
 				$arr_ex = explode("-", $objJourney->date_expiry);
-				$ex_time = mktime(0, 0, 0, $arr_ex[1], $arr_ex[2], $arr_ex[0]);	
-				
+				$ex_time = mktime(0, 0, 0, $arr_ex[1], $arr_ex[2], $arr_ex[0]);
+
 				if (time() > $ex_time)
 				{
 					$expiry = "<span class=\"text-danger bg-danger\">" . $objJourney->date_expiry . "</span>";
 				} else {
 					$expiry = $objJourney->date_expiry;
 				}//end if
-				
+
 				$arr_data["expiry"] = $expiry;
 			} else {
 				$arr_data["expiry"] = $objJourney->date_expiry;
 			}//end if
-			
+
 			$arr_data["priority"] = $objJourney->priority;
 
 			$edit_url 			= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "edit", "id" => $objJourney->id)) . "\" title=\"Edit Journey Settings\" data-toggle=\"tooltip\" >" . ICON_SMALL_MODIFY_HTML . "</a>";
 			$delete_journey 	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "delete", "id" => $objJourney->id)) . "\" title=\"Delete Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
 			$comms_url 			= "<a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $objJourney->id)) . "\" title=\"View \\ Edit specific Communications\" data-toggle=\"tooltip\">" . ICON_SMALL_LOAD_HTML . "</a>";
 // 			$journey_diagram 	= "<a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "journey-flow", "id" => $objJourney->id)) . "\" title=\"View Journey Flow\" data-toggle=\"tooltip\">" . ICON_SMALL_LINE_CHART_HTML . "</a>";
-			$bulk_comm_url 		= "<a href=\"" . $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => $objJourney->id)) . "\" title=\"Request Bulk Send\" data-toggle=\"tooltip\">" . ICON_SMALL_EMAIL_HTML . "</a>";
+//			$bulk_comm_url 		= "<a href=\"" . $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => $objJourney->id)) . "\" title=\"Request Bulk Send\" data-toggle=\"tooltip\">" . ICON_SMALL_EMAIL_HTML . "</a>";
 
 			//check if behaviours are enabled
 			if (in_array("behaviours_basic", $arr_plugins) || in_array("behaviours_advanced", $arr_plugins))
@@ -142,7 +142,7 @@
 			} else {
 				$behaviours_url 	= "";
 			}//end if
-			
+
 			$arr_data["url"] = $edit_url . "&nbsp;" . $comms_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_journey;
 
 			$arr[] = $arr_data;
