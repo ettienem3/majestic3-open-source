@@ -18,7 +18,7 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 	 * @param array $arr_options - Optional
 	 * @return string
 	 */
-	public function __invoke($form, $view, $arr_options = NULL)
+	public function __invoke($form, $view, $arr_options = array("appendJavaScriptUtils" => TRUE))
 	{
 		//assign view as class variable
 		$this->view = $view;
@@ -113,7 +113,11 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 		$html .= "</div>";
 
 		//append js utils
-		$html .= $this->appendJavaScriptUtils();
+		if (isset($arr_options["appendJavaScriptUtils"]) && $arr_options["appendJavaScriptUtils"] === TRUE)
+		{
+			$html .= $this->appendJavaScriptUtils();
+		}//end if
+
 		return $html;
 	}//end function
 
@@ -124,7 +128,7 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 	 * @param array $arr_options - Optional
 	 * @return mixed
 	 */
-	private function generateFormWithFieldGroups($form, $view, $arr_options = NULL)
+	private function generateFormWithFieldGroups($form, $view, $arr_options = array())
 	{
 		//extract field groups
 		$arr_field_groups = (array) $form->getAttribute("arr_field_groups");
@@ -250,7 +254,11 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 		$html .= "</div>";
 
 		//append js utils
-		$html .= $this->appendJavaScriptUtils();
+		if (!isset($arr_options["appendJavaScriptUtils"]) || (isset($arr_options["appendJavaScriptUtils"]) && $arr_options["appendJavaScriptUtils"] !== FALSE))
+		{
+			$html .= $this->appendJavaScriptUtils();
+		}//end if
+
 		return $html;
 	}//end function
 
@@ -429,34 +437,34 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 		$html .= 	"jQuery(document).ready( function () {
 
 						//check if form has help blocks attached
-						if (jQuery('form .help-block').length)
+						if (jQuery(\"form .help-block\").length)
 						{
 							//hide help sections
-							jQuery('.help-block').toggle();
+							jQuery(\".help-block\").toggle();
 
-							if (jQuery('body .nav-tabs').length)
+							if (jQuery(\"body .nav-tabs\").length)
 							{
-								var element_section = jQuery('.nav-tabs');
-								if (!element_section.find('li .mj3_btnhelp').length)
+								var element_section = jQuery(\".nav-tabs\");
+								if (!element_section.find(\"li .mj3_btnhelp\").length)
 								{
-									element_section.append('<li class=\'mj3_btnhelp clearfix\'><a class=\'btn btn-default js-help-toggle\' href=\'\' data-toggle=\'tooltip\' data-original-title=\'Display Form help tips\'>" . ICON_MEDIUM_HELP_HTML . "</a></li>');
+									element_section.append('<li class=\"mj3_btnhelp clearfix\"><a class=\"btn btn-default js-help-toggle\" href=\"\" data-toggle=\"tooltip\" data-original-title=\"Display Form help tips\">" . ICON_MEDIUM_HELP_HTML . "</a></li>');
 								}//end if
-										
+
 								//remove where applicable
-								jQuery('.m3-options-disable-form-help-toggle').find('.mj3_btnhelp').remove();
+								jQuery(\".m3-options-disable-form-help-toggle\").find(\".mj3_btnhelp\").remove();
 							}//end if
 						}//end if
 
 						// help button
-						jQuery('.js-help-toggle').click(function (e) {
+						jQuery(\".js-help-toggle\").click(function (e) {
 							e.preventDefault();
-							jQuery('.help-block').toggle();
-							jQuery(this).toggleClass('active');
+							jQuery(\".help-block\").toggle();
+							jQuery(this).toggleClass(\"active\");
 						});
-											
+
 						//disable submit buttons
-						jQuery('#form').submit(function () {
-							jQuery('#form').find('.btn').attr('disabled', true);					
+						jQuery(\"#form\").submit(function () {
+							jQuery(\"#form\").find(\".btn\").attr(\"disabled\", true);
 						});
 					});";
 		$html .= "</script>";

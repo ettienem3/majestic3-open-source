@@ -13,6 +13,7 @@ use FrontPowerTools\Entities\FrontPowerToolsWebhookUrlEntity;
 use FrontPowerTools\Models\FrontPowerToolsWebhookHeadersModel;
 use FrontPowerTools\Models\FrontPowerToolsWebhookUrlsModel;
 use FrontPowerTools\Models\FrontPowerToolsWebhooksModel;
+use FrontPowerTools\Models\FrontPowerToolsCommsAutomationModel;
 use FrontPowerTools\Models\FrontPowerToolsNewsFeedModel;
 
 class Module
@@ -74,6 +75,11 @@ class Module
     					"FrontPowerTools\Models\FrontPowerToolsWebhookUrlsModel" => function ($sm) {
     						$model_webhook_urls = new FrontPowerToolsWebhookUrlsModel();
     						return $model_webhook_urls;
+    					}, //end function
+
+    					"FrontPowerTools\Models\FrontPowerToolsCommsAutomationModel" => function ($sm) {
+    						$model_comms_automation = new FrontPowerToolsCommsAutomationModel();
+    						return $model_comms_automation;
     					}, //end function
 
     					'FrontPowerTools\Models\FrontPowerToolsNewsFeedModel' => function ($sm) {
