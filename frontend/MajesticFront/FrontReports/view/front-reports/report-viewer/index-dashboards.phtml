@@ -1,0 +1,38 @@
+<div class="mj3_tables clearfix">
+
+<?php echo $this->renderStandardViewHeader(ICON_LARGE_PIE_CHART_HTML .'&nbsp; Dashboards'); ?>
+
+	<div class="mj3_table_contain clearfix">
+		<?php
+			foreach ($this->objReports as $objReport)
+			{
+				$arr_report["name"] = "<span title=\"" . $objReport->description . "\" data-toggle=\"tooltip\">" . $objReport->display_title . "</span>";
+				$arr_report["format"] = $objReport->report_generators_name;
+
+				switch($objReport->report_type)
+				{
+					case "report":
+						$arr_report["type"] = "Normal Report";
+						break;
+
+					case "composite":
+						$arr_report["type"] = "Composite Report";
+						break;
+
+					case "dashboard":
+						$arr_report["type"] = "Dashboard";
+						break;
+				}//end switch
+
+				$view_url = "<a href=\"" . $this->url("front-report-viewer", array("id" => $objReport->id, "action" => "report-viewer")) . "?type=" . $objReport->report_type . "&op=dashboard\" title=\"View Dashboard\" alt=\"View\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML  . "</a>";
+
+				$arr_report["urls"] = $view_url;
+				$arr[] = $arr_report;
+			}//end foreach
+
+			echo $this->renderDataTableHelper(array(), "dataTable1", "simple");
+			echo $this->renderSimpleHTMLTable($arr, array("Dashboard", "Format", "Type", "&nbsp;"));
+		?>
+	</div>
+
+</div>
