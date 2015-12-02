@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.1.0" client="site" method="upgrade">
+    <name>Majestic 3 Web Forms</name>
+    <author>J Du Plessis</author>
+    <version>1.0.0</version>
+    <description>Display and complete Majestic 3 Web Forms from your Joomla website</description>
+    <files>
+        <filename module="mod_majestic_forms">mod_majestic_forms.php</filename>
+		<folder>tmpl</folder>
+		<folder>classes</folder>
+    </files>
+	<config>
+	<fields name="params">
+		<fieldset name="config" label="Configure">
+			<field name="apiurl" type="text" label="API Location" required="true" description="Location to hit with requests" filter="text" />
+			<field name="apikey" type="text" label="API Key" required="true" description="API Key" filter="text" />
+			<field name="apiusername" type="text" label="Username" required="true" description="Username" filter="text" />
+			<field name="apipassword" type="password" label="Password" required="true" description="Password" filter="text" />
+			<field name="formid" type="text" label="Form ID" required="true" description="Form ID to serve" filter="text" />
+			<field name="cache_form" type="checkbox" label="Cache Form" value="1" description="Cache form locally for improved loading times" filter="text" />
+			<field name="cache_form_ttl" type="text" label="Cache Form TTL" value="86400" description="Cache form for a set period (Seconds)" filter="text" />
+			</fieldset>
+		</fields>
+    </config>
+</extension>

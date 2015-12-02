@@ -41,7 +41,7 @@ This project and its source code is made freely available for you to change, ada
 
 By no means what so ever will Majestic3.com, any of their employees and staff, any affiliates of their business, service providers, share holders, stake holders or consultants be held responsible for any problems, issues, service problems, environmental factors, experience levels, loss of business, financial loss, reputational risk and damage, intended and unintended failures, loss of information either by security leaks, hacks, improper design, invalid certificates, man in the middle attackes, the list goes. The software is provided as is and with no warrenties or guarentees.
 
-In summary, we will not be held responsible for anything.
+In summary, we will not be held responsible for anything and by using any of the code provided, you agree to the terms and conditions.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
