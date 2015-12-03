@@ -6,7 +6,7 @@ namespace FrontCore\Adapters;
  * @author ettiene
  *
  */
-abstract class AbstractEntityAdapter
+abstract class AbstractEntityAdapter extends AbstractCoreAdapter
 {
 	/**
 	 * Container for data
@@ -25,6 +25,12 @@ abstract class AbstractEntityAdapter
 	 * @var object
 	 */
 	protected $objHyperMedia = FALSE;
+
+	/**
+	 * Container for the User Date Format Helper
+	 * @var \FrontCore\ViewHelpers\FrontFormatUserDateHelper
+	 */
+	protected $objUserDateFormatHelper;
 
 	/**
 	 * Save object hypermedia to seperate section
@@ -84,6 +90,15 @@ abstract class AbstractEntityAdapter
 	}//end function
 
 	/**
+	 * Return data as array for submission to the API
+	 * @return array
+	 */
+	public function getDataForSubmit()
+	{
+		return $this->getArrayCopy();
+	}//end function
+
+	/**
 	 * Check if data has been amended since data has been loaded.
 	 * Useful to reduce database writes
 	 * @return boolean
@@ -122,7 +137,7 @@ abstract class AbstractEntityAdapter
 		{
 			return FALSE;
 		}//end if
-		
+
 		return $this->objData->$key;
 	}//end function
 
@@ -172,18 +187,18 @@ abstract class AbstractEntityAdapter
 	public function remove($key)
 	{
 		$value = $this->get($key);
-	
+
 		//data object does not exist yet
 		if ($value === FALSE)
 		{
 			return FALSE;
 		}//end if
-	
+
 		unset($this->objData->$key);
-	
+
 		return $value;
 	}//end function
-	
+
 	/**
 	 * Request hypermedia data
 	 * @param string $key
@@ -203,5 +218,19 @@ abstract class AbstractEntityAdapter
 		}//end if
 
 		return $this->objHyperMedia->$key;
+	}//end function
+
+	/**
+	 * Create an instance of the User Date Format Helper
+	 * @return \FrontCore\ViewHelpers\FrontFormatUserDateHelper
+	 */
+	protected function getUserDateFormatHelper()
+	{
+		if (!$this->objUserDateFormatHelper)
+		{
+			$this->objUserDateFormatHelper = $this->getServiceLocator()->get("FrontCore\ViewHelpers\FrontFormatUserDateHelper");
+		}//end if
+
+		return $this->objUserDateFormatHelper;
 	}//end function
 }//end class

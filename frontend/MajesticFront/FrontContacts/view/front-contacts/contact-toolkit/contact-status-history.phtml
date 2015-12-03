@@ -67,8 +67,13 @@ foreach ($this->objContactStatusData as $objStatus)
 		continue;
 	}//end if
 
+	//set date
+	$date = $this->renderFormatUserDate(array("date" =>  $objStatus->get("tstamp"), "options" => array(
+			"output_format" => "d M Y H:i",
+	)));
+	
 	echo "<tr>";
-	echo 	"<td>" . date("d/m/Y H:m", $objStatus->get("tstamp")) . "</td>";
+	echo 	"<td>" . $date . "</td>";
 	echo	"<td><span style=\"color: " . $objStatus->get("registration_status_colour") . "\">" . $objStatus->get("registration_status_status") . "</span></td>";
 	echo 	"<td>" . $arr_descriptions[$objStatus->get("behaviour")] . "</td>";
 	if ($objStatus->get("users_uname") != "")

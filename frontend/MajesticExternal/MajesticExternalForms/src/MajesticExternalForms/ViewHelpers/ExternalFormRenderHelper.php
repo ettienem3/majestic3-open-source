@@ -36,7 +36,7 @@ class ExternalFormRenderHelper extends AbstractHelper
 		if ($objForm->stylesheet != "")
 		{
 //@TODO set path for uploaded files
-			//$view->headLink()->appendStylesheet($view->basePath() . "???");
+			$view->headLink()->appendStylesheet($view->basePath() . "/css/frontcss/test_form_style.css");
 		}//end if
 
 		//check if form top content is defined
@@ -327,7 +327,7 @@ class ExternalFormRenderHelper extends AbstractHelper
 					if ($form->get($field)->getAttribute("required") == "required")
 					{
 						$html .= "<span class=\"required-input\">*</span>";
-					}//end if
+					}//end if 
 
 					//add element errors where set
 					if (count($form->get($field)->getMessages()) > 0)

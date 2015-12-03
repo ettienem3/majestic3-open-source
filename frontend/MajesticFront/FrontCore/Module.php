@@ -9,7 +9,6 @@ use Zend\Session\Container;
 
 use FrontCore\Events\FrontCoreEvents;
 use FrontCore\Models\ApiRequestModel;
-use FrontCore\Models\ApiRequestModelComplete;
 use FrontCore\Models\ApiRequestFormsModel;
 use FrontCore\Models\SystemFormsModel;
 use FrontCore\Models\FrontCoreNavigation;
@@ -32,6 +31,8 @@ use FrontCore\ViewHelpers\FrontStandardViewFormHelpButtonHelper;
 use FrontCore\Models\FrontCoreSecurityModel;
 use FrontCore\Events\FrontCoreSystemFormEvents;
 use FrontCore\Models\Security\CryptoModel;
+use FrontCore\ControllerHelpers\FrontControllerExceptionErrorHelper;
+use FrontCore\ViewHelpers\FrontFormatUserDateHelper;
 
 class Module
 {
@@ -211,6 +212,11 @@ class Module
 						'frontFormHelper' => function ($sm) {
 							$plugin_front_controller_form_helper = new FrontControllerFormErrorHelper();
 							return $plugin_front_controller_form_helper;
+						}, //end function
+
+						'frontControllerErrorHelper' => function ($sm) {
+							$plugin = new FrontControllerExceptionErrorHelper();
+							return $plugin;
 						}, //end function
     				),
     	);
@@ -455,6 +461,16 @@ class Module
     			"renderStandardViewHeader" => function (AbstractPluginManager $pluginManager) {
     				return new FrontStandardViewHeaderHelper();
     			}, //end function
+
+    			/**
+    			 * Convert dates for display based on user timezone
+    			 */
+    			"renderFormatUserDate" => function (AbstractPluginManager $pluginManager) {
+    				$objHelper = new FrontFormatUserDateHelper();
+    				$arr_config = $pluginManager->getServiceLocator()->get("config")["profile_config"];
+    				$objHelper->setProfileConfig($arr_config);
+    				return $objHelper;
+    			},
     		),
     	);
     }//end function
@@ -561,6 +577,7 @@ class Module
     			case "delete":
     				$additional_style = "color: red;";
     				break;
+
     		} //end switch
 
     		$icon = str_replace("-", "_", strtoupper($icon));

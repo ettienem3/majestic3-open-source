@@ -17,7 +17,6 @@ if ($objActivePage instanceof \Zend\Navigation\Page\Mvc && $objActivePage->getRo
 <!--<nav class="mj3-sidebar hidden-print hidden-xs hidden-sm">
 	<ul class="nav bs-docs-sidenav">
 		<?php
-//right hand side menu disabled, confuses most people (faceplam)...
 		$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 
 // 		if ($objActivePage->hasChildren())
@@ -114,4 +113,12 @@ ob_end_clean();
 </script>
 <?php
 }//end if
+
+/**
+ * Newsfeeder
+ */
+// if ($this->resolver("front-newsfeed-panel") && isset($this->app_config["profile_config"]["news_feed_credentials"]))
+// {
+// 	echo $this->render("front-newsfeed-panel");
+// }//end if
 

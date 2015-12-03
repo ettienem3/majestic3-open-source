@@ -59,7 +59,8 @@ class IndexController extends AbstractActionController
 	    	$arr_return["form_url"] = $this->url()->fromRoute("majestic-external-forms/bf", array("fid" => $form_id));
     	} catch (\Exception $e) {
 //@TODO do something with the error
-var_dump($e->getMessage() . " : " . $e->getPrevious()); exit;
+// var_dump($e->getMessage() . " : " . $e->getPrevious()); exit;
+			die("The requested form could not be loaded. Response: " . $this->frontControllerErrorHelper()->formatErrors($e));
     	}//end catch
 
     	if ($arr_return["objFormRawData"]->secure_form == "1")
@@ -353,9 +354,14 @@ var_dump($e->getMessage() . " : " . $e->getPrevious()); exit;
 			if ($form->isValid($request->getPost()))
 			{
 				try {
-					//submit the form
-					$objResult = $this->getExternalFormsModel()->processFormSubmit($form_id, $form->getData(), $arr_additional_params);
-					$arr_return["submit_result"] = "OK";
+					if ($this->params()->fromQuery("simulate", 0) == 1)
+					{
+						$arr_return["submit_result"] = "OK";
+					} else {
+						//submit the form
+						$objResult = $this->getExternalFormsModel()->processFormSubmit($form_id, $form->getData(), $arr_additional_params);
+						$arr_return["submit_result"] = "OK";
+					}//end if
 				} catch (\Exception $e) {
 					//extract errors from the request return by the API
 					$arr_response = explode("||", $e->getMessage());

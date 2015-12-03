@@ -8,8 +8,15 @@ foreach ($this->objUserTasks as $objUserTask)
 
 	$arr_task["contact"] = "<a href=\"" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objUserTask->get("reg_id"))) . "\" class=\"toolkit_iframe_parent_link\" title=\"View Contact\" data-toggle=\"tooltip\">" . $objUserTask->get("registrations_fname") . " " . $objUserTask->get("registrations_sname") . "</a>";
 	$arr_task["content"] = $objUserTask->get("content");
-	$arr_task["created"] = $objUserTask->get("datetime_created");
-	$arr_task["due"] = $objUserTask->get("datetime_reminder");
+	
+	//set date
+	$arr_task["created"] = $this->renderFormatUserDate(array("date" =>  $objUserTask->get("datetime_created"), "options" => array(
+			"output_format" => "d M Y",
+	)));
+
+	$arr_task["due"] = $this->renderFormatUserDate(array("date" =>  $objUserTask->get("datetime_reminder"), "options" => array(
+			"output_format" => "d M Y",
+	)));
 
 	if ($objUserTask->get("set_by_user_uname") == "")
 	{

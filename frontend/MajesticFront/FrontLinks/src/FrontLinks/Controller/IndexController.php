@@ -142,7 +142,7 @@ class IndexController extends AbstractActionController
 					$this->flashMessenger()->addSuccessMessage("Link deleted");
 				} catch (\Exception $e) {
 					//set error message
-					$this->flashMessenger()->addErrorMessage($e->getMessage());
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 
@@ -185,7 +185,7 @@ class IndexController extends AbstractActionController
     		$this->flashMessenger()->addSuccessMessage("Link Status Updated");
     	} catch ( \Exception $e) {
     		//set message
-    		$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     	}//end if
 
     	//redirect to index page

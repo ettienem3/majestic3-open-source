@@ -203,7 +203,13 @@
 					break;
 			}//end switch
 
-			$delete_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "delete-form", "id" => $objForm->id)) . "\" title=\"Delete Form\" data-toggle=\"tooltip\" class=\"\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			if ($objForm->flag_prevent_delete > 0)
+			{
+				$delete_url = "<span title=\"Form cannot be removed, it has been completed already and is linked to contact data\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</span>";
+			} else {
+				$delete_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "delete-form", "id" => $objForm->id)) . "\" title=\"Delete Form\" data-toggle=\"tooltip\" class=\"\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			}//end if
+			
 			$arr_form["urls"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $preview_url . "&nbsp;" . $delete_url;
 			$arr[] = $arr_form;
 		}//end function

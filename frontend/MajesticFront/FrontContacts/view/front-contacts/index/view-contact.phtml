@@ -75,7 +75,21 @@
 				</tr>
 				<tr>
 					<th>Last Updated</th>
-					<td><?php echo $this->objContact->get("datetime_updated"); ?></td>
+					<td><?php 
+							echo $this->renderFormatUserDate(array("date" => $this->objContact->get("datetime_updated"), "options" => array(
+								"output_format" => "d M Y H:i",
+							)));
+							?>
+					</td>
+				</tr>
+				<tr>
+					<th>In Profile Since</th>
+					<td><?php 
+							echo $this->renderFormatUserDate(array("date" => $this->objContact->get("datetime_created"), "options" => array(
+								"output_format" => "d M Y H:i",
+							)));
+							?>
+					</td>
 				</tr>
 			</table>
 			<button type="button" id="contact-system-fields-update" class="btn btn-primary">Update</button>

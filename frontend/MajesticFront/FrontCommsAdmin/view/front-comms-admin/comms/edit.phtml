@@ -1,8 +1,7 @@
 <div class="mj3_tables clearfix">
 <?php
 echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . ' &nbsp; Edit Communication ' . $this->objCommAdmin->get("comm_num"));
-//add comms admin js
-// echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/includes/comms-admin.js');
+
 // //add editor js
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');

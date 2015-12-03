@@ -1,19 +1,31 @@
 <?php
-	/**
-	 * Generate header file
-	 */
-// 	echo $this->partial('layout/header');
-	echo $this->partial('layout/forms/header');
+echo $this->doctype();
 ?>
-<div>
-	<!-- notifications -->
-		<?php echo $this->partial("layout/flash-messages");?>
-	<!-- External content -->
-	<?php echo $this->content; ?>
-</div><!-- div place holder -->
-
-
-<?php echo $this->partial("layout/api-data");?>
+<html>
+	<?php 
+	echo $this->partial('layout/forms/header');
+	?>
+	<body>
+		<div class="wrapper">
+			<!-- Main content -->
+			<div class="col-md-9 m3-content-section-main" role="main">
+				<div class="bs-docs-section">
+					<!-- notifications -->
+					<?php echo $this->partial("layout/flash-messages");?>
+					<!-- External content -->
+					<?php echo $this->content; ?>
+					
+					<?php
+					if ($_GET["debug_display_errors"] == 1)
+					{
+						echo $this->partial("layout/api-data");
+					}//end if
+					?>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
 
 
 

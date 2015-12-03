@@ -1,8 +1,17 @@
 @CHARSET "UTF-8";
+
 /* External forms overides */
 body {
 	margin: 8px;
 }
+
+.wrapper {
+  display: block;
+  margin: 0 12px;
+  padding: 40px 0 0;
+  width: auto;
+}
+
 .mj3_webform form {
 	margin: 0;
 	padding: 0;

@@ -69,16 +69,16 @@
 			//set download options
 			if (objData.objReport.data.report.pdf_download == "1")
 			{
-				jQuery(".report_download_mode_pdf").attr("disabled", false);
+				jQuery(".report_download_mode_pdf").show();
 			} else {
-				jQuery(".report_download_mode_pdf").attr("disabled", true);
+				jQuery(".report_download_mode_pdf").hide();
 			}//end if
 
 			if (objData.objReport.data.report.csv_download == "1")
 			{
-				jQuery(".report_download_mode_csv").attr("disabled", false);
+				jQuery(".report_download_mode_csv").show();
 			} else {
-				jQuery(".report_download_mode_csv").attr("disabled", true);
+				jQuery(".report_download_mode_csv").hide();
 			}//end if
 
 			//perform some last minute operations
@@ -329,8 +329,8 @@
 			<div class="form-group form-element-report_download">
 				<label for="report_download">Report Mode</label>
 				Normal &nbsp;<input type="radio" class="report_download_mode" name="report_download_mode" value="0" checked="checked" title="Report is displayed on this page" data-toggle="tooltip"/>
-				CSV &nbsp;<input type="radio" class="report_download_mode report_download_mode_csv" name="report_download_mode" value="1" title="An attempt is made to format report data into a CSV file" data-toggle="tooltip"/>
-				PDF &nbsp;<input type="radio" class="report_download_mode report_download_mode_pdf" name="report_download_mode" value="2" title="An attempt is made to download the report contents in a PDF file"  data-toggle="tooltip"/>
+				<span class="report_download_mode_csv">CSV &nbsp;<input type="radio" class="report_download_mode" name="report_download_mode" value="1" title="An attempt is made to format report data into a CSV file" data-toggle="tooltip"/></span>
+				<span class="report_download_mode_pdf">PDF &nbsp;<input type="radio" class="report_download_mode" name="report_download_mode" value="2" title="An attempt is made to download the report contents in a PDF file"  data-toggle="tooltip"/></span>
 			</div>
 		</div>
 	</div>

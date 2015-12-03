@@ -38,7 +38,6 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 			$objUserEntity = $objUserStorage->fetchUserData(array(
 				"uname" => $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $uname, array()),
 				"pword" => $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", md5($pword), array()),
-				//new \Zend\Db\Sql\Predicate\Operator("expires", ">", time()),
 			));
 
 			if (is_object($objUserEntity))
@@ -52,8 +51,35 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 				//set login timeout
 				$objUserSession->createUserSession($objUserSettings->get("data"));
 
-				//trigger background update of user data...
-				//@TODO
+				//trigger background update of stored user and profile data...
+				if (method_exists($objUserStorage, 'resetUserDataOnLogin'))
+				{
+					//enable delayed api request
+					$this->setDelayedProcessingFlag(TRUE);
+
+					if ($this->getDelayedProcessingFlag() === TRUE)
+					{
+						$this->getServiceLocator()->get("FrontCLI\Models\FrontCLIControllerModel")->requestCLIAction(
+								"CoreModelAction",
+								(object) array(
+										"model" => __CLASS__,
+										"function" => 'cliLogin',
+										"data" => array(
+												array(
+														"name" => "arr_data",
+														"type" => 'array',
+														"data" => $arr_data
+												),
+										)
+								)
+						);
+						$this->setDelayedProcessingFlag(FALSE);
+					} else {
+						//cli not available, do manually...
+						$this->cliLogin(array("uname" => $arr_data["uname"], "pword" => ($arr_data["pword"]), 'api_key' => $objUserSettings->get("data")->api_key));
+					}//end if
+				}//end if
+
 				return $objUserSettings;
 			}//end if
 		}//end if
@@ -92,6 +118,9 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 			$objUser = $objApiRequest->performPOSTRequest($arr_data)->getBody();
 		}//end if
 
+		//create session for user
+		$objUserSession = $this->getUserSessionContainer();
+		
 		//save data to local storage
 		if ($objUserStorage instanceof \FrontUsers\Storage\UserMySqlStorage)
 		{
@@ -99,13 +128,60 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 			$objUser->data->pword_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", md5($pword), array());
 			$objUser->data->profile_identifier_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $objUser->data->profile->profile_identifier, array());
 			$objUserStorage->setUserData($objUser->data);
+			
+			//clear menu cache
+			if (isset($objUserSession->main_menu_html) && is_array($objUserSession->main_menu_html))
+			{
+				$objUserSession->main_menu_html = FALSE;
+			}//end if
 		}//end if
-
-		//create session for user
-		$objUserSession = $this->getUserSessionContainer();
 
 		//set login timeout
 		$objUserSession->createUserSession($objUser->data);
+
+		return $objUser;
+	}//end function
+
+	public function cliLogin($arr_data)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("user/authenticate");
+		//set dummy data to allow request to go through
+		$objApiRequest->setAPIKey($arr_data["api_key"]);
+		$objApiRequest->setAPIUser($arr_data["uname"]);
+		$objApiRequest->setAPIUserPword($arr_data["pword"]);
+
+		//execute
+		$objUser = $objApiRequest->performPOSTRequest(array(
+				"uname" => $arr_data["uname"],
+				"pword" => $arr_data["pword"],
+		))->getBody();
+		
+		//init user local storage
+		$objUserStorage = \FrontUserLogin\Models\FrontUserSession::getUserLocalStorageObject();
+	
+		//save data to local storage
+		if ($objUserStorage instanceof \FrontUsers\Storage\UserMySqlStorage)
+		{
+			$objUser->data->uname_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $arr_data["uname"], array());
+			$objUser->data->pword_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", md5($arr_data["pword"]), array());
+			$objUser->data->profile_identifier_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $objUser->data->profile->profile_identifier, array());
+			
+			//read user data
+			$objUserStorage->setUserData($objUser->data);
+			$objUserEntity = $objUserStorage->readData("");
+			//clear user settings
+			$objUserStorage->clearUserSettings();
+			//save data
+			$objUserStorage->saveUserSettings(NULL);
+		}//end if
+		
+		//create session for user
+ 		$objUserSession = $this->getUserSessionContainer();
+ 		$objUserSession->createUserSession($objUser->data);
 
 		return $objUser;
 	}//end function

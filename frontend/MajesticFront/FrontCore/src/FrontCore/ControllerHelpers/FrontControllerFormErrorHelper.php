@@ -58,6 +58,20 @@ class FrontControllerFormErrorHelper extends AbstractPlugin
 					$objForm->get($field)->setMessages($arr);
 				}//end foreach
 			}//end if
+//@TODO this should be removed once confirmed that data is not being received in this var
+if (isset($objResponse->data->error_message))
+{
+	foreach ($objResponse->data->error_message as $field => $objErrors)
+	{
+		$arr = array();
+		foreach ($objErrors as $key => $error)
+		{
+			$arr[] = $error;
+		}//end if
+
+		$objForm->get($field)->setMessages($arr);
+	}//end foreach
+}//end if
 		}//end if
 
 		return $objForm;

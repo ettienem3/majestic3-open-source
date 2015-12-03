@@ -119,8 +119,11 @@ class FrontCommsAdminModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("comms/admin/comms");
 
+		//extract data
+		$arr_data = $objCommAdmin->getDataForSubmit();
+
 		//execute
-		$objCommAdmin  = $objApiRequest->performPOSTRequest($objCommAdmin->getArrayCopy())->getBody();
+		$objCommAdmin  = $objApiRequest->performPOSTRequest($arr_data)->getBody();
 
 		//recreate the commdate entity
 		$objCommAdmin = $this->createCommAdminEntity($objCommAdmin->data);
@@ -149,8 +152,11 @@ class FrontCommsAdminModel extends AbstractCoreAdapter
 		$objApirequest->setApiAction($objCommAdmin->getHyperMedia("edit-comm")->url);
 		$objApirequest->setApiModule(NULL);
 
+		//extract data
+		$arr_data = $objCommAdmin->getDataForSubmit();
+
 		//execute
-		$objCommAdmin = $objApirequest->performPUTRequest($objCommAdmin->getArrayCopy())->getBody();
+		$objCommAdmin = $objApirequest->performPUTRequest($arr_data)->getBody();
 
 		//recreate the commAdmin entity
 		$objCommAdmin = $this->createCommAdminEntity($objCommAdmin->data);
@@ -160,15 +166,15 @@ class FrontCommsAdminModel extends AbstractCoreAdapter
 
 		return $objCommAdmin;
 	}//end function
-	
+
 	public function updateCommStatus($id)
 	{
 		//create the request object
 		$objApirequest = $this->getApiRequestModel();
-		
+
 		//setup the object and specify the action
 		$objApirequest->setApiAction("comms/admin/comm-status/$id");
-		
+
 		//execute
 		//1 = dummy value
 		$objCommAdmin = $objApirequest->performPUTRequest(array("status" => 1))->getBody();

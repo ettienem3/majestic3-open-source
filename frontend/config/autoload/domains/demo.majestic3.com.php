@@ -33,6 +33,7 @@ return array(
 
 		/**
 		 * Comment this array to run with NO db installed and local storage disabled
+		 * Note, frontend_db_config must be set and database must be available, if not, you will encounter and error
 		 */
 		'logged_in_user_settings' => array(
 				'storage_enabled' => TRUE,
@@ -41,6 +42,7 @@ return array(
 
 		/**
 		 * Uncomment this block to enable local storage but not using the db details above
+		 * Note, this uses the local data folder to store data
 		 */
 // 		'logged_in_user_settings' => array(
 // 				'storage_enabled' => TRUE,

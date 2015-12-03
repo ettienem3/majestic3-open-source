@@ -4,6 +4,9 @@
 		<?php if (isset($this->reg_id) && $this->reg_id != "" && $this->form_posted !== TRUE) : ?>
 		loadContact();
 		<?php endif;?>
+
+		//bootstrap form
+		jQuery(".form-element").addClass("form-group");
 	});
 
 	<?php if (isset($this->reg_id) && $this->reg_id != "" && $this->form_posted !== TRUE) : ?>
@@ -39,6 +42,14 @@
 	}//end function
 	<?php endif;?>
 </script>
+
+<?php
+//check look and feel css file
+if (isset($this->objLookAndFeel) && $this->objLookAndFeel->css_file != "")
+{
+	echo '<link href="' . $this->objLookAndFeel->css_file . '" media="screen" rel="stylesheet" type="text/css">';
+}//end if
+?>
 
 <div class="mj3_tables clearfix">
 	<div class="mj3_webform">

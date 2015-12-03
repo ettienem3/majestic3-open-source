@@ -240,13 +240,10 @@ class IndexController extends AbstractActionController
 					$this->flashMessenger()->addSuccessMessage("Form deleted successfully");
 				} catch (\Exception $e) {
 					//set error message
-					$this->flashMessenger()->addErrorMessage($e->getMessage());
-
-					//return to index page
-					return $this->redirect()->toRoute("front-form-admin");
+					$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
-
+			
 			//return to index page
 			return $this->redirect()->toRoute("front-form-admin");
 		}//end if

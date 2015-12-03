@@ -63,8 +63,6 @@ class CommsController extends AbstractActionController
     	$form->get("journey_id")->setValue($this->journey_id);
     	//default to email type
     	$form->get("comm_via_id")->setValue(1);
-    	//remove the comm number value
-    	$form->remove("comm_num");
     	//remove public holiday field for now
     	if ($form->has("not_send_public_holidays"))
     	{
@@ -88,8 +86,6 @@ class CommsController extends AbstractActionController
     		{
     			try {
     				$arr_data = $form->getData();
-    				//set dummy value for the comm number
-    				$arr_data["comm_num"] = 1;
     				$arr_data["not_send_public_holidays"] = 1;
 
     				//create the CommAdmin
@@ -163,14 +159,14 @@ class CommsController extends AbstractActionController
     	/**
     	 * Check some data conditions
     	 */
-    	if ($objCommAdmin->get("date_expiry") == "0000-00-00" || $objCommAdmin->get("date_expiry") == "00-00-0000")
+    	if ($objCommAdmin->get("date_expiry") == "0000-00-00" || $objCommAdmin->get("date_expiry") == "00-00-0000" || $objCommAdmin->get("date_expiry") == "")
     	{
-    		$objCommAdmin->set("date_expiry", "");
+     		$objCommAdmin->set("date_expiry", "");
     	}//end if
 
-    	if ($objCommAdmin->get("date_start") == "0000-00-00" || $objCommAdmin->get("date_start") == "00-00-0000")
+    	if ($objCommAdmin->get("date_start") == "0000-00-00" || $objCommAdmin->get("date_start") == "00-00-0000" || $objCommAdmin->get("date_start") == "")
     	{
-    		$objCommAdmin->set("date_start", "");
+     		$objCommAdmin->set("date_start", "");
     	}//end if
 
     	//load the form
@@ -184,6 +180,23 @@ class CommsController extends AbstractActionController
 
     	//bind the data
     	$form->bind($objCommAdmin);
+
+    	//set expiry date
+    	if ($form->has("date_expiry") && $objCommAdmin->get("date_expiry") != "")
+    	{
+    		if ($objCommAdmin->get("date_expiry") != "0000-00-00")
+    		{
+    			$form->get("date_expiry")->setValue($objCommAdmin->get("date_expiry"));
+    		}//end if
+    	}//end if
+
+    	if ($form->has("date_start") && $objCommAdmin->get("date_start") != "")
+    	{
+    		if ($objCommAdmin->get("date_start") != "0000-00-00")
+    		{
+    			$form->get("date_start")->setValue($objCommAdmin->get("date_start"));
+    		}//end if
+    	}//end if
 
     	$request = $this->getRequest();
     	if ($request->isPost())
@@ -428,8 +441,19 @@ class CommsController extends AbstractActionController
     		//set the success message
     		$this->flashMessenger()->addSuccessMessage("Communication Status updated");
     	} catch (\Exception $e) {
-    		//set message
-    		$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//extract error
+    		$arr_t = explode("||", $e->getMessage());
+    		$json = array_pop($arr_t);
+    		$objResult = json_decode($json);
+    		if (is_object($objResult))
+    		{
+    			$arr_t = explode(":", $objResult->HTTP_RESPONSE_MESSAGE);
+    			$m = array_pop($arr_t);
+    			$this->flashMessenger()->addErrorMessage($m);
+    		} else {
+    			//set message
+    			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		}//end if
     	}//end catch
 
     	//redirect to indexpage
@@ -499,55 +523,55 @@ class CommsController extends AbstractActionController
     		return array(
     			"days" => $send_days,
     			"hours" => $send_hours,
-    			"minutes" => $send_mins,	
+    			"minutes" => $send_mins,
     		);
     	}//end if
-    	
+
     	switch ($send_days)
     	{
     		case 1:
 				$days = $send_days . " Day";
     			break;
-    			
+
     		case 0:
     			$days = "";
     			break;
-    			
+
     		default:
     			$days = $send_days . " Days";
     			break;
     	}//end switch
-    	
+
     	switch ($send_hours)
     	{
     		case 1:
     			$hours = $send_hours . " Hour";
     			break;
-    			 
+
     		case 0:
     			$hours = "0 Hours";
     			break;
-    			 
+
     		default:
     			$hours = $send_hours . " Hours";
     			break;
     	}//end switch
-    	
+
     	switch ($send_mins)
     	{
     		case 1:
     			$mins = $send_mins . " Minute";
     			break;
-    	
+
     		case 0:
     			$mins = "0 Minutes";
     			break;
-    	
+
     		default:
     			$mins = $send_mins . " Minutes";
     			break;
     	}//end switch
-    	
+
     	return $days . " " . $hours . " " . $mins;
     }//end function
 

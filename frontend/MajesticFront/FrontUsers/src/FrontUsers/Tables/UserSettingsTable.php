@@ -61,4 +61,9 @@ class UserSettingsTable extends AbstractCoreAdapter
 			$this->tableGateway->update($arr_data, array("fk_id_users" => $objSettings->get("fk_id_users")));
 		}//end if
 	}//end function
+	
+	public function deleteUserSettings($id)
+	{
+		$this->tableGateway->delete(array("fk_id_users" => $id));
+	}//end function
 }//end class

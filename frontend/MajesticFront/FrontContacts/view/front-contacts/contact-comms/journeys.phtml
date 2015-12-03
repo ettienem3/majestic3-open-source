@@ -117,7 +117,10 @@ foreach ($this->objJourneys as $objJourney)
 
 	//add start link to every journey
 	echo "<td>";
-	echo 	"<a class=\"span-journey-start\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-start-journey", "comms_id" => $objJourney->id )) . "\" alt=\"Start " . $objJourney->journey . "\">Start</a>";
+	if (!array_key_exists($objJourney->id, $arr_contact_journeys))
+	{
+		echo 	"<a class=\"span-journey-start\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-start-journey", "comms_id" => $objJourney->id )) . "\" alt=\"Start " . $objJourney->journey . "\">Start</a>";
+	}//end if
 	echo "</td>";
 
 	//check if the contact has received this journey already
@@ -128,9 +131,9 @@ foreach ($this->objJourneys as $objJourney)
 		echo 		"<tr>";
 		echo 			"<th>&nbsp;</th>";
 		echo 			"<th>Status</th>";
-		echo 			"<th>Next Comm</th>";
+		echo 			"<th>Next</th>";
 		echo			"<th>Started</th>";
-		echo 			"<th>Latest</th>";
+		//echo 			"<th>Latest</th>";
 		//echo 			"<th>History</th>"; //@TODO build history links
 		echo 		"</tr>";
 		$journey_count = 0;
@@ -161,9 +164,19 @@ foreach ($this->objJourneys as $objJourney)
 				echo 	"<td>" . $objContactJourney->comm_status_data_status . "</td>";
 			}//end if
 
+			//set started date
+			$date_started = $this->renderFormatUserDate(array("date" =>  $objContactJourney->tstamp, "options" => array(
+					"output_format" => "d M Y H:i",
+			)));
+
+			//set latest date
+			$date_latest = $this->renderFormatUserDate(array("date" =>  $objContactJourney->datetime_last, "options" => array(
+					"output_format" => "d M Y H:i",
+			)));
+
 			echo	"<td align=\"center\">" . $objContactJourney->next_comm . "</td>";
-			echo 	"<td>" . date("d/m/Y H:m:s", $objContactJourney->tstamp) . "</td>";
-			echo 	"<td>" . $objContactJourney->datetime_last . "</td>";
+			echo 	"<td>" . $date_started . "</td>";
+			//echo 	"<td>" . $date_latest . "</td>";
 			//echo 	"<td>history link here</td>";
 			echo "</tr>";
 

@@ -67,7 +67,7 @@ jQuery(document).ready(function () {
 		    '//cdn-aws.majestic3.com/bootstrap/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
 		], function () {
 				jQuery("#date_expiry").datepicker({
-					format: "yyyy-mm-dd",
+					format: jQuery("#date_expiry").attr("data-info-date-format"),
 					clearBtn: true,
 					todayHighlight: true,
 					autoclose: true,
@@ -76,7 +76,7 @@ jQuery(document).ready(function () {
 			});
 	} else {
 		jQuery("#date_expiry").datepicker({
-			format: "yyyy-mm-dd",
+			format: jQuery("#date_expiry").attr("data-info-date-format"),
 			clearBtn: true,
 			todayHighlight: true,
 			autoclose: true,

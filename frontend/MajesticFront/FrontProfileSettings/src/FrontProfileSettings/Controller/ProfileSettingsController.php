@@ -28,6 +28,9 @@ class ProfileSettingsController extends AbstractActionController
         //bind data to form
         $form->bind($objProfile);
         
+        //set form values from profile settings segment
+        $form->get("locale_timezone")->setValue($objProfile->get("settings")->locale_timezone);
+        
         return array(
         	"form" => $form,	
         	"objProfile" => $objProfile,

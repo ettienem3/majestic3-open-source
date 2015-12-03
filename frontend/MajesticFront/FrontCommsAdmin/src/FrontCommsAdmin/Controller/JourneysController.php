@@ -106,19 +106,26 @@ class JourneysController extends AbstractActionController
 		//load the journey details
 		$objJourney = $this->getJourneysModel()->fetchJourney($id);
 
-		/**
-		 * Perform some data checks
-		 */
-			if ($objJourney->get("date_expiry") == "0000-00-00" || $objJourney->get("date_expiry") == "00-00-0000")
-			{
-				$objJourney->set("date_expiry", "");
-			}//end if
-
 		//load the form
 		$form = $this->getJourneysModel()->getJourneysForm();
 
 		//bind the data
 		$form->bind($objJourney);
+
+		/**
+		 * Perform some data checks
+		 */
+		if ($form->has("date_expiry"))
+		{
+			if ($objJourney->get("date_expiry") == "0000-00-00" || $objJourney->get("date_expiry") == "00-00-0000" || $objJourney->get("date_expiry") == "")
+			{
+				$date = "";
+			} else {
+				$date = $objJourney->get("date_expiry");
+			}//end if
+
+			$form->get("date_expiry")->setValue($date);
+		}//end if
 
 		$request = $this->getRequest();
 		if ($request->isPost()) {

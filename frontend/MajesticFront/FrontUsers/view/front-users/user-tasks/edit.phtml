@@ -7,13 +7,13 @@
 		jQuery(document).ready(function () {
 			//configure date fields to use date picker
 			jQuery("#datetime_reminder").datetimepicker({
-				format: "Y-m-d H:i",
+				format: "d M Y H:i:s",
 				step: 15,
 				closeOnDateSelect: false,
 			}).attr("readonly", "readonly");
 
 			jQuery("#date_email_reminder").datepicker({
-				format: "yyyy-mm-dd",
+				format: jQuery("#date_email_reminder").attr("data-info-date-format"),
 				clearBtn: true,
 				todayHighlight: true,
 				autoclose: true,

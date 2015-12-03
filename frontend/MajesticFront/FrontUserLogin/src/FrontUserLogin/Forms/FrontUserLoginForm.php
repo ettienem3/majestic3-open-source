@@ -13,7 +13,7 @@ class FrontUserLoginForm extends Form
 		//set form to submit method
 		$this->setAttribute("method", "post");
 		$this->setAttribute("class", "user-login-form");
-
+	
 		$this->add(array(
 				"name" => "uname",
 				"attributes" => array(
@@ -28,7 +28,7 @@ class FrontUserLoginForm extends Form
 						array('name' => 'Zend\Filter\StringTrim'),
 						array('name' => 'Zend\Filter\StripTags'),
 				),
-
+				
 				'validators' => array(
 						'stringLength' => array(
 								'name' => 'StringLength',
@@ -55,7 +55,7 @@ class FrontUserLoginForm extends Form
 						array('name' => 'Zend\Filter\StringTrim'),
 						array('name' => 'Zend\Filter\StripTags'),
 				),
-
+				
 				'validators' => array(
 						'stringLength' => array(
 								'name' => 'StringLength',
@@ -67,13 +67,13 @@ class FrontUserLoginForm extends Form
 
 				),
 		));
-
+		
 		$this->add(array(
 				"name" => "submit",
 				"attributes" => array(
 						"value" => "Login",
 				),
-
+		
 				"options" => array(
 						"ignore" => TRUE,
 				),

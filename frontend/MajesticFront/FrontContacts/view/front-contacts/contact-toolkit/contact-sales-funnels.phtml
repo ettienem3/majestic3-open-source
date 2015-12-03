@@ -38,9 +38,14 @@ foreach ($this->objSalesFunnels as $objForm)
 		$form_name = $objForm->get("forms_form");
 	}//end if
 
+	//set date
+	$date = $this->renderFormatUserDate(array("date" =>  $objForm->get("tstamp"), "options" => array(
+			"output_format" => "d M Y H:i",
+	)));
+	
 	echo 	"<td>$form_name</td>";
 	echo 	"<td>" . $objForm->get("sf_status") . "</td>";
-	echo 	"<td>" . date("d/m/Y H:i", $objForm->get("tstamp")) . "</td>";
+	echo 	"<td>" . $date . "</td>";
 	echo 	"<td><a href=\"" . $this->url("front-sales-funnels", array("reg_id" => $objForm->get("reg_id"), "id" => $objForm->get("id"), "action" => "edit")) . "\" title=\"View/Update Tracker\" data-toggle=\"tooltip\" class=\"iframe-sales-funnels-link\">" . ICON_SMALL_MODIFY_HTML . "</a></td>";
 	echo 	"<td>" . $objForm->get("users_uname") . "</td>";
 	echo "</tr>";

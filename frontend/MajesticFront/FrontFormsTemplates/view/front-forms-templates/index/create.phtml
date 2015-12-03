@@ -10,7 +10,51 @@ echo $this->partial("layout-comm-data-additions");
 	<script type="text/javascript">
 		jQuery(document).ready(function () {
 			//set files list for css field
-			jQuery("#css_file").mj_files_list({ajax_url: "<?php echo $this->url("front-profile-file-manager", array("action" => "ajax-load-files"));?>?file_type=css"});
+			jQuery("#css_file").hide();
+			jQuery("#css_file").after(jQuery("<select></select>").attr("id", "css_file_list").append(jQuery("<option></option>").attr("value", "").text("--select--")).append(jQuery("<option></option>").attr("value", "_load_data").text("Load Data")));
+
+			//monitor css file dropdown
+			jQuery("#css_file_list").change(function () {
+				if (jQuery(this).val() == "_load_data")
+				{
+					jQuery.ajax({
+						url: "<?php echo $this->url("front-profile-file-manager", array("action" => "ajax-load-files"));?>?file_type=css"
+					})
+					.done(function (data) {
+						var objData = jQuery.parseJSON(data);
+
+						if (objData.error == '1')
+						{
+							jQuery("#css_file_list option[text='--select--']").attr("selected", "selected");
+							alert('CSS files could not be loaded');
+							return false;
+						}//end if
+
+						//clear dropdown options
+						jQuery("#css_file_list").empty();
+
+						//add some options again
+						jQuery("#css_file_list").append(jQuery("<option></option>").val('').text('--select--'));
+
+						//load files
+						jQuery.each(objData.files, function (i, objFile) {
+							if (jQuery.isNumeric(i) && objFile.location != "")
+							{
+								jQuery("#css_file_list").append(jQuery("<option></option>").val(objFile.location).text(objFile.location));
+							}//end if
+						});
+					})
+					.fail(function () {
+						jQuery("#css_file_list option[text='--select--']").attr("selected", "selected");
+						alert('CSS files could not be loaded');
+						return false;
+					});
+
+					return false;
+				}//end if
+
+				jQuery("#css_file").val(jQuery(this).val());
+			});
 
 			//dock replace fields
 			<?php

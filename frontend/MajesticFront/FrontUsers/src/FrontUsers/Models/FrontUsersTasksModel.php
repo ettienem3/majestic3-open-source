@@ -75,19 +75,24 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 	 */
 	public function createUserTask($arr_data)
 	{
-//@TODO fix datetime_reminder value
-		$arr_data["datetime_reminder"] = trim(str_replace("00:00", "", $arr_data["datetime_reminder"]));
-		if (substr($arr_data["datetime_reminder"], -(strlen(':00'))) != ":00")
-		{
-			$arr_data["datetime_reminder"] = $arr_data["datetime_reminder"] . ":00"; 
-		}//end if
-		
-		$objDate = \DateTime::createFromFormat("Y-m-d H:i:s", $arr_data["datetime_reminder"]);
+		$arr_data["datetime_reminder"] = str_replace(" 00:00", "", $arr_data["datetime_reminder"]);
+		$objDate = \DateTime::createFromFormat("d M Y H:i:s", $arr_data["datetime_reminder"]);
 		if (!is_object($objDate))
 		{
-			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be created. Reminder date is in invalid format", 500); 	
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be created. Reminder date is not in valid format", 500); 	
 		}//end if
-			
+		$arr_data["datetime_reminder"] = $objDate->format(\DateTime::RFC3339);
+		
+		if ($arr_data["date_email_reminder"] != "")
+		{
+			$objDate = \DateTime::createFromFormat("d M Y", $arr_data["date_email_reminder"]);
+			if (!is_object($objDate))
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be created. Reminder date is not in valid format", 500);
+			}//end if
+			$arr_data["date_email_reminder"] = $objDate->format(\DateTime::RFC3339);
+		}//end if
+		
 		//create entity
 		$objUserTask = $this->createUserTaskEntity($arr_data);
 		
@@ -120,16 +125,23 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 	 */
 	public function updateUserTask(FrontUsersUserTaskEntity $objUserTask, $complete = 0)
 	{
-//@TODO fix datetime_reminder value
-		$objUserTask->set("datetime_reminder", trim(str_replace("00:00", "", $objUserTask->get("datetime_reminder"))));
-		if (substr($objUserTask->get("datetime_reminder"), -(strlen(':00'))) != ":00")
-		{
-			$objUserTask->set("datetime_reminder", $objUserTask->get("datetime_reminder") . ":00");
-		}//end if
-		$objDate = \DateTime::createFromFormat("Y-m-d H:i:s", $objUserTask->get("datetime_reminder"));
+		$arr_data = $objUserTask->getArrayCopy();
+		$arr_data["datetime_reminder"] = str_replace(" 00:00", "", $arr_data["datetime_reminder"]);
+		$objDate = \DateTime::createFromFormat("d M Y H:i:s", $arr_data["datetime_reminder"]);
 		if (!is_object($objDate))
 		{
-			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be created. Reminder date is in invalid format", 500); 	
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be updated. Reminder date is not in valid format", 500); 	
+		}//end if
+		$arr_data["datetime_reminder"] = $objDate->format(\DateTime::RFC3339);
+		
+		if ($arr_data["date_email_reminder"] != "")
+		{
+			$objDate = \DateTime::createFromFormat("d M Y", $arr_data["date_email_reminder"]);
+			if (!is_object($objDate))
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be updated. Reminder date is not in valid format", 500);
+			}//end if
+			$arr_data["date_email_reminder"] = $objDate->format(\DateTime::RFC3339);
 		}//end if
 		
 		//trigger pre event
@@ -142,7 +154,7 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 		$objApiRequest->setApiAction("user/tasks/manager/" . $objUserTask->get("id") . "?complete=$complete");
 		
 		//execute
-		$objResult = $objApiRequest->performPUTRequest($objUserTask->getArrayCopy())->getBody();
+		$objResult = $objApiRequest->performPUTRequest($arr_data)->getBody();
 		
 		//recreate the user task entity
 		$objUserTask = $this->createUserTaskEntity($objResult->data);

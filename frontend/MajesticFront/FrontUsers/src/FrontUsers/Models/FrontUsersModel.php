@@ -82,18 +82,25 @@ class FrontUsersModel extends AbstractCoreAdapter
 	{
 		// Create object entity;
 		$objUser = $this->createUserEntity($arr_data);
+
 		// trigger .pre event
 		$this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objUser" => $objUser));
+
 		// Create APIRequest object model
 		$objApiRequest = $this->getApiRequestModel();
+
 		// Create APIRequest object and specity the action.
 		$objApiRequest->setApiAction("users/admin/user");
+
 		// Execute
 		$objUser = $objApiRequest->performPOSTRequest($objUser->getArrayCopy())->getBody();
+
 		// Recreate User entity
-		$objUser = $this->createUserEntity($objUser);
+		$objUser = $this->createUserEntity($objUser->data);
+
 		// trigger .post event
 		$this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objUser" => $objUser));
+
 		return $objUser;
 	} // end createUser($arr_data)
 
@@ -107,18 +114,22 @@ class FrontUsersModel extends AbstractCoreAdapter
 	{
 		// trigger .pre event
 		$this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objUser" => $objUser));
+
 		// Create APIRequest object from model
 		$objApiRequest = $this->getApiRequestModel();
+
 		// Setup User object and specify action
 		$objApiRequest->setApiAction($objUser->getHyperMedia("edit-user")->url);
 		$objApiRequest->setApiModule(NULL);
+
 		// Execute
 		$objUser = $objApiRequest->performPUTRequest($objUser->getArrayCopy())->getBody();
 		// Recreate User entity
 		$objUser = $this->createUserEntity($objUser->data);
+
 		// trigger .post event
 		$this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objUser" => $objUser));
-		//var_dump($objUser); exit();
+
 		return $objUser;
 	} // end updateUser(UserEntity $objUser)
 
@@ -130,16 +141,22 @@ class FrontUsersModel extends AbstractCoreAdapter
 	{
 		// Get User object
 		$objUser = $this->getUser($id);
+
 		// trigger .pre event
 		$this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objUser" => $objUser));
+
 		// Create APIRequestModel
 		$objApiRequest = $this->getApiRequestModel();
+
 		// Setup User object and specify thhe action.
 		$objApiRequest->setApiAction($objUser->getHyperMedia("delete-user")->url);
+
 		// Clear Module for User.
 		$objApiRequest->setApiModule(NULL);
+
 		// Execute
 		$objUser = $objApiRequest->performDELETERequest(array())->getBody();
+
 		// trigger .post event
 		$this->getEventManager()->trigger(__FUNCTION__ . "post", $this, array("objUser" => $objUser));
 	} // end deleteAction()
@@ -167,6 +184,7 @@ class FrontUsersModel extends AbstractCoreAdapter
 	{
 		// Instatiate entity object using SM/L.
 		$entity_user = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserEntity");
+
 		// Populate the data
 		$entity_user->set($objData);
 		return $entity_user;

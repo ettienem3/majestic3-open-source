@@ -96,16 +96,18 @@ final class ApiRequestModel extends AbstractCoreAdapter
 					}//end if
 				}//end if
 			}//end if
-
+			
+require("./config/helpers/ob1.php");
 //@TODO - create own api authentication logic
-throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
+// throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
 		} else {
 			if ($this->api_key != "")
 			{
+require("./config/helpers/ob2.php");			
 //@TODO - create own api authentication logic
-throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
+//throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
 			} else {
-				//bypass the keys to perform info request
+				//bypass to perform info request
 				$arr_headers = array();
 			}//end if
 		}//end if

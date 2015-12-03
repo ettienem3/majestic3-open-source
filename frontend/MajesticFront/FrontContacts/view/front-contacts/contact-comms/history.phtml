@@ -35,22 +35,31 @@ foreach ($this->objCommsData as $objComm)
 	switch ($objComm->comm_codes_code)
 	{
 		case "0-0":
-			echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #ffb900\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+			//set date
+			$date = $this->renderFormatUserDate(array("date" =>  $objComm->datetime_sent, "options" => array(
+					"output_format" => "d M Y H:i",
+			)));
+			
+			echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #ffb900\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $date . "</a></span></td>";
 			break;
 			
 		default: 
 			$comm_code = substr(strstr($objComm->comm_codes_code,'-'), 1);
+			$date = $this->renderFormatUserDate(array("date" =>  $objComm->datetime_sent, "options" => array(
+					"output_format" => "d M Y H:i",
+			)));
+			
 			if ($comm_code != "0") 
 			{
 				if ($comm_code % 2) 
 				{
-					echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: red\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+					echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: red\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $date . "</a></span></td>";
 				} else {
-					echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #00ff00\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+					echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #00ff00\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $date . "</a></span></td>";
 				}//end if
 			} else {
 				//unknown
-				echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #ffb900\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $objComm->datetime_sent . "</a></span></td>";
+				echo 	"<td><span title=\"" . $objComm->comm_codes_code_description . "\"><a style=\"text-decoration: none; color: #ffb900\" href=\"" . $objComm->view_url . "\" target=\"_blank\">$icon" . $date . "</a></span></td>";
 			}//end if
 			break;
 	}//end switch

@@ -64,7 +64,7 @@ class SalesFunnelsController extends AbstractActionController
     	}//end if
    	
     	//load sales funnel form
-    	$arr_form = $this->getExternalFormsModel()->loadForm($form_id, NULL, array("behaviour" => "__sales_funnel"));
+    	$arr_form = $this->getExternalFormsModel()->loadForm($form_id, NULL, array("behaviour" => "__sales_funnel", "cache_clear" => 1));
 		$form = $arr_form["objForm"];
 		
     	$request = $this->getRequest();

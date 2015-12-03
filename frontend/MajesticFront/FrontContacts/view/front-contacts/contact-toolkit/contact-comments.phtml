@@ -76,8 +76,13 @@ if (is_object($this->objComments) || is_array($this->objComments))
 
 	foreach ($this->objComments as $objComment)
 	{
+		//set date
+		$date = $this->renderFormatUserDate(array("date" =>  $objComment->datetime_created, "options" => array(
+								"output_format" => "d M Y H:i",
+							)));
+		
 		echo "<tr>";
-		echo 	"<td>" . $objComment->datetime_created . "</td>";
+		echo 	"<td>" . $date . "</td>";
 		echo 	"<td>" . $objComment->users_uname . "</td>";
 		echo 	"<td>" . $objComment->comment . "</td>";
 		echo "<tr>";

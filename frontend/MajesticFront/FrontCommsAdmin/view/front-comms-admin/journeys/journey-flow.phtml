@@ -1,0 +1,319 @@
+<div class="mj3_tables clearfix">
+
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+
+				</button>
+
+				<span class="navbar-brand">
+					<?php echo ICON_LARGE_COMMS_HTML; ?> &nbsp;
+					Journey Flow
+				</span>
+			</div>
+
+		</div>
+	</nav>
+	<!-- search ends here -->
+
+	<ul class="nav nav-tabs">
+		<?php
+		echo 		"<li role=\"presentation\"><a href=\"" . $this->url("front-comms-admin/journeys") . "\" title=\"Back to Journeys\" data-toggle=\"tooltip\">" . ICON_MEDIUM_BACK_HTML . "</a></li>";
+		echo 		"<li role=\"presentation\"><a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "edit", "id" => $this->journey_id)) . "\" title=\"Edit Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a></li>";
+		echo 		"<li role=\"presentation\"><a href=\"" . $this->url("front-comms-admin/journeys", array("action" => "delete", "id" => $this->journey_id)) . "\" title=\"Delete Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a></li>";
+		echo 		"<li role=\"presentation\"><a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id)) . "\" title=\"Comms in this Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_LOAD_HTML . "</a>";
+		echo 		"<li role=\"presentation\"><a href=\"" . $this->url("front-comms-bulksend", array("action" => "set-criteria", "id" => $this->journey_id)) . "\" title=\"Request Bulk Send\" data-toggle=\"tooltip\">" . ICON_SMALL_EMAIL_HTML . "</a></li>";
+
+		//http://bl.ocks.org/shunpochang/66620bad0e6b201f261c
+		//https://mohansun-canvas.herokuapp.com/content/training/
+		?>
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->journey_id, "action" => "create")); ?>" title="Create Comm for a Journey" data-toggle="tooltip" class="btn btn-success">Create Comm for a Journey</a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix" style="overflow:hidden;">
+
+		<style>
+
+	    .node {
+	        cursor: pointer;
+	    }
+
+	    .node circle {
+	      fill: #fff;
+	      stroke: #99ccff;;
+	      stroke-width: 3px;
+	    }
+
+	    .node text {
+	      font: 12px sans-serif;
+	    }
+
+	    .link {
+	      fill: none;
+	      stroke: #99ccff;
+	      stroke-width: 2px;
+	    }
+
+		.hyper {
+		    color: red;
+		    text-decoration: underline;
+		}
+
+		.hyper:hover {
+		    color:yellow;
+		    text-decoration: none;
+		}
+		.selected {
+		  font-weight:bold;
+		}
+		.not-selected {
+		  font-weight:normal;
+		}
+
+		</style>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.js"></script>
+		<script type="text/javascript" src="//gabelerner.github.io/canvg/rgbcolor.js"></script>
+		<script type="text/javascript" src="//gabelerner.github.io/canvg/StackBlur.js"></script>
+		<script type="text/javascript" src="//gabelerner.github.io/canvg/canvg.js"></script>
+		<script type="text/javascript">
+			jQuery(document).ready(function () {
+					var treeData = [jQuery.parseJSON('<?php echo json_encode($this->objData);?>')];
+
+					var margin = {top: 20, right: 120, bottom: 20, left:100},
+					    width = 12500 - margin.right - margin.left,
+					    height = 950 - margin.top - margin.bottom;
+
+					var i = 0,
+					    duration = 750,
+					    root;
+
+					var tree = d3.layout.tree()
+					    .size([height, width]);
+
+					var diagonal = d3.svg.diagonal()
+					    .projection(function(d) { return [d.y, d.x]; });
+
+					var svg = d3.select("#d3-data-area").append("svg")
+					    .attr("width", width + margin.right + margin.left)
+					    .attr("height", height + margin.top + margin.bottom)
+					  .append("g")
+					    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+					root = treeData[0];
+					root.x0 = height / 2;
+					root.y0 = 0;
+
+					update(root);
+
+					//d3.select("#d3-data-area").style("height", "800px");
+					//d3.select(self.frameElement).style("height", "800px");
+
+					function update(source) {
+
+					  // Compute the new tree layout.
+					  var nodes = tree.nodes(root).reverse(),
+					      links = tree.links(nodes);
+
+					  // Normalize for fixed-depth.
+					  nodes.forEach(function(d) { d.y = d.depth * 180; });
+
+					  // Update the nodesâ€¦
+					  var node = svg.selectAll("g.node")
+					      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+					  // Enter any new nodes at the parent's previous position.
+					  var nodeEnter = node.enter().append("g")
+					      .attr("class", "node")
+					      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+					      .on("click", click);
+
+					  nodeEnter.append("circle")
+					      .attr("r", 1e-6)
+					      .style("fill", function(d) { return d._children ? "#ccff99" : "#fff"; });
+
+					  nodeEnter.append("text")
+					      .attr("x", function(d) { return d.children || d._children ? -13 : 13; })
+					      .attr("dy", ".35em")
+					      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+					      .text(function(d) {
+
+							      return d.name;
+					    	  })
+					     .style("fill-opacity", 1e-6)
+					     .attr("class", function(d) {
+					              	if (d.attributes != null)
+						        	{
+							        	return 'hyper';
+							        }
+					         })
+					     .attr("data-url", function (d) {
+								if (d.attributes != null)
+								{
+									if (d.attributes.type == "journey")
+									{
+										var url = '<?php echo $this->url("front-comms-admin/journeys", array("action" => "edit", "id" => 100001));?>';
+										if (url == '')
+										{
+											return false;
+										}//end if
+
+										url = url.replace('100001', d.attributes.id);
+										return url;
+									}//end if
+
+									if (d.attributes.type == "comm")
+									{
+										var url = '<?php echo $this->url("front-comms-admin/comms", array("action" => "edit", "id" => 100001, "journey_id" => 200002));?>';
+										if (url == '')
+										{
+											return false;
+										}//end if
+
+										url = url.replace('100001', d.attributes.id);
+										url = url.replace('200002', d.attributes.journey_id);
+										return url;
+									}//end if
+
+									if (d.attributes.type == "form")
+									{
+										//check for user access...
+										var url = '<?php echo $this->url("front-form-admin/form", array("action" => "edit-form", "id" => 100001));?>';
+										if (url == '')
+										{
+											return false;
+										}//end if
+
+										url = url.replace('100001', d.attributes.id);
+										return url;
+									}//end if
+
+									if (d.attributes.type == "status")
+									{
+										//check for user access...
+										var url = '<?php echo $this->url("front-statuses", array("action" => "edit", "id" => 100001));?>';
+										if (url == '')
+										{
+											return false;
+										}//end if
+
+										url = url.replace('100001', d.attributes.id);
+										return url;
+									}//end if
+								}//end if
+					     })
+					          .on("click", function () {
+					              if (jQuery(this).attr("data-url") != "" && jQuery(this).attr("data-url") != "undefined")
+					              {
+						              if (confirm("Open requested page?"))
+						              {
+							              	//open url in new tab/window
+											window.open(jQuery(this).attr("data-url"), '_blank');
+						              }//end if
+					              }//end if
+					              return false;
+					          });
+
+					  // Transition nodes to their new position.
+					  var nodeUpdate = node.transition()
+					      .duration(duration)
+					      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+					  nodeUpdate.select("circle")
+					      .attr("r", 10)
+					      .style("fill", function(d) { return d._children ? "#ccff99" : "#fff"; });
+
+					  nodeUpdate.select("text")
+					      .style("fill-opacity", 1);
+
+					  // Transition exiting nodes to the parent's new position.
+					  var nodeExit = node.exit().transition()
+					      .duration(duration)
+					      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+					      .remove();
+
+					  nodeExit.select("circle")
+					      .attr("r", 1e-6);
+
+					  nodeExit.select("text")
+					      .style("fill-opacity", 1e-6);
+
+					  // Update the link
+					  var link = svg.selectAll("path.link")
+					      .data(links, function(d) { return d.target.id; });
+
+					  // Enter any new links at the parent's previous position.
+					  link.enter().insert("path", "g")
+					      .attr("class", "link")
+					      .attr("d", function(d) {
+					        var o = {x: source.x0, y: source.y0};
+					        return diagonal({source: o, target: o});
+					      });
+
+					  // Transition links to their new position.
+					  link.transition()
+					      .duration(duration)
+					      .attr("d", diagonal);
+
+					  // Transition exiting nodes to the parent's new position.
+					  link.exit().transition()
+					      .duration(duration)
+					      .attr("d", function(d) {
+					        var o = {x: source.x, y: source.y};
+					        return diagonal({source: o, target: o});
+					      })
+					      .remove();
+
+					  // Stash the old positions for transition.
+					  nodes.forEach(function(d) {
+					    d.x0 = d.x;
+					    d.y0 = d.y;
+					  });
+					}
+
+					// Toggle children on click.
+					function click(d) {
+					  if (d.children) {
+					    d._children = d.children;
+					    d.children = null;
+					  } else {
+					    d.children = d._children;
+					    d._children = null;
+					  }
+					  update(d);
+					}
+
+					d3.select("#savesvg").on("click", function(){
+						  var html = d3.select("svg")
+					        .attr("version", 1.1)
+					        .attr("xmlns", "http://www.w3.org/2000/svg")
+					        .node().parentNode.innerHTML;
+
+						// the canvg call that takes the svg xml and converts it to a canvas
+						  canvg('canvas', html);
+
+						  // the canvas calls to output a png
+						  var canvas = document.getElementById("canvas");
+						  var img = canvas.toDataURL("image/png");
+						  return false;
+
+
+
+
+						  var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+						  var img = '<img src="'+imgsrc+'">';
+						  d3.select("#svgdataurl").html(img);
+							return false;
+						});
+			});
+		</script>
+
+		<div id="d3-data-area"></div>
+		<canvas id="canvas" width="1000px" height="400px"></canvas>
+		<button class="btn btn-default" id="savesvg">Export to Image</button>
+		<div id="svgdataurl"></div>
+
+	</div>
+
+</div>

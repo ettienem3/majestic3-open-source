@@ -23,7 +23,7 @@
 					reg_id: 					"<?php echo $this->contact_id; ?>",
 					user_id: 					jQuery("#user_id").val(),
 					content: 					jQuery("#content").val(),
-					datetime_reminder: 			jQuery("#datetime_reminder").val() + " 00:00", //@TODO allow picker to do hour and minute as well
+					datetime_reminder: 			jQuery("#datetime_reminder").val(),
 					notify_user: 				jQuery("#notify_user").val(),
 					date_email_reminder: 		jQuery("#date_email_reminder").val()
 				}
@@ -43,13 +43,13 @@
 
 		//configure date fields to use date picker
 		jQuery("#datetime_reminder").datetimepicker({
-			format: "Y-m-d H:i",
+			format: "d M Y H:i:s",
 			step: 15,
 			closeOnDateSelect: false,
 		}).attr("readonly", "readonly");
 
 		jQuery("#date_email_reminder").datepicker({
-			format: "yyyy-mm-dd",
+			format: jQuery("#date_email_reminder").attr("data-info-date-format"),
 			clearBtn: true,
 			todayHighlight: true,
 			autoclose: true,
@@ -72,15 +72,19 @@ foreach ($this->objUserTasks as $objUserTask)
 		continue;
 	}//end if
 
+	//set date
+	$date = $this->renderFormatUserDate(array("date" =>  $objUserTask->get("datetime_reminder"), "options" => array(
+			"output_format" => "d M Y",
+	)));
+	
 	echo "<tr>";
-	echo 	"<td>" . $objUserTask->get("datetime_reminder") . "</td>";
+	echo 	"<td>" . $date . "</td>";
 	echo 	"<td>" . $objUserTask->get("content") . "</td>";
 	if ($objUserTask->get("complete") == 1)
 	{
 		"<td>&nbsp;</td>";
 	} else {
 		echo 	"<td>";
-		echo 		"<a href=\"" . $this->url("front-users-tasks", array("action" => "edit", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "?redirect_url=" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objUserTask->get("reg_id"))) . "\" title=\"Update Task\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>&nbsp;";
 		echo 		"<a href=\"" . $this->url("front-users-tasks", array("action" => "complete-task", "user_id" => $objUserTask->get("user_id"), "id" => $objUserTask->get("id"))) . "?redirect_url=" . $this->url("front-contacts", array("action" => "view-contact", "id" => $objUserTask->get("reg_id"))) . "\" title=\"Complete Task\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
 		echo 	"</td>";
 	}//end if

@@ -11,8 +11,13 @@ if (is_object($this->objContactJourneys))
 	
 	foreach ($this->objContactJourneys as $objJourney)
 	{
+		//set date
+		$date = $this->renderFormatUserDate(array("date" =>  $objJourney->get("tstamp"), "options" => array(
+				"output_format" => "d M Y H:i",
+		)));
+		
 		echo "<tr>";
-		echo 	"<td>" . date("d/m/Y H:m", $objJourney->get("tstamp")) . "</td>";
+		echo 	"<td>" . $date . "</td>";
 		echo 	"<td>" . $objJourney->get("journey") . "</td>";
 		echo 	"<td>" . $objJourney->get("comm_status_data_status") . "</td>";
 		echo 	"<td>" . "&nbsp;" . "</td>"; //@TODO join sales funnel data on query to extract deal numbers...

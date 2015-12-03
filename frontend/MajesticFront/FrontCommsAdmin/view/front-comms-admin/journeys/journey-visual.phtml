@@ -1,0 +1,159 @@
+<link rel="stylesheet" href="/js/vendor/jointjs/joint.css" />
+<script src="/js/vendor/jointjs/joint.js"></script>
+<script src="/js/vendor/jointjs/joint.layout.js"></script>
+
+<script src="/js/plugins/flowcharts/engine.js"></script>
+<script src="/js/plugins/flowcharts/journeys.js"></script>
+<script src="/js/plugins/flowcharts/comms.js"></script>
+<script src="/js/plugins/flowcharts/behaviours.js"></script>
+<script src="/js/plugins/flowcharts/panel_options.js"></script>
+
+<script type="text/javascript">
+	<?php
+					$arr = array(
+							"name" => "My First Journey",
+							"id" => 1,
+							"data" => array(
+											"comms" => array(
+													1 => array(
+																"journey_id" => 1,
+																"starts" => 0,
+																"start_after" => 0,
+																"number" => 1,
+																"id" => 11,
+															),
+													2 => array(
+															"journey_id" => 1,
+															"starts" => 0,
+															"start_after" => 0,
+															"number" => 2,
+															"id" => 22,
+													),
+													3 => array(
+															"journey_id" => 1,
+															"starts" => 2,
+															"start_after" => 2,
+															"number" => 3,
+															"id" => 33,
+													),
+													4 => array(
+															"journey_id" => 1,
+															"starts" => 2,
+															"start_after" => 3,
+															"number" => 4,
+															"id" => 33,
+															),
+													5 => array(
+															"journey_id" => 1,
+															"starts" => 3,
+															"start_after" => 3,
+															"number" => 5,
+															"id" => 33,
+													),
+													6 => array(
+															"journey_id" => 1,
+															"starts" => 2,
+															"start_after" => 5,
+															"number" => 6,
+															"id" => 33,
+													),
+													7 => array(
+															"journey_id" => 1,
+															"starts" => 2,
+															"start_after" => 5,
+															"number" => 7,
+															"id" => 33,
+													),
+												)
+										),
+					);
+
+					echo 'var comm_data = \'' . json_encode($arr, JSON_FORCE_OBJECT) . '\';';
+				?>
+
+	jQuery(document).ready(function () {
+		var graph = new joint.dia.Graph;
+		var paper = generateGraph({container: '#comms', width: 2000, height: 2000, gridSize: 1, graph: graph});
+		var objData = jQuery.parseJSON(comm_data);
+
+		//generate journey container
+		var graph_journey_container = generateJourneyObject(objData);
+
+		//generate behaviours container
+		var graph_journey_behaviours_container = generateBehavioursContainer({x: 350, y:30, width: 150, height: 200, fill: 'blue', text_label: 'Behaviours', text_fill: 'white'});
+		
+		//link behaviours container
+		var link_behaviours = new joint.dia.Link({
+	   	 	source: { id: graph_journey_container.id },
+	    	target: { id: graph_journey_behaviours_container.id }
+		});
+
+		//add items to graph
+		graph.addCells([graph_journey_container, graph_journey_behaviours_container, link_behaviours]);
+
+		//add some classes and data to the generated containers
+		jQuery("g[model-id='" + graph_journey_container.id + "']").attr("class", jQuery("g[model-id='" + graph_journey_container.id + "']").attr("class") + " journey_container allow_option_panel").attr("data-m3-journey-id", objData.id);
+		jQuery("g[model-id='" + graph_journey_behaviours_container.id + "']").attr("class", jQuery("g[model-id='" + graph_journey_behaviours_container.id + "']").attr("class") + " journey_behaviours_container allow_option_panel").attr("data-m3-journey-id", objData.id);
+
+
+		//add comms
+		var arr_journey_comms = [];
+		var arr_comm_positions = {};
+		var position_x = 100;
+		var position_y = 350;
+		arr_comm_positions[0] = {x: position_x, y: position_y};
+		jQuery.each(objData.data.comms, function (i, objComm) {
+			
+			var graph_comm = generateCommObject({x: position_x, y: position_y, width: 150, height: 40, fill: 'green', text_label: "Communication " + objComm.number, text_fill: 'white' });
+
+			//add to array
+			arr_journey_comms[objComm.number] = graph_comm;
+
+			//link comm to journey
+			if (objComm.start_after == 0)
+			{
+				var link = new joint.dia.Link({
+			   	 	source: { id: graph_journey_container.id },
+			    	target: { id: graph_comm.id }
+				});
+			} else {
+				var link = new joint.dia.Link({
+			   	 	source: { id: arr_journey_comms[objComm.start_after].id },
+			    	target: { id: graph_comm.id }
+				});
+			}//end if
+
+			//save position
+			arr_comm_positions[objComm.number] = {x: position_x, y: position_y};
+			
+			graph.addCells([graph_comm, link]);
+			jQuery("g[model-id='" + graph_comm.id + "']").attr("class", jQuery("g[model-id='" + graph_comm.id + "']").attr("class") + " journey_container allow_option_panel").attr("data-m3-journey-id", objData.id).attr("data-m3-comm-id", objComm.id);
+		});
+
+		//enable option panels
+		jQuery(".allow_option_panel").mouseenter(function () {
+			//add box options panel
+			var new_element = generateOptionsPanel(jQuery(this), jQuery("#element-options").html());
+			jQuery("body").append(new_element);
+		});
+	});
+</script>
+
+<div id="myholder">
+
+</div>
+<div id="comms">
+
+</div>
+<div id="toolbar">
+	<a href="#addComm" id="add_comm">Add Communication</a>
+</div>
+
+<div id="element-options" style="">
+	<span class="button_close" title="Close">X</span>
+	<img src="<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait.gif">
+</div>
+
+
+
+

@@ -234,7 +234,6 @@
 	jQuery.fn.mj_files_list = function (objParams) {
 		//add icon to input field
 		var element = jQuery(this);
-		//element.parent().append("<div style=\"visibility: hidden;\" class=\"files_dialog_box\"><select id=\"file_select\"><option>--select--</option></div>");
 		element.parent().append(jQuery("<div></div>").attr("class", "files_dialog_box").css("display", "none").append(jQuery("<select></select>").append(jQuery("<option></option>").text("--select--")).attr("id", "file_select").on("change", function() {
 			if (jQuery(this).val() != "")
 			{
@@ -242,7 +241,7 @@
 			}//end if
 		})));
 		
-		element.parent().append("&nbsp;<span parent=\"" + jQuery(this).attr("id") + "\" id=\"element-load-files-list\"><img src=\"//cdn-aws.majestic3.com/images/m3frontend/icons/icon_css.png\"/></span>")
+		element.parent().append("&nbsp;<span parent=\"" + jQuery(this).attr("id") + "\" id=\"element-load-files-list\"><img height='40px' width='40px' src=\"//cdn-aws.majestic3.com/images/m3frontend/icons/icon_css.png\"/></span>")
 			.on("click", function () {
 				jQuery.ajax({
 					url: objParams.ajax_url

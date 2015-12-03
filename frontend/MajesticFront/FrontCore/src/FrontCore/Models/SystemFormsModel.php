@@ -142,10 +142,14 @@ class SystemFormsModel extends AbstractCoreAdapter
 			}//end if
 
 			//apply conditions where required
-			switch ($arr_element["type"])
+			switch (strtolower($arr_element["type"]))
 			{
 				case "submit":
 					$arr_element["attributes"]["value"] = "Submit";
+					break;
+
+				case "date":
+					$arr_element["type"] = "text";
 					break;
 			}//end swtich
 

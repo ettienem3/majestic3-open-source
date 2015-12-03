@@ -13,7 +13,7 @@ foreach ($this->objContactForms as $objForm)
 	{
 		continue;
 	}//end if
-	
+
 	//set form url
 	switch (strtolower($objForm->get("form_behaviour")))
 	{
@@ -30,8 +30,13 @@ foreach ($this->objContactForms as $objForm)
 			break;
 	}//end switch
 	
+	//set date
+	$date = $this->renderFormatUserDate(array("date" =>  $objForm->get("tstamp"), "options" => array(
+			"output_format" => "d M Y H:i",
+	)));
+	
 	echo "<tr>";
-	echo 	"<td>" . date("d/m/Y H:m", $objForm->get("tstamp")) . "</td>";
+	echo 	"<td>" . $date . "</td>";
 	echo 	"<td>" . $objForm->get("form_behaviour_label") . "</td>";
 	echo 	"<td>" . $form_url . "</td>";
 	echo 	"<td>" . $objForm->get("uname") . "</td>";

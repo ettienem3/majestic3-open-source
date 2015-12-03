@@ -3,7 +3,7 @@
 <?php
 echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . ' &nbsp; Edit Journey');
 ?>
-	<script type="text/javascript">	
+	<script type="text/javascript">
 		jQuery(document).ready(function () {
 			//lazyload additional files
 			LazyLoad.js([
@@ -11,7 +11,7 @@ echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . ' &nbsp; Edit Journ
 			]);
 		});
 	</script>
-	
+
 	<ul class="nav nav-tabs">
 		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/journeys"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
 		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/comms", array("journey_id" => $this->objJourney->id)); ?>" title="View / Edit specific Communications" data-toggle="tooltip"><?php echo ICON_LARGE_LOAD_HTML; ?></a></li>

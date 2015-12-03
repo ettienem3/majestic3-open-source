@@ -40,7 +40,13 @@
 			}//end if
 
 			$edit_url = "<a href=\"" . $this->url("front-links", array("action" => "edit", "id" => $objLink->id)) . "\" title=\"Edit Link\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
-			$delete_url = "<a href=\"" . $this->url("front-links", array("action" => "delete", "id" => $objLink->id)) . "\" title=\"Delete Link\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			
+			if ($objLink->flag_prevent_delete > 0)
+			{
+				$delete_url = "<span title=\"Link cannot be removed. It has been trakced in the past\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</span>";
+			} else {
+				$delete_url = "<a href=\"" . $this->url("front-links", array("action" => "delete", "id" => $objLink->id)) . "\" title=\"Delete Link\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+			}//end if
 
 			if (in_array("behaviours_basic", $arr_plugins) || in_array("behaviours_advanced", $arr_plugins))
 			{

@@ -4,6 +4,20 @@
 		//mark populate field by default
 		jQuery("#populate").attr("checked", true);
 		jQuery("#active").attr("checked", true);
+
+		//default duplicate option to no where fields are available
+		if (jQuery("input[name='field_duplicate']").length)
+		{
+			if (!jQuery("input[name='field_duplicate']").is(":checked"))
+			{
+				jQuery("input[name='field_duplicate']").each(function(i, obj) {
+					if (jQuery(obj).val() == '0')
+					{
+						jQuery(obj).attr("checked", "checked");
+					}//end if
+				});
+			}//end if
+		}//end if
 	});
 </script>
 <?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Allocate Field to ' . $this->objForm->get("form") .''); ?>

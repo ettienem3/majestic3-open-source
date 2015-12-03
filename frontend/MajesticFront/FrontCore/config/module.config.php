@@ -93,9 +93,6 @@ return array(
     	),
     ),
 
-	/**
-	 * Map front end operations with ACL received from API to assist with navigation management
-	 */
 	'api_route_vs_front_route_map' => array(
 			'front-behaviours-config' => array(
 					'APIBehaviourConfig\Controller\BehaviourConfigController::getList',
@@ -159,6 +156,19 @@ return array(
 					'APICommsBulkSend\Controller\BulkCommController::update',
 					'APICommsBulkSend\Controller\BulkCommController::delete',
 			),
+// 			'front-comms-sms-campaigns' => array(
+// 					'APICommsAdmin\Controller\CommsAdminSmsCampaignsController::getList',
+// 					'APICommsAdmin\Controller\CommsAdminSmsCampaignsController::get',
+// 					'APICommsAdmin\Controller\CommsAdminSmsCampaignsController::create',
+// 					'APICommsAdmin\Controller\CommsAdminSmsCampaignsController::update',
+// 					'APICommsAdmin\Controller\CommsAdminSmsCampaignsController::delete',
+// 			),
+// 			'front-comms-sms-campaign-replies' => array(
+// 					'APICampaigns\Controller\CampaignsController::delete',
+// 					'APIComms\Controller\SmsCampaignRepliesController::getList',
+// 					'APIComms\Controller\SmsCampaignRepliesController::get',
+// 					'APIComms\Controller\SmsCampaignRepliesController::delete',
+// 			),
 			'front-comms-templates' => array(
 					'APIHtmlTemplates\Controller\CommTemplatesController::getList',
 					'APIHtmlTemplates\Controller\CommTemplatesController::get',
@@ -250,6 +260,13 @@ return array(
 					'APILinks\Controller\LinksAdminController::update',
 					'APILinks\Controller\LinksAdminController::delete',
 			),
+// 			'front-locations/custom-cities' => array(
+// 					'APILocations\Controller\CustomCitiesAdminController::getList',
+// 					'APILocations\Controller\CustomCitiesAdminController::get',
+// 					'APILocations\Controller\CustomCitiesAdminController::create',
+// 					'APILocations\Controller\CustomCitiesAdminController::update',
+// 					'APILocations\Controller\CustomCitiesAdminController::delete',
+// 			),
 			'front-locations/countries' => array(
 					'APILocations\Controller\CountriesController::getList',
 					'APILocations\Controller\CountriesController::get',
@@ -299,6 +316,16 @@ return array(
 					'APIWebhooks\Controller\WebHooksController::update',
 					'APIWebhooks\Controller\WebHooksController::delete',
 			),
+// 			'front-power-tools/comms-automation' => array(
+// 					'APIAutomation\Controller\CronCommsQueueController::getList',
+// 					'APIAutomation\Controller\CronCommsQueueSendController',
+// 					'APIAutomation\Controller\CronCommsQueueSendController::getList',
+// 					'APIAutomation\Controller\CronCommsSendController::getList',
+// 					'APIAutomation\Controller\CronProfileAdminController',
+// 					'APIAutomation\Controller\CronProfileAdminController::get',
+// 					'APIAutomation\Controller\CronUserTaskRemindersController',
+// 					'APIAutomation\Controller\CronUserTaskRemindersController::getList',
+// 			),
 // 			'front-profile-settings' => array(
 // 					'APIProfiles\Controller\ProfilesController',
 // 					'APIProfiles\Controller\ProfilesController::getList',
@@ -310,13 +337,13 @@ return array(
 					'APIProfileFileManager\Controller\FileManagerController::create',
 					'APIProfileFileManager\Controller\FileManagerController::delete',
 			),
-			'front-sales-funnels' => array(
-					'APISalesFunnels\Controller\SalesFunnelsController::getList',
-					'APISalesFunnels\Controller\SalesFunnelsController::get',
-					'APISalesFunnels\Controller\SalesFunnelsController::create',
-					'APISalesFunnels\Controller\SalesFunnelsController::update',
-					'APISalesFunnels\Controller\SalesFunnelsController::delete',
-			),
+// 			'front-sales-funnels' => array(
+// 					'APISalesFunnels\Controller\SalesFunnelsController::getList',
+// 					'APISalesFunnels\Controller\SalesFunnelsController::get',
+// 					'APISalesFunnels\Controller\SalesFunnelsController::create',
+// 					'APISalesFunnels\Controller\SalesFunnelsController::update',
+// 					'APISalesFunnels\Controller\SalesFunnelsController::delete',
+// 			),
 			'front-sms-accounts-admin' => array(
 					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::getList',
 					'APISmsAccountsAdmin\Controller\SmsAccountsAdminController::get',

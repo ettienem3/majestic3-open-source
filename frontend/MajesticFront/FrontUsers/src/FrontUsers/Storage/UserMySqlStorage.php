@@ -12,25 +12,25 @@ class UserMySqlStorage extends AbstractCoreAdapter
 	 * @var \FrontUsers\Tables\UsersTable
 	 */
 	private $table_users;
-	
+
 	/**
 	 * Container for the User Settings Table
 	 * @var \FrontUsers\Tables\UserSettingsTable
 	 */
 	private $table_user_settings;
-	
+
 	/**
 	 * Container for the User Preferences Table
 	 * @var \FrontUsers\Tables\UserPreferencesTable
 	 */
 	private $table_user_preferences;
-	
+
 	/**
 	 * Container for dataset
 	 * @var stdClass
 	 */
 	private $objData;
-	
+
 	public function readData($key)
 	{
 		switch($key)
@@ -45,40 +45,40 @@ class UserMySqlStorage extends AbstractCoreAdapter
 				));
 				return $objUser->get("key");
 				break;
-				
+
 			case "cookie_data":
 				$objUser = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserEntity");
 				$objUser->set("id", $this->objData->id);
-				
+
 				$objUserPreferences = $this->fetchUserPreferences($objUser);
 				$objData = (object) $objUserPreferences->getArrayCopy();
 				return $objData->data;
 				break;
-				
+
 			default:
 				$objUser = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserEntity");
 				$objUser->set("id", $this->objData->id);
 				$objUserSettings = $this->fetchUserSettings($objUser);
 				$objData = (object) $objUserSettings->getArrayCopy();
-				
+	
 				//append preferences to data
 				$objUserPreferences = $this->fetchUserPreferences($objUser);
 				$objPreferences = (object) $objUserPreferences->getArrayCopy();
 				foreach ($objPreferences->data as $k => $d)
 				{
-					$objData->data->$k = $d;	
+					$objData->data->$k = $d;
 				}//end foreach
-				
+
 				return $objData->data;
 				break;
 		}//end switch
 	}//end function
-	
+
 	public function saveData($key, $data)
 	{
 		$objUser = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserEntity");
 		$objUser->set("id", $this->objData->id);
-		
+
 		switch($key)
 		{
 			case "cookie_data":
@@ -86,14 +86,14 @@ class UserMySqlStorage extends AbstractCoreAdapter
 				$objData = (object) $objUserPreferences->get("data");
 				if (!isset($objData->cookie_data))
 				{
-					$objData->cookie_data = (object) array();	
+					$objData->cookie_data = (object) array();
 				}//end if
-				
+
 				$objData->cookie_data = $data;
 				$objUserPreferences->set("data", $objData);
 				$this->saveUserPreferences($objUserPreferences);
 				break;
-				
+
 			default:
 				$objUserSettings = $this->fetchUserSettings($objUser);
 				$objUserSettings->set("key", $data);
@@ -101,7 +101,7 @@ class UserMySqlStorage extends AbstractCoreAdapter
 				break;
 		}//end switch
 	}//end function
-	
+
 	public function setUserData($objUserData)
 	{
 		if ($objUserData instanceof \Zend\Session\Container)
@@ -119,13 +119,13 @@ class UserMySqlStorage extends AbstractCoreAdapter
 		$objUserEntity->set("profile_identifier", $objUserData->profile_identifier_secure);
 		$id = $objUserEntity->get("id");
 		$objUserEntity->remove("id");
-		
-		//check if user exists already and has
+
+		//check if user exists already
 		$objUser = $this->fetchUserData(array(
 			\FrontUsers\Tables\UsersTable::$tableName . ".uname" => $objUserEntity->get("uname"),
 			\FrontUsers\Tables\UsersTable::$tableName . ".pword" => $objUserEntity->get("pword"),
 		));
-	
+
 		if (!$objUser)
 		{
 			//try using the users id, password might have been updated
@@ -137,17 +137,17 @@ class UserMySqlStorage extends AbstractCoreAdapter
 			if (is_object($objUser))
 			{
 				//update user details
-				$objUserEntity->set("id", $objUser->get("id"));	
+				$objUserEntity->set("id", $objUser->get("id"));
 			}//end if
-			
+
 			//create records
 			$objUser = $this->saveUserData($objUserEntity);
 		}//end if
-	
+
 		//set primary key for user in data of other operations
 		$this->objData->id = $objUser->get("id");
 	}//end function
-	
+
 	/**
 	 * Load user data
 	 * @return \FrontUsers\Entities\FrontUserEntity
@@ -156,14 +156,14 @@ class UserMySqlStorage extends AbstractCoreAdapter
 	{
 		return $this->getUsersTable()->selectUser($arr_where);
 	}//end function
-	
+
 	/**
 	 * Save User Settings
 	 */
 	public function saveUserData(FrontUserEntity $objUser)
 	{
 		$objUser = $this->getUsersTable()->saveUser($objUser);
-		
+
 		//check if settings have been created
 		$objSettings = $this->fetchUserSettings($objUser);
 		if (!$objSettings)
@@ -171,9 +171,10 @@ class UserMySqlStorage extends AbstractCoreAdapter
 			$objSettings = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserSettingsEntity");
 			$objSettings->set("fk_id_users", $objUser->get("id"));
 			$objSettings->set("data", $this->objData);
-			$this->saveUserSettings($objSettings);
 		}//end if
-		
+		$objSettings->set("data", $this->objData);
+		$this->saveUserSettings($objSettings);
+
 		//check if preferences have been created
 		$objPreferences = $this->fetchUserPreferences($objUser);
 		if (!$objPreferences)
@@ -183,10 +184,34 @@ class UserMySqlStorage extends AbstractCoreAdapter
 			$objPreferences->set("data", (object) array("cookie_data" => (object) array()));
 			$this->saveUserPreferences($objPreferences);
 		}//end if
-		
+
 		return $objUser;
 	}//end function
+
+	/**
+	 * Function exists to indicate data should be refreshed where a user logs in and data is cached
+	 * @param FrontUserEntity $objUser
+	 */
+	public function resetUserDataOnLogin(FrontUserEntity $objUser)
+	{
+
+	}//end function
+
+	/**
+	 * Remove user data where requested
+	 * Used to refresh cache user data
+	 * @param FrontUserEntity $objUser
+	 */
+	public function clearUserSettings()
+	{
+		$this->getUserSettingsTable()->deleteUserSettings($this->objData->id);
+	}//end function
 	
+	public function clearUserPreferences()
+	{
+		
+	}//end function
+
 	/**
 	 * Load user settings
 	 * @return \FrontUsers\Entities\FrontUserSettingsEntity
@@ -195,7 +220,7 @@ class UserMySqlStorage extends AbstractCoreAdapter
 	{
 		return $this->getUserSettingsTable()->selectUserSettings($objUser);
 	}//end function
-	
+
 	/**
 	 * Load user preferences
 	 * @param FrontUserEntity $objUser
@@ -205,16 +230,24 @@ class UserMySqlStorage extends AbstractCoreAdapter
 	{
 		return $this->getUserPreferencesTable()->selectUserSettings($objUser);
 	}//end function
-	
+
 	/**
 	 * Save user settings
 	 * @param FrontUserSettingsEntity $objSettings
 	 */
-	public function saveUserSettings(FrontUserSettingsEntity $objSettings)
+	public function saveUserSettings(FrontUserSettingsEntity $objSettings = NULL)
 	{
+		if (is_null($objSettings))
+		{
+			$objSettings = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserSettingsEntity");
+			$objSettings->set("fk_id_users", $this->objData->id);
+			$objSettings->set("data", $this->objData);
+			$this->saveUserSettings($objSettings);
+		}//end if
+		
 		$this->getUserSettingsTable()->saveUserSettings($objSettings);
 	}//end function
-	
+
 	/**
 	 * Save user preferences
 	 * @param FrontUserSettingsEntity $objSettings
@@ -223,7 +256,7 @@ class UserMySqlStorage extends AbstractCoreAdapter
 	{
 		$this->getUserPreferencesTable()->saveUserSettings($objSettings);
 	}//end function
-	
+
 	/**
 	 * Create an instance of the Users Table using the Service Manager
 	 * @return \FrontUsers\Tables\UsersTable
@@ -234,10 +267,10 @@ class UserMySqlStorage extends AbstractCoreAdapter
 		{
 			$this->table_users = $this->getServiceLocator()->get('FrontUsers\Tables\UsersTable');
 		}//end if
-		
+
 		return $this->table_users;
 	}//end function
-	
+
 	/**
 	 * Create an instance of the User Settings Table using the Service Manager
 	 * @return \FrontUsers\Tables\UserSettingsTable
@@ -248,10 +281,10 @@ class UserMySqlStorage extends AbstractCoreAdapter
 		{
 			$this->table_user_settings = $this->getServiceLocator()->get('FrontUsers\Tables\UserSettingsTable');
 		}//end if
-		
+
 		return $this->table_user_settings;
 	}//end function
-	
+
 	/**
 	 * Create an instance of the User Preferences Table using the Service Manager
 	 * @return \FrontUsers\Tables\UserPreferencesTable
@@ -262,7 +295,7 @@ class UserMySqlStorage extends AbstractCoreAdapter
 		{
 			$this->table_user_preferences = $this->getServiceLocator()->get('FrontUsers\Tables\UserPreferencesTable');
 		}//end if
-		
+
 		return $this->table_user_preferences;
 	}//end function
 }//end class

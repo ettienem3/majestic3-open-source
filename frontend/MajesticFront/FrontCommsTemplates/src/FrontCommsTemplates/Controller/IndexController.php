@@ -33,7 +33,7 @@ class IndexController extends AbstractActionController
 
     	//set default content
     	$form->get("content")->setValue("#content");
-    	
+
     	if ($request->isPost())
     	{
     		// populate data into form
@@ -148,12 +148,12 @@ class IndexController extends AbstractActionController
     				$this->flashMessenger()->addSuccessMessage("Comm Template deleted");
     			} catch (\Exception $e) {
     				// Set unsuccessful message
-    				$this->flashMessenger()->addErrorMessage($e->getMessage());
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     			}// end catch
     		}//end if
 
     		// Redirect to index page
-    		return $this->redirect()->toRoute("front-comms-templates");
+      		return $this->redirect()->toRoute("front-comms-templates");
     	}//end if
 
 		//load data

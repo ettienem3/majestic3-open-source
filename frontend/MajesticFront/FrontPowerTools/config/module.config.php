@@ -4,7 +4,6 @@ return array(
         'invokables' => array(
         	'FrontPowerTools\Controller\Announcements' 			=> 'FrontPowerTools\Controller\AnnouncementsController',
         	'FrontPowerTools\Controller\Webhooks' 				=> 'FrontPowerTools\Controller\WebhooksController',
-        	'FrontPowerTools\Controller\NewsFeed' 				=> 'FrontPowerTools\Controller\NewsFeedController',
         	'FrontPowerTools\Controller\EmailTemplates' 		=> 'FrontPowerTools\Controller\EmailTemplatesController',
         ),
     ),
@@ -41,18 +40,7 @@ return array(
 													),
 											),
 									),
-
-									'news-feed' => array(
-											'type' => 'segment',
-											'options' => array(
-													'route' => '/news-feed[/:action][/:id]',
-													'defaults' => array(
-															'controller' => 'FrontPowerTools\Controller\NewsFeed',
-															'action' => 'index',
-													),
-											),
-									),
-
+									
 									"email-templates" => array(
 											'type' => 'segment',
 											'options' => array(

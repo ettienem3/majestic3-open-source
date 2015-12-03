@@ -89,7 +89,7 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 
 		foreach ($form as $form_element)
 		{
-			$html .= $this->generateFieldHtml($form, $form_element->getName());
+			$html .= $this->generateFieldHtml($form, $form_element->getName(), $arr_options);
 		}//end foreach
 
 		//add submit button
@@ -115,7 +115,7 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 		//append js utils
 		if (isset($arr_options["appendJavaScriptUtils"]) && $arr_options["appendJavaScriptUtils"] === TRUE)
 		{
-			$html .= $this->appendJavaScriptUtils();
+			$html .= $this->appendJavaScriptUtils($arr_options);
 		}//end if
 
 		return $html;
@@ -198,13 +198,13 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 					$html .= "<fieldset><legend>$section_internal_group</legend>";
 					foreach ($field as $group => $grouped_field)
 					{
-						$html .= $this->generateFieldHtml($form, $grouped_field);
+						$html .= $this->generateFieldHtml($form, $grouped_field, $arr_options);
 					}//end foreach
 
 					//close fieldset
 					$html .= "</fieldset>";
 				} else {
-					$html .= $this->generateFieldHtml($form, $field);
+					$html .= $this->generateFieldHtml($form, $field, $arr_options);
 				}//end if
 			}//end foreach
 
@@ -256,13 +256,13 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 		//append js utils
 		if (!isset($arr_options["appendJavaScriptUtils"]) || (isset($arr_options["appendJavaScriptUtils"]) && $arr_options["appendJavaScriptUtils"] !== FALSE))
 		{
-			$html .= $this->appendJavaScriptUtils();
+			$html .= $this->appendJavaScriptUtils($arr_options);
 		}//end if
 
 		return $html;
 	}//end function
 
-	private function generateFieldHtml($form, $field)
+	private function generateFieldHtml($form, $field, $arr_options = array())
 	{
 		//make sure field does exist in form, form might have been manipulated since it has been received from the Core
 		if (!$form->has($field))
@@ -310,7 +310,7 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 			$parent_css_classes .= "checkbox-inline";
 		}//end if
 
-		$html .=	"<div class=\"form-group form-element-" . $field . " $parent_css_classes\">";
+		$html .= "<div class=\"form-group form-element-" . $field . " $parent_css_classes\">";
 
 		switch (strtolower($form->get($field)->getAttribute("type")))
 		{
@@ -335,13 +335,16 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 					//add help text
 					if ($title != "")
 					{
-						$html .= "<span class=\"help-block\">$title</span>";
+						if (is_array($arr_options) && (!isset($arr_options["disable_help_button"]) || $arr_options["disable_help_button"] !== TRUE))
+						{
+							$html .= "<span class=\"help-block\">$title</span>";
+						}//end if
 					}//end if
 
 					//add errors
 					$html .= $this->view->formElementerrors($form->get($field));
 
-					$html .=	"</div>";
+					$html .= "</div>";
 				}//end if
 				break;
 
@@ -349,15 +352,12 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 
 			case "checkbox":
 			case "radio":
-
-// 				$form->get($field)->setLabelAttributes(array("class" => "selector-width"));
-
 				$form->get($field)->setAttribute("class", "selector-width");
-				$html .= 		$this->view->formElement($form->get($field));
+				$html .= $this->view->formElement($form->get($field));
 
 				if ($form->get($field)->getLabel() != "")
 				{
-					$html .= 	$this->view->formLabel($form->get($field));
+					$html .= $this->view->formLabel($form->get($field));
 				} //end if
 
 				if ($form->get($field)->getAttribute("required") == "required")
@@ -368,25 +368,28 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 				//add help text
 				if ($title != "")
 				{
-					$html .= "<span class=\"help-block\">$title</span>";
-				} //end if
+					if (is_array($arr_options) && (!isset($arr_options["disable_help_button"]) || $arr_options["disable_help_button"] !== TRUE))
+					{
+						$html .= "<span class=\"help-block\">$title</span>";
+					}//end if
+				}//end if
 
 				//add errors
 				$html .= $this->view->formElementerrors($form->get($field));
 
-				$html .=	"</div>";
+				$html .= "</div>";
 				break;
 
 			case "textarea":
 				if ($form->get($field)->getLabel() != "")
 				{
-					$html .= 	$this->view->formLabel($form->get($field));
+					$html .= $this->view->formLabel($form->get($field));
 				}//end if
 
 
 				$form->get($field)->setAttribute("class", "form-control");
 
-				$html .= 		$this->view->formElement($form->get($field));
+				$html .= $this->view->formElement($form->get($field));
 
 				if ($form->get($field)->getAttribute("required") == "required")
 				{
@@ -396,13 +399,16 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 				//add help text
 				if ($title != "")
 				{
-					$html .= "<span class=\"help-block\">$title</span>";
+					if (is_array($arr_options) && (!isset($arr_options["disable_help_button"]) || $arr_options["disable_help_button"] !== TRUE))
+					{
+						$html .= "<span class=\"help-block\">$title</span>";
+					}//end if
 				}//end if
 
 				//add errors
 				$html .= $this->view->formElementerrors($form->get($field));
 
-				$html .=	"</div>";
+				$html .= "</div>";
 
 				$arr_attributes = $form->get($field)->getAttributes();
 
@@ -431,7 +437,7 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 		return $html;
 	}//end function
 
-	private function appendJavaScriptUtils()
+	private function appendJavaScriptUtils($arr_options = array())
 	{
 		$html = "<script type=\"text/javascript\">";
 		$html .= 	"jQuery(document).ready( function () {

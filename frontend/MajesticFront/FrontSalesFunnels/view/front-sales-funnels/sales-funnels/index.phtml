@@ -107,11 +107,13 @@
 			$arr_sales_funnel["form"] = $objSalesFunnel->get("forms_form");
 			$arr_sales_funnel["status"] = $objSalesFunnel->get("sf_status");
 			$arr_sales_funnel["deal_number"] = $objSalesFunnel->get("sf_deal_number");
-			$arr_sales_funnel["date"] = date("d/m/Y H:i", $objSalesFunnel->get("tstamp"));
+	
+			//set date
+			$arr_sales_funnel["date"] = $this->renderFormatUserDate(array("date" =>  $objSalesFunnel->get("tstamp"), "options" => array(
+					"output_format" => "d M Y H:i",
+			)));
 
 			//set urls
-
-
 			$edit_url = "<a href=\"" . $this->url("front-sales-funnels", array("id" => $objSalesFunnel->get("id"), "reg_id" => $this->objContact->id, "action" => "edit")) . "?fid=" . $objSalesFunnel->get("fk_form_id") . "\" title=\"Update Tracker\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
 			$delete_url = "<a href=\"" . $this->url("front-sales-funnels", array("id" => $objSalesFunnel->get("id"), "reg_id" => $this->objContact->id, "action" => "delete")) . "\" title=\"Delete Tracker\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
 

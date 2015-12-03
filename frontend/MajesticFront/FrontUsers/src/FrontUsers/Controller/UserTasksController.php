@@ -55,6 +55,16 @@ class UserTasksController extends AbstractActionController
 		//validate the data
 		$objUserTask = $this->getFrontUserTasksModel()->fetchUserTask($id);
 		
+		//format dates
+		$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("datetime_reminder"));
+		$objUserTask->set("datetime_reminder", $objDate->format("d M Y H:i:s"));
+			
+		if ($objUserTask->get("date_email_reminder") != "")
+		{
+			$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("date_email_reminder"));
+			$objUserTask->set("date_email_reminder", $objDate->format("d M Y"));
+		}//end if
+		
 		//load the form
 		$form = $this->getFrontUserTasksModel()->getUserTasksForm();
 		$form->bind($objUserTask);
@@ -141,6 +151,16 @@ class UserTasksController extends AbstractActionController
 		
 		//validate the data
 		$objUserTask = $this->getFrontUserTasksModel()->fetchUserTask($id);
+		
+		//format dates
+		$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("datetime_reminder"));
+		$objUserTask->set("datetime_reminder", $objDate->format("d M Y H:i:s"));
+			
+		if ($objUserTask->get("date_email_reminder") != "")
+		{
+			$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("date_email_reminder"));
+			$objUserTask->set("date_email_reminder", $objDate->format("d M Y"));
+		}//end if
 		
 		//update the task
 		try {

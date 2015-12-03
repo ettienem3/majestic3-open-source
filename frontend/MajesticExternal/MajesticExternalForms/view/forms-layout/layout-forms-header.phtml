@@ -29,13 +29,6 @@ $profile_title = "Fafster.com";
 		//https://github.com/rgrove/lazyload/ -> js autoload/lazyload
 		echo $this->headScript()->prependFile($cdn_url . "/js/lazyload.js")
   				->prependFile($cdn_url . "/js/vendor/jquery/jquery-2.1.1.min.js")
-// 				->appendFile($cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.js")
-// 				->appendFile($cdn_url . '/js/vendor/masonry.pkgd.min.js')
-
-				//load bootstrap and items
-// 				->appendFile($cdn_url . '/bootstrap/js/bootstrap.min.js')
-// 				->appendFile($cdn_url . '/bootstrap/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')
-// 				->appendFile($cdn_url . '/bootstrap/js/alert.js')
   				->appendFile($cdn_url . '/js/plugins/mj-plugins.js')
  				->appendFile($this->basePath() . '/js/main.js')
 
@@ -57,10 +50,6 @@ $profile_title = "Fafster.com";
 		}//end if
 
 		echo $this->headLink(array("rel" => "shortcut icon", "type" => "image/vnd.microsoft.icon", "href" => $icon))
-// 				->appendStylesheet($cdn_url . '/bootstrap/css/bootstrap.min.css')
-// 				->appendStylesheet($cdn_url . '/bootstrap/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css')
-// 				->appendStylesheet($cdn_url . '/js/vendor/jquery/ui/jquery-ui.min.css')
-// 				->appendStylesheet($this->basePath() . '/css/main.css')
 				->appendStylesheet($this->basePath() . '/css/externalForms.css')
 				;
 	?>
@@ -82,9 +71,6 @@ $profile_title = "Fafster.com";
 		//lazyload additional files
 		LazyLoad.js([
 			'<?php echo $cdn_url . "/js/vendor/jquery/ui/jquery-ui.min.js";?>',
-			'<?php echo $cdn_url . "/js/plugins/mj-plugins.js";?>',
-			'<?php echo $cdn_url . "/js/vendor/masonry.pkgd.min.js";?>',
-			'<?php echo $this->basePath() . '/js/main.js';?>',
 			'<?php echo $cdn_url . "/bootstrap/js/bootstrap.min.js";?>',
 			'<?php echo $cdn_url . "/bootstrap/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js";?>',
 			'<?php echo $cdn_url . "/bootstrap/js/alert.js";?>',

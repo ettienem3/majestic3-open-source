@@ -31,7 +31,7 @@ class IndexController extends AbstractActionController
 		// Load User form
 		$form = $this->getUsersModel()->getUserSystemForm();
 
-		//set default options		
+		//set default options
 		$arr_form_field_set = array(
 			"country_id" => 0,
 			"locale_timezone" => "Africa/Johannesburg",
@@ -48,9 +48,9 @@ class IndexController extends AbstractActionController
 			"tasks_set_all_users" => 0,
 			"appointments" => 0,
 			"disable_login" => 0,
-			"bulk_approve" => 0,	
+			"bulk_approve" => 0,
 		);
-		
+
 		foreach ($arr_form_field_set as $field => $value)
 		{
 			if ($form->has($field))
@@ -58,7 +58,7 @@ class IndexController extends AbstractActionController
 				$form->get($field)->setValue($value);
 			}//end if
 		}//end foreach
-		
+
 		// HTTP request
 		$request = $this->getRequest();
 
@@ -74,8 +74,11 @@ class IndexController extends AbstractActionController
 					// Set successful message
 					$this->flashMessenger()->addSuccessMessage("User created successfully");
 
+					//set info message and redirect to allocating roles for the user
+					$this->flashMessenger()->addInfoMessage("Roles need to be allocated to the user, you can do so now with the details below");
+
 					// Redirect to index page.
-					return $this->redirect()->toRoute("front-users");
+					return $this->redirect()->toRoute("front-users-roles/user", array("action" => "allocate-role", "user_id" => $objUser->get("id")));
 				} catch (\Exception $e) {
 					//set error message
 					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
@@ -131,12 +134,12 @@ class IndexController extends AbstractActionController
 				try {
 					$objUser = $form->getData();
 					$objUser->set("id", $id);
-					
+
 					if ($request->getPost("pword") == "")
 					{
 						$objUser->set("pword", "");
 					}//end if
-					
+
 					$objUser = $this->getUsersModel()->updateUser($objUser);
 
 					// Set successful message

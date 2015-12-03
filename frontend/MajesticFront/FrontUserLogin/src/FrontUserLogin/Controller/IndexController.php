@@ -7,13 +7,14 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
 use FrontUserLogin\Models\FrontUserLoginModel;
+use Zend\Form\Form;
 
 class IndexController extends AbstractActionController
 {
 
 	/**
 	 * Container for UserLogin instance
-	 * @var \FrontUserLogin\Models\FrontUserLoginModel
+	 * @var unknown
 	 */
 	private $model_userlogin;
 
@@ -70,15 +71,9 @@ class IndexController extends AbstractActionController
 						}//end if
 					}//end if
 				} catch (\Exception $e) {
-					if ($e->getCode() == 9999)
-					{
-						ini_set("display_errors", 1);
-						trigger_error($e->getMessage(), E_USER_WARNING);
-					}//end if
-
 					// Set unsuccesful message.
 					$this->flashMessenger()->addErrorMessage("Login failed");
-
+var_dump($e->getMessage()); exit;
 					//extract error details
 					$arr_t = explode("||", $e->getMessage());
 					$objResponse = json_decode(array_pop($arr_t));
@@ -161,7 +156,7 @@ class IndexController extends AbstractActionController
 
 		//set layout
 		$this->layout("layout/layout");
-
+		
 		//check if local storage has been enabled
 		$arr_config = $this->getServiceLocator()->get("config");
 		if (!isset($arr_config["logged_in_user_settings"]))
@@ -176,12 +171,12 @@ class IndexController extends AbstractActionController
 			$this->flashMessenger()->addInfoMessage("User preferences cannot be saved. Service is not enabled");
 			return $this->redirect()->toRoute("home");
 		}//end if
-
+		
 		//load form
 		$form = $this->getUserLoginModel()->getUserNativePreferencesForm($this);
 
 		//load user preferences
-		$objUserData = FrontUserSession::readUserLocalData('cookie_data');
+		$objUserData = FrontUserSession::readUserLocalData('cookie_data');	
 		foreach ($objUserData->cookie_data as $key => $value)
 		{
 			if ($form->has($key))
@@ -215,6 +210,45 @@ class IndexController extends AbstractActionController
 
 		return array(
 				"form" => $form,
+		);
+	}//end function
+	
+	public function userSettingsAction()
+	{
+		//check if user is already logged in, if so, redirect to the home page
+		$objUser = FrontUserSession::isLoggedIn();
+		if ($objUser === FALSE)
+		{
+			return $this->redirect()->toRoute("home");
+		}//end if
+
+		//set layout
+		$this->layout("layout/layout");
+		
+		//create form
+		$objForm = new Form();
+		$objForm->add(array(
+				"type" => "text",
+				"name" => "locale_timezone",
+				"attributes" => array(
+					"id" => "locale_timezone",
+					"disabled" => "disabled",
+					"title" => "Timezone currently set for your profile",
+				),
+				"options" => array(
+						"label" => "Timezone",
+				),
+		));
+		
+		//populate form values using user settings
+		foreach ($objForm as $objElement)
+		{
+			$objForm->get($objElement->getName())->setValue($objUser->user_settings->{$objElement->getName()});
+		}//end foreach
+		
+		return array(
+			"objUser" => $objUser,
+			"form" => $objForm,
 		);
 	}//end function
 

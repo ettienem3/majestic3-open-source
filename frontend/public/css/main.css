@@ -1,3 +1,15 @@
+/*
+	Project: Majestic3
+	Author: Ninjas For Hire
+	Author URL: http://www.ninjasforhire.co.za
+*/
+@font-face {
+  font-family: 'lineicons';
+  src: url("../fonts/lineicons.eot?waiu35");
+  src: url("../fonts/lineicons.eot?#iefixwaiu35") format("embedded-opentype"), url("../fonts/lineicons.ttf?waiu35") format("truetype"), url("../fonts/lineicons.woff?waiu35") format("woff"), url("../fonts/lineicons.svg?waiu35#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
 /* line 12, ../scss/helpers/_lineicons.scss */
 [class^="icon-"], [class*=" icon-"] {
   font-family: 'lineicons';
