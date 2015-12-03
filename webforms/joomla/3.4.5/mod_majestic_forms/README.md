@@ -29,7 +29,7 @@ See documentation in Joomla for installing the component.
 
 You have a number of options to do the installation. Either zip the mod_majestic_forms folder, or install it from a directory.
 
-Once the component installation has been completed, it is time configure the component. Visit https://wiki.majestic3.com/guide-joomla-web-forms-component and follow the instructions.
+Once the component installation has been completed, it is time configure the component. Visit https://wiki.majestic3.com/joomla-web-forms-module and follow the instructions.
 
 You will need to work on styling the forms for your installation.
 

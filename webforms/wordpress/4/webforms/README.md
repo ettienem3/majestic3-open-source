@@ -27,7 +27,7 @@ This simplistic module aims to enable Wordpress websites to host and faciliate M
 *********
 See documentation in Wordpress for installing the module. 
 
-Once the module installation has been completed, it is time configure the component. Visit https://wiki.majestic3.com/guides-wordpress-web-forms-module and follow the instructions.
+Once the module installation has been completed, it is time configure the component. Visit https://wiki.majestic3.com/wordpress-web-forms-module/ and follow the instructions.
 
 You will need to work on styling the forms for your installation.
 
