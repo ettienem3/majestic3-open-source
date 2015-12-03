@@ -40,6 +40,8 @@ Ubuntu and Debian Operating systems are used on different machines
 The following php extentions are also required:
 php5-intl
 php5-curl
+php5-intl
+php5-mcrypt
 php composer
 
 We are sure you might be able to get the package running in a Windows or Mac environment, but you are on your own. Support for the open source version will be limited, Windows and Mac users, you won't get any for troubles with your environments.
@@ -61,7 +63,7 @@ Once you have created the folder, extract the contents and place it within the /
 
 Make the following folders (if they do not exist, create them. In some cases, depending on your environment, 777 might be required) writable by your web server/user:
 /home/m3front/data/*
-/home/m3front/public/images/captcha
+/home/m3front/public/captcha
 
 You will need to create a vendor folder in the root, so you will end up with a /home/m3front/vendor folder. The vendor folder will contain all 3rd party packages required by the application and will need to be updated from time to time, depending on your requirements. We suggest using composer for this operation. Using the composer.json file, you can have php install the components, or download it manually and place it in the correct location.
 
