@@ -160,7 +160,7 @@ Within this function, look for the following comment: //@TODO - create own api a
 
 These comments and exceptions will need to be replace by your code. Once you have your solution implemented, you are ready to run you first request. Within your browser, goto the domain you have setup, for instance https://demo.majestic3.com
 
-You should be presented with a login screen.
+You should be presented with a login screen. (You can now use it without having to do this, however, we are serious about the licence. If you do not take care of security, you are opening yourself to unwanted risks by not implementing your own security)
 
 To assist with debugging, enable or tweak php error reporting in the /home/m3front/public/index.php file. These options could be moved elsewhere within you application.
 
