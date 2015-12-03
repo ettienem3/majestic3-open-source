@@ -37,6 +37,7 @@ require_once 'classes/cls_form_element_predefined.php';
  * Gather params from module configuration
  */
 $formid 				= $params->get('formid');
+$form_css_enabled		= $params->get("form_css_enabled");
 $cache_form 			= $params->get('cache_form');
 $cache_form_ttl 		= $params->get('cache_form_ttl');
 $cache_path 			= "./tmp/form_cache_majestic_" . $formid . ".json"; //keep cached files out of public folders!

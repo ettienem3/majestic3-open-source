@@ -29,33 +29,33 @@ class cls_form_element
 	 * @var stdClass
 	 */
 	private $objRawFieldData;
-	
+
 	/**
 	 * Container for parsed field data
 	 * @var stdClass
 	 */
 	private $objField;
-	
+
 	/**
 	 * Container for element errors
 	 * @var stdClass
 	 */
 	private $objElementErrors;
-	
+
 	private $element_value;
 	private $element_label;
 	private $element_html;
-	
+
 	public function __construct($objField)
 	{
 		//check for predefined fields
 		if ($objField instanceof cls_form_element_predefined)
 		{
 			$this->objField = $objField->generateField();
-			$this->objRawFieldData = $objField->generateRawFieldData();	
+			$this->objRawFieldData = $objField->generateRawFieldData();
 			return;
 		}//end if
-		
+
 		$this->objRawFieldData = $objField;
 
 		//setup element
@@ -81,21 +81,21 @@ class cls_form_element
 			$this->objField->style 			= $this->objRawFieldData->fields_custom_css_style;
 			$this->objField->input_type 	= $this->objRawFieldData->fields_custom_input_type;
 		}//end if
-		
+
 		$this->objField->required 		= $this->objRawFieldData->mandatory;
 		$this->objField->readonly		= $this->objRawFieldData->readonly;
 		$this->objField->hidden			= $this->objRawFieldData->hidden;
 	}//end function
-	
+
 	/**
 	 * Set value to be used when html is generated
 	 * @param mixed $value
 	 */
 	public function setElementValue($value)
 	{
-		$this->element_value = $value;	
+		$this->element_value = $value;
 	}//end function
-	
+
 	/**
 	 * Set element specific errors
 	 * @param stdClass $objErrors
@@ -104,7 +104,7 @@ class cls_form_element
 	{
 		$this->objElementErrors = $objErrors;
 	}//end function
-	
+
 	/**
 	 * Override magic function to pull element data from $objField
 	 * @param string $key
@@ -114,7 +114,7 @@ class cls_form_element
 	{
 		return $this->objField->$key;
 	}//end function
-	
+
 	/**
 	 * Returns the generate html to be used on a form
 	 */
@@ -123,7 +123,7 @@ class cls_form_element
 		$this->generateElementHTML();
 		return $this->element_label . $this->element_html;
 	}//end function
-	
+
 	/**
 	 * Process field data and create html element from it
 	 */
@@ -134,34 +134,37 @@ class cls_form_element
 		{
 			$this->objField->input_type = "hidden";
 		}//end if
-		
+
 		switch ($this->objField->input_type)
 		{
 			case "text":
 			default: //catch any undefined types
 				$html = "<input type=\"text\" name=\"" . $this->objField->name . "\" id=\"" . $this->objField->name . "\" #required #style #maxlength #class #value/>";
 				break;
-				
+
 			case "hidden":
 				$html = "<input type=\"hidden\" name=\"" . $this->objField->name . "\" id=\"" . $this->objField->name . "\" #value/>";
 				break;
-				
+
 			case "radio":
-				foreach ($arr_field_values as $value)
+				if (is_array($this->objRawFieldData->field_values) || is_object($this->objRawFieldData->field_values))
 				{
-					$value = str_replace("\r", "", $value);
-					$html .= "<input type=\"radio\" name=\"" . $this->objField->name . "\" value=\"$value\"/ #class>&nbsp$value";
-				}//end foreach
+					foreach ($this->objRawFieldData->field_values as $value)
+					{
+						$value = str_replace("\r", "", $value);
+						$html .= "<input type=\"radio\" name=\"" . $this->objField->name . "\" value=\"$value\"/ #class>&nbsp$value&nbsp;";
+					}//end foreach
+				}//end if
 				break;
-				
+
 			case "checkbox":
 				$html = "<input type=\"checkbox\" name=\"" . $this->objField->name . "\" id=\"" . $this->objField->name . "\" value=\"1\" #required #style #class/>";
 				break;
-				
+
 			case "select":
 				$html = "<select name=\"" . $this->objField->name . "\" id=\"" . $this->objField->name . "\" #required #style #class>";
 				$html .= 	"<option value=''>--select--</option>";
-				
+
 				if (is_array($this->objRawFieldData->field_values) || is_object($this->objRawFieldData->field_values))
 				{
 					foreach ($this->objRawFieldData->field_values as $value => $text)
@@ -179,47 +182,50 @@ class cls_form_element
 						}//end foreach
 					}//end if
 				}//end if
-				
+
 				$html .= "</select>";
 				break;
-				
+
 			case "textarea":
-				$html = "<textarea name=\"" . $this->objField->name . "\" id=\"" . $this->objField->name . "\" #required #style #maxlength #class>#value<textarea/>";
+				$html = "<textarea name=\"" . $this->objField->name . "\" id=\"" . $this->objField->name . "\" #required #style #maxlength #class>#value</textarea>";
 				break;
 		}//end switch
-		
+
 		//set label
-		$label = "<label for=\"" . $this->objField->name . "\">" . $this->objField->label . "</label>";
-		
+		if (!isset($label))
+		{
+			$label = "<label class=\"form-label\" for=\"" . $this->objField->name . "\">" . $this->objField->label . "</label>";
+		}//end if
+
 		//deal with element metadata
 		if ($this->objRawFieldData->css_class != "")
 		{
 			$html = str_replace("#class", "class=\"" . $this->objRawFieldData->css_class . "\"", $html);
 		}//end if
-		
+
 		if ($this->objField->style != "")
 		{
 			$html = str_replace("#style", "style=\"" . $this->objField->style . "\"", $html);
 		}//end if
-		
+
 		if ($this->objField->required == 1)
 		{
 			$html = str_replace("#required", "required=\"required\"", $html);
 		}//end if
-		
+
 		if ($this->objField->readonly == 1)
 		{
 			$html = str_replace("#readonly", "readonly=\"readonly\"", $html);
 		}//end if
-		
+
 		if ($this->objField->maxlength > 0)
 		{
 			$html = str_replace("#maxlength", "maxlength=\"" . $this->objField->maxlength . "\"", $html);
 		}//end if
-		
+
 		//remove any unprocessed tags
 		$html = str_replace(array("#class", "#style", "#required", "#readonly", "#maxlength"), "", $html);
-		
+
 		//finally, does the element have a predefined value?
 		if ($this->element_value != FALSE)
 		{
@@ -227,10 +233,10 @@ class cls_form_element
 		} else {
 			$html = str_replace("#value", "", $html);
 		}//end if
-		
+
 		$this->element_label = $label;
 		$this->element_html = $html;
-		
+
 		//add error messages where set
 		if ($this->objElementErrors !== FALSE && is_object($this->objElementErrors))
 		{

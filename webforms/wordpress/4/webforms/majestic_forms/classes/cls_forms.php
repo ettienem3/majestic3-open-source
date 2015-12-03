@@ -29,67 +29,67 @@ class cls_forms
 	 * @var int
 	 */
 	private $form_id;
-	
+
 	/**
 	 * Container for the form field elements
 	 * @var array
 	 */
 	private $arr_form_elements = array();
-	
+
 	/**
 	 * Container for the Form Data received from API
 	 * @var stdClass
 	 */
 	private $objFormData;
-	
+
 	/**
 	 * Container for the API Request Model
 	 * @var cls_execute_request
 	 */
 	private $objApiRequest;
-	
+
 	/**
 	 * Container for base api url
 	 * @var string
 	 */
 	private $api_url;
-	
+
 	/**
 	 * Some general form attributes
 	 * @var string
 	 */
 	public $form_method = "post";
-	
+
 	/**
 	 * Some general form attributes
 	 * @var string
 	 */
 	public $form_action = "";
-	
+
 	/**
 	 * Some general form attributes
 	 * @var string
 	 */
 	public $form_class= "my-custom-form";
-	
+
 	/**
 	 * Some general form attributes
 	 * @var string
 	 */
 	public $form_name = "frmMyForm";
-	
+
 	/**
 	 * Some general form attributes
 	 * @var string
 	 */
 	public $form_css_id = "frmMyForm";
-	
+
 	/**
 	 * Messages to be displayed on the form
 	 * @var array
 	 */
 	public $form_messages = array();
-	
+
 	/**
 	 * Inject API Request Object
 	 * @param unknown $objApiRequest
@@ -99,7 +99,7 @@ class cls_forms
 		$this->objApiRequest = $objApiRequest;
 		$this->api_url = $objApiRequest->getKey("api_url");
 	}//end function
-	
+
 	/**
 	 * Generate the form and its elements
 	 * @param unknown $form_id
@@ -109,7 +109,7 @@ class cls_forms
 		$this->form_id = $form_id;
 		$this->requestFormData();
 	}//end function
-	
+
 	/**
 	 * Obtain form HTML
 	 * @param array $arr_form_data - Data to be used to populate the form with
@@ -118,7 +118,7 @@ class cls_forms
 	public function generateOutput($arr_form_data = array())
 	{
 		$html = "<form method=\"$this->form_method\" action=\"$this->form_action\" class=\"$this->form_class\" name=\"$this->form_name\" id=\"$this->form_css_id\">";
-		
+
 		//add form messages
 		if (is_array($this->form_messages) && count($this->form_messages) > 0)
 		{
@@ -126,34 +126,34 @@ class cls_forms
 			foreach ($this->form_messages as $message)
 			{
 				$html .= "<li><div class=\"form-message\">$message</div></li>";
-			}//end foreach	
+			}//end foreach
 			$html .= "</ul>";
 		}//end if
-		
+
 		//inject elements
 		foreach ($this->arr_form_elements as $objField)
 		{
 			if (isset($arr_form_data[$objField->name]))
 			{
-				$objField->setElementValue($arr_form_data[$objField->name]);	
+				$objField->setElementValue($arr_form_data[$objField->name]);
 			}//end if
-			
+
 			//ignore some elements
 			if (strtolower($objField->name) == "submit")
 			{
 				continue;
 			}//end if
-			
-			$html .= "<div class=\"form_element\">" . $objField->generateOutput() . "</div>";	
+
+			$html .= "<div class=\"form_element\">" . $objField->generateOutput() . "</div>";
 		}//end foreach
-		
+
 		//add submit button
 		$html .= "<div class=\"form_element\"><input type=\"submit\" value=\"" . $this->objFormData->submit_button . "\" name=\"submit\"/></div>";
 		$html .= "</form>";
-		
+
 		return $html;
 	}//end function
-	
+
 	/**
 	 * Submit the form and its data to the API and process the response
 	 * @param array $arr_form_data
@@ -163,7 +163,7 @@ class cls_forms
 		//check which form type has been received
 		switch ($this->objFormData->form_types_behaviour)
 		{
-			default:				
+			default:
 				$api_url = $this->api_url . "/forms/external/" . $this->objFormData->id;
 				$this->objApiRequest->setKey("api_url", $api_url);
 				$objResult = $this->objApiRequest->performCreateAction($arr_form_data, array("fid" => $this->objFormData->id));
@@ -172,7 +172,7 @@ class cls_forms
 				if ($objResult->HTTP_RESPONSE_CODE != 200)
 				{
 					$this->form_messages[] = $objResult->HTTP_RESPONSE_MESSAGE;
-				
+
 					//add errors to elements
 					foreach ($this->arr_form_elements as $objField)
 					{
@@ -182,17 +182,17 @@ class cls_forms
 							{
 								continue;
 							}//end if
-							
+
 							if (!isset($objFieldResponse->attributes->name) || !is_object($objFieldResponse) || $objFieldResponse->attributes->name != $objField->name)
 							{
-								continue;	
+								continue;
 							}//end if
 
 							//set error message
 							if (isset($objFieldResponse->messages) && count($objFieldResponse->messages) > 0)
 							{
 								$objField->setErrors((object) $objFieldResponse->messages);
-							}//end if	
+							}//end if
 						}//end foreach
 					}//end foreach
 				} else {
@@ -201,7 +201,7 @@ class cls_forms
 				break;
 		}//end switch
 	}//end function
-	
+
 	/**
 	 * Request form data and its elements data from the API
 	 */
@@ -209,7 +209,7 @@ class cls_forms
 	{
 		//set endpoint
 		$api_url = $this->api_url . "/forms/form/" . $this->form_id;
-		
+
 		//request form data from the api
 		$this->objApiRequest->setKey("api_url", $api_url);
 		$objData = $this->objApiRequest->performListAction();
@@ -220,30 +220,30 @@ class cls_forms
 		{
 			$this->objFormData->submit_button = "Submit";
 		}//end if
-		
+
 		/**
 		 * Load form fields
-		 * Some forms types have different endpoint concerning their data
+		 * Some form types have different endpoint concerning their data
 		 * Although all data could be loaded via '/forms/form/" . $this->form_id . "?include_fields=1' endpoint, it only returns raw data
 		 * To obtain already defined form elements, use the external form endpoint: '/forms/external/" . $this->form_id'
 		 * This will return elements along with some other data such as filter and validators in some cases.
 		 */
  		switch ($this->objFormData->form_types_behaviour)
- 		{ 			
- 			default: 				
+ 		{
+ 			default:
  			case "__web":
  				$url = $this->api_url . "/forms/external/" . $this->form_id;
  				$this->requestWebFormFields($url);
  				break;
  		}//end switch
 	}//end function
-	
+
 	/**
 	 * Request raw fields associated with a form, this data is not available by the external form endpoint
 	 * @param string $url
 	 */
 	private function requestRawFormFields($url)
-	{		
+	{
 		//request form data from the api
 		$this->objApiRequest->setKey("api_url", $url);
 		$objData = $this->objApiRequest->performListAction();
@@ -256,12 +256,12 @@ class cls_forms
 			{
 				continue;
 			}//end if
-		
+
 			$objFormElement = new cls_form_element($objField);
 			$this->arr_form_elements[] = $objFormElement;
 		}//end foreach
 	}//end function
-	
+
 	/**
 	 * Request web form fields
 	 * @param string $url
@@ -275,7 +275,7 @@ class cls_forms
 		foreach ($objData->data->arr_fields as $objField)
 		{
 			$objPredefinedField = new cls_form_element_predefined($objField);
-			
+
 			$objFormElement = new cls_form_element($objPredefinedField);
 			$this->arr_form_elements[] = $objFormElement;
 		}//end foreach

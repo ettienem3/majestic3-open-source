@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  Copyright (c) 2015 Majestic 3 http://majestic3.com
 
@@ -23,39 +23,62 @@
  */
 
 // No direct access
-defined('_JEXEC') or die; 
+defined('_JEXEC') or die;
 try {
 	//set initial api request values
 	$objExecuteRequest->setKey('api_url', $arr_credentials['api_base_url']); //object is defined in mod_majestic_forms.php
 
 	//load forms model
 	$objForm = new cls_forms($objExecuteRequest);
-	
+
 	//generate the form
 	$objForm = loadMajesticForm(
-									$objForm, 
-									$formid, 
-									array(), 
+									$objForm,
+									$formid,
+									array(),
 									$arr_config = array(
-														'cache_form' => $cache_form, 
-														'cache_form_ttl' => $cache_form_ttl, 
+														'cache_form' => $cache_form,
+														'cache_form_ttl' => $cache_form_ttl,
 														'cache_path' => $cache_path)
 								);
-	
+
 	//set data to be populated into form where applicable, in this case only the post data is being used
 	if ($_POST)
 	{
 		$arr_form_data = $_POST;
 		//submit form data to the api
 		$objForm->submitForm($arr_form_data);
-	} else {		
+	} else {
 		//this array could be used to prepoulate form elements
 		$arr_form_data = array();
 	}//end if
-	
+
 	//generate form html
 	$form_html = $objForm->generateOutput($arr_form_data);
-	
+
+	if ($form_css_enabled == 1)
+	{
+		//add some basic styling
+		$form_html .= '
+					<style>
+						#' . $objForm->form_css_id . ' {
+							padding: 5px;
+							display: inline-block;
+							margin-bottom: 25px;
+							width: 500px;
+						}
+
+						#' . $objForm->form_css_id . ' div {
+							margin: 5px 0px 5px 0px;
+						}
+
+						#' . $objForm->form_css_id . ' label.form-label  {
+							display: inline-block;
+							width: 150px;
+						}
+					</style>';
+	}//end if
+
 	//present the form
 	echo $form_html;
 } catch (Exception $e) {
@@ -75,15 +98,15 @@ try {
  * @return cls_forms
  */
 function loadMajesticForm($objForm, $formid, $arr_form_data = array(), $arr_config = array())
-{	
+{
 	//set cache enabled flag
 	if (isset($arr_config['cache_form']) && $arr_config['cache_form'] == 1 && isset($arr_config['cache_form_ttl']) && $arr_config['cache_form_ttl'] > 0)
 	{
 		$cache_enabled = true;
 	} else {
-		$cache_enabled = false;	
+		$cache_enabled = false;
 	}//end if
-	
+
 	/**
 	 * Load data from cache where enabled
 	 */
@@ -93,7 +116,7 @@ function loadMajesticForm($objForm, $formid, $arr_form_data = array(), $arr_conf
 		{
 			$json = file_get_contents($arr_config["cache_path"]);
 			$obj = json_decode($json);
-		
+
 			//check if cache has expired
 			if (time() > ($obj->cache_expires - 10))
 			{
@@ -108,12 +131,12 @@ function loadMajesticForm($objForm, $formid, $arr_form_data = array(), $arr_conf
 		//mark form as false for load/reload to take place
 		$objFormData = false;
 	}//end if
-	
+
 	if ($objFormData === false)
 	{
 		//connect to the api and load form data required
 		$objForm->generateForm($formid);
-		
+
 		if ($cache_enabled === true)
 		{
 			/**
@@ -128,6 +151,6 @@ function loadMajesticForm($objForm, $formid, $arr_form_data = array(), $arr_conf
 	} elseif ($objFormData instanceof cls_forms) {
 		$objForm = $objFormData;
 	}//end function
-	
+
 	return $objForm;
 }//end function

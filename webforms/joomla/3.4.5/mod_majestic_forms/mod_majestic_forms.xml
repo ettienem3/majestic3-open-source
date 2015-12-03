@@ -17,6 +17,7 @@
 			<field name="apiusername" type="text" label="Username" required="true" description="Username" filter="text" />
 			<field name="apipassword" type="password" label="Password" required="true" description="Password" filter="text" />
 			<field name="formid" type="text" label="Form ID" required="true" description="Form ID to serve" filter="text" />
+			<field name="form_css_enabled" type="checkbox" label="Use default form styling" value="1" description="Use default form styling" filter="text" />
 			<field name="cache_form" type="checkbox" label="Cache Form" value="1" description="Cache form locally for improved loading times" filter="text" />
 			<field name="cache_form_ttl" type="text" label="Cache Form TTL" value="86400" description="Cache form for a set period (Seconds)" filter="text" />
 			</fieldset>

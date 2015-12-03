@@ -43,6 +43,7 @@ $arr_config_fields = array(
 		'm3_api_username',
 		'm3_api_password',
 		'm3_form_id',
+		'm3_form_default_css',
 		'm3_cache_form',
 		'm3_cache_form_ttl'
 );
@@ -99,6 +100,7 @@ function majestic_forms_install()
 	add_option('m3_api_username', '', '', 'yes');
 	add_option('m3_api_password', '', '', 'yes');
 	add_option('m3_form_id', '0', '', 'yes');
+	add_option('m3_form_default_css', '0', '', 'yes');
 	add_option('m3_cache_form', '1', '', 'yes');
 	add_option('m3_cache_form_ttl', '86400', '', 'yes');
 }//end function
@@ -118,16 +120,17 @@ function majestic_forms_remove()
 /**
  * Deals with presenting and submitting forms
  */
-function majestic_form() 
+function majestic_form()
 {
 	$api_url 			= get_option('m3_api_base_url');
 	$api_key 			= get_option('m3_api_key');
 	$api_user 			= get_option('m3_api_username');
 	$api_pword 			= get_option('m3_api_password');
 	$formid 			= get_option('m3_form_id');
+	$form_css_enabled	= get_option('m3_form_default_css');
 	$cache_form 		= get_option('m3_cache_form');
 	$cache_form_ttl 	= get_option('m3_cache_form_ttl');
-	
+
 	//set cache path
 	if (!is_dir(getcwd() . '/wp-content/mjforms_tmp'))
 	{
@@ -137,55 +140,78 @@ function majestic_form()
 		}//end if
 	}//end if
 	$cache_path = getcwd() . '/wp-content/mjforms_tmp/formcache' . $formid . '.json';
-	
+
 	$arr_credentials = array(
 								'api_base_url' 		=> $api_url . '/api',
 								'api_key' 			=> $api_key,
-								'api_username' 		=> $api_user, 
+								'api_username' 		=> $api_user,
 								'api_password' 		=> $api_pword,
 						);
-	
+
 	//load request object and set variables
 	$objExecuteRequest = new cls_execute_request();
-	
+
 	//set variables load from credentials config file
 	$objExecuteRequest->setKeyFromArray($arr_credentials);
-	
+
 	//set api url
 	$objExecuteRequest->setKey('api_url', $arr_credentials['api_base_url']);
-	
+
 	try {
 		//set initial api request values
 		$objExecuteRequest->setKey('api_url', $arr_credentials['api_base_url']); //object is defined in mod_majestic_forms.php
-	
+
 		//load forms model
 		$objForm = new cls_forms($objExecuteRequest);
-		
+
 		//generate the form
 		$objForm = loadMajesticForm(
-										$objForm, 
-										$formid, 
-										array(), 
+										$objForm,
+										$formid,
+										array(),
 										$arr_config = array(
-															'cache_form' => $cache_form, 
-															'cache_form_ttl' => $cache_form_ttl, 
+															'cache_form' => $cache_form,
+															'cache_form_ttl' => $cache_form_ttl,
 															'cache_path' => $cache_path)
 									);
-		
+
 		//set data to be populated into form where applicable, in this case only the post data is being used
 		if ($_POST)
 		{
 			$arr_form_data = $_POST;
 			//submit form data to the api
 			$objForm->submitForm($arr_form_data);
-		} else {		
+		} else {
 			//this array could be used to prepoulate form elements
 			$arr_form_data = array();
 		}//end if
-		
+
 		//generate form html
 		$form_html = $objForm->generateOutput($arr_form_data);
-		
+
+		if ($form_css_enabled == 1)
+		{
+			//add some basic styling
+			$form_html .= '
+					<style>
+						#' . $objForm->form_css_id . ' {
+							padding: 5px;
+							display: inline-block;
+							margin-bottom: 25px;
+							width: 500px;
+						}
+
+						#' . $objForm->form_css_id . ' div {
+							margin: 5px 0px 5px 0px;
+						}
+
+						#' . $objForm->form_css_id . ' label.form-label  {
+							display: inline-block;
+							width: 150px;
+						}
+					</style>';
+		}//end if
+
 		//present the form
 		echo $form_html;
 	} catch (Exception $e) {
@@ -283,39 +309,44 @@ function majestic_forms_plugin_setup()
 				<input type="hidden" name="majestic3_forms_config" value="1" />
          <?php
 		 	settings_fields( 'options-group' );
-		 	do_settings_sections( 'options-group' ); 
+		 	do_settings_sections( 'options-group' );
 		 ?>
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row">API Base URL</th>
 							<td><input type="text" required="required" title="Set the API Location URL to hit with requests" name="m3_api_base_url" value="<?php echo esc_attr( get_option('m3_api_base_url') ); ?>" /></td>
 					</tr>
-        
+
 					<tr valign="top">
 						<th scope="row">Username</th>
 						<td><input type="text" required="required" title="Set Username required for API requests" name="m3_api_username" value="<?php echo esc_attr( get_option('m3_api_username') ); ?>" /></td>
 					</tr>
-        
+
 					<tr valign="top">
 						<th scope="row">Password</th>
 						<td><input type="password" required="required" title="Set Password required for API requests" name="m3_api_password" value="<?php echo esc_attr( get_option('m3_api_password') ); ?>" /></td>
 					</tr>
-					
+
 					<tr valign="top">
 						<th scope="row">API Key</th>
 						<td><input type="text" required="required" title="Set API Key required for API requests" name="m3_api_key" value="<?php echo esc_attr( get_option('m3_api_key') ); ?>" /></td>
-					</tr>					
-        
+					</tr>
+
 					<tr valign="top">
 						<th scope="row">Web Form ID</th>
 						<td><input type="text" required="required" title="Set Web Form ID to be used" name="m3_form_id" value="<?php echo esc_attr( get_option('m3_form_id') ); ?>" /></td>
 					</tr>
-					
+
+					<tr valign="top">
+						<th scope="row">Use default form styling</th>
+						<td><input type="checkbox" title="Enable default form styling" name="m3_form_default_css" value="1" <?php if (get_option('m3_form_default_css') == 1) { echo "checked=\"checked\"";} ?>/></td>
+					</tr>
+
 					<tr valign="top">
 						<th scope="row">Enable Caching</th>
 						<td><input type="checkbox" title="Enable or Disable local form caching. It speeds up presenting the form to the visitor" name="m3_cache_form" value="1" <?php if (get_option('m3_cache_form') == 1) { echo "checked=\"checked\"";} ?> /></td>
 					</tr>
-					
+
 					<tr valign="top">
 						<th scope="row">Form Cache Timeout (Seconds)</th>
 						<td><input type="text" title="Set how long a form should be cached for in seconds. This is ignored if caching is not enabled" name="m3_cache_form_ttl" value="<?php echo esc_attr( get_option('m3_cache_form_ttl') ); ?>" /></td>
@@ -323,7 +354,7 @@ function majestic_forms_plugin_setup()
 				</table>
 		 <?php submit_button(); ?>
 			</form>
-		</div> 
+		</div>
    <?php
 }//end function
 
@@ -338,10 +369,10 @@ function majestic_forms_plugin_setup_process($arr_data)
 	{
 		return;
 	}//end if
-	
+
 	//bring config fields array into scope
 	global $arr_config_fields;
-	
+
 	foreach ($arr_config_fields as $field)
 	{
 		update_option($field, $_POST[$field]);
@@ -351,13 +382,13 @@ function majestic_forms_plugin_setup_process($arr_data)
 /**
  * Class handling form widget
  */
-class majestic_forms_widget extends WP_Widget 
+class majestic_forms_widget extends WP_Widget
 {
 
 	/**
 	 * Sets up the widgets name etc
 	 */
-	public function __construct() 
+	public function __construct()
 	{
 		parent::__construct(
 					'majestic', // Base ID
@@ -382,7 +413,7 @@ class majestic_forms_widget extends WP_Widget
 	 *
 	 * @param array $instance The widget options
 	 */
-	public function form( $instance ) 
+	public function form( $instance )
 	{
 		// outputs the options form on admin
 	}//end function
@@ -393,7 +424,7 @@ class majestic_forms_widget extends WP_Widget
 	 * @param array $new_instance The new options
 	 * @param array $old_instance The previous options
 	 */
-	public function update( $new_instance, $old_instance ) 
+	public function update( $new_instance, $old_instance )
 	{
 		// processes widget options to be saved
 	}//end function
