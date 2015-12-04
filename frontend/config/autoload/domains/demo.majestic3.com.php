@@ -26,14 +26,14 @@ return array(
 		'frontend_db_config' => array(
 				'enabled' => TRUE,
 				'database' => 'm3_frontend_data',
-				'username' => 'root',
-				'password' => 'password',
+				'username' => '***********',
+				'password' => '***********',
 				'hostname' => '127.0.0.1',
 		),
 
 		/**
 		 * Comment this array to run with NO db installed and local storage disabled
-		 * Note, frontend_db_config must be set and database must be available, if not, you will encounter and error
+		 * Note, frontend_db_config must be set and database must be available, if not, you will encounter an error
 		 */
 		'logged_in_user_settings' => array(
 				'storage_enabled' => TRUE,

@@ -24,8 +24,6 @@ The aim of this project is to establish a vibrant and active online community, u
 
 This open source version is derived from the Front End Majestic3 provides as a starter or native solution for new and current clients.
 
-To see it in action, visit https://frontopensource.majestic3.com. You will be able to login with the Development user details supplied to you.
-
 
 ~REQUIREMENTS~
 **************
@@ -52,7 +50,7 @@ Since the application is built with the Zend Framework 2 environment, some under
 
 In most cases, comments on classes and functions are adequate for a proper IDE to follow the code. We use Eclipse, but PHP Storm and Netbeans have been heard to be ok as well.
 
-In order to do anything useful, you will need to already have an open and active Majestic 3 profile running. Within this profile, have a user, its password and its api key handy. You will also need the approriate api server location. These are normally provided upon registering a new profile. Any subsequent users created, will have their own unique keys.
+In order to do anything useful, you will need to already have an open and active Majestic 3 profile running. From this profile, have a user, its password and its api key handy. You will also need the approriate api server location. These are normally provided upon registering a new profile. Any subsequent users created, will have their own unique keys.
 
 
 ~INSTALLATION~
@@ -100,7 +98,6 @@ You will need to create a configuration file for your domain pointing to the app
 So, for instance, we have created the demo.majestic3.com domain within the webserver and is now pointing to the /home/m3front/public folder. We will need to create the /home/m3front/config/autoload/domains/demo.majestic3.com.php configuration file.
 
 Within this file, the following information is required to be set:
-
 <?php
 return array(
 		'profile_config' => array(
@@ -124,6 +121,9 @@ return array(
 				'storage' => '\\FrontUsers\\Storage\\UserMySqlStorage',
 		),
 );
+?>
+
+Have a look at the demo.majestic3.com.php file for a more complete example.
 
 An explanation of each section:
 
@@ -152,26 +152,28 @@ Tip: if you are having problems with configuring your environment, try installin
 Now that your environment has been configured and installed, it is time to get your hands dirty and do some coding.
 For security reasons, each implementation of the Front End will need to come up with their own implementation of user authentication (setting headers) concerning api calls. Most of the information will have been provided to you upon requesting a developement profile.
 
-It is your responsibility to implement measures and safeguards to make api calls and make sure that user credentials are as safe from prying eyes as they could be (We will not be held liable for anything, see the licence below). These details should be sent from server to server. Do NOT attempt to try and submit these header details via a browser from a user interacting with your software. You will have a tough time making it work and will expose credentials and/or sensitive information. Also, get SSL running as first step to provide you with further protection.
+It is your responsibility to implement measures and safeguards to make api calls and make sure that user credentials are as safe from prying eyes as they could be (We will not be held liable for anything, see the licence below). These details should be sent from server to server. Do NOT attempt to try and submit these header details via a browser from a user interacting with your software. You will have a tough time making it work and will expose credentials and/or sensitive information. Also, get SSL running as a priority to provide you with further protection.
 
-The first starting point is the /home/m3front/MajesticFront/FrontCore/src/FrontCore/Models/ApiRequestModel.php file. Search for the executeRequest function.
+The starting point is the /home/m3front/MajesticFront/FrontCore/src/FrontCore/Models/ApiRequestModel.php file. Search for the executeRequest function.
 
 Within this function, look for the following comment: //@TODO - create own api authentication logic
 
-These comments and exceptions will need to be replace by your code. Once you have your solution implemented, you are ready to run you first request. Within your browser, goto the domain you have setup, for instance https://demo.majestic3.com
+Note: Although the above code implementations are no longer required, we urge you to do so in any case. We are serious about the licence. If you do not take care of security, you are opening yourself to unwanted risks by not implementing your own security measures.
 
-You should be presented with a login screen. (You can now use it without having to do this, however, we are serious about the licence. If you do not take care of security, you are opening yourself to unwanted risks by not implementing your own security)
+These comments and exceptions will need to be replace by your code. Once you have your solution implemented, you are ready to run your first request. Within your browser, goto the domain you have setup, for instance https://demo.majestic3.com.
+
+You should be presented with a login screen.
 
 To assist with debugging, enable or tweak php error reporting in the /home/m3front/public/index.php file. These options could be moved elsewhere within you application.
 
 Resouces such as images, stylesheets and scripts are loaded from https://cdn-aws.majestic3.com. This location can be set within the global.php file under the cdn_config section. This can also be set from the domain specific configuration file. The global and domain configuration files are merged, with the domain content superceeding the global contents. In other words, the two arrays are merged and items could be overwritten by the array contained with the domain specific config file.
 
-Once you have your installation running, we urge you to make changes to you environment to remove the api key field from the login screen to avoid irratation by your clients and make it more secure. Tip, once the user has logged in the first time successfully, the api key can be stored locally using the storage models provided.
+Once you have your installation running, we urge you to make changes to you environment to remove the api key field from the login screen to avoid irratation from your your users and make it more secure. Tip: once the user has logged in the first time successfully, the api key can be stored locally using the storage models provided.
 
 
 ~CLOSING~
 *********
-This is the second Beta version of the open source project and there are bound to be issues, bugs or other issues coming out of the woodwork. Please share your experiences, frustrations, ideas and happines with us in order to try and make it even better for the next release at issues@majestic3.com.
+This is the third Beta version of the open source project and there are bound to be issues, bugs or other issues coming out of the woodwork. Please share your experiences, frustrations, ideas and happines with us in order to try and make it even better for the next release at issues@majestic3.com.
 
 Once this release has become more stable and is ready for a formal release, will we endeaviour to put together a simple manual to assist with coding, highlight which code to target for which specific operations, more in depth explanations etc etc.
 
