@@ -1,3 +1,5 @@
+![Logo](http://majestic3.com/wp-content/uploads/2015/01/m3logosLONGie.png)
+
 *********************************************
 * Majestic 3 Front End Open Source Project  *
 *********************************************
