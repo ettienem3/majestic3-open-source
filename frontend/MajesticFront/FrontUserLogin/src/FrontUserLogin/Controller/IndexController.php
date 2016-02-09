@@ -73,7 +73,7 @@ class IndexController extends AbstractActionController
 				} catch (\Exception $e) {
 					// Set unsuccesful message.
 					$this->flashMessenger()->addErrorMessage("Login failed");
-var_dump($e->getMessage()); exit;
+
 					//extract error details
 					$arr_t = explode("||", $e->getMessage());
 					$objResponse = json_decode(array_pop($arr_t));
