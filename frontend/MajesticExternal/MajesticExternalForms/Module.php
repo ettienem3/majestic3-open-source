@@ -88,6 +88,13 @@ class Module
     				 */
     				'MajesticExternalForms\Models\MajesticExternalFormsCacheModel' => function ($sm) {
     					$arr_config = $sm->get("config");
+    					
+    					//set ttl
+    					$ttl = (86400 * 2); //48 hours
+    					
+    					//override ttl
+    					$arr_config["cache_redis_config_common"]['adapter']['options']['ttl'] = $ttl;
+    					$arr_config["cache_filesystem_config_common"]['adapter']['options']['ttl'] = $ttl;
     					try{
     						$cache = StorageFactory::factory($arr_config["cache_redis_config_common"]);
     					}catch (\Exception $e) {

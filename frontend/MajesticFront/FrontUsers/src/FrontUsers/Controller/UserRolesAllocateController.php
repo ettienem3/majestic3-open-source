@@ -128,8 +128,8 @@ class UserRolesAllocateController extends AbstractActionController
 			//set success message
 			$this->flashMessenger()->addSuccessMessage("Role succesfully removed form User");
 		} catch (\Exception $e) {
-			//set error message
-			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 		}//end catch
 
 		//redirect back to the roles page

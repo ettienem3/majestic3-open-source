@@ -238,7 +238,8 @@ class RolesAclLinksAdminController extends AbstractActionController
 					//set success message
 					$this->flashMessenger()->addSuccessMessage("Role Resource has successfully been removed");
 				} catch (\Exception $e) {
-					$this->flashMessenger()->setErrorMessage($e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 			

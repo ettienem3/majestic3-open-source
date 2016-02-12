@@ -138,7 +138,7 @@ An explanation of each section:
 	
 	We have provided a simplistic implementation of using this account and strongly urge you to change this to suit your requirements and environment. With some proper implementations and tweaks, you can have this automated completely instead of having these details coded into a configuration file. As it stands, this limits the capabilities of the frontend to operate with only one profile in the api, since each profile will have each own unique user and keys associated to it. Keys are not interchangable between profiles.
 	
-#front_db_config
+#frontend_db_config
 	This item carries the configuration details to connect to a local mysql database to save and cache details and/or operations. See the \FrontCore\Module.php::getServiceConfig() file function, look for factories => db_frontend anonymous function where this configuration is picked up and applied to create a database connection. 
 	The database structure is made available in the /installation/db.sql folder
 	

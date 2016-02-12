@@ -114,8 +114,8 @@ class UserRolesAdminController extends AbstractActionController
 					//set success message
 					$this->flashMessenger()->addSuccessMessage("User Role has been deleted succesfully");
 				} catch (\Exception $e) {
-					//set delete message
-					$this->flashMessenger()->addErrorMessage($e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			} else {
 				$this->flashMessenger()->addMessage("User Role Delete operation cancelled");
@@ -150,7 +150,8 @@ class UserRolesAdminController extends AbstractActionController
 			//set success message
 			$this->flashMessenger()->addSuccessMessage("User Role status succesfully saved");
 		} catch (\Exception $e) {
-			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 		}//end catch
 
 		//redirect to user role index page

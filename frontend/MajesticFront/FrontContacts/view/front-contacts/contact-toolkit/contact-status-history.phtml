@@ -105,6 +105,10 @@ echo "</table>";
 						<option value="">--select--</option>
 						<?php foreach ($this->objStatuses as $objStatus)
 						{
+							if ($objStatus->status == "")
+							{
+								continue;
+							}//end if
 							echo "<option value=\"" . $objStatus->id . "\">" . $objStatus->status . "</option>";
 						}//end foreach?>
 					</select>

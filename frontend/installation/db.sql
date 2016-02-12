@@ -1,19 +1,8 @@
 -- phpMyAdmin SQL Dump
--- version 4.4.13.1deb1
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Generation Time: Dec 03, 2015 at 09:21 PM
--- Server version: 5.6.27-0ubuntu1
--- PHP Version: 5.6.11-1ubuntu3.1
 
 SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
---
--- Database: `m3_frontend_data`
---
 
 -- --------------------------------------------------------
 
@@ -28,6 +17,28 @@ CREATE TABLE IF NOT EXISTS `users` (
   `uname` varchar(255) NOT NULL,
   `pword` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_cache_settings`
+--
+
+CREATE TABLE IF NOT EXISTS `user_cache_settings` (
+  `user_id` varchar(255) NOT NULL,
+  `data` mediumblob NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_native_preferences`
+--
+
+CREATE TABLE IF NOT EXISTS `user_native_preferences` (
+  `user_id` varchar(255) NOT NULL,
+  `data` mediumblob NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -61,6 +72,18 @@ CREATE TABLE IF NOT EXISTS `user_settings` (
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD KEY `profile_id` (`profile_id`);
+
+--
+-- Indexes for table `user_cache_settings`
+--
+ALTER TABLE `user_cache_settings`
+  ADD PRIMARY KEY (`user_id`);
+
+--
+-- Indexes for table `user_native_preferences`
+--
+ALTER TABLE `user_native_preferences`
+  ADD PRIMARY KEY (`user_id`);
 
 --
 -- Indexes for table `user_preferences`
@@ -99,4 +122,3 @@ ALTER TABLE `user_preferences`
 ALTER TABLE `user_settings`
   ADD CONSTRAINT `user_settings_ibfk_1` FOREIGN KEY (`fk_id_users`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 SET FOREIGN_KEY_CHECKS=1;
-

@@ -6,22 +6,34 @@ use FrontCore\Adapters\AbstractCoreAdapter;
 class UserFileSystemStorage extends AbstractCoreAdapter
 {
 	/**
-	 * Path to file location
+	 * Container for the profile identifier
 	 * @var string
 	 */
-	private $path;
+	private $profile_identifier;
 	
 	/**
-	 * Filename specific to user containing data
+	 * Container for the profile user id
+	 * @var int
+	 */
+	private $profile_user_id;
+	
+	/**
+	 * String identifier for user
 	 * @var string
+	 */
+	private $user_local_identifier;
+	
+	/**
+	 * Container for the folder path containing files
+	 * @var string
+	 */
+	private $path = './data/cache/users';
+	
+	/**
+	 * Container for the set file path
+	 * @var string $file
 	 */
 	private $file;
-	
-	/**
-	 * Container for the User Data Object acted upon
-	 * @var 
-	 */
-	private $objUserData;
 	
 	/**
 	 * Configure Storage path
@@ -33,48 +45,96 @@ class UserFileSystemStorage extends AbstractCoreAdapter
 	}//end function
 	
 	/**
-	 * Set User Data Object
-	 * @param stdClass $objUserData
+	 * Initialise the class to read and write data
+	 * @param object $objUserSession
 	 */
-	public function setUserData($objUserData)
+	public function setUserData($objUserSession)
 	{
-		$this->objUserData = $objUserData;
+		//set profile identifier
+		$this->profile_identifier = $objUserSession->profile->profile_identifier;
+	
+		//set user id
+		$this->profile_user_id = $objUserSession->id;
+	
+		$s = $this->profile_user_id . '-' . $this->profile_identifier;
+		$this->user_local_identifier = md5($s);
+		
+		//set file location
+		$this->prepareLocation();
 	}//end function
 	
-	public function readData($key = FALSE)
+	/**
+	 * Check if class is initialized
+	 * @throws \Exception
+	 */
+	private function isInitialized()
 	{
-		$this->prepareLocation();
-		
-		//load data from file
-		$objUserStorageData = json_decode(file_get_contents($this->path . "/" . $this->file));
+		if (!$this->user_local_identifier)
+		{
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Class is not initialized", 500);
+		}//end if
+	}//end function
+	
+	/**
+	 * Save user native preferences
+	 */
+	public function setUserNativePreferences($key, $value = FALSE)
+	{
+		$this->isInitialized();
+	
+		//load save data
+		$objData = $this->readUserNativePreferences();
+		if (!$objData)
+		{
+			$objData = new \stdClass();
+		}//end if
+	
+		if (is_object($key))
+		{
+			foreach($key as $k => $v)
+			{
+				$objData->$k = $v;
+			}//end foreach
+		} else {
+			$objData->$key = $value;
+		}//end if
+	
+		$data = json_encode($objData);
+		file_put_contents($this->path . '/' . $this->file, $data);
+	}//end function
+	
+	/**
+	 * Read user native preferences
+	 * @return \FrontUsers\Entities\FrontUserNativePreferencesEntity | mixed
+	 */
+	public function readUserNativePreferences($key = FALSE)
+	{
+		$this->isInitialized();
+	
+		//load data
+		$data = file_get_contents($this->path . '/' . $this->file);
+		$objData = json_decode($data);
 
-		if (!$key)
+		if (!$objData)
 		{
-			return $objUserStorageData;
+			return FALSE;
 		}//end if
-		
-		if (isset($objUserStorageData->$key))
+	
+		if ($key !== FALSE)
 		{
-			return $objUserStorageData->$key;
+			return $objData->$key;
+		} else {
+			return $objData;
 		}//end if
-		
-		return FALSE;
 	}//end function
 	
-	public function saveData($key, $data)
+	/**
+	 * Clear user native preferences
+	 */
+	public function clearUserNativePreferences()
 	{
-		$this->prepareLocation();
-	
-		//load data from file
-		$objUserStorageData = json_decode(file_get_contents($this->path . "/" . $this->file));
-		$objUserStorageData->$key = $data;
-		file_put_contents($this->path . "/" . $this->file, json_encode($objUserStorageData, JSON_FORCE_OBJECT));
-	}//end function
-	
-	public function clearData()
-	{
-		$this->prepareLocation();
-		file_put_contents($this->path . "/" . $this->file, json_encode(array(), JSON_FORCE_OBJECT));
+		$this->isInitialized();
+		unlink($this->path . "/" . $this->file);
 	}//end function
 	
 	private function prepareLocation()
@@ -93,7 +153,7 @@ class UserFileSystemStorage extends AbstractCoreAdapter
 			}//end if
 			
 			//set filename
-			$this->file = md5($this->objUserData->id . $this->objUserData->site_id . $this->objUserData->uname . $this->objUserData->email) . ".dat";
+			$this->file = md5($this->user_local_identifier) . ".dat";
 			
 			//check if file exists already
 			if (!is_file($this->path . "/" . $this->file))

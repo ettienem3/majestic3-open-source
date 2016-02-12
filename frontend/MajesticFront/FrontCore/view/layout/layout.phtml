@@ -3,7 +3,7 @@
 use FrontProfileSettings\Models\NativeProfileSettingsModel;
 use FrontUserLogin\Models\FrontUserSession;
 $this->objProfileSettings = NativeProfileSettingsModel::readProfileSettings();
-$objUserPreferences = FrontUserSession::readUserLocalData("cookie_data");
+$objUserPreferences = FrontUserSession::getUserLocalStorageObject();
 
 	echo $this->doctype();
 ?>
@@ -98,7 +98,7 @@ $objUserPreferences = FrontUserSession::readUserLocalData("cookie_data");
 
 								//identify iframe tabs
 								var tabs = iframe.contents().find("#toolkitTabs").find("li");
-								var user_selected_tab = "<?php if (isset($objUserPreferences->contacts_toolkit_default_tab)) {echo $objUserPreferences->contacts_toolkit_default_tab;}?>";
+								var user_selected_tab = "<?php if (is_object($objUserPreferences) && isset($objUserPreferences->readUserNativePreferences()->contacts_toolkit_default_tab)) {echo $objUserPreferences->readUserNativePreferences()->contacts_toolkit_default_tab;}?>";
 								jQuery.each(tabs, function (i, element) {
 									var link = jQuery(element).find("a");
 									var id = jQuery(link).attr("id");
@@ -166,7 +166,7 @@ $objUserPreferences = FrontUserSession::readUserLocalData("cookie_data");
 
 								//identify iframe tabs
 								var tabs = iframe.contents().find("#toolkitTabs").find("li");
-								var user_selected_tab = "<?php if (isset($objUserPreferences->user_toolkit_default_tab)) {echo $objUserPreferences->user_toolkit_default_tab;} ?>";
+								var user_selected_tab = "<?php if (is_object($objUserPreferences) && isset($objUserPreferences->readUserNativePreferences()->user_toolkit_default_tab)) {echo $objUserPreferences->readUserNativePreferences()->user_toolkit_default_tab;} ?>";
 								jQuery.each(tabs, function (i, element) {
 									var link = jQuery(element).find("a");
 									var id = jQuery(link).attr("id");

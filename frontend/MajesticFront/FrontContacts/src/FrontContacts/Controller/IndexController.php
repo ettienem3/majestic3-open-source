@@ -47,11 +47,11 @@ class IndexController extends AbstractActionController
     	if ($form_id == "")
     	{
     		//check if form id is set in user session
-    		$objUserSession = FrontUserSession::readUserLocalData("cookie_data");
-    		if (isset($objUserSession->cookie_data->cpp_layout_id) && is_numeric($objUserSession->cookie_data->cpp_layout_id))
+    		$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    		if (is_object($objUserStorage) && is_numeric($objUserStorage->readUserNativePreferences()->cpp_layout_id))
     		{
     			//load the specified form's fields
-    			$form_id = $objUserSession->cookie_data->cpp_layout_id;
+    			$form_id = $objUserStorage->readUserNativePreferences()->cpp_layout_id;
     			$objForm = $this->getFormAdminModel()->getForm($form_id);
     		} else {
     			$form_id = "none";
@@ -179,10 +179,10 @@ class IndexController extends AbstractActionController
     	if (is_array($form) && $form_id == "")
     	{
     		//check if form id is set in user session
-    		$objUserSession = FrontUserSession::readUserLocalData("cookie_data");
-    		if (isset($objUserSession->cookie_data->cpp_form_id) && is_string($objUserSession->cookie_data->cpp_form_id))
+    		$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    		if (isset($objUserStorage->readUserNativePreferences()->cpp_form_id) && is_string($objUserStorage->readUserNativePreferences()->cpp_form_id))
     		{
-    			$form_id = $objUserSession->cookie_data->cpp_form_id;
+    			$form_id = $objUserStorage->readUserNativePreferences()->cpp_form_id;
     			$form = $this->getContactsModel()->getContactProfileForm($form_id);
     		} else {
     			//redirect to select profile form action
@@ -194,7 +194,8 @@ class IndexController extends AbstractActionController
     		//load the contact
     		$objContact = $this->getContactsModel()->fetchContact($reg_id);
     	} catch (\Exception $e) {
-    		$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     		return $this->redirect()->toRoute("front-contacts");
     	}//end catch
 
@@ -243,10 +244,10 @@ class IndexController extends AbstractActionController
 		if (is_array($form) && $form_id == "")
 		{
 			//check if form id is set in user session
-			$objUserSession = FrontUserSession::readUserLocalData("cookie_data");
-			if (is_numeric($objUserSession->cookie_data->cpp_form_id))
+			$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+			if (is_numeric($objUserStorage->readUserNativePreferences()->cpp_form_id))
 			{
-				$form_id = $objUserSession->cookie_data->cpp_form_id;
+				$form_id = $objUserStorage->readUserNativePreferences()->cpp_form_id;
 			} else {
 				//redirect to select profile form action
 				return $this->redirect()->toRoute("front-contacts", array("action" => "select-profile-form"));
@@ -357,10 +358,10 @@ class IndexController extends AbstractActionController
     	if (is_array($form) && $form_id == "")
     	{
     		//check if form id is set in user session
-    		$objUserSession = FrontUserSession::readUserLocalData("cookie_data");
-    		if (isset($objUserSession->cookie_data->cpp_form_id) && $objUserSession->cookie_data->cpp_form_id != "")
+    		$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    		if (isset($objUserStorage->readUserNativePreferences()->cpp_form_id) && $objUserStorage->readUserNativePreferences()->cpp_form_id != "")
     		{
-    			$form_id = $objUserSession->cookie_data->cpp_form_id;
+    			$form_id = $objUserStorage->readUserNativePreferences()->cpp_form_id;
     			$form = $this->getContactsModel()->getContactProfileForm($form_id);
     		} else {
     			//redirect to select profile form action
@@ -538,10 +539,10 @@ class IndexController extends AbstractActionController
     	}//end if
     	
     	//load user session data
-    	$objUserSession = FrontUserSession::readUserLocalData("cookie_data");
-    	if (isset($objUserSession->cookie_data->cpp_layout_id) && $objUserSession->cookie_data->cpp_layout_id != "")
+    	$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    	if (isset($objUserStorage->readUserNativePreferences()->cpp_layout_id) && $objUserStorage->readUserNativePreferences()->cpp_layout_id != "")
     	{
-    		$form->get("cpp_form_id")->setValue($objUserSession->cookie_data->cpp_layout_id);
+    		$form->get("cpp_form_id")->setValue($objUserStorage->readUserNativePreferences()->cpp_layout_id);
     	}//end if
 
     	if ($request->isPost()) {
@@ -556,15 +557,11 @@ class IndexController extends AbstractActionController
     			if (isset($arr_form_data["remember_layout"]) && $arr_form_data["remember_layout"] == 1) 
     			{
     				//persist user preference
-    				$objUserData = FrontUserSession::readUserLocalData("cookie_data");
-    				if (is_object($objUserData) && isset($objUserData->cookie_data))
+    				$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    				if (is_object($objUserStorage))
     				{
-    					$objUserData->cookie_data->cpp_layout_id = $form_id;
-    				} else {
-    					$objUserData = new \stdClass();
-    					$objUserData->cookie_data = (object) array("cpp_layout_id" => $form_id);
+    					$objUserStorage->setUserNativePreferences('cpp_layout_id', $form_id);
     				}//end if
-    				FrontUserSession::saveUserLocalData("cookie_data", $objUserData->cookie_data);
     			}//end if
 
     			//redirect back to the index page if no layout is selected
@@ -648,10 +645,10 @@ class IndexController extends AbstractActionController
     	}//end if
     	
     	//load user session data
-    	$objUserSession = FrontUserSession::readUserLocalData("cookie_data");
-    	if (is_numeric($objUserSession->cookie_data->cpp_form_id))
+    	$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    	if (is_numeric($objUserStorage->readUserNativePreferences()->cpp_form_id))
     	{
-    		$form->get("cpp_form_id")->setValue($objUserSession->cookie_data->cpp_form_id);
+    		$form->get("cpp_form_id")->setValue($objUserStorage->readUserNativePreferences()->cpp_form_id);
     	}//end if
 
     	if ($request->isPost())
@@ -666,15 +663,11 @@ class IndexController extends AbstractActionController
     			if (isset($arr_form_data["remember_form"]) && $arr_form_data["remember_form"] == 1)
     			{
     				//persist user preference
-    				$objUserData = FrontUserSession::readUserLocalData("cookie_data");
-    				if (is_object($objUserData) && isset($objUserData->cookie_data))
+    				if (is_object($objUserStorage))
     				{
+    					$objUserStorage->setUserNativePreferences('cpp_form_id', $form_id);
     					$objUserData->cookie_data->cpp_form_id = $form_id;
-    				} else {
-    					$objUserData = new \stdClass();
-    					$objUserData->cookie_data = (object) array('cpp_form_id' => $form_id);
     				}//end if
-    				FrontUserSession::saveUserLocalData("cookie_data", $objUserData->cookie_data);
     			}//end if
 
     			//check if redirect has been specified
