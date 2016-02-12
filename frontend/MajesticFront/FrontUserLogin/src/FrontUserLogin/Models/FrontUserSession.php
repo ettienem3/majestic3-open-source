@@ -54,64 +54,6 @@ class FrontUserSession extends AbstractCoreAdapter
 	}//end function
 
 	/**
-	 * Read native user prefences
-	 * @param string $key
-	 * @return \FrontUsers\Storage\UserFileSystemStorage
-	 */
-	public static function readUserLocalData($key = FALSE)
-	{
-		$sm = \FrontCore\Factories\FrontCoreServiceProviderFactory::getInstance();
-		$arr_config = $sm->get("config");
-		if (!isset($arr_config["logged_in_user_settings"]))
-		{
-			return FALSE;
-		}//end if
-
-		if (isset($arr_config["logged_in_user_settings"]["storage_enabled"]) && $arr_config["logged_in_user_settings"]["storage_enabled"] !== TRUE)
-		{
-			return FALSE;
-		}//end if
-
-		try {
-			$objUserStorage = $sm->get($arr_config["logged_in_user_settings"]["storage"]);
-			$objUserStorage->setUserData(self::isLoggedIn());
-
-			$objUserData = $objUserStorage->readData($key);
-			return $objUserData;
-		} catch (\Exception $e) {
-			trigger_error($e->getMessage(), E_USER_WARNING);
-		}//end catch
-	}//end function
-
-	/**
-	 * Save native user preferences
-	 * @param string $key
-	 * @param mixed $data
-	 */
-	public static function saveUserLocalData($key, $data)
-	{
-		$sm = \FrontCore\Factories\FrontCoreServiceProviderFactory::getInstance();
-		$arr_config = $sm->get("config");
-		if (!isset($arr_config["logged_in_user_settings"]))
-		{
-			return FALSE;
-		}//end if
-
-		if (isset($arr_config["logged_in_user_settings"]["storage_enabled"]) && $arr_config["logged_in_user_settings"]["storage_enabled"] !== TRUE)
-		{
-			return FALSE;
-		}//end if
-
-		try {
-			$objUserStorage = $sm->get($arr_config["logged_in_user_settings"]["storage"]);
-			$objUserStorage->setUserData(self::isLoggedIn());
-			$objUserStorage->saveData($key, $data);
-		} catch (\Exception $e) {
-			trigger_error($e->getMessage(), E_USER_WARNING);
-		}//end catch
-	}//end function
-
-	/**
 	 *
 	 * @return \FrontUsers\Storage\UserFileSystemStorage | \FrontUsers\Storage\UserMySqlStorage
 	 */
@@ -131,6 +73,7 @@ class FrontUserSession extends AbstractCoreAdapter
 
 		try {
 			$objUserStorage = $sm->get($arr_config["logged_in_user_settings"]["storage"]);
+			$objUserStorage->setUserData(self::isLoggedIn());
 			return $objUserStorage;
 		} catch (\Exception $e) {
 			trigger_error($e->getMessage(), E_USER_WARNING);
@@ -222,9 +165,7 @@ class FrontUserSession extends AbstractCoreAdapter
 
 		//set logged in time out
 		$this->getUserSession()->session_timeout = (time() + (60 * 60));
-
-// 		//create cookie data container
-// 		$this->getUserSession()->cookie_data = new \stdClass();
+		return $this->getUserSession();
 	}//end function
 
 	/**

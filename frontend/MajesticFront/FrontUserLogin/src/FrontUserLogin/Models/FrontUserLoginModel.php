@@ -30,70 +30,23 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 		$uname = $arr_data["uname"];
 		$pword = $arr_data["pword"];
 
-		//init user local storage
-		$objUserStorage = \FrontUserLogin\Models\FrontUserSession::getUserLocalStorageObject();
-		if ($objUserStorage instanceof \FrontUsers\Storage\UserMySqlStorage)
-		{
-			//check if user has data stored locally
-			$objUserEntity = $objUserStorage->fetchUserData(array(
-				"uname" => $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $uname, array()),
-				"pword" => $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", md5($pword), array()),
-			));
-
-			if (is_object($objUserEntity))
-			{
-				//lod user settings
-				$objUserSettings = $objUserStorage->fetchUserSettings($objUserEntity);
-
-				//create session for user
-				$objUserSession = $this->getUserSessionContainer();
-
-				//set login timeout
-				$objUserSession->createUserSession($objUserSettings->get("data"));
-
-				//trigger background update of stored user and profile data...
-				if (method_exists($objUserStorage, 'resetUserDataOnLogin'))
-				{
-					//enable delayed api request
-					$this->setDelayedProcessingFlag(TRUE);
-
-					if ($this->getDelayedProcessingFlag() === TRUE)
-					{
-						$this->getServiceLocator()->get("FrontCLI\Models\FrontCLIControllerModel")->requestCLIAction(
-								"CoreModelAction",
-								(object) array(
-										"model" => __CLASS__,
-										"function" => 'cliLogin',
-										"data" => array(
-												array(
-														"name" => "arr_data",
-														"type" => 'array',
-														"data" => $arr_data
-												),
-										)
-								)
-						);
-						$this->setDelayedProcessingFlag(FALSE);
-					} else {
-						//cli not available, do manually...
-						$this->cliLogin(array("uname" => $arr_data["uname"], "pword" => ($arr_data["pword"]), 'api_key' => $objUserSettings->get("data")->api_key));
-					}//end if
-				}//end if
-
-				return $objUserSettings;
-			}//end if
-		}//end if
-
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
 
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("user/authenticate");
-
-		//set api request authentication details
-		$objApiRequest->setAPIKey($arr_data['apikey']);
-		$objApiRequest->setAPIUser(md5($arr_data['uname']));
-		$objApiRequest->setAPIUserPword(md5($arr_data['pword']));
+		
+		//set dummy data to allow request to go through
+		$arr_config = $this->getServiceLocator()->get('config');
+		if (isset($arr_config['master_user_account']))
+		{
+			$arr_master_user = $arr_config['master_user_account'];
+			$objApiRequest->setAPIKey($arr_master_user['apikey']);
+			$objApiRequest->setAPIUser(md5($arr_master_user['user']));
+			$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
+		} else {
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Login could not be performed. Required details are not set", 500);	
+		}//end if
 
 		//execute
 		$objUser = $objApiRequest->performPOSTRequest($arr_data)->getBody();
@@ -120,24 +73,9 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 
 		//create session for user
 		$objUserSession = $this->getUserSessionContainer();
-		
-		//save data to local storage
-		if ($objUserStorage instanceof \FrontUsers\Storage\UserMySqlStorage)
-		{
-			$objUser->data->uname_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $uname, array());
-			$objUser->data->pword_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", md5($pword), array());
-			$objUser->data->profile_identifier_secure = $this->getServiceLocator()->get("FrontCore\Models\Security\CryptoModel")->sha1EncryptDecryptValue("encrypt", $objUser->data->profile->profile_identifier, array());
-			$objUserStorage->setUserData($objUser->data);
-			
-			//clear menu cache
-			if (isset($objUserSession->main_menu_html) && is_array($objUserSession->main_menu_html))
-			{
-				$objUserSession->main_menu_html = FALSE;
-			}//end if
-		}//end if
 
 		//set login timeout
-		$objUserSession->createUserSession($objUser->data);
+		$objSession = $objUserSession->createUserSession($objUser->data);
 
 		return $objUser;
 	}//end function

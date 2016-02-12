@@ -18,11 +18,11 @@ foreach ($this->objContactForms as $objForm)
 	switch (strtolower($objForm->get("form_behaviour")))
 	{
 		case "__web":
-			$form_url = "<a href=\"/forms/bf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id") . "\" title=\"View web form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
+			$form_url = "<a href=\"/forms/bf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id_encoded") . "\" title=\"View web form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
 			break;
 			
 		case "__viral":
-			$form_url = "<a href=\"/forms/vbf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id") . "\" title=\"View viral form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
+			$form_url = "<a href=\"/forms/vbf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id_encoded") . "\" title=\"View viral form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
 			break;
 			
 		default:

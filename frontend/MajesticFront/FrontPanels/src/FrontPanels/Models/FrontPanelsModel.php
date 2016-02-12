@@ -206,7 +206,7 @@ class FrontPanelsModel extends AbstractCoreAdapter
 	{
 		//clear user panel cache
 		$objUserSession = $this->getUserSession();
-		unset($objUserSession->user_panels);
+		unset($objUserSession->cache_user_panels);
 		
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -227,6 +227,7 @@ class FrontPanelsModel extends AbstractCoreAdapter
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
+		unset($objUserSession->cache_user_panels);
 
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("panels/user/setup/$id");
@@ -239,7 +240,7 @@ class FrontPanelsModel extends AbstractCoreAdapter
 	{
 		//clear user panel cache
 		$objUserSession = $this->getUserSession();
-		unset($objUserSession->user_panels);
+		unset($objUserSession->cache_user_panels);
 		
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -266,7 +267,8 @@ class FrontPanelsModel extends AbstractCoreAdapter
 			$objPanel->set($objResult->data);
 
 			//check for local panel modifyers
-			$model = "Panel" . preg_replace( '/-(.?)/e',"strtoupper('$1')", ucfirst(strtolower($objPanel->get("panels_unique_identifier")))) . "ProcessorModel";
+			$str = str_replace(array('-'), ' ', $objPanel->get("panels_unique_identifier"));
+			$model = 'Panel' .str_replace(' ', '', ucwords($str)) . 'ProcessorModel';
 			$objPanel = $this->processLocalPanel($objPanel, $model);
 		} catch (\Exception $e) {
 			$objPanel->set($arr_data);

@@ -57,11 +57,19 @@ class UserTasksController extends AbstractActionController
 		
 		//format dates
 		$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("datetime_reminder"));
+		if (!$objDate)
+		{
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the reminder date", 500);
+		}//end if
 		$objUserTask->set("datetime_reminder", $objDate->format("d M Y H:i:s"));
 			
 		if ($objUserTask->get("date_email_reminder") != "")
 		{
 			$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("date_email_reminder"));
+			if (!$objDate)
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the email reminder date", 500);
+			}//end if
 			$objUserTask->set("date_email_reminder", $objDate->format("d M Y"));
 		}//end if
 		
@@ -154,11 +162,19 @@ class UserTasksController extends AbstractActionController
 		
 		//format dates
 		$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("datetime_reminder"));
+		if (!$objDate)
+		{
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the reminder date", 500);
+		}//end if
 		$objUserTask->set("datetime_reminder", $objDate->format("d M Y H:i:s"));
 			
 		if ($objUserTask->get("date_email_reminder") != "")
 		{
 			$objDate = \DateTime::createFromFormat(\DateTime::RFC3339, $objUserTask->get("date_email_reminder"));
+			if (!$objDate)
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the email reminder date", 500);
+			}//end if
 			$objUserTask->set("date_email_reminder", $objDate->format("d M Y"));
 		}//end if
 		
@@ -174,7 +190,8 @@ class UserTasksController extends AbstractActionController
 				return $this->redirect()->toUrl($this->params()->fromQuery("redirect_url"));
 			}//end if
 		} catch (\Exception $e) {
-			$this->flashMessenger()->addErrorMessage("An error occurred : " . $e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 		}//end catch
 		
 		return $this->redirect()->toRoute("front-users-tasks", array("user_id" => $user_id));

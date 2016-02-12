@@ -194,8 +194,8 @@ class IndexController extends AbstractActionController
 					// Set success message
 					$this->flashMessenger()->addSuccessMessage("User deleted successfully");
 				} catch (\Exception $e) {
-					// Set unsuccessful message
-					$this->flashMessenger()->addErrorMessage($e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				} // end try{}
 			}//end if
 

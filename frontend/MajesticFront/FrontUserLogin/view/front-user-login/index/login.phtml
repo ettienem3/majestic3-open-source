@@ -54,9 +54,13 @@
 				<input type="password" class="form-control" placeholder="Password" required="required" id="pword" name="pword" value="">
 			</div>
 
+			<?php 
+				if (!isset($this->layout()->app_config['master_user_account'])) :
+			?>
 			<div class="form-group apikey_field">
 				<input type="password" class="form-control" placeholder="Authentication Key" required="required" id="apikey" name="apikey" value="">
 			</div>
+			<?php endif;?>
 
 			<div class="form-group">
 				<input type="checkbox" class="" required="required" id="terms_and_conditions" name="terms_and_conditions" value="1">

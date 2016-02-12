@@ -127,7 +127,7 @@ require("./config/helpers/ob2.php");
  			}//end if
 
 			//set timeout
-			$client->setOptions(array("timeout" => 60, "sslverifypeer" => TRUE));
+			$client->setOptions(array("timeout" => 60, "sslverifypeer" => FALSE));
 
 			if ($request instanceof Request)
 			{
