@@ -11,7 +11,6 @@ use Zend\Form\Form;
 
 class IndexController extends AbstractActionController
 {
-
 	/**
 	 * Container for UserLogin instance
 	 * @var unknown
@@ -44,9 +43,7 @@ class IndexController extends AbstractActionController
 				}//end if
 
 				try {
-					$arr_data = (array) $form->getData();
-					$arr_data["apikey"] = $request->getPost("apikey");
-					$objUser = $this->getUserLoginModel()->userLogin($arr_data);
+					$objUser = $this->getUserLoginModel()->userLogin($form->getData());
 					if (!$objUser)
 					{
 						//login failed, set message and redirect back to login form
@@ -55,14 +52,14 @@ class IndexController extends AbstractActionController
 					}//end if
 
 					//load user prefences
-					$objUserData = FrontUserSession::readUserLocalData("cookie_data");
-					if (isset($objUserData->cookie_data->home_page) && $objUserData->cookie_data->home_page != "")
+					$objUserData = FrontUserSession::getUserLocalStorageObject();
+					if (is_object($objUserData) && isset($objUserData->readUserNativePreferences()->home_page) && $objUserData->readUserNativePreferences()->home_page != "")
 					{
 						// Redirect to home page
-						return $this->redirect()->toUrl($objUserData->cookie_data->home_page);
+						return $this->redirect()->toUrl($objUserData->readUserNativePreferences()->home_page);
 					} else {
 						// Redirect to panels page
-						if (is_array($objUser->profile->plugins_enabled) && in_array("panels", $objUser->profile->plugins_enabled))
+						if (is_object($objUser->profile) && is_array($objUser->profile->plugins_enabled) && in_array("panels", $objUser->profile->plugins_enabled))
 						{
 							return $this->redirect()->toRoute("home");
 						} else {
@@ -176,14 +173,17 @@ class IndexController extends AbstractActionController
 		$form = $this->getUserLoginModel()->getUserNativePreferencesForm($this);
 
 		//load user preferences
-		$objUserData = FrontUserSession::readUserLocalData('cookie_data');	
-		foreach ($objUserData->cookie_data as $key => $value)
+		$objUserData = FrontUserSession::getUserLocalStorageObject();
+		if (is_object($objUserData) && is_object($objUserData->readUserNativePreferences()))
 		{
-			if ($form->has($key))
+			foreach ($objUserData->readUserNativePreferences() as $key => $value)
 			{
-				$form->get($key)->setValue($value);
-			}//end if
-		}//end foreach
+				if ($form->has($key))
+				{
+					$form->get($key)->setValue($value);
+				}//end if
+			}//end foreach			
+		}//end if
 
 		$request = $this->getRequest();
 		if ($request->isPost())
@@ -193,13 +193,7 @@ class IndexController extends AbstractActionController
 			{
 				try {
 					$arr_data = (array) $form->getData();
-					foreach ($arr_data as $key => $value)
-					{
-						$objUserData->cookie_data->$key = $value;
-					}//end foreach
-
-					//save the data
-					FrontUserSession::saveUserLocalData("cookie_data", $objUserData->cookie_data);
+					$objUserData->setUserNativePreferences((object) $arr_data);
 
 					$this->flashMessenger()->addSuccessMessage("Preferences saved");
 				} catch (\Exception $e) {
