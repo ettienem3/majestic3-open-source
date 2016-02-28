@@ -368,6 +368,7 @@ ob_start();
 							if (isset($arr_child["nested"]) && is_array($arr_child["nested"]) && count($arr_child["nested"]) > 0)
 							{
 								echo "<ul class=\"\" role=\"\">";
+								echo '<li class="dropdown-header" role="presentation">' . $child . '</li>'; //insert section header
 								foreach ($arr_child["nested"] as $k => $arr_v)
 								{
 									//check user access

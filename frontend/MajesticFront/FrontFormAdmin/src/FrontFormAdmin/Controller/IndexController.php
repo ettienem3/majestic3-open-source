@@ -221,8 +221,8 @@ class IndexController extends AbstractActionController
 				return $this->redirect()->toRoute("front-form-admin");
 			}//end if
 		} catch (\Exception $e) {
-			//set error message
-			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 
 			//return to index page
 			return $this->redirect()->toRoute("front-form-admin");
@@ -296,6 +296,14 @@ class IndexController extends AbstractActionController
 
     			$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);
 
+    			//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
+    			$class = "\\FrontBehavioursConfig\\Forms\\Forms\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
+    			
+    			if (class_exists($class))
+    			{
+    				$form = new $class($form);
+    			}//end if
+    			
     			//assign data to form is behaviour is being reconfigured
     			if ($objBehaviour instanceof \FrontBehaviours\Entities\FrontBehavioursBehaviourConfigEntity)
     			{

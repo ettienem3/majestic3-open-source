@@ -87,6 +87,13 @@
 					$arr_data["active_url"] = "<a href=\"" . $this->url("front-statuses", array("action" => "status", "id" => $objContactStatus->id)) . "\" title=\"This Status is Inactive\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
 				}//end if
 
+				if ($objContactStatus->default == 1) 
+				{
+					$arr_data['default_status'] = 'Yes';
+				} else {
+					$arr_data['default_status'] = '&nbsp;';
+				}//end if
+				
 				$edit_url = "<a href=\"" . $this->url("front-statuses", array("action" => "edit", "id" => $objContactStatus->id)) . "\" title=\"Edit Status\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
 				$delete_url = "<a href=\"" . $this->url("front-statuses", array("action" => "delete", "id" => $objContactStatus->id)) . "\" title=\"Delete Status\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
 				
@@ -113,7 +120,7 @@
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
 		//echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Hidden", "Pause Journey", "Follow up with task", "Show on reports", "Active", $add_url), array("id" => $css_id));
-		echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Active", $add_url), array("id" => $css_id));
+		echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Active", 'Default', $add_url), array("id" => $css_id));
 
 		?>
 		<div id="manage-behaviours-section" class="modal fade"></div>

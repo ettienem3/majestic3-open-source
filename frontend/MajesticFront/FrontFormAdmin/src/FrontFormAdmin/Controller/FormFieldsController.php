@@ -428,7 +428,7 @@ class FormFieldsController extends AbstractActionController
     		$this->flashMessenger()->addSuccessMessage("'" . $objField->get("description") . "' field successfully removed");
     	} catch (\Exception $e) {
     		//set error message
-    		$this->flashMessenger()->addErrorMessage("Field could not be removed from form. " . $e->getMessage());
+    		$this->flashMessenger()->addErrorMessage("Field could not be removed from form. " . $this->frontControllerErrorHelper()->formatErrors($e));
     	}//end catch
 
     	//redirect back to the form edit view
@@ -488,8 +488,30 @@ class FormFieldsController extends AbstractActionController
 	    	{
 	    		$arr_params = $form->getData();
 	    		$arr_params["behaviour"] = "form_fields";
+	    		
+	    		//add some additional values to assist in generating the correct form
+	    		$arr_params['form_id'] = $arr_behaviour_params['form_id'];
+	    		$arr_params['field_id'] = $arr_behaviour_params['field_id'];
 	    		$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);
 
+	    		//extract field information
+				if (is_numeric($objFormFieldElement->get('fields_std_id')))
+				{
+					//standard field
+					$field_value = ucwords($objFormFieldElement->get('fields_std_field'));
+				} else {
+					//custom field
+					$field_value = ucwords($objFormFieldElement->get('fields_custom_field'));
+				}//end if
+	    		
+	    		//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
+	    		$class = "\\FrontBehavioursConfig\\Forms\\FormFields\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . $field_value . "Form";
+	    		
+	    		if (class_exists($class))
+	    		{
+	    			$form = new $class($form);
+	    		}//end if
+	    		
 	    		//set behaviour action param for view
 	    		$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];
 

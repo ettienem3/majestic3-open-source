@@ -96,13 +96,23 @@ class FilesController extends AbstractActionController
     						//remove local file
     						unlink($newfile);
     					}//end if
+    				} else {
+    					$flag_file_upload_error = FALSE;
+						foreach($httpadapter->getMessages() as $k => $v)
+						{
+							$flag_file_upload_error = TRUE;
+							$this->flashMessenger()->addErrorMessage($v);
+						}//end foreach
     				}//end if
     			}//end if
 
     			try {
     				if (!isset($arr_data["data"]) || $arr_data["data"] == "")
     				{
-    					$this->flashMessenger()->addErrorMessage("An unknown error has occured, the file could not be uploaded");
+    					if ($flag_file_upload_error !== TRUE)
+    					{
+    						$this->flashMessenger()->addErrorMessage("An unknown error has occured, the file could not be uploaded");
+    					}//end if
     					//redirect back to uploads page to reset form
     					return $this->redirect()->toRoute("front-profile-file-manager", array("action" => "upload-file"));
     				}//end if

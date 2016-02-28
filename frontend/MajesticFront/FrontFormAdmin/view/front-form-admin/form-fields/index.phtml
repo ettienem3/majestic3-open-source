@@ -44,7 +44,7 @@
 					element.hide("fast");
 				})
 				.fail(function () {
-					alert("An unkown error has occured. Field could be allocated to form");
+					alert("An unkown error has occured. Field not allocated to form");
 				});
 			});
 		});
@@ -163,6 +163,11 @@
 		//display custom fields
 		foreach ($this->objCustomFields as $objField)
 		{
+			if (!$objField instanceof \FrontFormAdmin\Entities\FrontFormAdminFieldEntity || !method_exists($objField, 'get'))
+			{
+				continue;
+			}//end if
+		
 			//reset field already allocated flag
 			$flag_field_allocated_already = FALSE;
 

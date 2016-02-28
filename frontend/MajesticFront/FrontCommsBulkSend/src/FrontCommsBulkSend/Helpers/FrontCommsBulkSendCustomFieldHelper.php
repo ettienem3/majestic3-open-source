@@ -36,20 +36,20 @@ class FrontCommsBulkSendCustomFieldHelper
 						
 						if ($value != "" && $value == $objParam->field_value)
 						{
-							$field_value = "value=\"$objParam->field_value\"";
+							$field_value = "value=\"" . trim($objParam->field_value) . "\"";
 						} else {
 							$field_value = "";
 						}//end if
 						$html .= "</select>&nbsp;
-								<input type=\"text\" name=\"custom_field_" . $objField->get("field") . "\" id=\"custom_field_" . $objField->get("field") . "\" required=\"required\" $field_value>";
+								<input type=\"text\" name=\"custom_field_" . trim($objField->get("field")) . "\" id=\"custom_field_" . trim($objField->get("field")) . "\" required=\"required\" $field_value>";
 						break;
 						
 					case "money": //monetary field						
 					case "text (numeric)": //numeric field
-						$html = "<select name=\"custom_field_operator_" . $objField->get("field") . "\" id=\"custom_field_operator_" . $objField->get("field") . "\" required=\"required\">
+						$html = "<select name=\"custom_field_operator_" . trim($objField->get("field")) . "\" id=\"custom_field_operator_" . trim($objField->get("field")) . "\" required=\"required\">
 									<option value=\"\">--select--</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "equals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "equals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -57,7 +57,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .= 	"<option value=\"equals\" $selected>is equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "notequals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "notequals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -65,7 +65,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"notequals\" $selected>is not equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "greaterthanequals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "greaterthanequals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -73,7 +73,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"greaterthanequals\" $selected>is greater than or equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "lessthanequals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "lessthanequals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -81,7 +81,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"option value=\"lessthanequals\" $selected>is less than or equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "greaterthan")
+						if (is_object($objParam) && trim($objParam->field_operator) == "greaterthan")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -89,7 +89,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"greaterthan\" $selected>is greater than</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "lessthan")
+						if (is_object($objParam) && trim($objParam->field_operator) == "lessthan")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -97,21 +97,21 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .= 	"<option value=\"lessthan\" $selected>is less than</option>";
 						
-						if ($value != "" && $value == $objParam->field_value)
+						if ($value != "" && trim($value) == ($objParam->field_value))
 						{
-							$field_value = "value=\"$objParam->field_value\"";
+							$field_value = "value=\"" . trim($objParam->field_value) . "\"";
 						} else {
 							$field_value = "";
 						}//end if
 						$html .= "</select>&nbsp;
-								<input type=\"text\" name=\"custom_field_" . $objField->get("field") . "\" id=\"custom_field_" . $objField->get("field") . "\" required=\"required\" $field_value>";
+								<input type=\"text\" name=\"custom_field_" . trim($objField->get("field")) . "\" id=\"custom_field_" . trim($objField->get("field")) . "\" required=\"required\" $field_value>";
 						break;
 						
 					case "date":
-						$html = "<select name=\"custom_field_operator_" . $objField->get("field") . "\" id=\"custom_field_operator_" . $objField->get("field") . "\" required=\"required\">
+						$html = "<select name=\"custom_field_operator_" . trim($objField->get("field")) . "\" id=\"custom_field_operator_" . trim($objField->get("field")) . "\" required=\"required\">
 									<option value=\"\">--select--</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "equals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "equals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -119,7 +119,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"equals\" $selected>is equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "notequals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "notequals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -127,7 +127,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"notequals\" $selected>is not equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "greaterthanequals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "greaterthanequals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -135,7 +135,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"greaterthanequals\" $selected>is greater than or equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "lessthanequals")
+						if (is_object($objParam) && trim($objParam->field_operator) == "lessthanequals")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -143,7 +143,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"lessthanequals\" $selected>is less than or equal to</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "greaterthan")
+						if (is_object($objParam) && trim($objParam->field_operator) == "greaterthan")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -151,7 +151,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"greaterthan\" $selected>is greater than</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "lessthan")
+						if (is_object($objParam) && trim($objParam->field_operator) == "lessthan")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -159,9 +159,9 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .=	"<option value=\"lessthan\">is less than</option>";
 						
-						if ($value != "" && $value == $objParam->field_value)
+						if ($value != "" && trim($value) == trim($objParam->field_value))
 						{
-							$field_value = "value=\"$objParam->field_value\"";
+							$field_value = "value=\"" . trim($objParam->field_value) . "\"";
 						} else {
 							$field_value = "";
 						}//end if
@@ -172,14 +172,14 @@ class FrontCommsBulkSendCustomFieldHelper
 										jQuery(\".datepicker\").datepicker({ dateFormat: \"dd-mm-yy\" });
 									});
 								</script>
-								<input type=\"text\" name=\"custom_field_" . $objField->get("field") . "\" id=\"custom_field_" . $objField->get("field") . "\" required=\"required\" readonly=\"readonly\" class=\"datepicker\" style=\"width: 100px;\" $field_value>";
+								<input type=\"text\" name=\"custom_field_" . trim($objField->get("field")) . "\" id=\"custom_field_" . trim($objField->get("field")) . "\" required=\"required\" readonly=\"readonly\" class=\"datepicker\" style=\"width: 100px;\" $field_value>";
 						break;
 						
 					case "date range":
-						$html = "<select name=\"custom_field_operator_" . $objField->get("field") . "\" id=\"custom_field_operator_" . $objField->get("field") . "\" required=\"required\">
+						$html = "<select name=\"custom_field_operator_" . trim($objField->get("field")) . "\" id=\"custom_field_operator_" . trim($objField->get("field")) . "\" required=\"required\">
 									<option value=\"\">--select--</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "between")
+						if (is_object($objParam) && trim($objParam->field_operator) == "between")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -187,7 +187,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						}//end if
 						$html .= 	"<option value=\"between\" $selected>is between</option>";
 						
-						if (is_object($objParam) && $objParam->field_operator == "notbetween")
+						if (is_object($objParam) && trim($objParam->field_operator) == "notbetween")
 						{
 							$selected = "selected=\"selected\"";
 						} else {
@@ -196,7 +196,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						$html .=	"<option value=\"notbetween\" $selected>is not between</option>";
 						
 						//extract date values
-						if ($value != "" && $value == $objParam->field_value)
+						if ($value != "" && trim($value) == trim($objParam->field_value))
 						{
 							$arr_data = explode(" AND ", $objParam->field_value);
 							$date_start_value = str_replace("'", "", str_replace(" ", "", $arr_data[0]));
@@ -227,10 +227,10 @@ class FrontCommsBulkSendCustomFieldHelper
 				
 			case "select":
 			case "radio":
-				$html = "<select name=\"custom_field_operator_" . $objField->get("field") . "\" id=\"custom_field_operator_" . $objField->get("field") . "\" required=\"required\">
+				$html = "<select name=\"custom_field_operator_" . trim($objField->get("field")) . "\" id=\"custom_field_operator_" . trim($objField->get("field")) . "\" required=\"required\">
 										<option value=\"\">--select--</option>";
 				
-				if (is_object($objParam) && $objParam->field_operator == "equals")
+				if (is_object($objParam) && trim($objParam->field_operator) == "equals")
 				{
 					$selected = "selected=\"selected\"";
 				} else {
@@ -238,7 +238,7 @@ class FrontCommsBulkSendCustomFieldHelper
 				}//end if
 				$html .=				"<option value=\"equals\" $selected>is equal to</option>";
 				
-				if (is_object($objParam) && $objParam->field_operator == "notequals")
+				if (is_object($objParam) && trim($objParam->field_operator) == "notequals")
 				{
 					$selected = "selected=\"selected\"";
 				} else {
@@ -247,47 +247,52 @@ class FrontCommsBulkSendCustomFieldHelper
 				$html .=				"<option value=\"notequals\" $selected>is not equal to</option>";
 				
 				$html .=			"</select>&nbsp;
-								 <select name=\"custom_field_" . $objField->get("field") . "\" id=\"custom_field_" . $objField->get("field") . "\">
+								 <select name=\"custom_field_" . trim($objField->get("field")) . "\" id=\"custom_field_" . ($objField->get("field")) . "\">
 									<option value=\"\">--select--</option>
 									#field_values
 								 </select>";
-				
+		
 				foreach ($objField->get("field_values_data") as $id => $value)
 				{
-					if (is_object($objParam) && $id == $objParam->field_value)
+					if (is_object($objParam) && trim($id) == trim($objParam->field_value))
 					{
 						$selected = "selected=\"selected\"";
 					} else {
 						$selected = "";
 					}//end if
 					
-					$html_values .= "<option value=\"$id\" $selected>$value</option>";
+					$html_values .= "<option value=\"" . trim($id) . "\" $selected>" . trim($value) . "</option>";
 				}//end foreach
 				
 				$html = str_replace("#field_values", $html_values, $html);
 				break;
 				
 			case "checkbox":
-				$html = "<select name=\"custom_field_operator_" . $objField->get("field") . "\" id=\"custom_field_operator_" . $objField->get("field") . "\" required=\"required\">
-							<option value=\"\">--select--</option>";
+				$html = "<select name=\"custom_field_operator_" . trim($objField->get("field")) . "\" id=\"custom_field_operator_" . trim($objField->get("field")) . "\" required=\"required\">
+										<option value=\"\">--select--</option>";
 				
-				if (is_object($objParam) && $objParam->field_operator == "equals")
+				if (is_object($objParam) && trim($objParam->field_operator) == "equals")
 				{
 					$selected = "selected=\"selected\"";
 				} else {
 					$selected = "";
 				}//end if
-				$html .= 	"<option value=\"equals\" $selected>is checked</option>";
+				$html .=				"<option value=\"equals\" $selected>is equal to</option>";
 				
-				if (is_object($objParam) && $objParam->field_operator == "notequals")
+				if (is_object($objParam) && trim($objParam->field_operator) == "notequals")
 				{
 					$selected = "selected=\"selected\"";
 				} else {
 					$selected = "";
 				}//end if
-				$html .=	"<option value=\"notequals\" $selected>is not checked</option>";
+				$html .=				"<option value=\"notequals\" $selected>is not equal to</option>";
 				
-				$html .= "</select>";						
+				$html .=			"</select>&nbsp;
+								 <select name=\"custom_field_" . trim($objField->get("field")) . "\" id=\"custom_field_" . ($objField->get("field")) . "\">
+									<option value=\"\">--select--</option>
+									<option value=\"checked\">checked</option>
+									<option value=\"unchecked\">not checked</option>								 		
+								 </select>";					
 				break;
 		}//end switch
 		
@@ -308,7 +313,7 @@ class FrontCommsBulkSendCustomFieldHelper
 						</script>";
 		
 		$html_section .= "<div class=\"custom_field_section custom_field_section_$element_id\">";
-		$html_section .= 	"<span class=\"custom_field_section field_criteria\">" . $objField->get("description") . " : </span>&nbsp;";
+		$html_section .= 	"<span class=\"custom_field_section field_criteria\">" . trim($objField->get("description")) . " : </span>&nbsp;";
 		$html_section .= 	$html;
 		$html_section .= 	"<button class=\"remove_section\">-</button>";
 		$html_section .= "</div>";

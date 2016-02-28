@@ -261,26 +261,62 @@ class ContactCommsController extends AbstractActionController
 		//we switch over to the registration comms id for this action
 		$reg_comm_id = $this->params()->fromRoute("comms_id");
 
-		$objResult = $this->getContactJourneysModel()->stopContactJourney($contact_id, $reg_comm_id);
+		try {
+			$objResult = $this->getContactJourneysModel()->stopContactJourney($contact_id, $reg_comm_id);
 
-		if ($objResult->HTTP_RESPONSE_CODE != 200)
-		{
-			$result = FALSE;
-			$error = $objResult->HTTP_RESPONSE_MESSAGE;
-		} else {
-			$result = TRUE;
-			$error = "";
-		}//end if
-
-		$arr_return = array(
-							"result" => $result,
-							"error" => $error,
-							//set element replace html
-							"html" => "<span>Stopped</span><br>
-													<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-start-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-start\" alt=\"Start Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Start</a>&nbsp;
-													<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-restart-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-restart\" alt=\"Restart Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Restart</a>",
-							);
-		return new JsonModel($arr_return);
+			if ($objResult->HTTP_RESPONSE_CODE != 200)
+			{
+				$result = FALSE;
+				$error = $objResult->HTTP_RESPONSE_MESSAGE;
+			} else {
+				$result = TRUE;
+				$error = "";
+			}//end if
+	
+			$arr_return = array(
+								"result" => $result,
+								"error" => $error,
+								//set element replace html
+								"html" => "<span>Stopped</span><br>
+														<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-start-journey", "comms_id" => $objResult->data->journey_id)) . "\" class=\"span-journey-start\" alt=\"Start Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Start</a>&nbsp;
+														<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-restart-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-restart\" alt=\"Restart Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Restart</a>",
+								);
+			return new JsonModel($arr_return);
+		} catch (\Exception $e) {
+			//extract error
+			$arr_t = explode("||", $e->getMessage());
+			$json = array_pop($arr_t);
+			$objResult = json_decode($json);
+			if (is_object($objResult))
+			{
+				switch($objResult->HTTP_RESPONSE_CODE)
+				{
+					case 999:
+					default:
+						$arr_tt = explode(":", $objResult->HTTP_RESPONSE_MESSAGE);
+						$message = array_pop($arr_tt);
+							
+						//format data for return
+						$arr_return = array(
+								"result" => FALSE,
+								"error" => $message,
+								//set element replace html
+								"html" => "",
+						);
+						break;
+				}//end switch
+			} else {
+				//format data for return
+				$arr_return = array(
+						"result" => FALSE,
+						"error" => "An unknown error has occured (" . $e->getMessage() . ")",
+						//set element replace html
+						"html" => "",
+				);
+			}//end if
+				
+			return new JsonModel($arr_return);			
+		}//end catch
 	}//end function
 
 	public function ajaxRestartJourneyAction()
@@ -289,26 +325,62 @@ class ContactCommsController extends AbstractActionController
 		//we switch over to the registration comms id for this action
 		$reg_comm_id = $this->params()->fromRoute("comms_id");
 
-		$objResult = $this->getContactJourneysModel()->restartContactJourney($contact_id, $reg_comm_id);
-
-		if ($objResult->HTTP_RESPONSE_CODE != 200)
-		{
-			$result = FALSE;
-			$error = $objResult->HTTP_RESPONSE_MESSAGE;
-		} else {
-			$result = TRUE;
-			$error = "";
-		}//end if
-
-		$arr_return = array(
-							"result" => $result,
-							"error" => $error,
-							//set element replace html
-							"html" => "<span>Restarted</span><br>
-										<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-stop-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-stop\" alt=\"Stop Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Stop</a>&nbsp;
-										<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-restart-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-restart\" alt=\"Restart Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Restart</a>",
+		try {
+			$objResult = $this->getContactJourneysModel()->restartContactJourney($contact_id, $reg_comm_id);
+	
+			if ($objResult->HTTP_RESPONSE_CODE != 200)
+			{
+				$result = FALSE;
+				$error = $objResult->HTTP_RESPONSE_MESSAGE;
+			} else {
+				$result = TRUE;
+				$error = "";
+			}//end if
+	
+			$arr_return = array(
+								"result" => $result,
+								"error" => $error,
+								//set element replace html
+								"html" => "<span>Restarted</span><br>
+											<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-stop-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-stop\" alt=\"Stop Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Stop</a>&nbsp;
+											<a href=\"" . $this->url()->fromRoute("front-contact-comms", array("id" => $this->params()->fromRoute("id"), "action" => "ajax-restart-journey", "comms_id" => $this->params()->fromRoute("comms_id"))) . "\" class=\"span-journey-restart\" alt=\"Restart Journey\" onclick=\"return executeJourneyOperations(jQuery(this));\">Restart</a>",
+							);
+			return new JsonModel($arr_return);
+		} catch (\Exception $e) {
+			//extract error
+			$arr_t = explode("||", $e->getMessage());
+			$json = array_pop($arr_t);
+			$objResult = json_decode($json);
+			if (is_object($objResult))
+			{
+				switch($objResult->HTTP_RESPONSE_CODE)
+				{
+					case 999:
+					default:
+						$arr_tt = explode(":", $objResult->HTTP_RESPONSE_MESSAGE);
+						$message = array_pop($arr_tt);
+			
+						//format data for return
+						$arr_return = array(
+								"result" => FALSE,
+								"error" => $message,
+								//set element replace html
+								"html" => "",
 						);
-		return new JsonModel($arr_return);
+						break;
+				}//end switch
+			} else {
+				//format data for return
+				$arr_return = array(
+						"result" => FALSE,
+						"error" => "An unknown error has occured (" . $e->getMessage() . ")",
+						//set element replace html
+						"html" => "",
+				);
+			}//end if	
+			
+			return new JsonModel($arr_return);
+		}//end catch
 	}//end function
 
 	/**

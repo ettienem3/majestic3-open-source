@@ -1,9 +1,39 @@
+<?php 
+//add editor js
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
+?>
 <script type="text/javascript">
 	jQuery(document).ready(function () {
 		//check the populate form checkbox
 		jQuery("#populate_form").attr("checked", "checked");
 		//check the active form checkbox
 		jQuery("#active").attr("checked", "checked");
+
+		//start text editors
+		jQuery.mj_text_editor({
+			element: jQuery("#copy") //content above form
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#terms") //terms and conditions
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#copy2") //content below form
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#submit_copy") //post submit content
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#reject_copy")
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#_notify_copy") //notification content
+		});
 	});
 </script>
 <div class="mj3_tables clearfix">

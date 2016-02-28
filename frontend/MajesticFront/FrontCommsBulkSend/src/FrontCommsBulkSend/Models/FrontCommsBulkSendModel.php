@@ -30,6 +30,21 @@ class FrontCommsBulkSendModel extends AbstractCoreAdapter
 	 */
 	private $model_users;
 	
+	public function getBulkCommSendForm()
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("comms/bulksend/request/form");
+		
+		$objData = $objApiRequest->performGETRequest()->getBody();
+
+		//generate the form
+		$objForm = $this->getServiceLocator()->get("FrontCore\Models\SystemFormsModel")->constructCustomForm($objData->data);
+		return $objForm;
+	}//end function
+	
 	/**
 	 * Load a list of available journeys to trigger bulk send
 	 * @param array $arr_where - Optional
@@ -73,11 +88,13 @@ class FrontCommsBulkSendModel extends AbstractCoreAdapter
 	
 	/**
 	 * Load a list of webforms available
+	 * @param array $arr_params - Optional
 	 * @return stdClass
 	 */
-	public function fetchWebForms()
+	public function fetchWebForms($arr_params = array())
 	{
-		return $this->getFormAdminModel()->fetchForms();
+		$objForms = $this->getFormAdminModel()->fetchForms($arr_params);
+		return $objForms;
 	}//end function
 	
 	/**
@@ -136,7 +153,7 @@ class FrontCommsBulkSendModel extends AbstractCoreAdapter
 	public function fetchStandardField($id, $value = FALSE, $objParam = FALSE)
 	{
 		$objField = $this->getFieldsAdminModel()->fetchStandardField($id, 1);
-		
+	
 		//load helper
 		$objStandardFieldHelper = $this->getServiceLocator()->get("FrontCommsBulkSend\Helpers\FrontCommsBulkSendStandardFieldHelper");
 		return $objStandardFieldHelper->generateStandardFieldCriteriaHTML($objField, $value, $objParam);
@@ -144,11 +161,12 @@ class FrontCommsBulkSendModel extends AbstractCoreAdapter
 	
 	/**
 	 * Load a list of Custom Fields
+	 * @param array $arr_params = Optional
 	 * @return \FrontFormAdmin\Entities\FrontFormAdminFieldEntity
 	 */
-	public function fetchCustomFields()
+	public function fetchCustomFields($arr_params = array())
 	{
-		return $this->getFieldsAdminModel()->fetchCustomFields();
+		return $this->getFieldsAdminModel()->fetchCustomFields($arr_params);
 	}//end function
 	
 	/**
@@ -185,6 +203,11 @@ class FrontCommsBulkSendModel extends AbstractCoreAdapter
 
 		foreach ($objContactStatuses as $objStatus)
 		{
+			if ($objStatus->status == "")
+			{
+				continue;
+			}//end if
+			
 			$arr[] = array("value" => $objStatus->id, "text" => $objStatus->status);
 		}//end foreach
 		

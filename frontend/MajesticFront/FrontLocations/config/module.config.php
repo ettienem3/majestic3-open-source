@@ -3,6 +3,7 @@ return array(
     'controllers' => array(
         'invokables' => array(
         	'FrontLocations\Controller\Index' => 'FrontLocations\Controller\IndexController',
+            //'FrontLocations\Controller\CustomCities' => 'FrontLocations\Controller\CustomCitiesController',
         ),
     ),
 
@@ -24,6 +25,18 @@ return array(
 
 							"may_terminate" => TRUE,
 							"child_routes" => array(
+//@TODO remove custom cities
+// 									"custom-cities" => array(
+// 												"type" => "segment",
+// 												"options" => array(
+// 															"route" => "/custom-cities[/:action][/:id]",
+// 															"defaults" => array(
+// 																	"controller" => "FrontLocations\Controller\CustomCities",
+// 																	"action" => "index",
+// 															),
+// 														),
+// 											),
+
 									"countries" => array(
 											"type" => "segment",
 											"options" => array(

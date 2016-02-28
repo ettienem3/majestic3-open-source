@@ -48,26 +48,26 @@ if (in_array($field_input_type, $arr_field_types)) :?>
 	var fields_all_id = <?php echo $this->objFormFieldElement->get("id");?>;
 	
 	jQuery(document).ready(function () {
-		if (field_input_type == "select" || field_input_type == "radio")
-		{
-			//request field values defined
-			jQuery.ajax({
-			    type: 'GET',
-			    url: "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-load-specified-field-values", "id" => $field_id));?>?field_type=" + field_type + "&fields_all_id=" + fields_all_id + "&include_field_values=1",
-			    dataType: 'json',
-			    async: false,
-			    success: function (data) {					    
-					//convert data received to array
-					jQuery.each(data.field_values_data, function (id, field_value) {
-						jQuery("#field_value").append(new Option(field_value, id));
-					});
-			    },
-			    fail: function () {
-					alert("Data could not be loaded");
-					return false;
-			    }
-			});
-		}//end if
+// 		if (field_input_type == "select" || field_input_type == "radio")
+// 		{
+// 			//request field values defined
+// 			jQuery.ajax({
+// 			    type: 'GET',
+//			    url: "<?php echo $this->url("front-form-admin/fields", array("action" => "ajax-load-specified-field-values", "id" => $field_id));?>?field_type=" + field_type + "&fields_all_id=" + fields_all_id + "&include_field_values=1",
+// 			    dataType: 'json',
+// 			    async: false,
+// 			    success: function (data) {					    
+// 					//convert data received to array
+// 					jQuery.each(data.field_values_data, function (id, field_value) {
+// 						jQuery("#field_value").append(new Option(field_value, id));
+// 					});
+// 			    },
+// 			    fail: function () {
+// 					alert("Data could not be loaded");
+// 					return false;
+// 			    }
+// 			});
+// 		}//end if
 	});
 </script>
 <?php endif?>

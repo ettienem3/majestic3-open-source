@@ -2,6 +2,7 @@
 namespace FrontLocations\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\JsonModel;
 
 class IndexController extends AbstractActionController
 {
@@ -22,16 +23,34 @@ class IndexController extends AbstractActionController
     	return array("objCountries" => $objCountries);
     }//end function
     
+    public function ajaxLoadCountriesAction()
+    {
+    	$objCountries = $this->getLocationsModel()->fetchCountries($this->params()->fromQuery());
+    	return new JsonModel((array) $objCountries);
+    }//end function
+    
     public function provincesAction()
     {
     	$objProvinces = $this->getLocationsModel()->fetchProvinces($this->params()->fromQuery());
     	return array("objProvinces" => $objProvinces);
     }//end function
     
+    public function ajaxLoadProvincesAction()
+    {
+    	$objProvinces = $this->getLocationsModel()->fetchProvinces($this->params()->fromQuery());
+    	return new JsonModel((array) $objProvinces);
+    }//end function
+    
     public function citiesAction()
     {
     	$objCities = $this->getLocationsModel()->fetchCities($this->params()->fromQuery());
     	return array("objCities" => $objCities);
+    }//end function
+    
+    public function ajaxLoadCitiesAction()
+    {
+    	$objCities = $this->getLocationsModel()->fetchCities($this->params()->fromQuery());
+    	return new JsonModel((array) $objCities);
     }//end function
     
     /**

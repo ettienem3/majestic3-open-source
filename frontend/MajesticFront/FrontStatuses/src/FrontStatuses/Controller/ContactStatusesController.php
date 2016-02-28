@@ -151,9 +151,8 @@ class ContactStatusesController extends AbstractActionController
     				// Set successful message
     				$this->flashMessenger()->addSuccessMessage("Contact Status delete successfully");
     			} catch (\Exception $e) {
-					//set error message
-					$form = new \Zend\Form\Form();
-					$this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     			} // end try
     		}//end if
 
@@ -189,8 +188,8 @@ class ContactStatusesController extends AbstractActionController
     		// Set successful message
     		$this->flashMessenger()->addSuccessMessage("Status updated successfully.");
     	} catch (\Exception $e) {
-    		// Set unsuccessful message
-			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     	} // end
 
     	// Redirect to index page.
@@ -236,6 +235,14 @@ class ContactStatusesController extends AbstractActionController
     			$arr_params["behaviour"] = "reg_status";
     			$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);
 
+    			//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
+    			$class = "\\FrontBehavioursConfig\\Forms\\Statuses\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
+    			
+    			if (class_exists($class))
+    			{
+    				$form = new $class($form);
+    			}//end if
+    			
     			//set behaviour action param for view
     			$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];
 

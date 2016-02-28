@@ -405,7 +405,8 @@ class CommsController extends AbstractActionController
 		    		//set the message
 		    		$this->flashMessenger()->addSuccessMessage("Communcation has been deleted");
 		    	} catch (\Exception $e) {
-		    		$this->flashMessenger()->addErrorMessage($e->getMessage());
+		    		//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 		    	}//end catch
     		}//end if
 
@@ -441,19 +442,8 @@ class CommsController extends AbstractActionController
     		//set the success message
     		$this->flashMessenger()->addSuccessMessage("Communication Status updated");
     	} catch (\Exception $e) {
-    		//extract error
-    		$arr_t = explode("||", $e->getMessage());
-    		$json = array_pop($arr_t);
-    		$objResult = json_decode($json);
-    		if (is_object($objResult))
-    		{
-    			$arr_t = explode(":", $objResult->HTTP_RESPONSE_MESSAGE);
-    			$m = array_pop($arr_t);
-    			$this->flashMessenger()->addErrorMessage($m);
-    		} else {
-    			//set message
-    			$this->flashMessenger()->addErrorMessage($e->getMessage());
-    		}//end if
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     	}//end catch
 
     	//redirect to indexpage

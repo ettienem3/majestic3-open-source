@@ -177,6 +177,10 @@ class FrontJourneysModel extends AbstractCoreAdapter
 		if ($arr_data["date_expiry"] != "")
 		{
 			$objDate = \DateTime::createFromFormat('d M Y', $arr_data["date_expiry"]);
+			if (!$objDate)
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the expiry date", 500);
+			}//end if
 			$arr_data["date_expiry"] = $objDate->format('c');
 		}//end if
 

@@ -82,8 +82,8 @@
 					if (jQuery("#filename").val() == "")
 					{
 						var t = jQuery(this).val();
-						t = t.replace("\\", "/").split("/");
-						jQuery("#filename").val(t.pop());
+						var b = t.replace(/[^a-z0-9_.]+/gi, '');						
+						jQuery("#filename").val(b);
 					}//end if
 				});
 			});

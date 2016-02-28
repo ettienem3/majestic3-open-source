@@ -34,11 +34,13 @@ class JourneysController extends AbstractActionController
 		if ($request->isPost())
 		{
 			$arr_params = array_merge($arr_params, (array) $request->getPost());
+			//load the journeys
+			$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params,FALSE);
+		} else {
+			//load the journeys
+			$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params, TRUE);
 		}//end foreach
-
-		//laod the journeys
-		$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params, TRUE);
-
+		
 		return array(
 				"objJourneys" => $objJourneys,
 				"arr_params" => $arr_params,
@@ -178,7 +180,8 @@ class JourneysController extends AbstractActionController
 		try {
 			$objJourney = $this->getJourneysModel()->fetchJourney($id);
 		} catch (\Exception $e) {
-			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 
 			//redirect to index page
 			return  $this->redirect()->toRoute("front-comms-admin/journeys");
@@ -196,7 +199,8 @@ class JourneysController extends AbstractActionController
 					//set the message
 					$this->flashMessenger()->addSuccessMessage("Journey deleted successfully");
 				} catch (\Exception $e) {
-					$this->flashMessenger()->addErrorMessage($e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 
@@ -237,8 +241,8 @@ class JourneysController extends AbstractActionController
 			//set the success message
 			$this->flashMessenger()->addSuccessMessage("Journey active status updated");
 		} catch (\Exception $e) {
-			//set Message
-			$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		//set error message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 		}//end if
 
 		//redirect to the index page
@@ -286,6 +290,14 @@ class JourneysController extends AbstractActionController
 				$arr_params["behaviour"] = "journey";
 				$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);
 
+				//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
+				$class = "\\FrontBehavioursConfig\\Forms\\Journeys\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
+
+				if (class_exists($class))
+				{
+					$form = new $class($form);	
+				}//end if
+				
 				//set journey id
 				if ($form->has("fk_journey_id"))
 				{
@@ -300,7 +312,7 @@ class JourneysController extends AbstractActionController
 				{
 					$form->bind($objBehaviour);
 				}//end if
-
+ 
 				//check if submitted form is the complete behaviour config
 				if ($this->params()->fromPost("setup_complete", 0) == 1)
 				{

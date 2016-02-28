@@ -206,8 +206,8 @@ class FieldsController extends AbstractActionController
 	    		//set message
 	    		$this->flashMessenger()->addSuccessMessage($objField->get("description") . " has been deleted");
 	    	} catch (\Exception $e) {
-	    		//set error message
-	    		$this->flashMessenger()->addErrorMessage($e->getMessage());
+					//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 	    	}//end catch
 
 	    	//redirect to index page

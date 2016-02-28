@@ -183,7 +183,7 @@
 					} else {
 						$behaviours_url = "";
 					}//end if
-
+$behaviours_url = "";
 					//use preview url as sales funnel advanced settings url
 					//$preview_url = "<a href=\"" . $this->url("front-form-admin/sales-funnel", array("action" => "sf-advanced-settings", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "\" title=\"Configure advanced Tracker Options\" data-toggle=\"tooltip\" class=\"\">" . ICON_SMALL_SETTINGS_HTML . "</a>";
 					$preview_url = "";
@@ -196,10 +196,12 @@
 					//set urls
 					$edit_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->id)) . "?ftype=cpp\" title=\"Edit Form\" data-toggle=\"tooltip\" class=\"page-e-link\">" . ICON_SMALL_MODIFY_HTML . "</a>";
 					$preview_url = "";
+					$behaviours_url = "";
 					break;
 
 				default:
 					$preview_url = "";
+					$behaviours_url = "";
 					break;
 			}//end switch
 
@@ -217,6 +219,9 @@
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
 		echo $this->renderSimpleHTMLTable($arr, array("Form", "Type", "Active", $add_url), array("id" => $css_id));
+		
+		//insert pagination data
+		echo $this->renderPaginationHelper($this->objForms->hypermedia->pagination, $this->url("front-form-admin"));
 		?>
 
 	</div>

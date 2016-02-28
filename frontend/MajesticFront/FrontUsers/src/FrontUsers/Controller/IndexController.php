@@ -3,6 +3,7 @@ namespace FrontUsers\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use FrontUserLogin\Models\FrontUserSession;
+use Zend\View\Model\JsonModel;
 
 class IndexController extends AbstractActionController
 {
@@ -20,7 +21,28 @@ class IndexController extends AbstractActionController
 	{
 		$objUsers = $this->getUsersModel()->fetchUsers($this->params()->fromQuery());
 		return array("objUsers" => $objUsers);
-	}
+	}//end function
+	
+	public function ajaxLoadUsersAction()
+	{
+		$objUsers = $this->getUsersModel()->fetchUsers($this->params()->fromQuery());
+		$arr_data = array();
+		
+		foreach ($objUsers as $objUser)
+		{
+			if ($objUser->active != 1)
+			{
+				continue;	
+			}//end if
+			
+			$arr_data[] = (object) array(
+				'id' => $objUser->id,
+				'uname' => $objUser->uname,
+			);
+		}//end foreach
+		
+		return new JsonModel($arr_data);
+	}//end function
 
 	/**
 	 * Create a new User

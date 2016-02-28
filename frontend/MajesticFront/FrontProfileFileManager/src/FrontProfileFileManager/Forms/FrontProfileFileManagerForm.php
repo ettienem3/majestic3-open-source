@@ -31,6 +31,19 @@ class FrontProfileFileManagerForm extends FrontCoreSystemFormBase
 		));
 
 		$this->add(array(
+				"name" => "tmp_file",
+				"type" => "file",
+				"attributes" => array(
+						"id" => "tmp_file",
+						"title" => "Select file form filesystem",
+						"required" => "required",
+				),
+				"options" => array(
+						"label" => "Set file to be upload",
+				),
+		));
+		
+		$this->add(array(
 				"name" => "filename",
 				"type" => "text",
 				"attributes" => array(
@@ -49,7 +62,7 @@ class FrontProfileFileManagerForm extends FrontCoreSystemFormBase
 						array(
 								'name' => "Regex",
 								'options' => array(
-										'pattern' => "/[^a-zA-Z0-9_.]/",
+										'pattern' => "/^[a-zA-Z0-9._]+$/",
 										'messages' => array(
 												Regex::NOT_MATCH => "Filename contains illegal characters. Only alpha numeric, underscore and full stop characters are allowed",
 										),
@@ -73,19 +86,6 @@ class FrontProfileFileManagerForm extends FrontCoreSystemFormBase
 			"validators" => array(
 
 			),
-		));
-
-		$this->add(array(
-				"name" => "tmp_file",
-				"type" => "file",
-				"attributes" => array(
-						"id" => "tmp_file",
-						"title" => "Select file form filesystem",
-						"required" => "required",
-				),
-				"options" => array(
-						"label" => "Set file to be upload",
-				),
 		));
 
 		$this->add(array(
