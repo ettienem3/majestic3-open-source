@@ -19,10 +19,9 @@ $arr_primary_menu = array(
 		),
 
 		"advanced" => array(
-//Bulk sending has been deactivated and most likely will be depracated, use behaviours on forms to start journeys
-// 			"Send a bulk journey" => array(
-// 				"route" => "front-comms-bulksend",
-// 			),
+			"Send a bulk journey" => array(
+				"route" => "front-comms-bulksend",
+			),
 
 			"Create / Update a look and feel" => array(
 				"route" => "front-comms-templates",
@@ -295,8 +294,9 @@ if (is_array($objUser->main_menu_html))
 		{
 			//regenerate html
 		} else {
-			echo $objUser->main_menu_html["html"];
-			return;
+//disable caching due to delayed user acl generation in core, make another plan at some point
+// 			echo $objUser->main_menu_html["html"];
+// 			return;
 		}//end if
 	}//end if
 }//end if
@@ -331,8 +331,13 @@ ob_start();
 					foreach ($arr_primary_menu as $label => $arr_menu)
 					{
 						//strip advanced options
-						$arr_advanced_menu = $arr_menu["advanced"];
-						unset($arr_menu["advanced"]);
+						if (isset($arr_menu["advanced"]))
+						{
+							$arr_advanced_menu = $arr_menu["advanced"];
+							unset($arr_menu["advanced"]);
+						} else {
+							$arr_advanced_menu = false;
+						}//end if
 
 						echo "<li class=\"dropdown\">";
 						echo 	"<a href='#' class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-expanded=\"false\">" . $label . "&nbsp;<span class=\"caret\"></span></a>";
@@ -342,7 +347,7 @@ ob_start();
 
 						foreach ($arr_menu as $child => $arr_child)
 						{
-							if ($arr_child["route"] == "" && !isset($arr_child["url"]) && $arr_child["url"] == "")
+							if (isset($arr_child["route"]) && $arr_child['route'] == "" && !isset($arr_child["url"]) && $arr_child["url"] == "")
 							{
 								//added  <a href></a>
 								//echo '<li role="presentation" class="divider"></li>';
@@ -350,10 +355,15 @@ ob_start();
 							} else {
 								if (isset($arr_child["url"]) && $arr_child["url"] != "")
 								{
+									if (!isset($arr_child["title"]))
+									{
+										$arr_child["title"] = '';
+									}//end if
+									
 									echo '<li><a href="' . $arr_child['url'] . '" title="' . $arr_child["title"] . '">' . $child . '</a></li>';
 								} else {
 									//check user access
-									if (\FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_child["route"]) == TRUE)
+									if (isset($arr_child["route"]) && \FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_child["route"]) == TRUE)
 									{
 										if (!isset($arr_child["title"]))
 										{
@@ -396,7 +406,7 @@ ob_start();
 							foreach ($arr_advanced_menu as $child => $arr_child)
 							{
 								//check user access
-								if (!\FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_child["route"]))
+								if (!isset($arr_child["route"]) || !\FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_child["route"]))
 								{
 									continue;
 								}//end if
@@ -425,8 +435,13 @@ ob_start();
 					foreach ($arr_secondary_menu as $label => $arr_menu)
 					{
 						//strip advanced options
-						$arr_advanced_menu = $arr_menu["advanced"];
-						unset($arr_menu["advanced"]);
+						if (isset($arr_menu["advanced"]))
+						{
+							$arr_advanced_menu = $arr_menu["advanced"];
+							unset($arr_menu["advanced"]);
+						} else {
+							$arr_advanced_menu = false;
+						}//end if
 
 						echo "<li class=\"dropdown\">";
 						echo 	"<a href='#' class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-expanded=\"false\">" . $label . "&nbsp;<span class=\"caret\"></span></a>";
@@ -444,11 +459,15 @@ ob_start();
 									break;
 
 								case "My Panels":
+									if (!isset($arr_child["title"]))
+									{
+										$arr_child["title"] = '';
+									}//end if
 									echo 	"<li><a href=\"" . $arr_child["url"] . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
 									break;
 
 								default:
-									if ($arr_child["route"] == "")
+									if (!isset($arr_child["route"]) || $arr_child["route"] == "")
 									{
 										if ($arr_child["url"] != "")
 										{
@@ -462,6 +481,10 @@ ob_start();
 										//check user access
 										if (\FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_child["route"]) == TRUE)
 										{
+											if (!isset($arr_child["title"]))
+											{
+												$arr_child["title"] = '';
+											}//end if
 											echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
 										}//end if
 									}//end if
@@ -469,7 +492,7 @@ ob_start();
 							}//end switch
 
 							//check for nested items
-							if (is_array($arr_child["nested"]) && count($arr_child["nested"]) > 0)
+							if (isset($arr_child["nested"]) && is_array($arr_child["nested"]) && count($arr_child["nested"]) > 0)
 							{
 								//@TODO secondary dropdown is not working
 								echo "<ul class=\"\" role=\"\">";
@@ -501,6 +524,10 @@ ob_start();
 									continue;
 								}//end if
 
+								if (!isset($arr_child["title"]))
+								{
+									$arr_child["title"] = '';
+								}//end if
 								echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
 							}//end foreach
 
@@ -525,4 +552,3 @@ $objUser->main_menu_html = array(
 		"expires" => time() + (60 * 2),
 );
 echo $str;
-?>

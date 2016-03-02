@@ -30,6 +30,11 @@ class BehaviourTaskForm extends FrontCoreSystemFormBase
 		
 		foreach ($arr_fields as $field)
 		{
+			if (!$objForm->has($field))
+			{
+				continue;	
+			}//end if
+			
 			$objElement = $objForm->get($field);
 			$objForm->remove($field);
 			$this->add(array(

@@ -156,7 +156,17 @@
 	<div class="mj3_table_contain clearfix">
 		<ul class="nav nav-tabs">
 			<li><h3>Custom Fields</h3></li>
-			<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/fields", array("action" => "create-field")); ?>?fid=<?php echo $this->objForm->get("id");?>" title="Create a new Custom Field" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . ' Add Field'; ?></a></li>
+			<li class="mj3_btnchangeform pull-right">		
+				<a href="<?php echo $this->url("front-form-admin/fields", array("action" => "create-field")); ?>?fid=<?php echo $this->objForm->get("id");?>" title="Create a new Custom Field" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . ' Add Field'; ?></a>
+			</li>
+			<li class="pull-right" style="margin: 5px;">
+				<form class="form-inline" role="search" method="post">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Filter by name" id="fields_custom_description" name="fields_custom_description" value="<?php if ($_POST['fields_custom_description'] != "") {echo $_POST['fields_custom_description'];}?>">
+					</div>
+					<button type="submit" class="btn btn-primary quick-search-button">Search</button>
+				</form>				
+			</li>
 		</ul>
 
 		<?php
@@ -228,6 +238,33 @@
 
 		echo $this->renderDataTableHelper(array("return_script" => FALSE), "dataTableCustomFields");
 		echo $this->renderSimpleHTMLTable($arr_custom_fields, array("Custom Fields", "&nbsp;"), array("id" => "dataTableCustomFields"));
+		
+		//insert pagination data for custom fields
+		if (isset($this->objCustomFields->hypermedia->pagination->pages_total) && $this->objCustomFields->hypermedia->pagination->count > 0 && $this->objCustomFields->hypermedia->pagination->pages_total > 1)
+		{
+			$url_route = $this->url("front-form-admin/form-fields", array("action" => "index", "form_id" => $this->objForm->get("id")));
+			
+			$string = "<hr/>";
+			$string .= "<nav>";
+			$string .=		"<ul class=\"pagination pull-left\">";
+			
+			foreach ($this->objCustomFields->hypermedia->pagination->page_urls as $key => $objPage)
+			{
+				if ($objPage->next == 0)
+				{
+					$string .= "<li><a href=\"$url_route?qp_cf_limit=" . $this->objCustomFields->hypermedia->pagination->qp_limit . "&qp_cf_start=" . $objPage->next . "\" aria-label=\"First\" title=\"First\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+					continue;
+				}//end if
+			
+				$string .= "<li><a  href=\"$url_route?qp_cf_limit=" . $this->objCustomFields->hypermedia->pagination->qp_limit . "&qp_cf_start=" . $objPage->next . "\">" . $key . "</a></li>";
+			}//end foreach
+			
+			$string .= 		"<li><a  href=\"$url_route?qp_cf_limit=" . $this->objCustomFields->hypermedia->pagination->qp_limit . "&qp_cf_start=" . $objPage->next . "\" aria-label=\"Last\" title=\"Last\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+			$string .=   "</ul>";
+			$string .=	"</nav>";
+			
+			echo $string;
+		}//end if
 		?>
 
 	</div>

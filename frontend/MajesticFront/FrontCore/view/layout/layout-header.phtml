@@ -22,9 +22,10 @@
 		//set page title
 		if (is_object($this->objProfileSettings))
 		{
-			//echo $this->headTitle($this->translate($this->objProfileSettings->get("profile_title", $profile_title)))->setSeparator(' - ')->setAutoEscape(false);
-			echo $this->headTitle($this->translate($profile_title))->setSeparator(' - ')->setAutoEscape(false);
+			$profile_title = $this->objProfileSettings->get("profile_title", $profile_title);			
 		}//end if
+		
+		echo $this->headTitle($this->translate($profile_title))->setSeparator(' - ')->setAutoEscape(false);
 
 		$cdn_url = $this->layout()->cdn_url;
 		//load javascript

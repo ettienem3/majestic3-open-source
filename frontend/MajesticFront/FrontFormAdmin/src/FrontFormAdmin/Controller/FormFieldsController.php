@@ -45,12 +45,47 @@ class FormFieldsController extends AbstractActionController
 			return $this->redirect()->toRoute("front-form-admin");
 		}//end if
 
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			if ($request->getPost('fields_custom_description'))
+			{
+				
+			}//end if
+		}//end if
+		
 		//load form details
 		$objForm = $this->getFormAdminModel()->getForm($form_id);
 
 		//load fields
-		$objStandardFields = $this->getFieldsModel()->getStandardFields(array("active" => 1));
-		$objCustomFields = $this->getFieldsModel()->getCustomFields(array("active" => 1));
+		$objStandardFields = $this->getFieldsModel()->fetchStandardFields(array("active" => 1));
+		
+		//set params for custom fields
+		$arr_custom_fields_params = array();
+		
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			if ($request->getPost('fields_custom_description') != '')
+			{
+				$arr_custom_fields_params['fields_custom_description'] = trim($request->getPost('fields_custom_description'));
+			}//end if
+		}//end if
+		
+		if ($this->params()->fromQuery('qp_cf_limit', '') != '')
+		{
+			$arr_custom_fields_params['qp_limit'] = $this->params()->fromQuery('qp_cf_limit');
+		} else {
+			$arr_custom_fields_params['qp_limit'] = 60;
+		}//end if
+		
+		if ($this->params()->fromQuery('qp_cf_start', '') != '')
+		{
+			$arr_custom_fields_params['qp_start'] = $this->params()->fromQuery('qp_cf_start');
+		}//end if
+
+		//load custom fields
+		$objCustomFields = $this->getFieldsModel()->fetchCustomFields($arr_custom_fields_params);
 
 		return array(
 				"objForm" 				=> $objForm,

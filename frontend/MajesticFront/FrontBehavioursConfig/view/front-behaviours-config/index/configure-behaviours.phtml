@@ -51,8 +51,10 @@ if (is_object($this->objBehaviours) || is_array($this->objBehaviours))
 	echo "<div class=\"mj3_table_contain clearfix\">";
 
 	$add_url = "&nbsp;";
+// 	echo '<a href="r">' . ICON_LARGE_ORDER_HTML . '</a>';
 	echo $this->renderDataTableHelper();
 	echo $this->renderSimpleHTMLTable($arr, array("Action", "Active", $add_url));
+	echo "</div>";
 }//end if
 
 	echo "</div>";
