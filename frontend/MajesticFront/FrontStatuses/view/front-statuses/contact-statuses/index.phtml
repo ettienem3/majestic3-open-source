@@ -27,14 +27,16 @@
 		/**
 		 * Prepare data
 		 */
-
+		$arr = array();
 		foreach ($this->objContactStatuses as $key => $objContactStatus)
 		{
 			if (!isset($objContactStatus->id))
 			{
 				continue;
 			}//end if
-
+			
+			$arr_data = array();
+			
 			// Replace "1" with "Yes" and "0" with "&nbsp;"
 			if ($objContactStatus->hidden == 0)
 			{
@@ -69,6 +71,11 @@
 				$objContactStatus->show_on_reports = "&nbsp;";
 			} else {
 				$objContactStatus->show_on_reports = "Yes";
+			}//end if
+			
+			if ($objContactStatus->status_group == '')
+			{
+				$objContactStatus->status_group = "&nbsp;";
 			}//end if
 
 			$arr_data["status"] = "<span class=\"label label-info\" style=\"background-color:" . $objContactStatus->colour . "\">" . $objContactStatus->status . "</span>";
@@ -110,6 +117,7 @@
 				//global status, cannot be changed
 				$arr_data["active_url"] = "&nbsp;";
 				$arr_data["url"] = "&nbsp;";
+				$arr_data['default_status'] = '&nbsp;';
 			}//end if
 			$arr[] = $arr_data;
 
@@ -120,11 +128,9 @@
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
 		//echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Hidden", "Pause Journey", "Follow up with task", "Show on reports", "Active", $add_url), array("id" => $css_id));
-		echo $this->renderSimpleHTMLTable($arr, array("Contact status", "Group", "Active", 'Default', $add_url), array("id" => $css_id));
+		echo $this->renderSimpleHTMLTable($arr, array("Status", "Group", "Active", 'Default', $add_url), array("id" => $css_id));
 
 		?>
 		<div id="manage-behaviours-section" class="modal fade"></div>
-
 	</div>
-
 </div>
