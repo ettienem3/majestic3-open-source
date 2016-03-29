@@ -44,6 +44,12 @@ class ContactToolkitController extends AbstractActionController
 	 */
 	private $model_user_tasks;
 	
+	/**
+	 * Container for the Forms Model
+	 * @var \FrontFormAdmin\Models\FrontFormAdminModel
+	 */
+	private $model_forms_admin;
+	
 	private function renderOutputFormat($layout = "layout/layout-toolkit-body", $arr_view_data = NULL)
 	{
 		$this->layout($layout);
@@ -91,10 +97,17 @@ class ContactToolkitController extends AbstractActionController
 	
 		//load forms
  		$objContactForms = $this->getContactFormsModel()->fetchContactFormsCompleted($contact_id);
-	
+ 		
+ 		//load web forms
+		$objWebForms = $this->getFrontFormAdminModel()->fetchForms(array(
+				'forms_type_id' => 1,
+				'forms_active' => 1,
+		));
+		
 		return array(
 			"contact_id" => $contact_id,
 			"objContactForms" => $objContactForms,
+			"objWebForms" => $objWebForms,
 		);
 	}//end function
 	
@@ -284,5 +297,19 @@ var_dump($e); exit;
 		}//end if
 		
 		return $this->model_user_tasks;
+	}//end function
+	
+	/**
+	 * Create an instance of the Front Form Admin Model using the Service Manager
+	 * @return \FrontFormAdmin\Models\FrontFormAdminModel
+	 */
+	private function getFrontFormAdminModel()
+	{
+		if (!$this->model_forms_admin)
+		{
+			$this->model_forms_admin = $this->getServiceLocator()->get('FrontFormAdmin\Models\FrontFormAdminModel');
+		}//end if
+		
+		return $this->model_forms_admin;
 	}//end function
 }//end class

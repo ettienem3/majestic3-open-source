@@ -29,6 +29,20 @@ class FrontCoreSystemFormEvents extends AbstractCoreAdapter
 					return $serviceManager->get(__CLASS__)->clearWebAdminSystemFormCache($event);
 				}//end function
 		);
+		
+		/**
+		 * Clear Comms Admin System form cache
+		 */
+		$eventManager->attach(
+				'FrontCommsTemplates\Models\FrontCommsTemplatesModel',
+				array(
+						'createCommTemplate.post',
+						'deleteCommTemplate.post',
+				),
+				function ($event) use ($serviceManager) {
+					return $serviceManager->get(__CLASS__)->clearCommsAdminSystemFormCache($event);
+				}//end function
+		);
 	}//end function
 
 	/**
@@ -40,6 +54,18 @@ class FrontCoreSystemFormEvents extends AbstractCoreAdapter
 	private function clearWebAdminSystemFormCache($event)
 	{
 		//clear web form system form cache
+		$this->getSystemFormManager()->clearFormCache("Core\Forms\SystemForms\Forms\FormsForm");
+	}//end function
+	
+	/**
+	 * Clear Comms Admin System Form cache
+	 * Create look and feel
+	 * Delete look and feel 
+	 * @param $event
+	 */
+	private function clearCommsAdminSystemFormCache($event)
+	{
+		//clear comms admin system form cache
 		$this->getSystemFormManager()->clearFormCache("Core\Forms\SystemForms\Forms\FormsForm");
 	}//end function
 

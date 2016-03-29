@@ -39,7 +39,7 @@ class IndexController extends AbstractActionController
 	private $model_front_contact_system_fields;
 
     public function indexAction()
-    {
+    {    	
     	//extract form id from url
     	$form_id = $this->params()->fromQuery("fid", "");
 

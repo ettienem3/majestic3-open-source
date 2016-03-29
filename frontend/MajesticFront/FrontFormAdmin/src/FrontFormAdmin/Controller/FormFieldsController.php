@@ -486,7 +486,28 @@ class FormFieldsController extends AbstractActionController
 	    );
 
 		//load behaviours form
-		$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("form_fields", $arr_behaviour_params);
+		try {
+			$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("form_fields", $arr_behaviour_params);
+		} catch (\Exception $e) {
+			//$this->flashMessenger()->addErrorMessage($e->getMessage());
+			$viewModel = new ViewModel(array(
+					//existing behaviours
+					"objBehaviours" 		=> $objBehaviours,
+					//behaviour params
+					"arr_behaviour_params" 	=> $arr_behaviour_params,
+					//action descriptions
+					"arr_descriptors" 		=> $arr_descriptors,
+					//load form data
+					"objForm" 				=> $objForm,
+					//load form field
+					"objFormFieldElement"	=> $objFormFieldElement,
+					//set header
+					"behaviours_header" 	=> "Behaviours configured for <span class=\"text-info\">Form Fields</span>",
+			));
+			$viewModel->setTemplate('front-behaviours-config/index/configure-behaviours.phtml');
+			return $viewModel;
+		}//end catch
+		
 		$form = $arr_config_form_data["form"];
 		$arr_descriptors = $arr_config_form_data["arr_descriptors"];
 

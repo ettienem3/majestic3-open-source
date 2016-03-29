@@ -209,6 +209,7 @@ class ContactStatusesController extends AbstractActionController
     	//set data array to collect behaviours and pass url data to view
     	$arr_behaviour_params = array(
     			"status_id" => $this->params()->fromRoute("id"),
+    			"reg_status_id" => $this->params()->fromRoute("id"),
     			"behaviour" => "reg_status",
     	);
 

@@ -1,3 +1,38 @@
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//create new tab to load webform for contact
+		jQuery("#form-contact-manual").change(function () {
+			if (jQuery(this).val() == '')
+			{
+				return true;
+			}//end if
+
+			var form_url = '<?php echo $form_url = "/forms/bf/00001/" . $this->contact_id?>';
+			window.open(form_url.replace('00001', jQuery(this).val()), '_blank');
+		});
+	});
+</script>
+
+<div class="form-group form-element-fname has-feedback">
+	<label for="form-contact-manual" class="control-label">Complete Form</label>
+	<select class="form-control" id="form-contact-manual">
+		<option value="">--select--</option>
+		<?php 
+			foreach ($this->objWebForms as $objForm)
+			{
+				if (!isset($objForm->id) || !is_numeric($objForm->id))
+				{
+					continue;
+				}//end if
+
+				if ($objForm->form_types_behaviour == '__web')
+				{
+					echo '<option value="' . $objForm->id . '">' . $objForm->form . "</option>";
+				}//end if
+			}//end foreach
+		?>
+	</select>
+</div>
 <?php
 echo "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
 echo 	"<tr>";

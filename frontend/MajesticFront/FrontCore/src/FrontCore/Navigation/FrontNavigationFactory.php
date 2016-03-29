@@ -150,6 +150,11 @@ class FrontNavigationFactory extends AbstractNavigationFactory implements Servic
 				),
 		);
 
+		if (!is_array($arr_pages))
+		{
+			$arr_pages = array();
+		}//end if
+		
 		foreach ($arr_pages as $key => $arr_page)
 		{
 			switch ($arr_page["route"])

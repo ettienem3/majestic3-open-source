@@ -68,7 +68,8 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 			$arr_data["objFormRawData"] = $objFormRawData;
 
 			//execute request to get constructed from
-			$objFormData = $objApiRequest->performGETRequest(array())->getBody()->data;
+			unset($arr_params["raw_data"]);
+			$objFormData = $objApiRequest->performGETRequest($arr_params)->getBody()->data;
 
 			$arr_data["objFormData"] = $objFormData;
 
@@ -325,25 +326,46 @@ var_dump($e->getMessage()); exit;
 		$objUserSession = FrontUserSession::isLoggedIn();
 		if (!$objUserSession)
 		{
-			//create the request object
-			$objApiRequest = $this->getApiRequestModel();
+			$cache_key = "ex_form_" . $form_id . "_" . $_SERVER["HTTP_HOST"] . "_key";
+			
+			//check if data has been cached
+			$objData = $this->getFormsCacheModel()->readFormCache($cache_key);		
+			if (!$objData || is_null($objData))
+			{
+				//create the request object
+				$objApiRequest = $this->getApiRequestModel();
+				
+				//disable api session login
+				$objApiRequest->setAPISessionLoginDisable();
+				
+				//load master user details
+				$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
+				
+				//set api request authentication details
+				$objApiRequest->setAPIKey($arr_user['apikey']);
+				$objApiRequest->setAPIUser(md5($arr_user['uname']));
+				$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
+				
+				//setup the object and specify the action
+				$objApiRequest->setApiAction("user/authenticate-form?debug_display_errors=1");
+					
+				//set payload
+				$arr_data = array(
+						"fid" => $form_id,
+						"tstamp" => time(),
+						'key' => $arr_user['apikey'],
+				);
 
-			//disable api session login
-			$objApiRequest->setAPISessionLoginDisable();
+				$objData = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+				
+				//cache the data
+				$this->getFormsCacheModel()->setFormCache($cache_key, $objData);
+			}//end if
 
-			//load master user details
-			$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
-
-			//set api request authentication details
-			$objApiRequest->setAPIKey($arr_user['apikey']);
-			$objApiRequest->setAPIUser(md5($arr_user['uname']));
-			$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
-
-			return (object) array(
-					"form_id" => $form_id,
-					"api_key" => $arr_user["apikey"],
-			);
+			return $objData->data;
 		}//end function
+		
+		return FALSE;
 	}//end function
 
 	/**

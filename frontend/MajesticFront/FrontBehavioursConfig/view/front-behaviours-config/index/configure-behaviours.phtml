@@ -117,9 +117,14 @@ if (isset($this->form->additional_javascript))
 	echo $this->form->additional_javascript;
 }//end if
 
-$form = $this->form;
-$form->prepare();
-echo $this->renderSystemFormHelper($form, $this);
+if (is_object($form))
+{
+	$form = $this->form;
+	$form->prepare();
+	echo $this->renderSystemFormHelper($form, $this);
+} else {
+	echo '<p>There are no behaviours available</p>';	
+}//end if
 
 echo "</fieldset>";
 echo "</div>";
