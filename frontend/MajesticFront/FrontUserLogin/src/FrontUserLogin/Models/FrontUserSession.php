@@ -108,6 +108,12 @@ class FrontUserSession extends AbstractCoreAdapter
 			return FALSE;
 		}//end if
 
+		//check if user acl has been set already, if not temporarily allow access in frontend, api will catch unauthorized requests
+		if (count((array) $objUserSession->acl->user_acl_access_allowed < 10))
+		{
+			return TRUE;
+		}//end if
+		
 		//check api resources
 		if (in_array($resource, (array) $objUserSession->acl->user_acl_access_allowed))
 		{
@@ -165,6 +171,7 @@ class FrontUserSession extends AbstractCoreAdapter
 
 		//set logged in time out
 		$this->getUserSession()->session_timeout = (time() + (60 * 60));
+		$this->getUserSession()->session_login = time();
 		return $this->getUserSession();
 	}//end function
 

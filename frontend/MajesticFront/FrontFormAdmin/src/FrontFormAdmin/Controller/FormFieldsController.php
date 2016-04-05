@@ -45,12 +45,47 @@ class FormFieldsController extends AbstractActionController
 			return $this->redirect()->toRoute("front-form-admin");
 		}//end if
 
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			if ($request->getPost('fields_custom_description'))
+			{
+				
+			}//end if
+		}//end if
+		
 		//load form details
 		$objForm = $this->getFormAdminModel()->getForm($form_id);
 
 		//load fields
-		$objStandardFields = $this->getFieldsModel()->getStandardFields(array("active" => 1));
-		$objCustomFields = $this->getFieldsModel()->getCustomFields(array("active" => 1));
+		$objStandardFields = $this->getFieldsModel()->fetchStandardFields(array("active" => 1));
+		
+		//set params for custom fields
+		$arr_custom_fields_params = array();
+		
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			if ($request->getPost('fields_custom_description') != '')
+			{
+				$arr_custom_fields_params['fields_custom_description'] = trim($request->getPost('fields_custom_description'));
+			}//end if
+		}//end if
+		
+		if ($this->params()->fromQuery('qp_cf_limit', '') != '')
+		{
+			$arr_custom_fields_params['qp_limit'] = $this->params()->fromQuery('qp_cf_limit');
+		} else {
+			$arr_custom_fields_params['qp_limit'] = 60;
+		}//end if
+		
+		if ($this->params()->fromQuery('qp_cf_start', '') != '')
+		{
+			$arr_custom_fields_params['qp_start'] = $this->params()->fromQuery('qp_cf_start');
+		}//end if
+
+		//load custom fields
+		$objCustomFields = $this->getFieldsModel()->fetchCustomFields($arr_custom_fields_params);
 
 		return array(
 				"objForm" 				=> $objForm,
@@ -428,7 +463,7 @@ class FormFieldsController extends AbstractActionController
     		$this->flashMessenger()->addSuccessMessage("'" . $objField->get("description") . "' field successfully removed");
     	} catch (\Exception $e) {
     		//set error message
-    		$this->flashMessenger()->addErrorMessage("Field could not be removed from form. " . $e->getMessage());
+    		$this->flashMessenger()->addErrorMessage("Field could not be removed from form. " . $this->frontControllerErrorHelper()->formatErrors($e));
     	}//end catch
 
     	//redirect back to the form edit view
@@ -451,7 +486,28 @@ class FormFieldsController extends AbstractActionController
 	    );
 
 		//load behaviours form
-		$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("form_fields", $arr_behaviour_params);
+		try {
+			$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("form_fields", $arr_behaviour_params);
+		} catch (\Exception $e) {
+			//$this->flashMessenger()->addErrorMessage($e->getMessage());
+			$viewModel = new ViewModel(array(
+					//existing behaviours
+					"objBehaviours" 		=> $objBehaviours,
+					//behaviour params
+					"arr_behaviour_params" 	=> $arr_behaviour_params,
+					//action descriptions
+					"arr_descriptors" 		=> $arr_descriptors,
+					//load form data
+					"objForm" 				=> $objForm,
+					//load form field
+					"objFormFieldElement"	=> $objFormFieldElement,
+					//set header
+					"behaviours_header" 	=> "Behaviours configured for <span class=\"text-info\">Form Fields</span>",
+			));
+			$viewModel->setTemplate('front-behaviours-config/index/configure-behaviours.phtml');
+			return $viewModel;
+		}//end catch
+		
 		$form = $arr_config_form_data["form"];
 		$arr_descriptors = $arr_config_form_data["arr_descriptors"];
 
@@ -488,8 +544,30 @@ class FormFieldsController extends AbstractActionController
 	    	{
 	    		$arr_params = $form->getData();
 	    		$arr_params["behaviour"] = "form_fields";
+	    		
+	    		//add some additional values to assist in generating the correct form
+	    		$arr_params['form_id'] = $arr_behaviour_params['form_id'];
+	    		$arr_params['field_id'] = $arr_behaviour_params['field_id'];
 	    		$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);
 
+	    		//extract field information
+				if (is_numeric($objFormFieldElement->get('fields_std_id')))
+				{
+					//standard field
+					$field_value = ucwords($objFormFieldElement->get('fields_std_field'));
+				} else {
+					//custom field
+					$field_value = ucwords($objFormFieldElement->get('fields_custom_field'));
+				}//end if
+	    		
+	    		//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
+	    		$class = "\\FrontBehavioursConfig\\Forms\\FormFields\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . $field_value . "Form";
+	    		
+	    		if (class_exists($class))
+	    		{
+	    			$form = new $class($form);
+	    		}//end if
+	    		
 	    		//set behaviour action param for view
 	    		$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];
 

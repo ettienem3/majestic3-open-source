@@ -29,9 +29,49 @@
 
 			//populate the form fields
 			jQuery.each(objData.response, function (field, value) {
-				if (jQuery("#" + field).val() == "")
+				//deal with text fields
+				if (jQuery("#" + field).is("input:text"))
 				{
-					jQuery("#" + field).val(value);
+					if (jQuery("#" + field).val() == "")
+					{
+						jQuery("#" + field).val(value);
+					}//end if
+				}//end if
+
+				//deal with checkboxes
+				if (jQuery("#" + field).is("input:checkbox"))
+				{
+					if (value == 1)
+					{
+						jQuery("#" + field).prop("checked", true);
+					}//end if
+				}//end if
+
+				//deal with radios
+				if (jQuery("#" + field).is("input:radio"))
+				{
+					if (jQuery("input:radio:checked[name='" + field + "']").length == 0)
+					{
+						jQuery("input:radio[name='" + field + "']").filter("[value='" + value + "']").prop("checked", true);
+					}//end if
+				}//end if
+
+				//deal with teaxtareas
+				if (jQuery("#" + field).is("textarea"))
+				{
+					if (jQuery("#" + field).val() == "")
+					{
+						jQuery("#" + field).val(value);
+					}//end if
+				}//end if
+
+				//deal with dropdowns
+				if (jQuery("#" + field).is("select"))
+				{
+					if (jQuery("#" + field).val() == "")
+					{
+						jQuery("#" + field).val(value);
+					}//end if
 				}//end if
 			});
 		})

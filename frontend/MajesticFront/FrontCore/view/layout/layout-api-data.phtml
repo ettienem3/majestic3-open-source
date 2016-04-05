@@ -4,6 +4,11 @@ if (isset($this->api_logs))
 	echo "<div class=\"api_logs\">";
 	foreach ($this->api_logs as $log)
 	{
+		if (is_string($log))
+		{
+			"<pre>Raw: " . $log . "</pre>";
+			continue;
+		}//end if
 		echo "<pre>URL: " . $log->url . "</pre>";
 		$objData = @json_decode($log->response);
 		echo "<pre>Response: " . print_r($objData, TRUE) . "</pre>";

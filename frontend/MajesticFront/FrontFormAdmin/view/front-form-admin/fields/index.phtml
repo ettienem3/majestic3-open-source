@@ -140,9 +140,13 @@
 	<div class="mj3_table_contain clearfix">
 
 		<?php
-
 		foreach ($this->objFields as $objField)
 		{
+			if (!$objField instanceof \FrontFormAdmin\Entities\FrontFormAdminFieldEntity)
+			{
+				continue;
+			}//end if
+			
 			if (!is_string($objField->get("id")))
 			{
 				continue;
@@ -175,7 +179,13 @@
 			}//end if
 
 			$edit_url = "<a href=\"" . $this->url("front-form-admin/fields", array("action" => "edit-field", "id" => $objField->get("id"))) . "\" title=\"Edit Field\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
-			$delete_url = "<a href=\"" . $this->url("front-form-admin/fields", array("action" => "delete-field", "id" => $objField->get("id"))) . "\" title=\"Delete Field\" data-toggle=\"tooltip\" >" . ICON_SMALL_DELETE_HTML . "</a>";
+			if (count($objField->get("arr_forms_used")) > 0)
+			{
+				$delete_url = '<span title="Field cannot be removed, it is in use" data-toggle="tooltip">' . ICON_SMALL_DELETE_HTML . '</span>';
+			} else {
+				$delete_url = "<a href=\"" . $this->url("front-form-admin/fields", array("action" => "delete-field", "id" => $objField->get("id"))) . "\" title=\"Delete Field\" data-toggle=\"tooltip\" >" . ICON_SMALL_DELETE_HTML . "</a>";
+			}//end if
+			
 			$arr_field["urls"] = $edit_url . "&nbsp;" . $delete_url;
 			$arr[] = $arr_field;
 		}//end function
@@ -185,6 +195,9 @@
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
 		echo $this->renderSimpleHTMLTable($arr, array("Field", "Used In", "Type", "Field Locked", $add_url), array("id" => $css_id));
+
+		//insert pagination data
+		echo $this->renderPaginationHelper($this->objFields->hypermedia->pagination, $this->url("front-form-admin/fields"));
 		?>
 
 	</div>

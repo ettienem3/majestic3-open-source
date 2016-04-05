@@ -51,7 +51,13 @@ class FrontFieldAdminModel extends AbstractCoreAdapter
 			$arr[] = $this->createFieldEntity($objField);
 		}//end foreach
 
-		return (object) $arr;
+		if (isset($objFields->data->hypermedia))
+		{
+			$arr['hypermedia'] = $objFields->data->hypermedia;
+		}//end if
+		
+		$objData = (object) $arr;
+		return $objData;
 	}//end function
 
 	/**

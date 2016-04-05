@@ -36,6 +36,26 @@ class BulkSendController extends AbstractActionController
 		
 		//load data
 		$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($id);
+		//load the form
+		$form = $this->getFrontCommsBulkSendModel()->getBulkCommSendForm();
+		$objFormData = $this->getServiceLocator()->get('FrontCommsBulkSend\Entities\FrontCommsBulkSendRequestEntity');
+		$objFormData->set($objBulkSendRequest->get('arr_form_data'));
+		if (is_array($objFormData->get('contact_created_start')))
+		{
+			$arr = $objFormData->get('contact_created_start');
+			$objFormData->set('contact_created_start', $arr[0]);
+		}//end if
+		if (is_array($objFormData->get('contact_created_end')))
+		{
+			$arr = $objFormData->get('contact_created_end');
+			$objFormData->set('contact_created_end', $arr[0]);
+		}//end if
+		$form->bind($objFormData);
+		if ($form->has('submit'))
+		{
+			$form->remove('submit');
+		}//end if
+		
 		$objJourney = $this->getFrontCommsBulkSendModel()->fetchJourney($objBulkSendRequest->get("fk_journey_id"));
 		
 		$request = $this->getRequest();
@@ -47,13 +67,42 @@ class BulkSendController extends AbstractActionController
 			if (strtolower($request->getPost("submit_update")) == "update")
 			{
 				try {
-					//update the request
-					$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->editBulkSendRequest($id, (array) $request->getPost());
+					$form->setData($request->getPost());
+					if ($form->isValid())
+					{
+						$arr_data = (array) $request->getPost();
+						//amend dates
+						if (isset($arr_data['contact_created_start']))
+						{
+							if ($arr_data['contact_created_start'] == '')
+							{
+								unset($arr_data['contact_created_start']);
+							} else {
+								$arr_data['contact_created_start'] = date('c', strtotime($arr_data['contact_created_start']));
+							}//end if
+						}//end if
 						
-					//set success message
-					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been updated");
+						if (isset($arr_data['contact_created_end']))
+						{
+							if ($arr_data['contact_created_end'] == '')
+							{
+								unset($arr_data['contact_created_end']);
+							} else {
+								$arr_data['contact_created_end'] = date('c', strtotime($arr_data['contact_created_end']));
+							}//end if
+						}//end if
+						
+						//update the request
+						$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->editBulkSendRequest($id, $arr_data);
+							
+						//set success message
+						$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been updated");
+					} else {
+						$this->flashMessenger()->addErrorMessage("Form could not be validated");	
+					}//end if
 				} catch (\Exception $e) {
-					$this->flashMessenger()->addErrorMessage("An error occured : " . $e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 
@@ -72,7 +121,8 @@ class BulkSendController extends AbstractActionController
 					//redirect back to the index
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");
 				} catch (\Exception $e) {
-					$this->flashMessenger()->addErrorMessage("An error occured : " . $e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 			
@@ -87,7 +137,8 @@ class BulkSendController extends AbstractActionController
 					
 					$this->flashMessenger()->addInfoMessage("Approval cancelation request has been sent");
 				} catch (\Exception $e) {
-					$this->flashMessenger()->addErrorMessage("An error occured : " . $e->getMessage());
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 			
@@ -106,7 +157,8 @@ class BulkSendController extends AbstractActionController
 					//redirect back to the index page
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");
 				} catch (\Exception $e) {
-					$this->flashMessenger()->addErrorMessage("An error occured : " . $e->getMessage());
+					//set error message
+					$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
 		}//end if
@@ -121,6 +173,7 @@ class BulkSendController extends AbstractActionController
 			"objJourney" => $objJourney,
 			"model_contact_status" => $model_contact_status,
 			"model_front_comms_bulk_send" => $this->getFrontCommsBulkSendModel(),
+			'form' => $form,
 		);
 	}//end function
 	
@@ -149,11 +202,8 @@ class BulkSendController extends AbstractActionController
 					//redirect back to the index page
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");
 				} catch (\Exception $e) {
-					//extract response from string
-					$arr = explode("||", $e->getMessage());
-					$objResponse = json_decode($arr[1]);
-			
-					$this->flashMessenger()->addErrorMessage($objResponse->HTTP_RESPONSE_MESSAGE);
+    				//set error message
+    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 					
 					//reload data
 					$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, array("time" => time()));

@@ -207,6 +207,24 @@ class IndexController extends AbstractActionController
 		);
 	}//end function
 	
+	public function ajaxLoadUserAclAction()
+	{
+		try {
+			//check if user is already logged in, if so, redirect to the home page
+			$objUser = FrontUserSession::isLoggedIn();
+			if ($objUser === FALSE)
+			{
+				exit;
+			}//end if
+				
+			$this->getUserLoginModel()->loadUserAcl();
+		} catch (\Exception $e) {
+			trigger_error($e->getMessage(), E_USER_WARNING);
+		}//end catch
+			
+		exit;
+	}//end function
+	
 	public function userSettingsAction()
 	{
 		//check if user is already logged in, if so, redirect to the home page

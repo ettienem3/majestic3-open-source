@@ -100,7 +100,7 @@ class FrontNavigationFactory extends AbstractNavigationFactory implements Servic
 
 						if (!in_array($arr_rr["route"], $arr_user_navigation))
 						{
-							unset($arr_pages[$key][$kk]);
+// 							unset($arr_pages[$key][$kk]);
 						} else {
 							//check third level nav
 							if (isset($arr_rr["pages"]) && is_array($arr_rr["pages"]))
@@ -114,7 +114,7 @@ class FrontNavigationFactory extends AbstractNavigationFactory implements Servic
 
 									if (!in_array($arr_rrr["route"], $arr_user_navigation))
 									{
-										unset($arr_pages[$key][$kk][$kkk]);
+// 										unset($arr_pages[$key][$kk][$kkk]);
 									}//end if
 								}//end foreach
 							}//end if
@@ -125,7 +125,7 @@ class FrontNavigationFactory extends AbstractNavigationFactory implements Servic
 			} else {
 				if (!in_array($arr_page["route"], $arr_user_navigation))
 				{
-					unset($arr_pages[$key]);
+// 					unset($arr_pages[$key]);
 				}//end if
 			}//end if
 		}//end foreach
@@ -150,6 +150,11 @@ class FrontNavigationFactory extends AbstractNavigationFactory implements Servic
 				),
 		);
 
+		if (!is_array($arr_pages))
+		{
+			$arr_pages = array();
+		}//end if
+		
 		foreach ($arr_pages as $key => $arr_page)
 		{
 			switch ($arr_page["route"])

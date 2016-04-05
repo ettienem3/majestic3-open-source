@@ -47,7 +47,7 @@ class FrontFormatUserDateHelper extends AbstractHelper
 		}//end if
 
 		//is the date specified?
-		if (!isset($arr_date["date"]) || $arr_date["date"] == "")
+		if (!isset($arr_date["date"]) || $arr_date["date"] == "" || $arr_date['date'] == '0000-00-00 00:00:00' || $arr_date['date'] == '0000-00-00')
 		{
 			return FALSE;
 		}//end if

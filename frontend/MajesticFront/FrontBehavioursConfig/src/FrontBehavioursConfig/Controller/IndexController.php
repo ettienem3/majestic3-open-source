@@ -32,12 +32,41 @@ class IndexController extends AbstractActionController
 			exit;
 		}//end catch
 
-		//load the behaviour config form
-		$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm(array(
-			"behaviour" => $objBehaviour->get("behaviour"),
-			"beh_action" => $objBehaviour->get("action"),
-		));
+		//set form parameters
+		$arr_form_params = $this->setBehaviourRequestFormParams($objBehaviour);
 
+		//load the behaviour config form
+		$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_form_params);
+
+		//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
+		switch ($objBehaviour->get('behaviour'))
+		{
+			case "__journey":
+				$class = "\\FrontBehavioursConfig\\Forms\\Journeys\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
+				break;
+				
+			case "__form":
+				$class = "\\FrontBehavioursConfig\\Forms\\Forms\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
+				break;
+				
+			case "__form_fields":
+				$class = "\\FrontBehavioursConfig\\Forms\\FormFields\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
+				break;
+				
+			case "__reg_status":
+				$class = "\\FrontBehavioursConfig\\Forms\\Statuses\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
+				break;
+				
+			case "__links":
+				$class = "\\FrontBehavioursConfig\\Forms\\Links\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
+				break;
+		}//end switch
+
+		if (isset($class) && class_exists($class))
+		{
+			$form = new $class($form);
+		}//end if
+		
 		//bind data to the form
 		$form->bind($objBehaviour);
 
@@ -53,7 +82,8 @@ class IndexController extends AbstractActionController
 					$objBehaviour = $form->getData();
 					//set id
 					$objBehaviour->set("id", $id);
-
+					
+					//submit changes
 					$this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
 
 					//redirect back to the calling url
@@ -76,6 +106,7 @@ class IndexController extends AbstractActionController
 			"form" => $form,
 			"id" => $id,
 			"redirect_url" => $redirect_url,
+			"objBehaviour" => $objBehaviour,
 		);
 	}//end function
 
@@ -165,6 +196,30 @@ class IndexController extends AbstractActionController
 		return $this->redirect()->toUrl($this->getRequest()->getServer('HTTP_REFERER'));
 	}//end function
 
+	/**
+	 * Set behaviour parameters where required based on the type if request received
+	 * @param unknown $objBehaviour
+	 * @return array
+	 */
+	private function setBehaviourRequestFormParams($objBehaviour)
+	{
+		$arr_params = array(
+				'behaviour' => $objBehaviour->get('behaviour'),
+				'beh_action' => $objBehaviour->get('action'),
+		);
+		
+		//set additional params based on behaviour and its action where applicable
+		switch(strtolower(str_replace("_", "", $arr_params['behaviour'])))
+		{
+			case "formfields":
+				$arr_params['form_id'] = $objBehaviour->get('fk_form_id');
+				$arr_params['field_id'] = $objBehaviour->get('fk_fields_all_id');
+				break;
+		}//end switch
+		
+		return $arr_params;
+	}//end function
+	
     /**
      * Create an instance of the Front Behaviours Config Model using the Service Manager
      * @return \FrontBehavioursConfig\Models\FrontBehavioursConfigModel

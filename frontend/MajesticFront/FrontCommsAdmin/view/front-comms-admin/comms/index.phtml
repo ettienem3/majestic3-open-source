@@ -68,15 +68,17 @@
 			{
 				$arr_data["comm_num"] = $objCommAdmin->comm_num;
 				$arr_comm_numbers[] = $objCommAdmin->comm_num;
+				$prevent_active = FALSE;
 			} else {
 				$arr_data["comm_num"] = "<span class=\"label label-danger\" title=\"This communication number is used more than once\" data-toggle=\"tooltip\">" . $objCommAdmin->comm_num . "</span>";
+				$prevent_active = TRUE;
 			}//end if
 
 
-			if ($objCommAdmin->active == 1) {
+ 			if ($objCommAdmin->active == 1) {
 				$arr_data["activate_commadmin"] = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "status", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\"><span title=\"This Communication is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</span></a>" . "</td>";
 			} else {
-				if (in_array($objCommAdmin->comm_num, $arr_comm_numbers))
+				if (isset($prevent_active) && $prevent_active === TRUE)
 				{
 					$arr_data["activate_commadmin"] = "<span title=\"This Communication cannot be activated. Its communication number conflicts with that of another communication in this journey\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</span>" . "</td>";
 				} else {

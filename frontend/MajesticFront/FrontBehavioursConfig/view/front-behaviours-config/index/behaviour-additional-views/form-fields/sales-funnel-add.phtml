@@ -1,18 +1,21 @@
 <?php
 //check the form field type
-if (is_numeric($this->objFormFieldElement->get("field_std_id")))
+if (is_object($this->objFormFieldElement))
 {
-	//standard field
-	$field_input_type = strtolower($this->objFormFieldElement->get("field_std_input_type"));
-	$field_type = "standard";
-	$field_id = $this->objFormFieldElement->get("field_std_id");
-	$field_label = $this->objFormFieldElement->get("field_std_description");
-} else {
-	//custom field
-	$field_input_type = strtolower($this->objFormFieldElement->get("field_custom_input_type"));
-	$field_type = "custom";
-	$field_id = $this->objFormFieldElement->get("field_custom_id");
-	$field_label = $this->objFormFieldElement->get("field_custom_description");
+	if (is_numeric($this->objFormFieldElement->get("field_std_id")))
+	{
+		//standard field
+		$field_input_type = strtolower($this->objFormFieldElement->get("field_std_input_type"));
+		$field_type = "standard";
+		$field_id = $this->objFormFieldElement->get("field_std_id");
+		$field_label = $this->objFormFieldElement->get("field_std_description");
+	} else {
+		//custom field
+		$field_input_type = strtolower($this->objFormFieldElement->get("field_custom_input_type"));
+		$field_type = "custom";
+		$field_id = $this->objFormFieldElement->get("field_custom_id");
+		$field_label = $this->objFormFieldElement->get("field_custom_description");
+	}//end if
 }//end if
 
 //set field label

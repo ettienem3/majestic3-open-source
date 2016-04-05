@@ -51,8 +51,10 @@ if (is_object($this->objBehaviours) || is_array($this->objBehaviours))
 	echo "<div class=\"mj3_table_contain clearfix\">";
 
 	$add_url = "&nbsp;";
+// 	echo '<a href="r">' . ICON_LARGE_ORDER_HTML . '</a>';
 	echo $this->renderDataTableHelper();
 	echo $this->renderSimpleHTMLTable($arr, array("Action", "Active", $add_url));
+	echo "</div>";
 }//end if
 
 	echo "</div>";
@@ -75,7 +77,7 @@ if (isset($this->arr_behaviour_params) && $this->arr_behaviour_params["behaviour
 		//load general file
 		if (in_array("general.phtml", $arr_files))
 		{
-			echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/general.phtml");
+ 			echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/general.phtml");
 		}//end if
 	}//end if
 
@@ -92,7 +94,8 @@ if (isset($this->arr_behaviour_params) && $this->arr_behaviour_params["behaviour
 		{
 			if (substr(strtolower($file), 0, strlen($action)) == $action)
 			{
-				echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/$file");
+ 				echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/$file");
+ 				break;
 			}//end if
 		}//end if
 	}//end if
@@ -101,7 +104,7 @@ if (isset($this->arr_behaviour_params) && $this->arr_behaviour_params["behaviour
 /**
  * Render form section
  */
-echo "<h3>Create Behavior</h3>";
+echo "<h3>Configure Behavior</h3>";
 
 //display action title ontop of form
 if (isset($this->arr_behaviour_params["beh_action"]) && $this->arr_behaviour_params["beh_action"] != "")
@@ -109,9 +112,19 @@ if (isset($this->arr_behaviour_params["beh_action"]) && $this->arr_behaviour_par
 	echo "<h4>" . $this->arr_descriptors[$this->arr_behaviour_params["beh_action"]] . "</h4>";
 }//end if
 echo "<div class=\"mj3_forms clearfix\">";
-$form = $this->form;
-$form->prepare();
-echo $this->renderSystemFormHelper($form, $this);
+if (isset($this->form->additional_javascript))
+{
+	echo $this->form->additional_javascript;
+}//end if
+
+if (is_object($form))
+{
+	$form = $this->form;
+	$form->prepare();
+	echo $this->renderSystemFormHelper($form, $this);
+} else {
+	echo '<p>There are no behaviours available</p>';	
+}//end if
 
 echo "</fieldset>";
 echo "</div>";

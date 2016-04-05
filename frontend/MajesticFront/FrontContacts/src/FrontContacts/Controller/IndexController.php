@@ -39,7 +39,7 @@ class IndexController extends AbstractActionController
 	private $model_front_contact_system_fields;
 
     public function indexAction()
-    {
+    {    	
     	//extract form id from url
     	$form_id = $this->params()->fromQuery("fid", "");
 
@@ -48,7 +48,7 @@ class IndexController extends AbstractActionController
     	{
     		//check if form id is set in user session
     		$objUserStorage = FrontUserSession::getUserLocalStorageObject();
-    		if (is_object($objUserStorage) && is_numeric($objUserStorage->readUserNativePreferences()->cpp_layout_id))
+    		if (isset($objUserStorage->readUserNativePreferences()->cpp_layout_id) && is_numeric($objUserStorage->readUserNativePreferences()->cpp_layout_id))
     		{
     			//load the specified form's fields
     			$form_id = $objUserStorage->readUserNativePreferences()->cpp_layout_id;
@@ -777,6 +777,14 @@ class IndexController extends AbstractActionController
     	);
     }//end function
 
+    public function ajaxLoadSourceListAction()
+    {
+    	//load form
+    	$form = $this->getContactsModel()->getContactSystemFieldsForm();
+    	$arr_source_data = $form->get('source_dropdown')->getValueOptions();
+    	return new JsonModel($arr_source_data);
+    }//end function
+    
     /**
      * Create an instance of the Contacts Model using the Service Manager
      * @return \FrontContacts\Models\FrontContactsModel

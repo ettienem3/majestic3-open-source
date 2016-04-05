@@ -6,15 +6,58 @@
 </ul>
 	<div class="mj3_forms clearfix">
 	<?php
+		echo $this->partial("layout/flash-messages");
+	
+		//add required css and java files
+		echo $this->headScript()->appendFile($this->basePath() . '/js/plugins/mj-behaviour-plugins.js');
+	
+		//load additional view files for the behaviour and action
+		if (isset($this->objBehaviour) && $this->objBehaviour->get("behaviour") != "")
+		{
+			//check if folder exists
+			$folder = str_replace("_", "-", $this->objBehaviour->get("behaviour"));
+			if (substr($folder, 0, 2) == "--")
+			{
+				$folder = substr($folder, 2);
+			}//end if
+		
+			$folder_path = "./MajesticFront/FrontBehavioursConfig/view/front-behaviours-config/index/behaviour-additional-views/$folder";
+			if (is_dir($folder_path))
+			{
+				$arr_files = scandir($folder_path);
+		
+				//load general file
+				if (in_array("general.phtml", $arr_files))
+				{
+					echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/general.phtml");
+				}//end if
+			}//end if
+		
+			//load specific action files where set
+			if ($this->objBehaviour->get("action") != "")
+			{
+				$action = str_replace("_", "-", strtolower($this->objBehaviour->get("action")));
+				if (substr($action, 0, 2) == "--")
+				{
+					$action = substr($action, 2);
+				}//end if
+		
+				foreach ($arr_files as $file)
+				{
+					if (substr(strtolower($file), 0, strlen($action)) == $action)
+					{
+						echo $this->partial("front-behaviours-config/index/behaviour-additional-views/$folder/$file");
+					}//end if
+				}//end if
+			}//end if
+		}//end if
+	
 		$form = $this->form;
 
 		//set form action
 		$form->setAttribute("action", $redirect_url);
 		$form->prepare();
 		echo $this->renderSystemFormHelper($form, $this);
-
-		//load additional view files for the behaviour and action
-		// var_dump($this->arr_behaviour_params);
 	?>
 	</div>
 </div>

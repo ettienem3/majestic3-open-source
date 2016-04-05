@@ -42,7 +42,8 @@ echo $this->partial("layout-comm-data-additions");
 				enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
 			});
 
-			jQuery("#content").attr("required", false);
+			jQuery("#content").prop("required", false);
+			jQuery("#active").prop("checked", true);
 		});
 	</script>
 

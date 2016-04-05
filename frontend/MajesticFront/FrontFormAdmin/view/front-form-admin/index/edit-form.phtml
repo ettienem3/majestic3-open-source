@@ -1,3 +1,8 @@
+<?php 
+//add editor js
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
+echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
+?>
 <div class="mj3_tables clearfix">
 <script type="text/javascript">
 	jQuery(document).ready(function () {
@@ -42,6 +47,31 @@
 				alert("Field has not been updated. An unknown error has occurred");
 			});
 		});
+
+		//start text editors
+		jQuery.mj_text_editor({
+			element: jQuery("#copy") //content above form
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#terms") //terms and conditions
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#copy2") //content below form
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#submit_copy") //post submit content
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#reject_copy")
+		});
+
+		jQuery.mj_text_editor({
+			element: jQuery("#_notify_copy") //notification content
+		});
 	});
 </script>
 <?php
@@ -83,7 +113,7 @@ echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit ' . $fo
 
 					case "__sales_funnel":
 						$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "form-behaviours", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "&behaviour=form_sales_funnel\" title=\"Configure Tracker Behaviours\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
-
+$behaviours_url = '';
 						//use preview url as sales funnel advanced settings url
 						$preview_url = "<a href=\"" . $this->url("front-form-admin/sales-funnel", array("action" => "sf-advanced-settings", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "\" title=\"Configure advanced Tracker Options\" class=\"\" data-toggle=\"tooltip\">" . ICON_SMALL_SETTINGS_HTML . "</a>";
 						echo "<li role=\"presentation\">$preview_url</li>";
@@ -91,6 +121,7 @@ echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit ' . $fo
 
 					default:
 						$preview_url = "";
+						$behaviours_url = '';
 					break;
 				}//end switch
 			?>
@@ -101,7 +132,7 @@ echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit ' . $fo
 	<div class="mj3_table_contain clearfix">
 		<h2>Form Fields</h2>
 		<ul class="nav nav-tabs m3-options-disable-form-help-toggle">
-			<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "order-fields", "id" => $this->objForm->get("id"))); ?>" data-toggle="tooltip" title="Sort by Order"><?php echo ICON_LARGE_ORDER_HTML; ?></a></li>
+			<li role="presentation"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "order-fields", "id" => $this->objForm->get("id"))); ?>" data-toggle="tooltip" title="Set Order"><?php echo ICON_LARGE_ORDER_HTML; ?></a></li>
 			<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/form-fields", array("action" => "index", "form_id" => $this->objForm->get("id"))); ?>" title="Allocate Fields to Form" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_LARGE_ADD_HTML;?> Allocate Fields</a></li>
 		</ul>
 
@@ -183,9 +214,21 @@ echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit ' . $fo
 					$arr_field["active"] = ICON_SMALL_INACTIVE_HTML;
 				} //end if
 
+				switch ($this->objForm->form_types_behaviour)
+				{
+					case "__web":
+					case "__viral":
+						//behaviours allowed
+						break;
+				
+					default:
+						//behaviours not allowed or coming soon
+						$behaviours_url = '';
+						break;
+				}//end switch
+				
 				// create edit and remove urls
-// 				$arr_field["urls"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_url;
-$arr_field["urls"] = $edit_url . "&nbsp;" . $delete_url;
+ 				$arr_field["urls"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_url;
 
 				// is this a CPP form
 				if (strtolower($this->objForm->get("behaviour")) == "__cpp")

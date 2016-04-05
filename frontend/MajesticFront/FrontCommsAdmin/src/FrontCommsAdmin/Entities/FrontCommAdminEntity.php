@@ -49,12 +49,20 @@ class FrontCommAdminEntity extends AbstractEntityAdapter
 		if ($arr_data["date_expiry"] != "")
 		{
 			$objDate = \DateTime::createFromFormat($this->format_date, $arr_data["date_expiry"]);
+			if (!$objDate)
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the expiry date", 500);
+			}//end if
 			$arr_data["date_expiry"] = $objDate->format("c");
 		}//end if
 
 		if ($arr_data["date_start"] != "")
 		{
 			$objDate = \DateTime::createFromFormat($this->format_date, $arr_data["date_start"]);
+			if (!$objDate)
+			{
+				throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An error occurred setting the start date", 500);
+			}//end if
 			$arr_data["date_start"] = $objDate->format("c");
 		}//end if
 

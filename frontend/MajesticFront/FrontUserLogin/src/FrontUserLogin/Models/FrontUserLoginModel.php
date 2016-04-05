@@ -80,6 +80,24 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 		return $objUser;
 	}//end function
 
+	public function loadUserAcl()
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+	
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("user/authenticate/acl-data");
+	
+		//execute
+		$objData = $objApiRequest->performGETRequest(array())->getBody();
+	
+		//load user session
+		$objUserSession = new Container("user");
+	
+		$objUserSession->acl->user_acl_access_allowed = $objData->data->user_acl_access_allowed;
+		$objUserSession->acl->user_acl_access_denied = $objData->data->user_acl_access_denied;
+	}//end function
+	
 	public function cliLogin($arr_data)
 	{
 		//create the request object

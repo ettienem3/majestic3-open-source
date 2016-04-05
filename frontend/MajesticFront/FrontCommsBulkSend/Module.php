@@ -9,6 +9,7 @@ use FrontCommsBulkSend\Models\FrontCommsBulkSendModel;
 use FrontCommsBulkSend\Entities\FrontCommsBulkSendJourneyEntity;
 use FrontCommsBulkSend\Helpers\FrontCommsBulkSendStandardFieldHelper;
 use FrontCommsBulkSend\Helpers\FrontCommsBulkSendCustomFieldHelper;
+use FrontCommsBulkSend\Entities\FrontCommsBulkSendRequestEntity;
 
 class Module 
 {
@@ -73,6 +74,11 @@ class Module
 							$entity_bulk_send_journey = new FrontCommsBulkSendJourneyEntity();
 							return $entity_bulk_send_journey;
 						}, //end function
+						
+						'FrontCommsBulkSend\Entities\FrontCommsBulkSendRequestEntity' => function ($sm) {
+							$entity = new FrontCommsBulkSendRequestEntity();
+							return $entity;
+						}, //end function
     					
     					/**
     					 * Events
@@ -94,8 +100,12 @@ class Module
     						$helper_custom_field = new FrontCommsBulkSendCustomFieldHelper();
     						return $helper_custom_field;
     					}, //end function
-    			),	
+    			),
     			
+    			'shared' => array(
+    					"FrontCommsBulkSend\Entities\FrontCommsBulkSendJourneyEntity" => FALSE,
+    					'FrontCommsBulkSend\Entities\FrontCommsBulkSendRequestEntity' => FALSE,
+    			),
     	);
     }//end function
     

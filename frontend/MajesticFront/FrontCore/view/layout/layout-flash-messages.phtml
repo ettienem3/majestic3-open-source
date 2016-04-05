@@ -12,6 +12,7 @@ if (isset($flashMessages_errors) || isset($flashMessages_success) || isset($flas
 				<strong>Error!</strong>
 				<ul>
 	  				<?php
+	  					$string_errors = '';
 	  					foreach ($flashMessages_errors as $flashMessage)
 	  					{
 	  						$string_errors .= "<li>" . $flashMessage . "</li>";
@@ -31,6 +32,7 @@ if (isset($flashMessages_errors) || isset($flashMessages_success) || isset($flas
 	    		<strong>Success!</strong>
 	    		<ul>
 		    		<?php
+		    			$string_success = '';
 		    			foreach ($flashMessages_success as $flashMessage)
 		    			{
 		    				$string_success .=  "<li>" . $flashMessage . "</ul>";
@@ -51,6 +53,7 @@ if (isset($flashMessages_errors) || isset($flashMessages_success) || isset($flas
 				<strong>Info!</strong>
 				<ul>
 					<?php
+						$string_info = '';
 						foreach($flashMessages_info as $flashMessage)
 						{
 							$string_info .= "<li>" . $flashMessage . "</li>";

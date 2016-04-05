@@ -48,7 +48,7 @@ class FrontProfileFileManagerModel extends AbstractCoreAdapter
 		{
 			$arr_data["data"] = "";
 		}//end if
-		
+
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
 		

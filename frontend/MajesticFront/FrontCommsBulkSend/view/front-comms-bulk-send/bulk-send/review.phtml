@@ -2,34 +2,9 @@
 <script type="text/javascript" src="/js/bulksend/general.js"></script>
 
 <?php
-
-//insert ajax urls
-echo "<script type=\"text/javascript\">";
-echo 	"var ajax_reg_status_list 			= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-contact-status-list")) . "\";";
-echo 	"var ajax_web_forms_url 			= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-web-forms-list")) . "\";";
-echo 	"var ajax_web_form_fields_url 		= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-web-form-fields-list")) . "\";";
-echo 	"var ajax_sales_funnels_url 		= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-sales-funnels-list")) . "\";";
-echo 	"var ajax_standard_fields_list_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-standard-fields-list")) . "\";";
-echo 	"var ajax_standard_field_data_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-standard-field-criteria")) . "\";";
-echo 	"var ajax_custom_fields_list_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-custom-fields-list")) . "\";";
-echo 	"var ajax_custom_field_data_url 	= \"" . $this->url("front-comms-bulksend", array("action" => "ajax-custom-field-criteria")) . "\";";
-
-echo 	 "jQuery(document).ready(function () {
-			//monitor the delete request button
-			jQuery(\"#delete_request\").click(function () {
-				if (!confirm(\"Are you sure you want to delete this Bulk Send Request? This cannot be undone.\"))
-				{
-					return false;
-				}//end if
-			});
-		 });";
-echo "</script>";
-
 //display journey data
 echo "<div class=\"mj3_tables clearfix\">";
 echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . '&nbsp;Journey Details:&nbsp;<a href="' . $this->url("front-comms-admin/journeys", array("id" => $this->objJourney->get("id"), "action" => "edit")) . '">' . $this->objJourney->get("journey") . '</a> ');
-
-
 
 echo "<ul class=\"nav nav-tabs\">";
 echo "<li role=\"presentation\">";
@@ -75,40 +50,6 @@ foreach ($this->objJourney->get("comms") as $objComm)
 }//end foreach
 echo 	"</table>";
 echo "</div></div>";
-
-//extract params and group by type
-$arr_params_general = array();
-$arr_params_custom = array();
-$arr_params_std = array();
-$arr_params_forms = array();
-
-foreach ($this->objBulkSendRequest->arr_params as $objParam)
-{
-	switch (strtolower($objParam->field_type))
-	{
-		case "general":
-			switch ($objParam->field_name)
-			{
-				case "forms_completed.form_id":
-				case "sales_funnel.fk_form_id":
-					$arr_params_forms[] = $objParam;
-					break;
-
-				default:
-					$arr_params_general[] = $objParam;
-					break;
-			}//end switch
-			break;
-
-		case "custom":
-			$arr_params_custom[] = $objParam;
-			break;
-
-		case "std":
-			$arr_params_std[] = $objParam;
-			break;
-	}//end switch
-}//end foreach
 ?>
 <div class="mj3_table_contain clearfix">
 <?php
@@ -201,309 +142,15 @@ echo "</fieldset>";
 <div class="mj3_forms clearfix">
 <?php
 
-echo "<form id=\"bulk_send_criteria_review\" method=\"post\">";
 echo "<fieldset><h4>Send Criteria</h4>";
 
-if (count($arr_params_general) > 0)
-{
-	echo "<fieldset><h4>General</h4>";
+$form = $this->form;
+$form->prepare();
+$html = $this->renderSystemFormHelper($form, $this, array("generate_field_groups" => TRUE, "enable_accordion" => TRUE));
 
-	foreach ($arr_params_general as $objParam)
-	{
-		switch ($objParam->field_name)
-		{
-			case "registrations.reg_status_id":
-				echo "<label for=\"status_operator\">Contact Status</label>";
-				echo "<select name=\"status_operator\" id=\"status_operator\">";
-
-				if ($objParam->field_value == "equals")
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"equals\" $selected>is equal to</option>";
-
-				if ($objParam->field_value == "notequals")
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"notequals\" $selected>is not equal to</option>";
-				echo "</select>";
-
-				//load contact status data
-				$objContactStatus = $this->model_contact_status->fetchContactStatus($objParam->field_value);
-
-				echo "<select name=\"reg_status_id\" id=\"reg_status_id\">";
-				echo 	"<option value=\"\">--select--</option>";
-				echo 	"<option value=\"" . $objParam->field_value . "\" selected=\"selected\">" . $objContactStatus->get("status") . "</option>";
-				echo 	"<option value=\"*load_data*\">Load Data</select>";
-				echo "</select>";
-				echo "<br/>";
-				break;
-
-			case "registrations.datetime_created":
-				//extract dates from value
-				$arr_dates = explode(" AND ", $objParam->field_value);
-				echo "<label for=\"date_created_start\">Date Created</label>";
-				echo "<input type=\"text\" name=\"date_created_start\" id=\"date_created_start\" class=\"datepicker\" readonly=\"readonly\" value=\"" . str_replace("'", "", str_replace(" ", "", $arr_dates[0])) . "\"/>&nbsp; -- &nbsp;";
-				echo "<input type=\"text\" name=\"date_created_end\" id=\"date_created_end\" class=\"datepicker\" readonly=\"readonly\" value=\"" . str_replace("'", "", str_replace(" ", "", $arr_dates[1])) . "\"/>";
-				echo "<br/>";
-				break;
-
-			case "registrations.email":
-				echo "<label for=\"email_address\">E-mail address</label>";
-				echo "<select name=\"email_address\" id=\"email_address\">";
-				echo 	"<option value=\"\">--select--</option>";
-
-				if ($objParam->field_value == 1)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"1\" $selected>Valid format</option>";
-
-				if ($objParam->field_value == 2)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"2\" $selected>Not suspended</option>";
-
-				if ($objParam->field_value == 3)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"3\" $selected>Valid format and not suspended</option>";
-
-				if ($objParam->field_value == 4)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"4\" $selected>Invalid format or blank</option>";
-
-				if ($objParam->field_value == 5)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"5\" $selected>Suspended</option>";
-
-				if ($objParam->field_value == 6)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"6\" $selected>Invalid format or blank or suspended</option>";
-				echo "</select>";
-				echo "<br/>";
-				break;
-
-			case "registrations.cell":
-				echo "<label for=\"sms_number\">SMS</label>";
-				echo "<select name=\"sms_number\" id=\"sms_number\">";
-				echo 	"<option value=\"\">--select--</option>";
-				if ($objParam->field_value == 1)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"1\" $selected>Valid Format</option>";
-
-				if ($objParam->field_value == 2)
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"2\" $selected>Invalid format or blank</option>";
-				echo "</select>";
-				break;
-		}//end switch
-	}//end foreach
-
-	echo "</fieldset>";
-}//end if - general fields
-
-if (count($arr_params_forms) > 0)
-{
-	echo "<fieldset><h4>Forms</h4>";
-
-	foreach ($arr_params_forms as $objParam)
-	{
-		switch (strtolower($objParam->field_name))
-		{
-			case "forms_completed.form_id":
-				//insert javascript to display the web form drop selection
-				echo "<script type=\"text/javascript\">
-							jQuery(document).ready(function () {
-								jQuery(\"#form_operator\").show();
-							});
-					  </script>";
-
-				echo "<label for=\"form_id\">Web</label>";
-
-				//load forms from model
-				$objForms = $this->model_front_comms_bulk_send->fetchWebForms();
-				echo "<select name=\"form_id\" id=\"form_id\">";
-				echo 	"<option value=\"\">--select--</option>";
-				foreach ($objForms as $objForm)
-				{
-					if ($objParam->field_value == $objForm->id)
-					{
-						$selected = "selected=\"selected\"";
-					} else {
-						$selected = "";
-					}//end if
-					echo "<option value=\"" . $objForm->id . "\" $selected>" . $objForm->form . "</option>";
-				}//end foreach
-
-				echo "</select>";
-				echo "&nbsp;";
-				echo "<select name=\"form_operator\" id=\"form_operator\">";
-				echo 	"<option value=\"\">--select--</option>";
-
-				if ($objParam->field_operator == "complete")
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"complete\" $selected>has been completed</option>";
-
-				if ($objParam->field_operator == "uncomplete")
-				{
-					$selected = "selected=\"selected\"";
-				} else {
-					$selected = "";
-				}//end if
-				echo 	"<option value=\"uncomplete\" $selected>has not been completed</option>";
-				echo "</select>";
-				echo "<br/>";
-				break;
-
-			case "sales_funnel.fk_form_id":
-				echo "<label for=\"sales_funnel_id\">Sales Funnel</label>";
-
-				//load forms from model
-				$objForms = $this->model_front_comms_bulk_send->fetchWebForms();
-				echo "<select name=\"sales_funnel_id\" id=\"sales_funnel_id\">";
-				echo "<option value=\"\">--select--</option>";
-
-				foreach ($objForms as $objForm)
-				{
-					if ($objParam->field_value == $objForm->id)
-					{
-						$selected = "selected=\"selected\"";
-					} else {
-						$selected = "";
-					}//end if
-
-					echo "<option value=\"" . $objForm->id . "\" $selected>" . $objForm->form . "</option>";
-				}//end foreach
-
-				echo "</select>";
-				break;
-		}//end switch
-	}//end foreach
-
-	echo "</fieldset>";
-}//end if
-
-if (count($arr_params_custom) > 0 || count($arr_params_std) > 0)
-{
-	echo "<fieldset><h4>Fields</h4>";
-
-	//standard fields
-	if (count($arr_params_std) > 0)
-	{
-		echo "<fieldset><h4>Standard Fields</h4>";
-
-		//load standard fields
-		$arr_std_fields = $this->model_front_comms_bulk_send->fetchStandardFields();
-
-		//create the standard field drop down
-		echo 	"<table>";
-		echo 		"<tr>";
-		echo 			"<td valign=\"top\">";
-		echo 				"<select id=\"standard_fields_list\">";
-		echo 					"<option value=\"\">--select--</option>";
-
-		foreach ($arr_std_fields as $objField)
-		{
-			echo 				"<option value=\"" . $objField->get("id") . "\">" . $objField->get("description") . "</option>";
-		}//end foreach
-
-		echo 				"</select>";
-		echo 			"</td>";
-		echo 			"<td>";
-		echo 				"<div id=\"standard_fields_criteria\">";
-		echo 					"<!-- container for standard field criteria -->";
-
-		foreach ($arr_params_std as $objParam)
-		{
-			//load preformated html from model and helper
-			echo $this->model_front_comms_bulk_send->fetchStandardField($objParam->fk_id_fields_std, $objParam->field_value, $objParam);
-		}//end foreach
-
-		echo 				"</div>";
-		echo 			"</td>";
-		echo 		"</tr>";
-		echo 	"</table>";
-		echo "</fieldset>";
-	}//end if
-
-
-	//custom fields
-	if (count($arr_params_custom) > 0)
-	{
-		echo "<fieldset><h4>Custom Fields</h4>";
-
-		//load custom fields
-		$arr_custom_fields = $this->model_front_comms_bulk_send->fetchCustomFields();
-		//create custom field drop down
-		echo 	"<table>";
-		echo 		"<tr>";
-		echo 			"<td>";
-		echo 				"<select id=\"\">";
-		echo 					"<option value=\"\">--select--</option>";
-
-		foreach ($arr_custom_fields as $objField)
-		{
-			echo 				"<option value=\"" . $objField->get("id") . "\">" . $objField->get("description") . "</option>";
-		}//end foreach
-
-		echo 				"</select>";
-		echo 			"</td>";
-		echo 			"<td>";
-		echo 			"<div id=\"custom_fields_criteria\">";
-		echo 				"<!-- container for standard field criteria -->";
-
-		foreach ($arr_params_custom as $objParam)
-		{
-			echo $this->model_front_comms_bulk_send->fetchCustomField($objParam->fk_id_fields_custom, $objParam->field_value, $objParam);
-		}//end foreach
-
-		echo 			"</div>";
-		echo 			"</td>";
-		echo 		"</tr>";
-		echo 	"</table>";
-		echo "</fieldset>";
-	}//end if
-
-	echo "</legend>";
-}//end if - fields fieldset
+//do some hacking to append content to the form
+$html = str_replace('</form>', '', $html);
+echo $html;
 
 echo "</fieldset>";
 
@@ -544,6 +191,7 @@ if (is_numeric($this->objBulkSendRequest->get("allocate_num")))
 	$allocate_num_value = "";
 }//end if
 
+echo 	"<input type=\"hidden\" name=\"allocate_all\" value=\"0\"/>";
 echo 	"<input type=\"checkbox\" name=\"allocate_all\" id=\"allocate_all\" value=\"1\" $checked/>&nbsp;<span style=\"\">OR</span>&nbsp;";
 echo 	"<input type=\"text\" name=\"allocate_num\" id=\"allocate_num\" value=\"$allocate_num_value\"/ style=\"width: 100px;\">&nbsp;of <span style=\"font-weight: bold;\">" . $this->objBulkSendRequest->get("send_total") . "</span>&nbsp;Contacts";
 echo 	"<br/>";
