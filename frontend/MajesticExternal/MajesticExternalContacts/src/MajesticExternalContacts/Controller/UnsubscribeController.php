@@ -100,15 +100,13 @@ class UnsubscribeController extends AbstractActionController
     		exit;
     	}//end if
 
-$this->flashMessenger()->addInfoMessage("Resubscribe is currently disabled");
-return $this->redirect()->toRoute("majestic-external-contacts-unsub", array("reg_id" => $reg_id));
-
     	try {
     		//load the contact
     		$objContactChannels = $this->getExternalContactsModel()->loadContactSubscriptionStatus($reg_id);
 
     		//load the form
     		$form = $this->getExternalContactsModel()->getContactUnsubscribeForm($objContactChannels, $reg_id);
+    		$form->get('comm_via_id_all')->setAttribute('title', '');
     	} catch (\Exception $e) {
     		$this->flashMessenger()->addErrorMessage($e->getMessage());
     		return $this->redirect()->toRoute("majestic-external-contacts-unsub", array("reg_id" => $reg_id));

@@ -1,7 +1,11 @@
-<h2>Subscribe / Resubscribe</h2>
-<?php
-$form = $this->form;
-$form->prepare();
-
-echo "<h3>Channels available</h3>";
-echo $this->renderSystemFormHelper($form, $this);
+<div style="padding:30px;">
+	<h2>Subcription / Resubscribe</h2>
+	<?php
+	$form = $this->form;
+	$form->prepare();
+	
+	echo "<p>Please select the approriate channels below and click on Save to resubscribe</p>";
+	
+	echo $this->renderSystemFormHelper($form, $this);
+	?>
+</div>	

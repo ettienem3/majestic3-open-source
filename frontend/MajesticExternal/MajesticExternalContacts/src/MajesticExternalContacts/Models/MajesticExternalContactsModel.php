@@ -100,6 +100,9 @@ class MajesticExternalContactsModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("contacts/data/$reg_id/resubscribe");
 
+		//add confirmed flag to data
+		$arr_data['confirmed'] = 1;
+		
 		//request data
 		$objContactChannels = $objApiRequest->performPUTRequest($arr_data)->getBody()->data;
 
@@ -119,42 +122,42 @@ class MajesticExternalContactsModel extends AbstractCoreAdapter
 		/**
 		 * Load profile communication channels
 		 */
-		//create the request object
-		$objApiRequest = $this->getApiRequestModel();
+// 		//create the request object
+// 		$objApiRequest = $this->getApiRequestModel();
 
-		$objContactLoginDetails = $this->setContactLogin($reg_id);
-		$objApiRequest->setAPIKey($objContactLoginDetails->api_key);
+// 		$objContactLoginDetails = $this->setContactLogin($reg_id);
+// 		$objApiRequest->setAPIKey($objContactLoginDetails->api_key);
 
-		//setup the object and specify the action
-		$objApiRequest->setApiAction("profiles/comm-channels");
+// 		//setup the object and specify the action
+// 		$objApiRequest->setApiAction("profiles/comm-channels");
 
-		$objResult = $objApiRequest->performGETRequest(array())->getBody();
+// 		$objResult = $objApiRequest->performGETRequest(array())->getBody();
 
-		foreach ($objResult->data as $objCommVia)
-		{
-			if (!is_numeric($objCommVia->id))
-			{
-				continue;
-			}//end if
+// 		foreach ($objResult->data as $objCommVia)
+// 		{
+// 			if (!is_numeric($objCommVia->id))
+// 			{
+// 				continue;
+// 			}//end if
 
-			if ($objCommVia->active == "1")
-			{
-				$objForm->add(array(
-						"name" => "comm_via_id_" . $objCommVia->id,
-						"type" => "checkbox",
-						"attributes" => array(
-								"id" => "comm_via_id_" . $objCommVia->id,
-								"title" => "Check to unsubscribe from " . $objCommVia->comm_via,
-						),
-						"options" => array(
-								"label" => $objCommVia->comm_via,
-								"use_hidden_element" => TRUE,
-								"checked_value" => "1",
-								"unchecked_value" => "0",
-						),
-				));
-			}//end if
-		}//end foreach
+// 			if ($objCommVia->active == "1")
+// 			{
+// 				$objForm->add(array(
+// 						"name" => "comm_via_id_" . $objCommVia->id,
+// 						"type" => "checkbox",
+// 						"attributes" => array(
+// 								"id" => "comm_via_id_" . $objCommVia->id,
+// 								"title" => "Check to unsubscribe from " . $objCommVia->comm_via,
+// 						),
+// 						"options" => array(
+// 								"label" => $objCommVia->comm_via,
+// 								"use_hidden_element" => TRUE,
+// 								"checked_value" => "1",
+// 								"unchecked_value" => "0",
+// 						),
+// 				));
+// 			}//end if
+// 		}//end foreach
 
 		//add all channels option
 		$objForm->add(array(
@@ -182,14 +185,14 @@ class MajesticExternalContactsModel extends AbstractCoreAdapter
 		));
 
 		//set form data
-		foreach ($objContactChannels as $channel => $objChannelData)
-		{
-			if ($objChannelData->status == 1 && $objForm->has("comm_via_id_" . $objChannelData->channel_id))
-			{
-				//mark checkbox as checked
-  				$objForm->get("comm_via_id_" . $objChannelData->channel_id)->setAttribute("checked", "checked");
-			}//end if
-		}//end foreach
+// 		foreach ($objContactChannels as $channel => $objChannelData)
+// 		{
+// 			if ($objChannelData->status == 1 && $objForm->has("comm_via_id_" . $objChannelData->channel_id))
+// 			{
+// 				//mark checkbox as checked
+//   				$objForm->get("comm_via_id_" . $objChannelData->channel_id)->setAttribute("checked", "checked");
+// 			}//end if
+// 		}//end foreach
 
 		return $objForm;
 	}//end function
