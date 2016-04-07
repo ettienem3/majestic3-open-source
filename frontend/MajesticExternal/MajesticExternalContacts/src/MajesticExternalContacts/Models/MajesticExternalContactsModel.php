@@ -230,21 +230,30 @@ class MajesticExternalContactsModel extends AbstractCoreAdapter
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-
+		
 		//disable api session login
 		$objApiRequest->setAPISessionLoginDisable();
-
+		
 		//load master user details
 		$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
-
+		
 		//set api request authentication details
 		$objApiRequest->setAPIKey($arr_user['apikey']);
 		$objApiRequest->setAPIUser(md5($arr_user['uname']));
 		$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
+			
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("contacts/authenticate");
 
-		return (object) array(
-				"api_key" => $arr_user["apikey"],
+		//set payload
+		$arr_data = array(
+				"reg_id" => $reg_id,
+				"tstamp" => time(),
+				"key" => $arr_user['apikey'],
 		);
+
+		$objData = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+		return $objData->data;
 	}//end function
 
 	/**

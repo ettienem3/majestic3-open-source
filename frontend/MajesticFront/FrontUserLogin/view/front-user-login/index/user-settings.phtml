@@ -3,7 +3,7 @@
 echo $this->renderStandardViewHeader(ICON_LARGE_SETTINGS_HTML . '&nbsp;My Settings');
 ?>
 	<ul class="nav nav-tabs">
-		<li role="presentation"><a href="<?php echo $this->url("front-users", array("action" => "edit", "id" => $this->objUser->user_settings->fk_user_id)); ?>" title="Update My Settings" data-toggle="tooltip"><?php echo ICON_MEDIUM_MODIFY_HTML; ?></a></li>
+		<li role="presentation"><a href="<?php echo $this->url("front-users", array("action" => "edit", "id" => $this->objUser->id)); ?>" title="Update My Settings" data-toggle="tooltip"><?php echo ICON_MEDIUM_MODIFY_HTML; ?></a></li>
 	</ul>
 	
 	<div class="mj3_forms clearfix">
