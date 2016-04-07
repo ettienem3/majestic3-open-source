@@ -126,6 +126,9 @@ require("./config/helpers/ob2.php");
  				$arr_headers["m3userloggedin"] = time();
  			}//end if
 
+ 			//set origin url
+ 			$arr_headers['m3originurl'] = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+ 			
 			//set timeout
 			$client->setOptions(array("timeout" => 60, "sslverifypeer" => FALSE));
 
