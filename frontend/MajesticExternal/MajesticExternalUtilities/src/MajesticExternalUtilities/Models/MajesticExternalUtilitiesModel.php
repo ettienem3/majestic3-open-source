@@ -144,12 +144,14 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 			$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
 			
 			//setup the object and specify the action
-			$objApiRequest->setApiAction("utils/authenticate");
+			$objApiRequest->setApiAction("utils/authenticate?debug_display_errors=1");
 			
 			//set payload
 			$arr_data["tstamp"] = time();
+			$arr_data['key'] = $arr_user['apikey'];
 	
 			$objData = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+
 			return $objData->data;
 		}//end if
 		
