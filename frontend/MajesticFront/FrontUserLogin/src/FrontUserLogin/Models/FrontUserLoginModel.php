@@ -164,6 +164,58 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 			session_destroy();
 		}//end if
 	}//end function
+	
+	public function passwordRequest($arr_data)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("user/authenticate/pw-reset");
+		
+		//set dummy data to allow request to go through
+		$arr_config = $this->getServiceLocator()->get('config');
+		if (isset($arr_config['master_user_account']))
+		{
+			$arr_master_user = $arr_config['master_user_account'];
+			$objApiRequest->setAPISessionLoginDisable();
+			$objApiRequest->setAPIKey($arr_master_user['apikey']);
+			$objApiRequest->setAPIUser(md5($arr_master_user['user']));
+			$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
+		} else {
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Login could not be performed. Required details are not set", 500);
+		}//end if
+		
+		//execute
+		$objUser = $objApiRequest->performPOSTRequest($arr_data)->getBody()->data;
+		return $objUser;
+	}//end function
+	
+	public function passwordResetConfirm($arr_data)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("user/authenticate/pw-reset/" . time());
+		
+		//set dummy data to allow request to go through
+		$arr_config = $this->getServiceLocator()->get('config');
+		if (isset($arr_config['master_user_account']))
+		{
+			$arr_master_user = $arr_config['master_user_account'];
+			$objApiRequest->setAPISessionLoginDisable();
+			$objApiRequest->setAPIKey($arr_master_user['apikey']);
+			$objApiRequest->setAPIUser(md5($arr_master_user['user']));
+			$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
+		} else {
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Login could not be performed. Required details are not set", 500);
+		}//end if
+		
+		//execute
+		$objUser = $objApiRequest->performPUTRequest($arr_data)->getBody();
+		return $objUser->data;
+	}//end function
 
 	public function getUserNativePreferencesForm($objController)
 	{

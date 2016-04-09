@@ -9,8 +9,8 @@ return array(
 				"logo" => "https://cdn-aws.majestic3.com/images/m3frontend/m3logo_main.svg",
 				"tag_line" => "integrate <strong>anywhere</strong>",
 				"login_button_text" => "Sign in",
+				"forgot_password_link" 	=> "<p class='forgot'><a href='/user/login/pr'>Forgot your password?</a></p>",
 				"forgot_password_link_enabled" => FALSE,
-				"forgot_password_link" => "<p class='forgot'><a href='#'>Forgot your password?</a></p>",
 		),
 
 		//required to assist api key less login and other operations

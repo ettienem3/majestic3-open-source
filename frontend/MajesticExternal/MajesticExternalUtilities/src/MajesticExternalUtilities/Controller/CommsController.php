@@ -29,7 +29,10 @@ class CommsController extends AbstractActionController
 		try {
 			$objCommContent = $this->getExternalUtilitiesModel()->viewCommOnline($comm_history_id, $comm_id);
 		} catch (\Exception $e) {
+			echo '<p>A problem has occured and the page could not be loaded. Please try again later or consult the profile admin for further assistance</p>';
+			echo '<!--';
 			echo $e->getMessage();
+			echo '-->';
 			exit;
 		}//end catch
 		

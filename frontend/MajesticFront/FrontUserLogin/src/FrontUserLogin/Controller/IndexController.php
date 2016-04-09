@@ -265,6 +265,86 @@ class IndexController extends AbstractActionController
 	}//end function
 
 	/**
+	 * Password reset request
+	 */
+	public function prAction()
+	{
+		$objUser = FrontUserSession::isLoggedIn();
+		if ($objUser !== FALSE)
+		{
+			return $this->redirect()->toRoute("home");
+		}//end if
+		
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_data = (array) $request->getPost();
+			$postData = $arr_data;
+			$returnText = FALSE;
+			try {
+				$objUser = $this->getUserLoginModel()->passwordRequest($arr_data);
+				$returnText = 'Thank you.<p>You will receive an email shortly with further details.</p>';
+			} catch (\Exception $e) {
+				$returnText = $text = $this->frontControllerErrorHelper()->formatErrors($e);
+			}//end catch
+		}//end if
+		
+		return array(
+			'postData' => $postData,	
+			'returnText' => $returnText,
+		);
+	}//end function
+	
+	/**
+	 * Password confirm request
+	 */
+	public function pcAction()
+	{
+		$objUser = FrontUserSession::isLoggedIn();
+		if ($objUser !== FALSE)
+		{
+			return $this->redirect()->toRoute("home");
+		}//end if
+		
+		//check if code has been set
+		$i = $this->params()->fromQuery('i', '');
+		if ($i == '')
+		{
+			return array(
+				'errorText' => 'Required information to complete the request is not available.',
+			);
+		}//end if
+		
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_data = (array) $request->getPost();
+			if ($arr_data['password'] != $arr_data['password_confirm'])
+			{
+				return array(
+					'noticeText' => 'Password does not match, please try again',	
+				);
+			}//end if
+			
+			$arr_data['code'] = $i;
+			try {
+				$objUser = $this->getUserLoginModel()->passwordResetConfirm($arr_data);
+				$this->flashMessenger()->addInfoMessage('Your request has been processed');
+				return $this->redirect()->toRoute("home");
+			} catch (\Exception $e) {
+				$text = $this->frontControllerErrorHelper()->formatErrors($e);
+				return array(
+					'noticeText' => $text,	
+				);
+			}//end catch
+		}//end if
+		
+		return array(
+				
+		);
+	}//end function
+	
+	/**
 	 * Create an instance of the FrontUserLoginModel using the Service Manager
 	 * @return \FrontUserLogin\Models\FrontUserLoginModel
 	 */

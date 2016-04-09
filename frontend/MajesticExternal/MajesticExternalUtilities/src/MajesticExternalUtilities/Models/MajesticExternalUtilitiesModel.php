@@ -53,9 +53,20 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 		);
 
 		$arr_data["util"] = "view-comm-online";
-		$objRequestAuthentication = $this->setRequestLogin($arr_data);
-		$objApiRequest->setAPIKey($objRequestAuthentication->api_key);
-
+		
+		//where the comm history id is not, us user is probably trying to preview the communication which requires a user session
+		if ($comm_history_id == '' && !FrontUserSession::isLoggedIn())
+		{
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : You must be logged in the view this page", 500);		
+		}//end if
+		
+		//where comm history id is set, use util to authenticate the request regardless of user being logged in
+		if ($comm_history_id != '')
+		{
+			$objRequestAuthentication = $this->setRequestLogin($arr_data);
+			$objApiRequest->setAPIKey($objRequestAuthentication->api_key);
+		}//end if
+		
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("utils/comms/view");
 		$objCommContent = $objApiRequest->performGETRequest($arr_data)->getBody()->data;
@@ -125,36 +136,29 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 	 */
 	private function setRequestLogin(array $arr_data)
 	{
-		//check if user is logged into frontend
-		$objUserSession = FrontUserSession::isLoggedIn();
-		if (!$objUserSession)
-		{
-			//create the request object
-			$objApiRequest = $this->getApiRequestModel();
-	
-			//disable api session login
-			$objApiRequest->setAPISessionLoginDisable();
-	
-			//load master user details
-			$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
-	
-			//set api request authentication details
-			$objApiRequest->setAPIKey($arr_user['apikey']);
-			$objApiRequest->setAPIUser(md5($arr_user['uname']));
-			$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
-			
-			//setup the object and specify the action
-			$objApiRequest->setApiAction("utils/authenticate?debug_display_errors=1");
-			
-			//set payload
-			$arr_data["tstamp"] = time();
-			$arr_data['key'] = $arr_user['apikey'];
-	
-			$objData = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
 
-			return $objData->data;
-		}//end if
+		//disable api session login
+		$objApiRequest->setAPISessionLoginDisable();
+
+		//load master user details
+		$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
+
+		//set api request authentication details
+		$objApiRequest->setAPIKey($arr_user['apikey']);
+		$objApiRequest->setAPIUser(md5($arr_user['uname']));
+		$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
 		
-		return FALSE;
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("utils/authenticate?debug_display_errors=1");
+		
+		//set payload
+		$arr_data["tstamp"] = time();
+		$arr_data['key'] = $arr_user['apikey'];
+
+		$objData = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+
+		return $objData->data;
 	}//end function
 }//end class
