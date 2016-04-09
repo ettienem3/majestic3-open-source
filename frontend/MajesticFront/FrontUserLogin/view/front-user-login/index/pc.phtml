@@ -1,0 +1,38 @@
+<?php 
+if (isset($this->errorText) && $this->errorText != '')
+{
+	?>
+	<div class="mj3-loginbox">
+		<div class="blueprint-blue">
+			<?php 
+			echo '<p>' . $this->errorText . '</p>';
+			?>
+		</div>
+	</div>
+	<?php 
+} else {
+?>
+<div class="mj3-loginbox">
+	<div class="blueprint-blue">
+		<h4>Confirm Password Reset</h4>
+		<?php 
+		if (isset($this->noticeText) && $this->noticeText != '')
+		{
+			echo '<p>' . $this->noticeText . '</p>';
+		}//end if
+		?>
+		<form id="password-reset" class="user-login-form" name="password-reset" method="post" action="">
+			<div class="form-group">
+				<input type="password" class="form-control" title="Enter your new password" placeholder="New password" required="required" id="password" name="password" value="">
+			</div>
+
+			<div class="form-group">
+				<input type="password" class="form-control" title="Confirm your new password" placeholder="Confirm password" required="required" id="password_confirm" name="password_confirm" value="">
+			</div>
+
+			<input type="submit" class="btn btn-primary" value="Submit">
+		</form>
+	</div>
+</div>
+<?php 
+}//end if
