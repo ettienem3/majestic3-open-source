@@ -166,25 +166,36 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 	}//end function
 	
 	public function passwordRequest($arr_data)
-	{
-		//create the request object
-		$objApiRequest = $this->getApiRequestModel();
-		
-		//setup the object and specify the action
-		$objApiRequest->setApiAction("user/authenticate/pw-reset");
-		
+	{		
 		//set dummy data to allow request to go through
 		$arr_config = $this->getServiceLocator()->get('config');
 		if (isset($arr_config['master_user_account']))
 		{
 			$arr_master_user = $arr_config['master_user_account'];
+
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+			$objApiRequest->setApiAction("utils/authenticate");
 			$objApiRequest->setAPISessionLoginDisable();
 			$objApiRequest->setAPIKey($arr_master_user['apikey']);
 			$objApiRequest->setAPIUser(md5($arr_master_user['user']));
 			$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
+			$arr_data['util'] = 'user-password-reset';
+			$arr_data['tstamp'] = time();
+			$arr_data['key'] = $arr_master_user['apikey'];
+			$obj = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+			unset($objApiRequest);
 		} else {
 			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Login could not be performed. Required details are not set", 500);
 		}//end if
+		
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		$objApiRequest->setApiAction("user/authenticate-reset/pw-reset");
+		$objApiRequest->setAPISessionLoginDisable();
+		$objApiRequest->setAPIKey($obj->data->api_key);
+		$objApiRequest->setAPIUser(md5($arr_master_user['user']));
+		$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
 		
 		//execute
 		$objUser = $objApiRequest->performPOSTRequest($arr_data)->getBody()->data;
@@ -193,24 +204,34 @@ class FrontUserLoginModel extends AbstractCoreAdapter
 	
 	public function passwordResetConfirm($arr_data)
 	{
-		//create the request object
-		$objApiRequest = $this->getApiRequestModel();
-		
-		//setup the object and specify the action
-		$objApiRequest->setApiAction("user/authenticate/pw-reset/" . time());
-		
 		//set dummy data to allow request to go through
 		$arr_config = $this->getServiceLocator()->get('config');
 		if (isset($arr_config['master_user_account']))
 		{
 			$arr_master_user = $arr_config['master_user_account'];
+
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+			$objApiRequest->setApiAction("utils/authenticate");
 			$objApiRequest->setAPISessionLoginDisable();
 			$objApiRequest->setAPIKey($arr_master_user['apikey']);
 			$objApiRequest->setAPIUser(md5($arr_master_user['user']));
 			$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
+			$arr_data['util'] = 'user-password-reset';
+			$arr_data['tstamp'] = time();
+			$arr_data['key'] = $arr_master_user['apikey'];
+			$obj = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+			unset($objApiRequest);
 		} else {
 			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Login could not be performed. Required details are not set", 500);
 		}//end if
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		$objApiRequest->setApiAction("user/authenticate-reset/pw-reset/" . time());
+		$objApiRequest->setAPISessionLoginDisable();
+		$objApiRequest->setAPIKey($obj->data->api_key);
+		$objApiRequest->setAPIUser(md5($arr_master_user['user']));
+		$objApiRequest->setAPIUserPword(md5($arr_master_user['password']));
 		
 		//execute
 		$objUser = $objApiRequest->performPUTRequest($arr_data)->getBody();
