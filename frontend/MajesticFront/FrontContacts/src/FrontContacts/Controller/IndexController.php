@@ -409,7 +409,7 @@ class IndexController extends AbstractActionController
     				$objContact = $this->getContactsModel()->updateContact($objContact, $form_id);
 
     				//set success message
-    				$this->flashMessenger()->addSuccessMessage("Contact update successfully");
+    				$this->flashMessenger()->addSuccessMessage("Contact updated successfully");
 
     				//redirect to contact profile page
     				return $this->redirect()->toRoute("front-contacts", array("action" => "view-contact", "id" => $objContact->get("reg_id")));
