@@ -291,6 +291,16 @@ return $this->fetchForm($id);
 		return $objField;
 	}//end function
 
+	public function updateFormFieldsOrder($form_id, $arr_data)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		$objApiRequest->setApiAction('forms/form/' . $form_id . '/field-order');
+		//execute
+		$objResult = $objApiRequest->performPUTRequest($arr_data)->getBody();
+		return $objResult;
+	}//end function
+	
 	/**
 	 * Remove a field allocated to a form
 	 * @triggers removeFormField.pre, removeFormField.post

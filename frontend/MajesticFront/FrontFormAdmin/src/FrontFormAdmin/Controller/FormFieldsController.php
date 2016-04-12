@@ -684,27 +684,28 @@ class FormFieldsController extends AbstractActionController
     	$request = $this->getRequest();
     	if ($request->isPost())
     	{
+    		$arr_submit_data = array();
     		foreach ($request->getPost() as $key => $value)
     		{
     			//extract field data
     			$arr_field = explode("_", $key);
     			$field_type = $arr_field[1];
-    			$field_id = $arr_field[2];
-
-    			try {
-	    			//load field data
-    				$objField = $this->getFormAdminModel()->getFormField($form_id, $field_id, $field_type);
-
-    				//set field data
-    				$objField->set("field_order", $value);
-
-    				//save the data
-    				$objField = $this->getFormAdminModel()->updateFormField($objField);
-    			} catch (\Exception $e) {
-    				//record errors
-    				$arr_errors[] = $e->getMessage();
-    			}//end catch
+    			$field_id = $arr_field[0];
+    			
+    			//create array with data
+    			$arr_submit_data['fields'][] = array(
+    					'field_id' => $field_id,
+    					'field_order' => $value,
+    			);
     		}//end foreach
+    		
+    		try {
+    			//save the data
+    			$objField = $this->getFormAdminModel()->updateFormFieldsOrder($form_id, $arr_submit_data);
+    		} catch (\Exception $e) {
+    			//record errors
+    			$arr_errors[] = $e->getMessage();
+    		}//end catch
     	}//end if
 
     	if (is_array($arr_errors))
