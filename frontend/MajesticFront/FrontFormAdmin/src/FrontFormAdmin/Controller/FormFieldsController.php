@@ -304,7 +304,7 @@ class FormFieldsController extends AbstractActionController
     		//set success message
 			echo json_encode(array(
 				"error" => 1,
-				"response" => $e->getMessage(),
+				"response" => $this->frontControllerErrorHelper()->formatErrors($e) . ". Try allocating the field manually",
 			),
 			JSON_FORCE_OBJECT);
 			exit;
