@@ -46,8 +46,18 @@
 		{
 			$icon = $this->app_config["login_page_settings"]["fav_icon"];
 		}//end if
+		
+		if (!isset($this->app_config["login_page_settings"]["fav_icon"]))
+		{
+			//check for icon with domain name
+			$s = str_replace(array('.', '-', '_', ' '), '', strtolower($_SERVER['HTTP_HOST']));
+			if (is_file('./public/' . $s . '.ico'))
+			{
+				$icon = $s . '.ico';
+			}//end if
+		}//end if
 
-		if (is_object($this->objProfileSettings))
+		if (is_object($this->objProfileSettings) && $this->objProfileSettings->get("profile_icon") != '')
 		{
 			$icon = $this->objProfileSettings->get("profile_icon", $icon);
 		}//end if
