@@ -1,12 +1,6 @@
 <?php
 $content = "<div class=\"form-post-submit-content\" #css-style>";
 
-//load css file where specified
-if ($this->objForm->stylesheet != "")
-{
-	$this->headLink()->appendStylesheet($this->basePath() . "/css/frontcss/test_form_style.css");
-}//end if
-
 //check if form has style attributes
 if ($this->objForm->margins != "")
 {
@@ -17,12 +11,6 @@ if ($this->objForm->margins != "")
 
 //set submit content
 $content .= $this->objForm->submit_copy;
-
-//set tracking script where applicatable
-if ($this->objForm->submit_tracking_script != "")
-{
-	$content .= $this->objForm->submit_tracking_script;
-}//end if
 
 //close div
 $content .= "</div>";
@@ -39,3 +27,19 @@ if (is_string($majestic_content))
 }//end if
 
 echo $content;
+
+//set tracking script where applicatable
+if ($this->objForm->submit_tracking_script != "" || $this->objForm->form_js_file != '')
+{
+	echo '<noscript>This page requires javascript to be activated.</noscript>';
+	
+	if ($this->objForm->submit_tracking_script != "")
+	{
+		echo $this->objForm->submit_tracking_script;
+	}//end if
+	
+	if ($this->objForm->form_js_file != '')
+	{
+		echo '<script src="' . $this->objForm->form_js_file . '"></script>';
+	}//end if
+}//end if

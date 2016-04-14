@@ -117,5 +117,22 @@ if (isset($this->objLookAndFeel) && $this->objLookAndFeel->css_file != "")
 		?>
 
 	</div>
-
 </div>
+
+<?php 
+//add tracking script
+if ($this->objFormRawData->submit_tracking_script != '' || $this->objFormRawData->form_js_file != '')
+{
+	echo '<noscript>This page requires javascript to be activated. You might not be able to submit the form.</noscript>';
+	
+	if ($this->objFormRawData->form_js_file != '')
+	{
+		echo '<script src="' . $this->objFormRawData->form_js_file . '"></script>';
+	}//end if
+	
+	if ($this->objFormRawData->submit_tracking_script != '')
+	{
+		echo $this->objFormRawData->submit_tracking_script;
+	}//end if
+}//end if
+?>
