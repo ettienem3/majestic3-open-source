@@ -280,7 +280,7 @@ return $this->fetchForm($id);
 		$objApiRequest->setApiModule(NULL);
 
 		//execute
-		$objApiRequest->performPUTRequest($objField->getArrayCopy())->getBody();
+		$objApiRequest->performPUTRequest($objField->getArrayCopy())->getupdateFormFieldsOrderBody();
 
 		//reset the API Request object
 		$this->model_api_request = FALSE;
@@ -293,6 +293,9 @@ return $this->fetchForm($id);
 
 	public function updateFormFieldsOrder($form_id, $arr_data)
 	{
+		//trigger pre event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.pre', $this, array('form_id' => $form_id));
+		
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
 		$objApiRequest->setApiAction('forms/form/' . $form_id . '/field-order');

@@ -18,7 +18,7 @@ class MajesticExternalFormsEvents extends AbstractCoreAdapter
 				"MajesticExternalForms\Models\MajesticExternalFormsModel",
 				"loadForm.cache.get",
 				function ($event) use ($serviceManager) {
-					return $serviceManager->get("MajesticExternalForms\Events\MajesticExternalFormsEvents")->cacheGetForm($event);
+					return $serviceManager->get(__CLASS__)->cacheGetForm($event);
 				}//end function
 		);
 
@@ -27,7 +27,7 @@ class MajesticExternalFormsEvents extends AbstractCoreAdapter
 				"MajesticExternalForms\Models\MajesticExternalFormsModel",
 				"loadForm.cache.set",
 				function ($event) use ($serviceManager) {
-					return $serviceManager->get("MajesticExternalForms\Events\MajesticExternalFormsEvents")->cacheSetForm($event);
+					return $serviceManager->get(__CLASS__)->cacheSetForm($event);
 				}//end function
 		);
 
@@ -36,7 +36,7 @@ class MajesticExternalFormsEvents extends AbstractCoreAdapter
 				"MajesticExternalForms\Models\MajesticExternalFormsModel",
 				"loadForm.cache.clear",
 				function ($event) use ($serviceManager) {
-					return $serviceManager->get("MajesticExternalForms\Events\MajesticExternalFormsEvents")->cacheClearForm($event);
+					return $serviceManager->get(__CLASS__)->cacheClearForm($event);
 				}//end function
 		);
 
@@ -49,9 +49,10 @@ class MajesticExternalFormsEvents extends AbstractCoreAdapter
 					"allocateFieldtoForm.post",
 					"updateFormField.post",
 					"removeFormField.post",
+					'updateFormFieldsOrder.pre',
 				),
 				function ($event) use ($serviceManager) {
-					return $serviceManager->get("MajesticExternalForms\Events\MajesticExternalFormsEvents")->cacheClearForm($event);
+					return $serviceManager->get(__CLASS__)->cacheClearForm($event);
 				}//end function
 		);
 

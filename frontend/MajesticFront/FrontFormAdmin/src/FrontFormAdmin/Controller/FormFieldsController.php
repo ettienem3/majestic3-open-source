@@ -704,7 +704,7 @@ class FormFieldsController extends AbstractActionController
     			$objField = $this->getFormAdminModel()->updateFormFieldsOrder($form_id, $arr_submit_data);
     		} catch (\Exception $e) {
     			//record errors
-    			$arr_errors[] = $e->getMessage();
+    			$arr_errors[]= $this->frontControllerErrorHelper()->formatErrors($e);
     		}//end catch
     	}//end if
 
