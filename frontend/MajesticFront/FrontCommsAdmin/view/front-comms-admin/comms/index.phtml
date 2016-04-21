@@ -76,13 +76,17 @@
 
 
  			if ($objCommAdmin->active == 1) {
-				$arr_data["activate_commadmin"] = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "status", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\"><span title=\"This Communication is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</span></a>" . "</td>";
+				$arr_data["activate_commadmin"] = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "status", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\"><span title=\"This episode is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</span></a>" . "</td>";
+				$arr_data['comm_activate_error'] = false;
 			} else {
 				if (isset($prevent_active) && $prevent_active === TRUE)
 				{
-					$arr_data["activate_commadmin"] = "<span title=\"This Communication cannot be activated. Its communication number conflicts with that of another communication in this journey\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</span>" . "</td>";
+					$t = 'This episode cannot be activated. Its communication number conflicts with that of another episode in this journey';
+					$arr_data["activate_commadmin"] = "<span title=\"$t\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</span>" . "</td>";
+					$arr_data['comm_activate_error'] = $t;
 				} else {
-					$arr_data["activate_commadmin"] = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "status", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\"><span title=\"This Communication is not active\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</span></a>" . "</td>";
+					$arr_data["activate_commadmin"] = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "status", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\"><span title=\"This episode is not active\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</span></a>" . "</td>";
+					$arr_data['comm_activate_error'] = FALSE;
 				}//end if
 			} // end if
 
@@ -96,14 +100,14 @@ $attachments_url = ""; //disabled for now because of sending structure...
 			//do not allow updating where communication is active
 			if ($objCommAdmin->active == 1)
 			{
-				$edit_url = "<a href=\"#\" title=\"Communication is active and cannot be updated\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
-				$delete_commadmin = "<a href=\"#\" title=\"Communication is active and cannot be removed\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
+				$edit_url = "<a href=\"#\" title=\"Episode is active and cannot be updated\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+				$delete_commadmin = "<a href=\"#\" title=\"Episode is active and cannot be removed\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
 			} else {
-				$edit_url = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "edit", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\" title=\"Edit this Communication\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
-				$delete_commadmin		= "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "delete", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\" title=\"Delete Communication\" data-toggle=\"tooltip\"" . ICON_SMALL_DELETE_HTML . "</a>";
+				$edit_url = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "edit", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\" title=\"Edit this episode\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+				$delete_commadmin		= "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "delete", "id" => $objCommAdmin->id, "journey_id" => $this->journey_id)) . "\" title=\"Delete episode\" data-toggle=\"tooltip\"" . ICON_SMALL_DELETE_HTML . "</a>";
 			}//end if
 
-			$preview_url			= "<a href=\"" . $this->url("majestic-external-view-comms") . "?cid=" . $objCommAdmin->id_encoded . "\" target=\"_blank\" title=\"Preview Communication\" data-toggle=\"tooltip\" >" . ICON_SMALL_SEARCH_HTML . "</a>";
+			$preview_url			= "<a href=\"" . $this->url("majestic-external-view-comms") . "?cid=" . $objCommAdmin->id_encoded . "\" target=\"_blank\" title=\"Preview episode\" data-toggle=\"tooltip\" >" . ICON_SMALL_SEARCH_HTML . "</a>";
 
 			if ($objCommAdmin->comm_via_data_behaviour == "__email")
 			{
@@ -120,7 +124,7 @@ $attachments_url = ""; //disabled for now because of sending structure...
 		}//end foreach
 
 		//create the add CommsAdmin
-		$add_commadmin = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "create", "journey_id" => $this->journey_id)) . "\" title=\"Create Communication\">" . ICON_MEDIUM_ADD_HTML . "</a>";
+		$add_commadmin = "<a href=\"" . $this->url("front-comms-admin/comms", array("action" => "create", "journey_id" => $this->journey_id)) . "\" title=\"Create Episode\">" . ICON_MEDIUM_ADD_HTML . "</a>";
 
 		if (is_array($arr))
 		{
@@ -129,7 +133,8 @@ $attachments_url = ""; //disabled for now because of sending structure...
 			//loop through the comms
 			echo "<div class=\"journey-comm-details\">";
 			echo 	"<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
-			foreach ($arr as $arr_comm) {
+			foreach ($arr as $arr_comm) 
+			{
 				echo 		"<tr>";
 				echo 			"<th>Delay:</th>";
 				echo 			"<th>";
@@ -175,11 +180,20 @@ $attachments_url = ""; //disabled for now because of sending structure...
 				echo 			"</th>";
 				echo 		"</tr>";
 				echo 		"<tr>";
-				echo 			"<th>Communication $i</th>";
+				echo 			"<th>Episode $i</th>";
 				echo 			"<th class=\"commicons\" style=\"cursor: default;\">";
 				echo 				$arr_comm["activate_commadmin"] . "&nbsp;" . $arr_comm["url"];
 				echo 			"</th>";
 				echo 		"</tr>";
+				
+				if (isset($arr_comm['comm_activate_error']) && $arr_comm['comm_activate_error'] != '')
+				{
+					echo 	'<tr>';
+					echo 		'<td>&nbsp;</td>';
+					echo 		'<td><span class="journey-comm-details-description bg-danger text-danger">' . $arr_comm['comm_activate_error'] . '</span></td>';
+					echo 	'</tr>';
+				}//end if
+				
 				echo 		"<tr>";
 				echo 			"<td>";
 				echo 				"<span class=\"journey-comm-details-type\">Type: " . $arr_comm["type"] . "</span>";

@@ -275,7 +275,7 @@ class FrontCommsBulkSendModel extends AbstractCoreAdapter
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-		
+	
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("comms/bulksend/request");
 		

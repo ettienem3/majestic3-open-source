@@ -2,6 +2,8 @@
 //add editor js
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
+//insert the comm data additions layout section
+echo $this->partial("layout-comm-data-additions");
 ?>
 <script type="text/javascript">
 	jQuery(document).ready(function () {
@@ -10,21 +12,49 @@ echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tiny
 		//check the active form checkbox
 		jQuery("#active").attr("checked", "checked");
 
+		//dock replace fields
+		<?php
+			$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+			if (in_array("replace_fields", $objUser->profile->plugins_enabled)) {
+		?>
+		jQuery.mj_docker({
+			dock_title: "Replace Fields",
+			dock_collapse: true,
+			dock_region: "m3-content-section-east",
+			dock_ajax_url: "<?php echo $this->url("front-form-admin/replace-fields", array("action" => "ajax-index"));?>",
+			dock_ajax_complete_callback: function () {
+				//add draggable class to replace fields
+				jQuery(".replace-field-item").addClass("draggable");
+
+				//enabled drag and drop
+				jQuery("#copy").mj_drag_and_drop();
+				jQuery("#copy2").mj_drag_and_drop();
+				jQuery("#submit_copy").mj_drag_and_drop();
+			}
+		});
+		<?php }//end if?>
+
 		//start text editors
 		jQuery.mj_text_editor({
-			element: jQuery("#copy") //content above form
-		});
+			element: jQuery("#copy"),
+			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
+		});	
 
 		jQuery.mj_text_editor({
 			element: jQuery("#terms") //terms and conditions
 		});
 
 		jQuery.mj_text_editor({
-			element: jQuery("#copy2") //content below form
+			element: jQuery("#copy2"), //content below form
+			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>			
 		});
 
 		jQuery.mj_text_editor({
-			element: jQuery("#submit_copy") //post submit content
+			element: jQuery("#submit_copy"), //post submit content
+			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>	
 		});
 
 		jQuery.mj_text_editor({
@@ -32,7 +62,7 @@ echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tiny
 		});
 
 		jQuery.mj_text_editor({
-			element: jQuery("#_notify_copy") //notification content
+			element: jQuery("#_notify_copy"), //notification content
 		});
 	});
 </script>

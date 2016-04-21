@@ -12,6 +12,12 @@ class IndexController extends AbstractActionController
 	 * @var \MajesticExternalForms\Models\MajesticExternalFormsModel
 	 */
 	private $model_forms;
+	
+	/**
+	 * Container for the External Forms Cache Model
+	 * @var \MajesticExternalForms\Models\MajesticExternalFormsCacheModel
+	 */
+	private $model_cache;
 
     /**
      * Submit a webform
@@ -487,6 +493,35 @@ class IndexController extends AbstractActionController
     	echo json_encode(array("error" => 1, "response" => "Data could not be retrieved"));
     	exit;
     }//end function
+    
+    public function clearFormCacheAction()
+    {
+    	$request = $this->getRequest();
+    	if ($request->isPost())
+    	{
+    		try {
+    			if (is_numeric($request->getPost('form_id')))
+    			{
+    				$form_id = $request->getPost('form_id');
+    					
+    				//clear cache
+    				$this->getFormsCacheModel()->clearFormCache($form_id);
+    
+    				//reload form to cache updates
+    				$this->getExternalFormsModel()->loadForm($form_id);
+    					
+    				return new JsonModel(array('Form cache cleared'));
+    			}//end if
+    
+    			return new JsonModel(array('Form cache not cleared'));
+    		} catch (\Exception $e) {
+    			//do something with the error
+    			trigger_error($e->getMessage(), E_USER_WARNING);
+    		}//end catch
+    	}//end if
+    
+    	return new JsonModel(array('Form cache cleared'));
+    }//end function
 
     /**
      * Create an instance of the Majestic External Forms model using the Service Manager
@@ -500,5 +535,19 @@ class IndexController extends AbstractActionController
     	}//end if
 
     	return $this->model_forms;
+    }//end function
+    
+    /**
+     * Create an instance of the Form Cache Model
+     * @return \
+     */
+    private function getFormsCacheModel()
+    {
+    	if (!$this->model_cache)
+    	{
+    		$this->model_cache = $this->getServiceLocator()->get('MajesticExternalForms\Models\MajesticExternalFormsCacheModel');
+    	}//end if
+    	 
+    	return $this->model_cache;
     }//end function
 }//end class

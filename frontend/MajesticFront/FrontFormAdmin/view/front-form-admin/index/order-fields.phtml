@@ -66,8 +66,8 @@
 
 		<div id="sortable">
 			<?php
-			foreach ($this->objForm->getFormFieldEntities() as $objField) {
-
+			foreach ($this->objForm->getFormFieldEntities() as $objField) 
+			{
 				if ($objField->get("field_std_id") != "") {
 					$field_type = "standard";
 					$field_id = $objField->get("field_std_id");
