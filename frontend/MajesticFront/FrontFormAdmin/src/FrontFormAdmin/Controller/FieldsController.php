@@ -1,15 +1,15 @@
 <?php
 namespace FrontFormAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
 /**
  * Deals with fields within the fields pool
  * @author ettiene
  *
  */
-class FieldsController extends AbstractActionController
+class FieldsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the FrontFieldAdminModel

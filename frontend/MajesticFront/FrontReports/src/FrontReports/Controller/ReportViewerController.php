@@ -1,10 +1,10 @@
 <?php
 namespace FrontReports\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class ReportViewerController extends AbstractActionController
+class ReportViewerController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Reports Model

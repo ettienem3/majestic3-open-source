@@ -1,9 +1,9 @@
 <?php
 namespace FrontFormsTemplates\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 *
@@ -30,10 +30,10 @@ class IndexController extends AbstractActionController
 		{
 			$form = $this->getFormsTemplatesModel()->getAdminFormsTemplates();
 			$request = $this->getRequest();
-			
+
 			//set default content
 			$form->get("content")->setValue("#content");
-			
+
 			if ($request->isPost())
 			{
 				//set form template data

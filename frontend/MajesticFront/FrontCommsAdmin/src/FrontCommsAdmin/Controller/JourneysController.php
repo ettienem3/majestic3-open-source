@@ -1,15 +1,15 @@
 <?php
 namespace FrontCommsAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
 /**
  * @description this is test description
  * @author lodi
  *
  */
-class JourneysController extends AbstractActionController
+class JourneysController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Journeys Model instance
@@ -40,7 +40,7 @@ class JourneysController extends AbstractActionController
 			//load the journeys
 			$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params, TRUE);
 		}//end foreach
-		
+
 		return array(
 				"objJourneys" => $objJourneys,
 				"arr_params" => $arr_params,
@@ -295,9 +295,9 @@ class JourneysController extends AbstractActionController
 
 				if (class_exists($class))
 				{
-					$form = new $class($form);	
+					$form = new $class($form);
 				}//end if
-				
+
 				//set journey id
 				if ($form->has("fk_journey_id"))
 				{
@@ -312,7 +312,7 @@ class JourneysController extends AbstractActionController
 				{
 					$form->bind($objBehaviour);
 				}//end if
- 
+
 				//check if submitted form is the complete behaviour config
 				if ($this->params()->fromPost("setup_complete", 0) == 1)
 				{

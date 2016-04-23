@@ -9,7 +9,6 @@
  */
 namespace FrontCore\Adapters;
 
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -17,7 +16,7 @@ use Zend\EventManager\EventManager;
 
 use FrontCore\Models\ApiRequestModel;
 
-abstract class AbstractCoreAdapter implements ServiceLocatorAwareInterface, EventManagerAwareInterface
+abstract class AbstractCoreAdapter implements EventManagerAwareInterface
 {
 	/**
 	 * Service Locater Instance
@@ -50,14 +49,24 @@ abstract class AbstractCoreAdapter implements ServiceLocatorAwareInterface, Even
 
 	}//end function
 
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Zend\ServiceManager\ServiceLocatorAwareInterface::getServiceLocator()
+	 */
 	public function getServiceLocator()
 	{
-		return $this->serviceLocator;
+		if (!$this->serviceLocater instanceof \Zend\ServiceManager\ServiceManager)
+		{
+			$this->serviceLocater = \FrontCore\Factories\FrontCoreServiceProviderFactory::getInstance();
+		}//end if
+
+		return $this->serviceLocater;
 	}//end function
 
 	public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
 	{
-		$this->serviceLocator = $serviceLocator;
+		$this->serviceLocater = $serviceLocator;
 	}//end function
 
 	public function getEventManager()

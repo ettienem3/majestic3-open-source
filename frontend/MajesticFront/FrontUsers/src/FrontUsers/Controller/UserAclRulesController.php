@@ -1,32 +1,32 @@
 <?php
 namespace FrontUsers\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class UserAclRulesController extends AbstractActionController
+class UserAclRulesController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front User Acl Rules Model
 	 * @var \FrontUsers\Models\FrontUsersAclRulesModel
 	 */
 	private $model_user_acl_rules;
-	
+
 	/**
 	 * Container for the Users Model
 	 * @var \FrontUsers\Models\FrontUsersModel
 	 */
 	private $model_users;
-	
+
 	public function indexAction()
 	{
 		//load users
 		$objUsers = $this->getFrontUsersModel()->fetchUsers();
-		
+
 		return array(
 			"objUsers" => $objUsers,
 		);
 	}//end function
-	
+
 	public function createRuleAction()
 	{
 		//laod user id
@@ -34,23 +34,23 @@ class UserAclRulesController extends AbstractActionController
 		if ($user_id == "")
 		{
 			$this->flashMessenger()->addErrorMessage("Data Access Rules cannot be loaded. User ID is not set");
-			return $this->redirect()->toRoute("front-users");	
+			return $this->redirect()->toRoute("front-users");
 		}//end if
-		
+
 		//load the form
 		$form = $this->getFrontUserAclRulesModel()->getUserAccessRulesForm();
-		
+
 		//load user data
 		$objUserAccessRules = $this->getFrontUserAclRulesModel()->fetchUserDataAccessRules($user_id);
-		
+
 		//create entity
 		$objUser = $this->getServiceLocator()->get("FrontUsers\Entities\FrontUserEntity");
 		foreach ($objUserAccessRules as $key => $arr_values)
 		{
-			$objUser->set($key, $arr_values);	
+			$objUser->set($key, $arr_values);
 		}//end foreach
-		$form->bind($objUser); 
-		
+		$form->bind($objUser);
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
@@ -72,14 +72,14 @@ class UserAclRulesController extends AbstractActionController
 					}//end if
 				}//end if
 			}//end foreach
-			
+
 			$form->setData($request->getPost());
 
 			if ($form->isValid($request->getPost()))
 			{
 				try {
 					$objUserAccessRules = $this->getFrontUserAclRulesModel()->createUserDataAccessRules($user_id, $form->getData()->getArrayCopy());
-					
+
 					//set success message
 					$this->flashMessenger()->addSuccessMessage("User Data Access Rules have been updated");
 					$this->redirect()->toRoute("front-user-data-acl-rules");
@@ -89,18 +89,18 @@ class UserAclRulesController extends AbstractActionController
 				}//end catch
 			}//end if
 		}//end if
-		
+
 		return array(
 			"form" => $form,
 			"objUser" => (object) array("id" => $user_id),
 		);
 	}//end function
-	
+
 	public function deleteRuleAction()
 	{
-		
-	}//end function 
-	
+
+	}//end function
+
 	/**
 	 * Create an instance of the Front User Acl Rules Model using the Service Manager
 	 * @return \FrontUsers\Models\FrontUsersAclRulesModel
@@ -111,10 +111,10 @@ class UserAclRulesController extends AbstractActionController
 		{
 			$this->model_user_acl_rules = $this->getServiceLocator()->get("FrontUsers\Models\FrontUsersAclRulesModel");
 		}//end if
-		
+
 		return $this->model_user_acl_rules;
 	}//end function
-	
+
 	/**
 	 * Create an instance of the Front Users Model using the Service Manager
 	 * @return \FrontUsers\Models\FrontUsersModel
@@ -125,7 +125,7 @@ class UserAclRulesController extends AbstractActionController
 		{
 			$this->model_users = $this->getServiceLocator()->get("FrontUsers\Models\FrontUsersModel");
 		}//end if
-		
+
 		return $this->model_users;
 	}//end function
 }//end class

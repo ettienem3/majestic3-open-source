@@ -1,9 +1,9 @@
 <?php
 namespace FrontUsers\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class RolesAclLinksAdminController extends AbstractActionController
+class RolesAclLinksAdminController extends AbstractCoreActionController
 {
 	/**
 	 * Container for Front User Roles Model
@@ -46,11 +46,11 @@ class RolesAclLinksAdminController extends AbstractActionController
 		if (is_numeric($objRole->get("fk_id_common_user_roles")))
 		{
 			$this->flashMessenger()->addInfoMessage("Standard Role resources cannot be amended");
-			
+
 			//redirect to user role index page
 			return $this->redirect()->toRoute("front-users-roles/admin");
 		}//end if
-		
+
 		//load the Core Resources
 // 		$objCoreAclResources = $this->getRoleAclLinksModel()->fetchCoreAclResources($role_id);
 
@@ -73,11 +73,11 @@ class RolesAclLinksAdminController extends AbstractActionController
 		if (is_numeric($objRole->get("fk_id_common_user_roles")))
 		{
 			$this->flashMessenger()->addInfoMessage("Standard Role resources cannot be amended");
-				
+
 			//redirect to user role index page
 			return $this->redirect()->toRoute("front-users-roles/admin");
 		}//end if
-		
+
 		$resource_type = $this->params()->fromRoute("type", "");
 		$resource_id = $this->params()->fromRoute("resource_id", "");
 
@@ -215,14 +215,14 @@ class RolesAclLinksAdminController extends AbstractActionController
 		 */
 		$role_id = $this->params()->fromRoute("role_id");
 		$resource_id = $this->params()->fromQuery("rid", "");
-		
+
 		if ($resource_id == "")
 		{
 			$this->flashMessenger()->addErrorMessage("Resource cannot be removed. ID is not set");
 			//return to the index page
 			return $this->redirect()->toRoute("front-role-acl-links/admin", array("role_id" => $role_id));
 		}//end if
-		
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
@@ -242,7 +242,7 @@ class RolesAclLinksAdminController extends AbstractActionController
     				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
-			
+
 			//return to the index page
 			return $this->redirect()->toRoute("front-role-acl-links/admin", array("role_id" => $role_id));
 		}//end if

@@ -1,12 +1,12 @@
 <?php
 namespace FrontContacts\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use FrontUserLogin\Models\FrontUserSession;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Contacts Model
@@ -39,7 +39,7 @@ class IndexController extends AbstractActionController
 	private $model_front_contact_system_fields;
 
     public function indexAction()
-    {    	
+    {
     	//extract form id from url
     	$form_id = $this->params()->fromQuery("fid", "");
 
@@ -74,7 +74,7 @@ class IndexController extends AbstractActionController
 
     	//load contacts
 		$objContacts = $this->getContactsModel()->fetchContacts($arr_params);
-		
+
 		if (!isset($objForm))
 		{
 			$objForm = FALSE;
@@ -532,12 +532,12 @@ class IndexController extends AbstractActionController
     	} elseif (isset($arr_config["logged_in_user_settings"]) && $arr_config["logged_in_user_settings"]["storage_enabled"] !== TRUE) {
     		$storage_disabled = TRUE;
     	}//end if
-    	
+
     	if (isset($storage_disabled))
     	{
 			$form->remove("remember_layout");
     	}//end if
-    	
+
     	//load user session data
     	$objUserStorage = FrontUserSession::getUserLocalStorageObject();
     	if (isset($objUserStorage->readUserNativePreferences()->cpp_layout_id) && $objUserStorage->readUserNativePreferences()->cpp_layout_id != "")
@@ -554,7 +554,7 @@ class IndexController extends AbstractActionController
                 $arr_form_data = $form->getData();
     			$form_id = $arr_form_data["cpp_form_id"];
 
-    			if (isset($arr_form_data["remember_layout"]) && $arr_form_data["remember_layout"] == 1) 
+    			if (isset($arr_form_data["remember_layout"]) && $arr_form_data["remember_layout"] == 1)
     			{
     				//persist user preference
     				$objUserStorage = FrontUserSession::getUserLocalStorageObject();
@@ -638,12 +638,12 @@ class IndexController extends AbstractActionController
     	} elseif (isset($arr_config["logged_in_user_settings"]) && $arr_config["logged_in_user_settings"]["storage_enabled"] !== TRUE) {
     		$storage_disabled = TRUE;
     	}//end if
-    	 
+
     	if (isset($storage_disabled))
     	{
     		$form->remove("remember_form");
     	}//end if
-    	
+
     	//load user session data
     	$objUserStorage = FrontUserSession::getUserLocalStorageObject();
     	if (is_numeric($objUserStorage->readUserNativePreferences()->cpp_form_id))
@@ -784,7 +784,7 @@ class IndexController extends AbstractActionController
     	$arr_source_data = $form->get('source_dropdown')->getValueOptions();
     	return new JsonModel($arr_source_data);
     }//end function
-    
+
     /**
      * Create an instance of the Contacts Model using the Service Manager
      * @return \FrontContacts\Models\FrontContactsModel

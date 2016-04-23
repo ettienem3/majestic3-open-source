@@ -1,10 +1,10 @@
 <?php
 namespace FrontProfileFileManager\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Validator\Regex;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class FilesController extends AbstractActionController
+class FilesController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Profile File Manager Model
@@ -175,10 +175,10 @@ class FilesController extends AbstractActionController
     		{
     			//extract form data
     			$arr_data = $form->getData();
-    			
+
     			//clear file name, it is derived from the uploaded data
 				$arr_data["filename"] = "";
-				
+
     			if ($files)
     			{
     				$httpadapter = new \Zend\File\Transfer\Adapter\Http();
@@ -216,9 +216,9 @@ class FilesController extends AbstractActionController
     							$f = preg_replace('/[^a-zA-Z0-9_.]/', '', $f);
     							if ($f == "")
     							{
-    								$f = time();	
+    								$f = time();
     							}//end if
-    							
+
     							$arr_data["filename"] = $f;
     						}//end if
 

@@ -1,9 +1,9 @@
 <?php
 namespace FrontBehavioursConfig\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Behaviours Config Model
@@ -44,19 +44,19 @@ class IndexController extends AbstractActionController
 			case "__journey":
 				$class = "\\FrontBehavioursConfig\\Forms\\Journeys\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
 				break;
-				
+
 			case "__form":
 				$class = "\\FrontBehavioursConfig\\Forms\\Forms\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
 				break;
-				
+
 			case "__form_fields":
 				$class = "\\FrontBehavioursConfig\\Forms\\FormFields\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
 				break;
-				
+
 			case "__reg_status":
 				$class = "\\FrontBehavioursConfig\\Forms\\Statuses\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
 				break;
-				
+
 			case "__links":
 				$class = "\\FrontBehavioursConfig\\Forms\\Links\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $objBehaviour->get('action')))) . "Form";
 				break;
@@ -66,7 +66,7 @@ class IndexController extends AbstractActionController
 		{
 			$form = new $class($form);
 		}//end if
-		
+
 		//bind data to the form
 		$form->bind($objBehaviour);
 
@@ -82,7 +82,7 @@ class IndexController extends AbstractActionController
 					$objBehaviour = $form->getData();
 					//set id
 					$objBehaviour->set("id", $id);
-					
+
 					//submit changes
 					$this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
 
@@ -207,7 +207,7 @@ class IndexController extends AbstractActionController
 				'behaviour' => $objBehaviour->get('behaviour'),
 				'beh_action' => $objBehaviour->get('action'),
 		);
-		
+
 		//set additional params based on behaviour and its action where applicable
 		switch(strtolower(str_replace("_", "", $arr_params['behaviour'])))
 		{
@@ -216,10 +216,10 @@ class IndexController extends AbstractActionController
 				$arr_params['field_id'] = $objBehaviour->get('fk_fields_all_id');
 				break;
 		}//end switch
-		
+
 		return $arr_params;
 	}//end function
-	
+
     /**
      * Create an instance of the Front Behaviours Config Model using the Service Manager
      * @return \FrontBehavioursConfig\Models\FrontBehavioursConfigModel

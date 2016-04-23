@@ -1,9 +1,9 @@
 <?php
 namespace FrontPowerTools\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class EmailTemplatesController extends AbstractActionController
+class EmailTemplatesController extends AbstractCoreActionController
 {
 	public function indexAction()
 	{

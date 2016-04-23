@@ -1,9 +1,9 @@
 <?php
 namespace MajesticExternalContacts\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class UnsubscribeController extends AbstractActionController
+class UnsubscribeController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the External Contacts Model

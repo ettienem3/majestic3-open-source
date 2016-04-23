@@ -38,7 +38,7 @@ abstract class AbstractEntityAdapter extends AbstractCoreAdapter
 	 */
 	protected function setHyperMedia($objHyperMedia)
 	{
-		if (is_array($objHyperMedia))
+		if (is_array($objHyperMedia) && isset($objHyperMedia[0]))
 		{
 			$objHyperMedia = $objHyperMedia[0];
 		}//end if
@@ -70,6 +70,11 @@ abstract class AbstractEntityAdapter extends AbstractCoreAdapter
 		$this->objData = (object) $arr;
 
 		//encode primary key
+		if (!isset($this->objData->id))
+		{
+			$this->objData->id = '';
+		}//end if
+		
 		$this->objData->id_encoded = $this->objData->id . "_encoded";
 	}//end function
 

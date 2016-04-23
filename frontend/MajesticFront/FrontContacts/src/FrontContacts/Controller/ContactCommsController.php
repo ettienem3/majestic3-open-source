@@ -1,11 +1,11 @@
 <?php
 namespace FrontContacts\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class ContactCommsController extends AbstractActionController
+class ContactCommsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Contacts Model
@@ -272,7 +272,7 @@ class ContactCommsController extends AbstractActionController
 				$result = TRUE;
 				$error = "";
 			}//end if
-	
+
 			$arr_return = array(
 								"result" => $result,
 								"error" => $error,
@@ -295,7 +295,7 @@ class ContactCommsController extends AbstractActionController
 					default:
 						$arr_tt = explode(":", $objResult->HTTP_RESPONSE_MESSAGE);
 						$message = array_pop($arr_tt);
-							
+
 						//format data for return
 						$arr_return = array(
 								"result" => FALSE,
@@ -314,8 +314,8 @@ class ContactCommsController extends AbstractActionController
 						"html" => "",
 				);
 			}//end if
-				
-			return new JsonModel($arr_return);			
+
+			return new JsonModel($arr_return);
 		}//end catch
 	}//end function
 
@@ -327,7 +327,7 @@ class ContactCommsController extends AbstractActionController
 
 		try {
 			$objResult = $this->getContactJourneysModel()->restartContactJourney($contact_id, $reg_comm_id);
-	
+
 			if ($objResult->HTTP_RESPONSE_CODE != 200)
 			{
 				$result = FALSE;
@@ -336,7 +336,7 @@ class ContactCommsController extends AbstractActionController
 				$result = TRUE;
 				$error = "";
 			}//end if
-	
+
 			$arr_return = array(
 								"result" => $result,
 								"error" => $error,
@@ -359,7 +359,7 @@ class ContactCommsController extends AbstractActionController
 					default:
 						$arr_tt = explode(":", $objResult->HTTP_RESPONSE_MESSAGE);
 						$message = array_pop($arr_tt);
-			
+
 						//format data for return
 						$arr_return = array(
 								"result" => FALSE,
@@ -377,8 +377,8 @@ class ContactCommsController extends AbstractActionController
 						//set element replace html
 						"html" => "",
 				);
-			}//end if	
-			
+			}//end if
+
 			return new JsonModel($arr_return);
 		}//end catch
 	}//end function

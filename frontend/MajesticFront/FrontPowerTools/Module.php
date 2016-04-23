@@ -77,16 +77,6 @@ class Module
     						return $model_webhook_urls;
     					}, //end function
 
-    					"FrontPowerTools\Models\FrontPowerToolsCommsAutomationModel" => function ($sm) {
-    						$model_comms_automation = new FrontPowerToolsCommsAutomationModel();
-    						return $model_comms_automation;
-    					}, //end function
-
-    					'FrontPowerTools\Models\FrontPowerToolsNewsFeedModel' => function ($sm) {
-    						$model_newsfeed = new FrontPowerToolsNewsFeedModel();
-    						return $model_newsfeed;
-    					}, //end function
-
     					/**
     					 * Entities
     					*/

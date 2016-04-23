@@ -18,12 +18,12 @@ return array(
     	/**
     	 * Majestic FrontEnd
     	 */
+    	'FrontCore',
     	'FrontBehavioursConfig',
     	'FrontCommsTemplates',
     	'FrontCommsAdmin',
     	'FrontCommsBulkSend',
     	'FrontCommsSmsCampaigns',
-    	'FrontCore',
     	'FrontContacts',
     	'FrontFormAdmin',
     	'FrontFormsTemplates',
@@ -71,7 +71,6 @@ return array(
             './vendor',
         	'./MajesticExternal',			//Modules that face the external world not governed by frontend rules
         	'./MajesticFront',				//Front end modules
-        	'./MajesticInteractive',		//contains Majestic Interactive Developed components
         ),
 
         // An array of paths from which to glob configuration files after

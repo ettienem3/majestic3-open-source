@@ -1,9 +1,9 @@
 <?php
 namespace FrontPanels\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class SetupPanelController extends AbstractActionController
+class SetupPanelController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Panels Model

@@ -2,8 +2,9 @@
 namespace FrontPowerTools\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class AnnouncementsController extends AbstractActionController
+class AnnouncementsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the PowerTools instance
@@ -36,10 +37,10 @@ class AnnouncementsController extends AbstractActionController
     			try {
     				//create the Announcement
     				$objPowerTool = $this->getAnnouncementsModel()->createAnnouncement($form->getData());
-    				
+
     				//set success message
     				$this->flashMessenger()->addSuccessMessage("Announcement created");
-    				
+
     				//redirect to index page
     				return $this->redirect()->toRoute("front-power-tools/announcements");
     			} catch (\Exception $e) {
@@ -48,7 +49,7 @@ class AnnouncementsController extends AbstractActionController
     			}//end catch
     		}//end if
     	}//end if
-    	
+
     	return array("form" => $form);
     }//end function
 
@@ -134,7 +135,7 @@ class AnnouncementsController extends AbstractActionController
     			//delete the announcement
     			try {
     				$objPowerTool = $this->getAnnouncementsModel()->deleteAnnouncement($id);
-    			
+
     				//set message
     				$this->flashMessenger()->addSuccessMessage("Announcement Deleted");
     			} catch (\Exception $e) {
@@ -142,7 +143,7 @@ class AnnouncementsController extends AbstractActionController
     				$this->flashMessenger()->addErrorMessage($e->getMessage());
     			}//end catch
     		}//end if
-    		
+
     		//redirect to indexpage
     		return $this->redirect()->toRoute("front-power-tools/announcements");
     	}//end if

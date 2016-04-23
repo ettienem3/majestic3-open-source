@@ -1,10 +1,10 @@
 <?php
 namespace FrontStatuses\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class ContactStatusesController extends AbstractActionController
+class ContactStatusesController extends AbstractCoreActionController
 {
 	/**
 	 * Container for Contact Statuses Model instance.
@@ -238,12 +238,12 @@ class ContactStatusesController extends AbstractActionController
 
     			//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
     			$class = "\\FrontBehavioursConfig\\Forms\\Statuses\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
-    			
+
     			if (class_exists($class))
     			{
     				$form = new $class($form);
     			}//end if
-    			
+
     			//set behaviour action param for view
     			$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];
 

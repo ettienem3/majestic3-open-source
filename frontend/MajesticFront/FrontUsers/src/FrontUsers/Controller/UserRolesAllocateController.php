@@ -1,9 +1,9 @@
 <?php
 namespace FrontUsers\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class UserRolesAllocateController extends AbstractActionController
+class UserRolesAllocateController extends AbstractCoreActionController
 {
 	/**
 	 * Container for Front User Roles Model

@@ -1,10 +1,10 @@
 <?php
 namespace FrontFormAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class ReplaceFieldsController extends AbstractActionController
+class ReplaceFieldsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Replace Fields Model
@@ -32,14 +32,14 @@ class ReplaceFieldsController extends AbstractActionController
 		if ($this->params()->fromQuery("json", 0) == 1)
 		{
 			echo json_encode(array("fields" => $objFields), JSON_FORCE_OBJECT); exit;
-			return new JsonModel(array("fields" => $objFields));	
+			return new JsonModel(array("fields" => $objFields));
 		}//end if
-		
+
 		return array(
 				"objFields" => $objFields,
 		);
 	}//end function
-	
+
 	public function createReplaceFieldAction()
 	{
 		//load the form
