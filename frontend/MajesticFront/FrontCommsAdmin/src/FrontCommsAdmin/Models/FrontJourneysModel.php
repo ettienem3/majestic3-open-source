@@ -173,6 +173,11 @@ class FrontJourneysModel extends AbstractCoreAdapter
 		//extract data
 		$arr_data = $objJourney->getArrayCopy();
 
+		if ($arr_data['date_expiry'] == '0000-00-00')
+		{
+			$arr_data['date_expiry'] = '';
+		}//end if
+
 		//manipulate date to valid format
 		if ($arr_data["date_expiry"] != "")
 		{
@@ -183,6 +188,12 @@ class FrontJourneysModel extends AbstractCoreAdapter
 			}//end if
 			$arr_data["date_expiry"] = $objDate->format('c');
 		}//end if
+
+//interim work around for campaigns not being available on forms or status journey statuses
+if (!isset($arr_data['fk_campaign_id']))
+{
+	$arr_data['fk_campaign_id'] = '';
+}//end if
 
 		//execute
 		$objJourney = $objApiRequest->performPUTRequest($arr_data)->getBody();

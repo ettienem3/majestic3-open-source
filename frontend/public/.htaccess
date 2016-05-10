@@ -1,3 +1,4 @@
+php_flag apc.cache_by_default Off
 #Create filter to match files you want to cache 
 <IfModule mod_headers.c>
 	<Files ~ "\.(css|js)$">

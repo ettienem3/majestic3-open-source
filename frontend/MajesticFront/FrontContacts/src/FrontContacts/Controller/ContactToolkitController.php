@@ -79,11 +79,15 @@ class ContactToolkitController extends AbstractCoreActionController
 				echo "true";
 				exit;
 			} catch (\Exception $e) {
-				echo "Comment could not be created. " . $e->getMessage();
+				echo "Comment could not be created. " . $this->frontControllerErrorHelper()->formatErrors($e);
 			}//end catch
 		}//end if
 
-		$objComments = $this->getContactsModel()->fetchContactComments($contact_id);
+		try {
+			$objComments = $this->getContactsModel()->fetchContactComments($contact_id);
+		} catch (\Exception $e) {
+			echo $this->frontControllerErrorHelper()->formatErrors($e);
+		}//end catch
 
 		return array(
 			"objComments" => $objComments,
@@ -95,14 +99,18 @@ class ContactToolkitController extends AbstractCoreActionController
 	{
 		$contact_id = $this->renderOutputFormat();
 
-		//load forms
- 		$objContactForms = $this->getContactFormsModel()->fetchContactFormsCompleted($contact_id);
+		try {
+			//load forms
+	 		$objContactForms = $this->getContactFormsModel()->fetchContactFormsCompleted($contact_id);
 
- 		//load web forms
-		$objWebForms = $this->getFrontFormAdminModel()->fetchForms(array(
-				'forms_type_id' => 1,
-				'forms_active' => 1,
-		));
+	 		//load web forms
+			$objWebForms = $this->getFrontFormAdminModel()->fetchForms(array(
+					'forms_type_id' => 1,
+					'forms_active' => 1,
+			));
+		} catch (\Exception $e) {
+			echo $this->frontControllerErrorHelper()->formatErrors($e);
+		}//end catch
 
 		return array(
 			"contact_id" => $contact_id,
@@ -115,8 +123,12 @@ class ContactToolkitController extends AbstractCoreActionController
 	{
 		$contact_id = $this->renderOutputFormat();
 
-		//load journeys
- 		$objContactJourneys = $this->getFrontContactJourneysModel()->fetchContactJourneysStarted($contact_id);
+		try {
+			//load journeys
+	 		$objContactJourneys = $this->getFrontContactJourneysModel()->fetchContactJourneysStarted($contact_id);
+		} catch (\Exception $e) {
+			echo $this->frontControllerErrorHelper()->formatErrors($e);
+		}//end catch
 
 		return array(
 			"contact_id" 			=> $contact_id,
@@ -140,23 +152,27 @@ class ContactToolkitController extends AbstractCoreActionController
 
 				if ($objResult->HTTP_RESPONSE_CODE != 200)
 				{
-					echo "Status colud not be updated. " . $objResult->HTTP_RESPONSE_MESSAGE;
+					echo "Status could not be updated. " . $objResult->HTTP_RESPONSE_MESSAGE;
 					exit;
 				}//end if
 
 				echo "true";
 			} catch (\Exception $e) {
-				echo "Status could not be updated. " . $e->getMessage();
+				echo "Status could not be updated. " . $this->frontControllerErrorHelper()->formatErrors($e);
 			}//end catch
 
 			exit;
 		}//end if
 
-		//load contact statuses to change current status for contact
-		$objStatuses = $this->getFrontStatusesModel()->fetchContactStatuses();
+		try {
+			//load contact statuses to change current status for contact
+			$objStatuses = $this->getFrontStatusesModel()->fetchContactStatuses();
 
-		//load status history
-		$objContactStatusData = $this->getContactStatusesModel()->fetchContactStatusHistory($contact_id);
+			//load status history
+			$objContactStatusData = $this->getContactStatusesModel()->fetchContactStatusHistory($contact_id);
+		} catch (\Exception $e) {
+			echo $this->frontControllerErrorHelper()->formatErrors($e);
+		}//end catch
 
 		return array(
 			"contact_id" 				=> $contact_id,
@@ -168,9 +184,6 @@ class ContactToolkitController extends AbstractCoreActionController
 	public function contactUserTasksAction()
 	{
 		$contact_id = $this->renderOutputFormat();
-
-		//load tasks belonging to contact
-		$objUserTasks = $this->getFrontUserTasksModel()->fetchUserTasks(array("user_tasks_reg_id" => $contact_id));
 
 		$form = $this->getFrontUserTasksModel()->getUserTasksForm();
 
@@ -186,10 +199,16 @@ class ContactToolkitController extends AbstractCoreActionController
 				//create the user task
 				$objUserTask = $this->getFrontUserTasksModel()->createUserTask($arr_data);
 			} else {
-var_dump($form->getMessages());
-exit;
+				echo 'Task could not be created, form validation failed';
 			}//end if
 		}//end if
+
+		try {
+			//load tasks belonging to contact
+			$objUserTasks = $this->getFrontUserTasksModel()->fetchUserTasks(array("user_tasks_reg_id" => $contact_id));
+		} catch (\Exception $e) {
+			echo $this->frontControllerErrorHelper()->formatErrors($e);
+		}//end catch
 
 		return array(
 			"objUserTasks" => $objUserTasks,
@@ -206,7 +225,7 @@ exit;
 		try {
 			$objSalesFunnels = $this->getContactFormsModel()->fetchContactSalesFunnelsCompleted($contact_id);
 		} catch (\Exception $e) {
-var_dump($e); exit;
+			echo $this->frontControllerErrorHelper()->formatErrors($e);
 		}//end catch
 
 		return array(

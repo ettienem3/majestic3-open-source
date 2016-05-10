@@ -78,31 +78,19 @@ echo $this->renderStandardViewHeader(ICON_MEDIUM_USER_DATA_ACL_HTML .'&nbsp; All
 					continue;
 				}//end if
 
+				//exclude modules and models for now
+				switch(strtolower($objApiAclResource->type))
+				{
+					case 'module':
+					case 'model':
+						continue(2);
+						break;
+				}//end switch
+
 				$arr_api_data["Section"] = "API";
 				$arr_api_data["type"] = ucfirst($objApiAclResource->type);
 				$arr_api_data["Module"] = $objApiAclResource->module;
-
-				if ($objApiAclResource->model == "")
-				{
-					$arr_api_data["model"] = "&nbsp;";
-				} else {
-					$arr_api_data["model"] = $objApiAclResource->model;
-				}//end if
-
-				if ($objApiAclResource->controller == "")
-				{
-					$arr_api_data["controller"] = "&nbsp;";
-				} else {
-					$arr_api_data["controller"] = $objApiAclResource->controller;
-				}//end if
-
-				if ($objApiAclResource->function == "")
-				{
-					$arr_api_data["function"] = "&nbsp;";
-				} else {
-					$arr_api_data["function"] = $objApiAclResource->function;
-				}//end if
-
+				$arr_api_data['Namespace'] = $objApiAclResource->namespace;
 				$arr_api_data["run_level"] = $objApiAclResource->acl_run_level;
 
 				if ($objApiAclResource->description == "")
@@ -117,8 +105,8 @@ echo $this->renderStandardViewHeader(ICON_MEDIUM_USER_DATA_ACL_HTML .'&nbsp; All
 				$arr_api[] = $arr_api_data;
 			}//end foreach
 
-			echo $this->renderDataTableHelper(array(), "dataTableApiResources");
-			echo $this->renderSimpleHTMLTable($arr_api, array("Section", "Type", "Module", "Model", "Table", "Function", "Run Level Required", "Description", "&nbsp;"), array("id" => "dataTableApiResources"));
+			echo $this->renderDataTableHelper(array(), "dataTableApiResources", "advanced");
+			echo $this->renderSimpleHTMLTable($arr_api, array("Section", "Type", "Module", "Namespace", "Run Level Required", "Description", "&nbsp;"), array("id" => "dataTableApiResources"));
 		?>
 		</div>
 	</div>

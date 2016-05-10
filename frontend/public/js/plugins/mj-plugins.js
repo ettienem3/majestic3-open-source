@@ -454,10 +454,16 @@
 				text: 'Uploaded Images',
 				icon: false,
 				onclick: function() {
-					jQuery(".comms-modal-image").dblclick(function (e) {
+					jQuery(".comms-modal-image").unbind().dblclick(function (e) {						
 						var title = window.prompt("Please set description", "Image");
+						if (title == '' || title == null)
+						{
+							title = 'An image';
+						}//end if
+						
 						editor.insertContent("<img alt=\"" + title + "\" title=\"" + title + "\" src=\"" + jQuery(this).attr("src") + "\" />");
-						jQuery(".uploaded-images-modal").modal("toggle");						
+						jQuery(".uploaded-images-modal").modal("toggle");	
+						return;
 					});
 					
 					jQuery(".uploaded-images-modal").modal("toggle");

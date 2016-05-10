@@ -278,6 +278,7 @@ class FormFieldsController extends AbstractCoreActionController
 
     		//set some default values
     		$arr_field_data["css_style_text"] 			= "";
+    		$arr_field_data["css_class"] 				= "";
     		$arr_field_data["active"] 					= "1";
     		$arr_field_data["css_style2"]		 		= "";
     		$arr_field_data["mandatory"] 				= "0";

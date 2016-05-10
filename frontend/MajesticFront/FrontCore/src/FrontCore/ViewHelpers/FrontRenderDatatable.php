@@ -97,8 +97,7 @@ class FrontRenderDatatable extends AbstractHelper
 	{
 		$this->_script = "jQuery(document).ready(function () { jQuery('#$this->_css_id').dataTable({";
 
-
-		$this->_script .= "\"aaSorting\":[], //disable initialsort";
+		$this->_script .= "\"aaSorting\":[],";
 		if ($this->_arr_options["pageinate"] === false)
 		{
 			$this->_script .= '"bPaginate" : false,';
@@ -154,7 +153,7 @@ class FrontRenderDatatable extends AbstractHelper
 
 		$view = $this->getView();
 
-		if ($this->_arr_options["return_script"] === TRUE)
+		if (isset($this->_arr_options["return_script"]) && $this->_arr_options["return_script"] === TRUE)
 		{
 			//include the source file
 			$html = "<script type=\"text/javascript\" src=\"" . $this->_js_file . "\"></script>";

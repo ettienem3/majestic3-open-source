@@ -165,7 +165,7 @@ class IndexController extends AbstractCoreActionController
     	if ($reg_id == "")
     	{
     		//set error message
-    		$this->flashMessenger()->addErrorMessage("Contact could not be loaded. Id is not set");
+    		$this->flashMessenger()->addErrorMessage("Contact could not be loaded. ID is not set");
 
     		//return to contacts index page
     		return $this->redirect()->toRoute("front-contacts");
@@ -183,6 +183,12 @@ class IndexController extends AbstractCoreActionController
     		if (isset($objUserStorage->readUserNativePreferences()->cpp_form_id) && is_string($objUserStorage->readUserNativePreferences()->cpp_form_id))
     		{
     			$form_id = $objUserStorage->readUserNativePreferences()->cpp_form_id;
+    			if (!is_numeric($form_id))
+    			{
+    				//redirect to select profile form action
+    				return $this->redirect()->toUrl($this->url()->fromRoute("front-contacts", array("action" => "select-profile-form")) . "?redirect=" . $this->url()->fromRoute("front-contacts", array("action" => "view-contact", "id" => $reg_id)));
+    			}//end if
+
     			$form = $this->getContactsModel()->getContactProfileForm($form_id);
     		} else {
     			//redirect to select profile form action
@@ -362,6 +368,11 @@ class IndexController extends AbstractCoreActionController
     		if (isset($objUserStorage->readUserNativePreferences()->cpp_form_id) && $objUserStorage->readUserNativePreferences()->cpp_form_id != "")
     		{
     			$form_id = $objUserStorage->readUserNativePreferences()->cpp_form_id;
+    			if (!is_numeric($form_id))
+    			{
+    				return $this->redirect()->toUrl($this->url()->fromRoute("front-contacts", array("action" => "select-profile-form")) . "?redirect=" . $this->url()->fromRoute("front-contacts", array("action" => "edit-contact", "id" => $reg_id)));
+    			}//end if
+
     			$form = $this->getContactsModel()->getContactProfileForm($form_id);
     		} else {
     			//redirect to select profile form action
@@ -409,7 +420,7 @@ class IndexController extends AbstractCoreActionController
     				$objContact = $this->getContactsModel()->updateContact($objContact, $form_id);
 
     				//set success message
-    				$this->flashMessenger()->addSuccessMessage("Contact updated successfully");
+    				$this->flashMessenger()->addSuccessMessage("Contact update successfully");
 
     				//redirect to contact profile page
     				return $this->redirect()->toRoute("front-contacts", array("action" => "view-contact", "id" => $objContact->get("reg_id")));

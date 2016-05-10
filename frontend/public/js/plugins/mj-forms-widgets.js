@@ -1,3 +1,82 @@
+//http://stackoverflow.com/questions/45888/what-is-the-most-efficient-way-to-sort-an-html-selects-options-by-value-while
+jQuery.fn.sort_select_box = function(){
+    // Get options from select box
+    var my_options = jQuery("#" + this.attr('id') + ' option');
+    // sort alphabetically
+    my_options.sort(function(a,b) {
+        if (a.text > b.text) return 1;
+        else if (a.text < b.text) return -1;
+        else return 0
+    })
+   //replace with sorted my_options;
+   jQuery(this).empty().append( my_options );
+
+   // clearing any selections
+   jQuery("#"+this.attr('id')+" option").attr('selected', false);
+}
+
+//deal with country dialing codes moved to the left of a field
+jQuery(document).ready(function () {
+	if (jQuery('*').hasClass('country-code-inline'))
+	{
+		jQuery('.country-code-inline').each(function (i, element) {
+			var element = jQuery(element);
+			var country_code_container = '';
+			var country_code_element = '';
+			switch (element.attr('name'))
+			{
+				case 'comm_destinations_cell_num':
+					country_code_container = jQuery('.form-element-cell_num_country_id');
+					country_code_element = jQuery('#cell_num_country_id');
+					break;
+					
+				case 'comm_destinations_work_num':
+					country_code_container = jQuery('.form-element-work_num_country_id');
+					country_code_element = jQuery('#work_num_country_id');
+					break;
+					
+				case 'comm_destinations_fax_num':
+					country_code_container = jQuery('.form-element-fax_num_country_id');
+					country_code_element = jQuery('#fax_num_country_id');
+					break;
+					
+				case 'comm_destinations_tel_num':
+					country_code_container = jQuery('.form-element-tel_num_country_id');
+					country_code_element = jQuery('#tel_num_country_id');
+					break;
+			}//end switch
+			
+			//hide the original field
+			country_code_container.hide();
+			country_code_element.hide();
+			
+			//now rework the text values to onliy display the dialing codes
+			country_code_element.find('option').each(function(i, e) {
+				var ee = jQuery(e);
+				if (ee.text().indexOf('(') !== -1)
+				{
+					//remove the element
+					country_code_element.find(e).remove();
+					//create a new element
+					var tt = ee.text().split('(');
+					tt = tt[1].replace(')', '').replace('+', '').trim();
+					if (tt != '')
+					{
+						country_code_element.append(jQuery('<option></option>').val(ee.val()).text(tt));
+					}//end if
+				}//end if
+			});
+			
+			//prepend the select to the input field
+			//sort order by text value
+			jQuery('#' + country_code_element.attr('id')).sort_select_box();
+			country_code_container.remove();
+			element.css('margin-left', '10px').before(country_code_element.show());
+		});
+	}//end if
+});
+
+
 /******* Location Fields *********/
 jQuery(document).ready(function () {
 	

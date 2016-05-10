@@ -2,17 +2,16 @@
 namespace FrontFormAdmin\Entities;
 
 use FrontCore\Adapters\AbstractEntityAdapter;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceLocatorAwareInterface
+class FrontFormAdminFormEntity extends AbstractEntityAdapter
 {
 	/**
 	 * Service Locater Instance
 	 * @var object
 	 */
 	protected $serviceLocater;
-		
+
 	/**
 	 * Stores field collection for a form if any are set
 	 * @var object
@@ -21,6 +20,11 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceL
 
 	public function getServiceLocator()
 	{
+		if (!$this->serviceLocater)
+		{
+			$this->setServiceLocator(\FrontCore\Factories\FrontCoreServiceProviderFactory::getInstance());
+		}//end if
+
 		return $this->serviceLocator;
 	}//end function
 
@@ -28,16 +32,16 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceL
 	{
 		$this->serviceLocator = $serviceLocator;
 	}//end function
-	
+
 	/**
 	 * Create a new FormFieldEntity
 	 * @return \FrontFormAdmin\Entities\FrontFormAdminFormFieldEntity
 	 */
 	protected function getFormFieldEntityObjectInstance()
 	{
-		return $this->getServiceLocator()->get("FrontFormAdmin\Entities\FrontFormAdminFormFieldEntity");	
+		return $this->getServiceLocator()->get("FrontFormAdmin\Entities\FrontFormAdminFormFieldEntity");
 	}//end function
-	
+
 	/**
 	 * Getter for Form Field entities
 	 */
@@ -45,7 +49,7 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceL
 	{
 		return $this->objFormFieldEntities;
 	}//end function
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * Overwrite the set function seeing forms might have field entities
@@ -58,9 +62,9 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceL
 		//is data being received from a form?
 		if (is_array($key) && isset($key["submit"]))
 		{
-			parent::set($key);	
+			parent::set($key);
 		}//end if
-		
+
 		if ((is_object($key) || is_array($key)) && $value === NULL && (isset($key->form) || (is_array($key) && isset($key["form"]))))
 		{
 			//convert array to object where required
@@ -68,7 +72,7 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceL
 			{
 				$key = (object) $key;
 			}//end if
-	
+
 			//set field data first
 			//check for any fields
 			if ($key->fields !== NULL)
@@ -81,10 +85,10 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter implements ServiceL
 					$entity_field->set($field);
 					$arr[] = $entity_field;
 				}//end foreach
-			
+
 				//assign data to form entitiy
 				$this->objFormFieldEntities = (object) $arr;
-				
+
 				//remove field data from data
 				unset($key->fields);
 			}//end if

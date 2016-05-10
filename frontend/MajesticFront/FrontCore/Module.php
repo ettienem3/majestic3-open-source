@@ -331,6 +331,16 @@ class Module
     					},
 
     					/**
+    					 * View Helpers
+    					 */
+    					'FrontCore\ViewHelpers\FrontFormatUserDateHelper' => function ($sm) {
+	    					$objHelper = new FrontFormatUserDateHelper();
+	    					$arr_config = $sm->get("config")["profile_config"];
+	    					$objHelper->setProfileConfig($arr_config);
+	    					return $objHelper;
+    					}, //end function
+
+    					/**
     					 * Caches
     					 */
     					//auto loaded for cache instance, prefers redis over file system
