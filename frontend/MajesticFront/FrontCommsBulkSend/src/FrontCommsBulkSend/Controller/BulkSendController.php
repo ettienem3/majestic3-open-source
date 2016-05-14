@@ -143,16 +143,16 @@ class BulkSendController extends AbstractCoreActionController
 			}//end if
 
 			/**
-			 * Delete the request
+			 * Cancel the request
 			 */
-			if (strtolower($request->getPost("delete_request")) == "delete request")
+			if (strtolower($request->getPost("delete_request")) == "cancel request")
 			{
 				try {
 					//delete the request
 					$this->getFrontCommsBulkSendModel()->deleteBulkSendRequest($id);
 
 					//set success message
-					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been deleted");
+					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been cancelled");
 
 					//redirect back to the index page
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");

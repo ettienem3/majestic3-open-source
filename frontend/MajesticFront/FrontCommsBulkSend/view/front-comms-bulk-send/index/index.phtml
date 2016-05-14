@@ -29,9 +29,14 @@
 			<select name="journey_id" id="journey_id" data-form-field-type="dropdown" class="form-control">
 				<option value="">--select--</option>
 				<?php
-					foreach ($this->objJourneys as $objJourney) {
-						echo "<option value=\"$objJourney->id\">$objJourney->journey</option>";
+					foreach ($this->objJourneys as $objJourney)
+					{
+						if (!isset($objJourney->id) || !is_numeric($objJourney->id))
+						{
+							continue;
+						}//end if
 
+						echo "<option value=\"$objJourney->id\">$objJourney->journey</option>";
 					} //end foreach
 				?>
 			</select>

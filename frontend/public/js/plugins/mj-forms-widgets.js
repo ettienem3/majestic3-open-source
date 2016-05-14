@@ -80,29 +80,29 @@ jQuery(document).ready(function () {
 /******* Location Fields *********/
 jQuery(document).ready(function () {
 	
-	//monitor changes in country field
-	jQuery("#country_id").change(function () {
-		//trigger provinces update
-		setProvincesFromCountry(jQuery(this).val());
-		
-		//trigger cities update
-		setCitiesFromCountry(jQuery(this).val());
-	});
-	
-	//monitor changes in province field
-	jQuery("#province_id").change(function () {
-		//trigger cities update
-		setCitiesFromProvince(jQuery(this).val());
-		
-		//set country field
-		setCountryFromProvince(jQuery(this).val());
-	});
-	
-	//monitor changes in the city field
-	jQuery("#city_id").change(function () {
-		//set province field update
-		setProvinceFromCity(jQuery(this).val());
-	});	
+//	//monitor changes in country field
+//	jQuery("#country_id").change(function () {
+//		//trigger provinces update
+//		setProvincesFromCountry(jQuery(this).val());
+//		
+//		//trigger cities update
+//		setCitiesFromCountry(jQuery(this).val());
+//	});
+//	
+//	//monitor changes in province field
+//	jQuery("#province_id").change(function () {
+//		//trigger cities update
+//		setCitiesFromProvince(jQuery(this).val());
+//		
+//		//set country field
+//		setCountryFromProvince(jQuery(this).val());
+//	});
+//	
+//	//monitor changes in the city field
+//	jQuery("#city_id").change(function () {
+//		//set province field update
+//		setProvinceFromCity(jQuery(this).val());
+//	});	
 	
 	//enable date fields
 	if (jQuery("input[data-form-field-type=date]").length)

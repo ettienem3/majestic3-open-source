@@ -17,7 +17,7 @@
 	<label for="form-contact-manual" class="control-label">Complete Form</label>
 	<select class="form-control" id="form-contact-manual">
 		<option value="">--select--</option>
-		<?php 
+		<?php
 			foreach ($this->objWebForms as $objForm)
 			{
 				if (!isset($objForm->id) || !is_numeric($objForm->id))
@@ -55,21 +55,25 @@ foreach ($this->objContactForms as $objForm)
 		case "__web":
 			$form_url = "<a href=\"/forms/bf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id_encoded") . "\" title=\"View web form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
 			break;
-			
+
 		case "__viral":
 			$form_url = "<a href=\"/forms/vbf/" . $objForm->get("form_id") . "/" . $objForm->get("reg_id_encoded") . "\" title=\"View viral form\" target=\"_blank\" data-toggle=\"tooltip\">" . $objForm->get("form") . "</a>";
 			break;
-			
+
+		case "__cpp":
+			$form_url = $objForm->get('form');
+			break;
+
 		default:
 			continue;
 			break;
 	}//end switch
-	
+
 	//set date
 	$date = $this->renderFormatUserDate(array("date" =>  $objForm->get("tstamp"), "options" => array(
 			"output_format" => "d M Y H:i",
 	)));
-	
+
 	echo "<tr>";
 	echo 	"<td>" . $date . "</td>";
 	echo 	"<td>" . $objForm->get("form_behaviour_label") . "</td>";
