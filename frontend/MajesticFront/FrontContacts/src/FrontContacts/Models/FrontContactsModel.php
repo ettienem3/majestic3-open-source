@@ -212,6 +212,12 @@ class FrontContactsModel extends AbstractCoreAdapter
 
 		unset($arr_where["fid"]);
 
+		//limit results to 20 where not specified otherwise
+		if (!isset($arr_where['qp_limit']))
+		{
+			$arr_where['qp_limit'] = 20;
+		}//end if
+
 		//execute
 		$objContacts = $objApiRequest->performGETRequest($arr_where)->getBody();
 
