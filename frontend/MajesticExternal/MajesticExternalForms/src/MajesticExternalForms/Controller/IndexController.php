@@ -310,6 +310,10 @@ class IndexController extends AbstractCoreActionController
     public function bfJsonAction()
     {
 		//http://www.alpacajs.org/tutorial.html
+    	//enable cors for cross down requests
+    	header('Access-Control-Allow-Origin: *');
+    	header('Access-Control-Allow-Methods: GET, POST');
+    	header("Access-Control-Allow-Headers: X-Requested-With");
 
     	//set json output
     	$this->getResponse()->getHeaders()->addHeaders(array('Content-type' => 'application/json'));

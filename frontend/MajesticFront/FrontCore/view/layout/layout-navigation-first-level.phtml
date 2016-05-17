@@ -2,129 +2,134 @@
 //load user
 $objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 
-//aligned to the left
-$arr_primary_menu = array(
-	$this->objProfileSettings->get("menu_main_relationship", "Relationship") => array(
-		"My Contacts" => array(
-			"route" => "front-contacts",
-		),
-
-		"My Journeys" => array(
-			"route" => "front-comms-admin/journeys",
-		),
-
-		"My To-do List" => array(
-			"route" => "front-users-tasks",
-			"url" => $this->url("front-users-tasks", array("user_id" => $objUser->id))
-		),
-
-		"advanced" => array(
-			"Send a bulk journey" => array(
-				"route" => "front-comms-bulksend",
+if ($objUser !== FALSE)
+{
+	//aligned to the left
+	$arr_primary_menu = array(
+		$this->objProfileSettings->get("menu_main_relationship", "Relationship") => array(
+			"My Contacts" => array(
+				"route" => "front-contacts",
 			),
 
-			"Create / Update a look and feel" => array(
-				"route" => "front-comms-templates",
+			"My Journeys" => array(
+				"route" => "front-comms-admin/journeys",
 			),
 
-			"My Links" => array(
-				"route" => "front-links",
+			"My To-do List" => array(
+				"route" => "front-users-tasks",
+				"url" => $this->url("front-users-tasks", array("user_id" => $objUser->id))
 			),
 
-			"Setup comm-dates" => array(
-				"routes" => "front-comms-admin/dates",
-			),
-
-// 			"Setup SMS campaigns" => array(
-// 				"route" => "home",
-// 			),
-
-// 			"Setup short-codes" => array(
-// 				"route" => "home",
-// 			),
-		),
-	), //end Relationship
-
-	$this->objProfileSettings->get("menu_main_data", "Data") => array(
-		"My Forms" => array(
-			"route" => "front-form-admin/form",
-		),
-
-		"My Images and Documents" => array(
-				"route" => "front-profile-file-manager",
-		),
-
-		"My Fields" => array(
-			"nested" => array(
-					"Manage all fields" => array(
-							"route" => "front-form-admin/fields",
+			"advanced" => array(
+				"Send a bulk journey" => array(
+					"route" => "front-comms-bulksend",
 				),
 
+				"Create / Update a look and feel" => array(
+					"route" => "front-comms-templates",
+				),
+
+				"My Links" => array(
+					"route" => "front-links",
+				),
+
+				"Setup comm-dates" => array(
+					"routes" => "front-comms-admin/dates",
+				),
+
+	// 			"Setup SMS campaigns" => array(
+	// 				"route" => "home",
+	// 			),
+
+	// 			"Setup short-codes" => array(
+	// 				"route" => "home",
+	// 			),
 			),
-		),
+		), //end Relationship
 
-		"My # Library" => array(
-			"nested" => array(
-					"View replace fields" => array(
-							"route" => "front-form-admin/replace-fields",
-					),
-
-					"Setup generic fields" => array(
-							"route" => "front-form-admin/generic-fields",
-					),
+		$this->objProfileSettings->get("menu_main_data", "Data") => array(
+			"My Forms" => array(
+				"route" => "front-form-admin/form",
 			),
-		),
 
-		"Reports" => array(
+			"My Images and Documents" => array(
+					"route" => "front-profile-file-manager",
+			),
+
+			"My Fields" => array(
 				"nested" => array(
-						"Basic Reports" => array(
-								"route" => "front-report-viewer",
+						"Manage all fields" => array(
+								"route" => "front-form-admin/fields",
+					),
+
+				),
+			),
+
+			"My # Library" => array(
+				"nested" => array(
+						"View replace fields" => array(
+								"route" => "front-form-admin/replace-fields",
 						),
-						"Dashboards" => array(
-								"route" => "front-dashboard-viewer",
+
+						"Setup generic fields" => array(
+								"route" => "front-form-admin/generic-fields",
 						),
-				)
-		),
-
-		"advanced" => array(
-			"Create / Update a look and feel" => array(
-				"route" => "front-form-templates",
+				),
 			),
 
-			"Manage Statuses" => array(
-				"route" => "front-statuses",
+			"Reports" => array(
+					"nested" => array(
+							"Basic Reports" => array(
+									"route" => "front-report-viewer",
+							),
+							"Dashboards" => array(
+									"route" => "front-dashboard-viewer",
+							),
+					)
 			),
 
-// 			"Database manager" => array(
-// 				"route" => "home",
-// 			),
+			"advanced" => array(
+				"Create / Update a look and feel" => array(
+					"route" => "front-form-templates",
+				),
 
-// 			"Custom Tables" => array(
-// 				"route" => "front-custom-tables",
-// 			),
+				"Manage Statuses" => array(
+					"route" => "front-statuses",
+				),
 
-// 			"Manage Cities" => array(
-// 					"route" => "home",
-// 			),
+	// 			"Database manager" => array(
+	// 				"route" => "home",
+	// 			),
+
+	// 			"Custom Tables" => array(
+	// 				"route" => "front-custom-tables",
+	// 			),
+
+	// 			"Manage Cities" => array(
+	// 					"route" => "home",
+	// 			),
 
 
-			"Locations" => array(
-				"route" => "front-locations",
+				"Locations" => array(
+					"route" => "front-locations",
+				),
 			),
-		),
-	), //end Data
+		), //end Data
 
-	$this->objProfileSettings->get("menu_main_sale", "Sale") => array(
-		"My Trackers" => array(
-			"route" => "front-form-admin/form",
-			"url" => $this->url("front-form-admin/form") . "?forms_type_id=3",
-		),
+		$this->objProfileSettings->get("menu_main_sale", "Sale") => array(
+			"My Trackers" => array(
+				"route" => "front-form-admin/form",
+				"url" => $this->url("front-form-admin/form") . "?forms_type_id=3",
+			),
 
-// 		"My Bridges" => array(
-// 			"route" => "home",
-// 		),
-	), //end Sale
-);
+	// 		"My Bridges" => array(
+	// 			"route" => "home",
+	// 		),
+		), //end Sale
+	);
+} else {
+	$arr_primary_menu = array();
+}//end if
 
 //aligned to the right
 $arr_secondary_menu = array(
@@ -182,9 +187,9 @@ $arr_secondary_menu = array(
 				),
 
 				"My Settings" => array(
-					"url" => $this->url("front-user-login", array("action" => "user-settings")),		
+					"url" => $this->url("front-user-login", array("action" => "user-settings")),
 				),
-				
+
 				"My Panels" => array(
 					"route" => "front-panels-setup",
 					"url" => $this->url("front-panels-setup", array("action" => "user-panels")),
@@ -359,7 +364,7 @@ ob_start();
 									{
 										$arr_child["title"] = '';
 									}//end if
-									
+
 									echo '<li><a href="' . $arr_child['url'] . '" title="' . $arr_child["title"] . '">' . $child . '</a></li>';
 								} else {
 									//check user access
