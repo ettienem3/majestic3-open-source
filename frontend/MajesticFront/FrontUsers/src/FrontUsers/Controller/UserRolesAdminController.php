@@ -1,9 +1,9 @@
 <?php
 namespace FrontUsers\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class UserRolesAdminController extends AbstractActionController
+class UserRolesAdminController extends AbstractCoreActionController
 {
 	/**
 	 * Container for Front User Roles Model
@@ -166,44 +166,44 @@ class UserRolesAdminController extends AbstractActionController
 	public function getStandardRolesAction()
 	{
 		$objStandardRoles = $this->getUserRolesModel()->fetchStandardRoles();
-		
+
 		return array(
 			"objStandardRoles" => $objStandardRoles,
 		);
 	}//end function
-	
+
 	public function createRoleFromStandardRoleAction()
 	{
 		$id = $this->params()->fromRoute("id", "");
 		if ($id == "")
 		{
 			$this->flashMessenger()->addErrorMessage("Requested Standard Role could not be loaded. ID is not set");
-			
+
 			//redirect to user role index page
 			return $this->redirect()->toRoute("front-users-roles/admin");
 		}//end if
-		
+
 		//load role
 		$objStandardRole = $this->getUserRolesModel()->fetchStandardRole($id);
-		
+
 		//load System Admin Form
 		$form = $this->getUserRolesModel()->getUserRoleAdminSystemForm();
 		$form->bind($objStandardRole);
-		
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
-			$form->setData($request->getPost());	
-			
+			$form->setData($request->getPost());
+
 			if ($form->isValid())
 			{
 				try {
 					$objData = $form->getData();
 					$objRole = $this->getUserRolesModel()->createUserRoleFromStandardRole($id, $objData->getArrayCopy());
-					
+
 					//set message
 					$this->flashMessenger()->addSuccessMessage("User Role has been created");
-					
+
 					//redirect to user role index page
 					return $this->redirect()->toRoute("front-users-roles/admin");
 				} catch (\Exception $e) {
@@ -212,13 +212,13 @@ class UserRolesAdminController extends AbstractActionController
 				}//end catch
 			}//end if
 		}//end if
-		
+
 		return array(
 			"form" => $form,
 			"objStandardRole" => $objStandardRole,
 		);
 	}//end function
-	
+
 	/**
 	 * Create an instance of the Front User Roles Admin Model using the Service Manager
 	 * @return \FrontUsers\Models\FrontUserRolesAdminModel

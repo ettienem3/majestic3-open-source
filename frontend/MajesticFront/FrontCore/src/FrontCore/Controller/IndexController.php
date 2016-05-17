@@ -1,9 +1,9 @@
 <?php
 namespace FrontCore\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
     public function indexAction()
     {
@@ -24,14 +24,14 @@ class IndexController extends AbstractActionController
 
     	return array("form" => $objForm);
     }//end functin
-    
+
     public function fbAction()
     {
-    	
+
     }//end function
-    
+
     public function googleAction()
     {
-    	
+
     }//end function
 }

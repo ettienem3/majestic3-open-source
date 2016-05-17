@@ -1,16 +1,16 @@
 <?php
 namespace FrontFormAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
 /**
  * Dealing with fields assigned to a specific form
  * @author ettiene
  *
  */
-class FormFieldsController extends AbstractActionController
+class FormFieldsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for FrontFormAdminModel
@@ -50,19 +50,19 @@ class FormFieldsController extends AbstractActionController
 		{
 			if ($request->getPost('fields_custom_description'))
 			{
-				
+
 			}//end if
 		}//end if
-		
+
 		//load form details
 		$objForm = $this->getFormAdminModel()->getForm($form_id);
 
 		//load fields
 		$objStandardFields = $this->getFieldsModel()->fetchStandardFields(array("active" => 1));
-		
+
 		//set params for custom fields
 		$arr_custom_fields_params = array();
-		
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
@@ -71,14 +71,14 @@ class FormFieldsController extends AbstractActionController
 				$arr_custom_fields_params['fields_custom_description'] = trim($request->getPost('fields_custom_description'));
 			}//end if
 		}//end if
-		
+
 		if ($this->params()->fromQuery('qp_cf_limit', '') != '')
 		{
 			$arr_custom_fields_params['qp_limit'] = $this->params()->fromQuery('qp_cf_limit');
 		} else {
 			$arr_custom_fields_params['qp_limit'] = 60;
 		}//end if
-		
+
 		if ($this->params()->fromQuery('qp_cf_start', '') != '')
 		{
 			$arr_custom_fields_params['qp_start'] = $this->params()->fromQuery('qp_cf_start');
@@ -278,6 +278,7 @@ class FormFieldsController extends AbstractActionController
 
     		//set some default values
     		$arr_field_data["css_style_text"] 			= "";
+    		$arr_field_data["css_class"] 				= "";
     		$arr_field_data["active"] 					= "1";
     		$arr_field_data["css_style2"]		 		= "";
     		$arr_field_data["mandatory"] 				= "0";
@@ -507,7 +508,7 @@ class FormFieldsController extends AbstractActionController
 			$viewModel->setTemplate('front-behaviours-config/index/configure-behaviours.phtml');
 			return $viewModel;
 		}//end catch
-		
+
 		$form = $arr_config_form_data["form"];
 		$arr_descriptors = $arr_config_form_data["arr_descriptors"];
 
@@ -544,7 +545,7 @@ class FormFieldsController extends AbstractActionController
 	    	{
 	    		$arr_params = $form->getData();
 	    		$arr_params["behaviour"] = "form_fields";
-	    		
+
 	    		//add some additional values to assist in generating the correct form
 	    		$arr_params['form_id'] = $arr_behaviour_params['form_id'];
 	    		$arr_params['field_id'] = $arr_behaviour_params['field_id'];
@@ -559,15 +560,15 @@ class FormFieldsController extends AbstractActionController
 					//custom field
 					$field_value = ucwords($objFormFieldElement->get('fields_custom_field'));
 				}//end if
-	    		
+
 	    		//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
 	    		$class = "\\FrontBehavioursConfig\\Forms\\FormFields\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . $field_value . "Form";
-	    		
+
 	    		if (class_exists($class))
 	    		{
 	    			$form = new $class($form);
 	    		}//end if
-	    		
+
 	    		//set behaviour action param for view
 	    		$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];
 
@@ -691,14 +692,14 @@ class FormFieldsController extends AbstractActionController
     			$arr_field = explode("_", $key);
     			$field_type = $arr_field[1];
     			$field_id = $arr_field[0];
-    			
+
     			//create array with data
     			$arr_submit_data['fields'][] = array(
     					'field_id' => $field_id,
     					'field_order' => $value,
     			);
     		}//end foreach
-    		
+
     		try {
     			//save the data
     			$objField = $this->getFormAdminModel()->updateFormFieldsOrder($form_id, $arr_submit_data);

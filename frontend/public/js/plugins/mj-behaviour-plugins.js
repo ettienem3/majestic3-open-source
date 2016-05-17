@@ -84,12 +84,12 @@
  */
 (function (jQuery) {
 	jQuery.fn.mj_behaviour_delay_days = function (params) {
+		//save instance of input element for later use
+		var input_element = this;
 		//declare global vars
 		var delay_days = 0;
 		var delay_hours = 0;
 		var delay_mins = 0;
-		//save instance of input element for later use
-		var input_element = this;
 		
 		//set default options
 		params = params || {
@@ -104,56 +104,123 @@
 								delay_mins_value : 0,
 							};
 							
-		//prepend html to form
-		jQuery(input_element).after(' <style>#slider_time_elements span { height:120px; float:left; margin:15px } </style><div id="slider_time_elements"><span class="slider_days" title="Days"></span><span class="slider_hours" title="Hours"></span><span class="slider_mins" title="Minutes"></span></div><br class="floatFix"/><div><span class="slider_days_value">Days</span>&nbsp;<span class="slider_hours_value">Hours</span>&nbsp;<span class="slider_mins_value">Minutes</span></div>');
+		//lazyload the slider files
+ 		LazyLoad.css([
+			cdn_url + "/bootstrap/bootstrap-slider/bootstrap-slider.css"
+ 		], function () {
 
-		//hide field
-		jQuery(input_element).hide();
-		
-		//initialise sliders
-		jQuery(".slider_days").slider({
-			orientation: "vertical",
-			animate: true,
-			value: 0,
-			min: 0,
-			max: 180,
-			stop: function (event, ui) {
-				delay_days = ui.value;
-				calcDelay();
-			}, //end function 
-			slide: function (event, ui) {
-				jQuery(".slider_days_value").html(ui.value + " Days");
-			}
-		});
+ 		});
 
-		jQuery(".slider_hours").slider({
-			orientation: "vertical",
-			animate: true,
-			value: 0,
-			min: 0,
-			max: 24,
-			stop: function (event, ui) {
-				delay_hours = ui.value;
+		//lazyload additional files
+		LazyLoad.js([
+			cdn_url + "/bootstrap/bootstrap-slider/bootstrap-slider.js"
+		], function () {
+			if (jQuery(input_element).val() != 0 && jQuery(input_element).val() != "")
+			{
+				var val = jQuery(input_element).val();
+				
+				if (val >= 86400)
+				{
+					delay_days = parseInt(val / 86400);
+					
+					//subtract days from total
+					val = val - parseInt(delay_days * 86400);					
+				}//end if
+				
+				if (val >= 3600)
+				{
+					delay_hours = parseInt(val / 3600);
+					
+					//subtract hours from total
+					val = val - parseInt(delay_hours * 3600);
+				}//end if
+				
+				if (val > 0 && val < 3600)
+				{
+					delay_mins = parseInt(val / 60);
+				}//end if
+			}//end if
+			
+			//prepend html to form
+			jQuery(input_element).after(jQuery("<div></div>").append(
+					jQuery("<p/>").append(
+						jQuery("<input/>", {
+								'id':'slider_days',
+								'type':'text',
+								'data-slider-min':'0',
+								'data-slider-max':'180',
+								'data-slider-step':'1',
+								'data-slider-value':delay_days
+							})
+						).append(
+								jQuery("<span/>", {
+									'class':'slider_days_value',
+									'style': 'padding-left:10px;',
+								}).html('&nbsp;' + delay_days + ' Days')
+						)
+					)
+					.append(
+						jQuery("<p/>").append(
+								jQuery("<input/>", {
+										'id':'slider_hours',
+										'type':'text',
+										'data-slider-min':'0',
+										'data-slider-max':'23',
+										'data-slider-step':'1',
+										'data-slider-value':delay_hours
+									})
+								).append(
+										jQuery("<span/>", {
+											'class':'slider_hours_value',
+											'style': 'padding-left:10px;',
+										}).html('&nbsp;' + delay_hours + ' Hours')
+								)							
+					)
+					.append(
+						jQuery("<p/>").append(
+								jQuery("<input/>", {
+										'id':'slider_minutes',
+										'type':'text',
+										'data-slider-min':'0',
+										'data-slider-max':'59',
+										'data-slider-step':'1',
+										'data-slider-value':delay_mins
+									})
+								).append(
+										jQuery("<span/>", {
+											'class':'slider_minutes_value',
+											'style': 'padding-left:10px;',
+										}).html('&nbsp;' + delay_mins + ' Minutes')
+								)							
+					)
+			);
+			
+			//enable days slider
+			jQuery("#slider_days").bootstrapSlider({tooltip:'hide'});
+			jQuery("#slider_days").on("slide", function(slideEvt) {
+				jQuery(".slider_days_value").html('&nbsp;' + slideEvt.value + '&nbsp;Days');
+				delay_days = slideEvt.value;
 				calcDelay();
-			}, //end function
-			slide: function (event, ui) {
-				jQuery(".slider_hours_value").html(ui.value + " Hours");
-			} 
-		});
-
-		jQuery(".slider_mins").slider({
-			orientation: "vertical",
-			animate: true,
-			value: 0,
-			min: 0,
-			max: 60,
-			stop: function (event, ui) {
-				delay_mins = ui.value;
+			});
+			
+			//enable hours slider
+			jQuery("#slider_hours").bootstrapSlider({tooltip:'hide'});
+			jQuery("#slider_hours").on("slide", function(slideEvt) {
+				jQuery(".slider_hours_value").html('&nbsp;' + slideEvt.value + '&nbsp;Hours');
+				delay_hours = slideEvt.value;
 				calcDelay();
-			}, //end function
-			slide: function (event, ui) {
-				jQuery(".slider_mins_value").html(ui.value + " Minutes");
-			} 
+			});
+			
+			//enable minutes slider
+			jQuery("#slider_minutes").bootstrapSlider({tooltip:'hide'});
+			jQuery("#slider_minutes").on("slide", function(slideEvt) {
+				jQuery(".slider_minutes_value").html('&nbsp;' + slideEvt.value + '&nbsp;Minutes');
+				delay_mins = slideEvt.value;
+				calcDelay();
+			});			
+				
+			//hide field
+			jQuery(input_element).hide();		
 		});
 		
 		function calcDelay()

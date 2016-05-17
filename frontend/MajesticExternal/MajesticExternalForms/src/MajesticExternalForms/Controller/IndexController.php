@@ -1,18 +1,18 @@
 <?php
 namespace MajesticExternalForms\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use MajesticExternalForms\Forms\MajesticExternalFormsForm;
 use FrontUserLogin\Models\FrontUserSession;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for instance of forms model
 	 * @var \MajesticExternalForms\Models\MajesticExternalFormsModel
 	 */
 	private $model_forms;
-	
+
 	/**
 	 * Container for the External Forms Cache Model
 	 * @var \MajesticExternalForms\Models\MajesticExternalFormsCacheModel
@@ -394,15 +394,15 @@ class IndexController extends AbstractActionController
 					$arr_return["objForm"] = $form;
 				}//end catch
 			} else {
-				$arr_return["submit_errors"] = $form->getMessages();				
+				$arr_return["submit_errors"] = $form->getMessages();
 				foreach ($form->getMessages() as $key => $arr_messages)
 				{
 					if ($form->has($key))
 					{
-						$form->get($key)->setMessage($arr_messages);	
+						$form->get($key)->setMessage($arr_messages);
 					}//end if
 				}//end foreach
-				
+
 				$arr_return["objForm"] = $form;
 			}//end if
     	}//end if
@@ -493,7 +493,7 @@ class IndexController extends AbstractActionController
     	echo json_encode(array("error" => 1, "response" => "Data could not be retrieved"));
     	exit;
     }//end function
-    
+
     public function clearFormCacheAction()
     {
     	$request = $this->getRequest();
@@ -503,23 +503,23 @@ class IndexController extends AbstractActionController
     			if (is_numeric($request->getPost('form_id')))
     			{
     				$form_id = $request->getPost('form_id');
-    					
+
     				//clear cache
     				$this->getFormsCacheModel()->clearFormCache($form_id);
-    
+
     				//reload form to cache updates
     				$this->getExternalFormsModel()->loadForm($form_id);
-    					
+
     				return new JsonModel(array('Form cache cleared'));
     			}//end if
-    
+
     			return new JsonModel(array('Form cache not cleared'));
     		} catch (\Exception $e) {
     			//do something with the error
     			trigger_error($e->getMessage(), E_USER_WARNING);
     		}//end catch
     	}//end if
-    
+
     	return new JsonModel(array('Form cache cleared'));
     }//end function
 
@@ -536,7 +536,7 @@ class IndexController extends AbstractActionController
 
     	return $this->model_forms;
     }//end function
-    
+
     /**
      * Create an instance of the Form Cache Model
      * @return \
@@ -547,7 +547,7 @@ class IndexController extends AbstractActionController
     	{
     		$this->model_cache = $this->getServiceLocator()->get('MajesticExternalForms\Models\MajesticExternalFormsCacheModel');
     	}//end if
-    	 
+
     	return $this->model_cache;
     }//end function
 }//end class

@@ -1,9 +1,9 @@
 <?php
 namespace FrontFormAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class GenericFieldsController extends AbstractActionController
+class GenericFieldsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Generic Fields Model
@@ -27,12 +27,12 @@ class GenericFieldsController extends AbstractActionController
 		$this->layout("layout/layout-body");
 		//load the fields
 		$objFields = $this->getGenericFieldsModel()->fetchGenericFields();
-		
+
 		return array(
 				"objFields" => $objFields,
 		);
 	}//end function
-	
+
 	public function createGenericFieldAction()
 	{
 		//load the form

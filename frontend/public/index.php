@@ -19,6 +19,22 @@ ini_set("memory_limit", "256m");
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set("display_errors", 0);
 
+if (!is_file('./data/logs/front.log'))
+{
+	mkdir('./data/logs', 0755, TRUE);
+	file_put_contents('./data/logs/front.log', '');
+} else {
+	//clear files bigger than 2mb
+	$s = filesize('./data/logs/front.log');
+	if ($s > 2097152)
+	{
+		file_put_contents('./data/logs/front.log', '');
+	}//end if
+}//end if
+
+ini_set('log_errors', 1);
+ini_set('error_log', './data/logs/front.log');
+
 // Decline static file requests back to the PHP built-in webserver
 if (php_sapi_name() === 'cli-server') {
 	$path = realpath(__DIR__ . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
@@ -37,5 +53,10 @@ if (file_exists(ZF_CLASS_CACHE))
 // Setup autoloading
 require 'init_autoloader.php';
 
-// Run the application!
-Zend\Mvc\Application::init(require 'config/application.config.php')->run();
+try {
+	// Run the application!
+	Zend\Mvc\Application::init(require 'config/application.config.php')->run();
+} catch (\Exception $e) {
+	trigger_error('Generated error: ' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], E_USER_WARNING);
+	trigger_error($e->getMessage(), E_USER_WARNING);
+}//end catch

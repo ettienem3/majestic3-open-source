@@ -1,16 +1,16 @@
 <?php
 namespace MajesticExternalUtilities\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class LocationsController extends AbstractActionController
+class LocationsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the External Utilities Model
 	 * @var \MajesticExternalUtilities\Models\MajesticExternalUtilitiesModel
 	 */
 	private $model_external_utilities;
-	
+
 	public function ajaxCountriesAction()
 	{
 		//request data
@@ -20,16 +20,16 @@ class LocationsController extends AbstractActionController
 			{
 				if ($objCity->active != 1)
 				{
-					continue;	
+					continue;
 				}//end if
-				
+
 				$arr_data[] = array(
 					"id" 			=> $objCity->id,
 					"country" 		=> $objCity->country,
 					"code" 			=> $objCity->code,
 				);
 			}//end foreach
-			
+
 			echo json_encode(array(
 				"error" => 0,
 				"response" => $arr_data,
@@ -40,10 +40,10 @@ class LocationsController extends AbstractActionController
 				"error" => 1,
 				"response" => $e->getMessage(),
 			), JSON_FORCE_OBJECT);
-			exit;	
+			exit;
 		}//end catch
 	}//end function
-	
+
 	public function ajaxProvincesAction()
 	{
 		//request data
@@ -56,7 +56,7 @@ class LocationsController extends AbstractActionController
 				{
 					continue;
 				}//end if
-	
+
 				//load only a specific province
 				if (is_numeric($this->params()->fromQuery("province_id", "")))
 				{
@@ -73,12 +73,12 @@ class LocationsController extends AbstractActionController
 								"state"			=> $objProvince->province,
 								"code" 			=> $objProvince->code,
 						);
-						
+
 						//exit loop
 						break;
 					}//end if
 				}//end if
-				
+
 				$arr_data[] = array(
 						"id" 			=> $objProvince->id,
 						"country_id" 	=> $objProvince->fk_countries_id,
@@ -88,7 +88,7 @@ class LocationsController extends AbstractActionController
 						"code" 			=> $objProvince->code,
 				);
 			}//end foreach
-				
+
 			echo json_encode(array(
 					"error" => 0,
 					"response" => $arr_data,
@@ -102,7 +102,7 @@ class LocationsController extends AbstractActionController
 			exit;
 		}//end catch
 	}//end function
-	
+
 	public function ajaxCitiesAction()
 	{
 		//request data
@@ -133,12 +133,12 @@ class LocationsController extends AbstractActionController
 								"state"			=> $objCity->province,
 								"city" 			=> $objCity->city,
 						);
-							
+
 						//exit loop
 						break;
 					}//end if
 				}//end if
-				
+
 				$arr_data[] = array(
 						"id" 			=> $objCity->id,
 						"country_id" 	=> $objCity->fk_countries_id,
@@ -149,7 +149,7 @@ class LocationsController extends AbstractActionController
 						"city" 			=> $objCity->city,
 				);
 			}//end foreach
-		
+
 			echo json_encode(array(
 					"error" => 0,
 					"response" => $arr_data,
@@ -163,7 +163,7 @@ class LocationsController extends AbstractActionController
 			exit;
 		}//end catch
 	}//end function
-	
+
 	/**
 	 * Create an instance of the External Utilities Model using the Service Manager
 	 * @return \MajesticExternalUtilities\Models\MajesticExternalUtilitiesModel
@@ -174,7 +174,7 @@ class LocationsController extends AbstractActionController
 		{
 			$this->model_external_utilities = $this->getServiceLocator()->get("MajesticExternalUtilities\Models\MajesticExternalUtilitiesModel");
 		}//end if
-		
+
 		return $this->model_external_utilities;
 	}//end function
 }//end class

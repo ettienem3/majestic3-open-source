@@ -32,8 +32,8 @@
 				alert("Task created successfully");
 				location.reload();
 			})
-			.fail( function () {
-				alert("An error occurred creating the task");
+			.fail( function (data) {
+				alert("An error occurred creating the task.");
 			});
 
 			//close the dialog
@@ -76,7 +76,7 @@ foreach ($this->objUserTasks as $objUserTask)
 	$date = $this->renderFormatUserDate(array("date" =>  $objUserTask->get("datetime_reminder"), "options" => array(
 			"output_format" => "d M Y",
 	)));
-	
+
 	echo "<tr>";
 	echo 	"<td>" . $date . "</td>";
 	echo 	"<td>" . $objUserTask->get("content") . "</td>";

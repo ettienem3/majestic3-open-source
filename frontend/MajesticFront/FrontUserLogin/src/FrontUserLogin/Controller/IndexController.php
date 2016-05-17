@@ -2,14 +2,12 @@
 namespace FrontUserLogin\Controller;
 
 use FrontUserLogin\Models\FrontUserSession;
-
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-
 use FrontUserLogin\Models\FrontUserLoginModel;
 use Zend\Form\Form;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for UserLogin instance
@@ -153,7 +151,7 @@ class IndexController extends AbstractActionController
 
 		//set layout
 		$this->layout("layout/layout");
-		
+
 		//check if local storage has been enabled
 		$arr_config = $this->getServiceLocator()->get("config");
 		if (!isset($arr_config["logged_in_user_settings"]))
@@ -168,7 +166,7 @@ class IndexController extends AbstractActionController
 			$this->flashMessenger()->addInfoMessage("User preferences cannot be saved. Service is not enabled");
 			return $this->redirect()->toRoute("home");
 		}//end if
-		
+
 		//load form
 		$form = $this->getUserLoginModel()->getUserNativePreferencesForm($this);
 
@@ -182,7 +180,7 @@ class IndexController extends AbstractActionController
 				{
 					$form->get($key)->setValue($value);
 				}//end if
-			}//end foreach			
+			}//end foreach
 		}//end if
 
 		$request = $this->getRequest();
@@ -206,7 +204,7 @@ class IndexController extends AbstractActionController
 				"form" => $form,
 		);
 	}//end function
-	
+
 	public function ajaxLoadUserAclAction()
 	{
 		try {
@@ -216,15 +214,15 @@ class IndexController extends AbstractActionController
 			{
 				exit;
 			}//end if
-				
+
 			$this->getUserLoginModel()->loadUserAcl();
 		} catch (\Exception $e) {
 			trigger_error($e->getMessage(), E_USER_WARNING);
 		}//end catch
-			
+
 		exit;
 	}//end function
-	
+
 	public function userSettingsAction()
 	{
 		//check if user is already logged in, if so, redirect to the home page
@@ -236,7 +234,7 @@ class IndexController extends AbstractActionController
 
 		//set layout
 		$this->layout("layout/layout");
-		
+
 		//create form
 		$objForm = new Form();
 		$objForm->add(array(
@@ -251,13 +249,13 @@ class IndexController extends AbstractActionController
 						"label" => "Timezone",
 				),
 		));
-		
+
 		//populate form values using user settings
 		foreach ($objForm as $objElement)
 		{
 			$objForm->get($objElement->getName())->setValue($objUser->user_settings->{$objElement->getName()});
 		}//end foreach
-		
+
 		return array(
 			"objUser" => $objUser,
 			"form" => $objForm,
@@ -274,7 +272,7 @@ class IndexController extends AbstractActionController
 		{
 			return $this->redirect()->toRoute("home");
 		}//end if
-		
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
@@ -288,13 +286,13 @@ class IndexController extends AbstractActionController
 				$returnText = $text = $this->frontControllerErrorHelper()->formatErrors($e);
 			}//end catch
 		}//end if
-		
+
 		return array(
-			'postData' => $postData,	
+			'postData' => $postData,
 			'returnText' => $returnText,
 		);
 	}//end function
-	
+
 	/**
 	 * Password confirm request
 	 */
@@ -305,7 +303,7 @@ class IndexController extends AbstractActionController
 		{
 			return $this->redirect()->toRoute("home");
 		}//end if
-		
+
 		//check if code has been set
 		$i = $this->params()->fromQuery('i', '');
 		if ($i == '')
@@ -314,7 +312,7 @@ class IndexController extends AbstractActionController
 				'errorText' => 'Required information to complete the request is not available.',
 			);
 		}//end if
-		
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
@@ -322,10 +320,10 @@ class IndexController extends AbstractActionController
 			if ($arr_data['password'] != $arr_data['password_confirm'])
 			{
 				return array(
-					'noticeText' => 'Password does not match, please try again',	
+					'noticeText' => 'Password does not match, please try again',
 				);
 			}//end if
-			
+
 			$arr_data['code'] = $i;
 			try {
 				$objUser = $this->getUserLoginModel()->passwordResetConfirm($arr_data);
@@ -334,16 +332,16 @@ class IndexController extends AbstractActionController
 			} catch (\Exception $e) {
 				$text = $this->frontControllerErrorHelper()->formatErrors($e);
 				return array(
-					'noticeText' => $text,	
+					'noticeText' => $text,
 				);
 			}//end catch
 		}//end if
-		
+
 		return array(
-				
+
 		);
 	}//end function
-	
+
 	/**
 	 * Create an instance of the FrontUserLoginModel using the Service Manager
 	 * @return \FrontUserLogin\Models\FrontUserLoginModel

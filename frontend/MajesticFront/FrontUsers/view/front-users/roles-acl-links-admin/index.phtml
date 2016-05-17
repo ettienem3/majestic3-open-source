@@ -13,14 +13,14 @@ echo $this->renderStandardViewHeader(ICON_MEDIUM_USER_DATA_ACL_HTML .'&nbsp; Rol
 	</ul>
 
 	<div class="mj3_table_contain">
-	<?php 
+	<?php
 		echo "<fieldset><legend>" . $this->objRole->get("role_name") . "</legend>";
 		echo "Role Name : " . $this->objRole->get("role_name") . "<br>";
 		echo "Role Description : " . $this->objRole->get("role_description") . "<br>";
 		echo "Role Active : " . $this->objRole->get("role_active") . "<br>";
 		echo "Role Run Level : " . $this->objRole->get("role_acl_run_level") . "<br>";
 		echo "</fieldset><br>";
-		
+
 		if (isset($this->objResources))
 		{
 			foreach ($this->objResources as $objResource)
@@ -29,36 +29,45 @@ echo $this->renderStandardViewHeader(ICON_MEDIUM_USER_DATA_ACL_HTML .'&nbsp; Rol
 				{
 					continue;
 				}//end if
-		
+
+				//exclude modules and models for now
+				switch (strtolower($objResource->type))
+				{
+					case 'module':
+					case 'model':
+						continue(2);
+						break;
+				}//end switch
+
 				$arr_data["section"] = $objResource->section;
 				$arr_data["type"] = $objResource->type;
 				$arr_data["namespace"] = $objResource->namespace;
-		
+
 				if ($objResource->resource_locked == 1)
 				{
 					$arr_data["resource_locked"] = "Yes";
 				} else {
 					$arr_data["resource_locked"] = "&nbsp;";
 				}//end if
-		
+
 				if ($objResource->description == "")
 				{
 					$arr_data["description"] = "&nbsp;";
 				} else {
 					$arr_data["description"] = $objResource->description;
 				}//end if
-		
+
 				$edit_url = "<a href=\"" . $this->url("front-role-acl-links/admin", array("action" => "update-acl-resource", "role_id" => $this->objRole->get("id"))) . "?rid=" . $objResource->id . "\" title=\"Edit this resource\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
 				$delete_url = "<a href=\"" . $this->url("front-role-acl-links/admin", array("action" => "delete-acl-resource", "role_id" => $this->objRole->get("id"))) . "?rid=" . $objResource->id . "\" title=\"Delete this resource\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</a>";
 				$arr_data["urls"] = $edit_url . "&nbsp;" . $delete_url;
-		
+
 				$arr[] = $arr_data;
 			}//end function
 		}//end function
-		
-		echo $this->renderDataTableHelper();
-		echo $this->renderSimpleHTMLTable($arr, array("Section", "Type", "Namespace", "Locked", "Description", "&nbsp;"));
-		
+
+		echo $this->renderDataTableHelper(array(), "dataTableApiResources", "advanced");
+		echo $this->renderSimpleHTMLTable($arr, array("Section", "Type", "Namespace", "Locked", "Description", "&nbsp;"), array("id" => "dataTableApiResources"));
+
 		//insert pagination data
 		echo $this->renderPaginationHelper($this->objResources->hypermedia->pagination, $this->url("front-role-acl-links/admin", array("role_id" => $this->objRole->get("id"))));
 	?>

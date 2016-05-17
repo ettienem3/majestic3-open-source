@@ -1,14 +1,14 @@
 <?php
 namespace FrontPanels\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
 use FrontContacts\Controller\IndexController;
 use FrontPanels\Controller\PanelsController;
 use FrontPanels\Models\FrontPanelsModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class PanelsController extends AbstractActionController
+class PanelsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Panels Model
@@ -19,22 +19,22 @@ class PanelsController extends AbstractActionController
 	public function displayPanelsAction()
 	{
 		$this->layout("layout/dashboard");
-		
+
 		//check if panels are enabled
 		$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 		if (!in_array("panels", $objUser->profile->plugins_enabled))
 		{
-			return $this->redirect()->toRoute("front-contacts");	
+			return $this->redirect()->toRoute("front-contacts");
 		}//end if
-		
+
 		try {
 			//load user session
 			$objUserSession = new \Zend\Session\Container("user");
-			
+
 			//load user panels
 			$objUserPanels = $this->getFrontPanelsModel()->fetchUserPanels();
 			$arr_panels = array();
-			
+
 			//preprocess some panels
 			foreach ($objUserPanels as $objPanel)
 			{
@@ -44,9 +44,9 @@ class PanelsController extends AbstractActionController
 					$obj = $this->getServiceLocator()->get("FrontPanels\Entities\FrontPanelsPanelEntity");
 					$obj->set($objUserSession->arr_cached_processed_panels[$objPanel->get("fk_id_panels")]);
 					$arr_panels[] = $obj;
-					continue;	
+					continue;
 				}//end if
-				
+
 				switch ($objPanel->get("panels_panel_type"))
 				{
 					case "icon":
@@ -58,19 +58,19 @@ class PanelsController extends AbstractActionController
 						));
 
 						$objPanel->set("html", $objPanelOutput->get("html"));
-						
+
 						//cache user icon
 						if (!isset($objUserSession->arr_cached_processed_panels))
 						{
 							$objUserSession->arr_cached_processed_panels = array();
-						}//end if						
+						}//end if
 						$objUserSession->arr_cached_processed_panels[$objPanel->get("fk_id_panels")] = $objPanel->getArrayCopy();
 						break;
 				}//end switch
-				
+
 				$arr_panels[] = $objPanel;
 			}//end foreach
-			
+
 		} catch (\Exception $e) {
 			$this->flashMessenger()->addErrorMessage("Panels could not be loaded");
 			return $this->redirect()->toRoute("front-contacts");

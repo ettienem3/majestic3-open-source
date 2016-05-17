@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace FrontUsers;
 
 use Zend\Mvc\ModuleRouteListener;
@@ -26,6 +26,7 @@ use FrontUsers\Entities\FrontUserNativePreferencesEntity;
 use FrontUsers\Entities\FrontUserCacheSettingsEntity;
 use FrontUsers\Tables\UserNativePreferencesTable;
 use FrontUsers\Tables\UserCacheSettingsTable;
+use FrontUsers\Models\FrontUsersAclRulesModel;
 
 class Module
 {
@@ -34,7 +35,7 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
-        
+
         /**
          * Register event listeners
          */
@@ -60,12 +61,12 @@ class Module
             ),
         );
     }//end function
-    
+
     public function getServiceConfig()
     {
     	return array(
     			'factories' => array(
-    					
+
     					/**
     					 * Models
     					 */
@@ -73,152 +74,157 @@ class Module
     						$model_users = new FrontUsersModel();
     						return $model_users;
     					}, //end function
-    					
+
     					"FrontUsers\Models\FrontUserRolesAdminModel" => function ($sm) {
     						$model_user_roles_admin = new FrontUserRolesAdminModel();
-    						return $model_user_roles_admin;	
+    						return $model_user_roles_admin;
     					}, //end function
-    					
+
     					"FrontUsers\Models\FrontUsersRolesAclLinksModel" => function ($sm) {
     						$model_roles_acl_links = new FrontUsersRolesAclLinksModel();
-    						return $model_roles_acl_links;	
+    						return $model_roles_acl_links;
     					}, //end function
-    					
+
     					"FrontUsers\Models\FrontUsersTasksModel" => function ($sm) {
     						$model_users_tasks = new FrontUsersTasksModel();
-    						return $model_users_tasks;	
+    						return $model_users_tasks;
     					}, //end function
-    					
+
     					'FrontUsers\Storage\UserFileSystemStorage' => function ($sm) {
     						$model_user_storage = new UserFileSystemStorage();
-    					
+
     						//set path @TODO read from config
     						$model_user_storage->setPath("./data/user_storage");
-    						
+
     						return $model_user_storage;
     					}, //end function
-    					
+
     					'FrontUsers\Storage\UserMySqlStorage' => function ($sm) {
     						$model_user_storage = new UserMySqlStorage();
     						return $model_user_storage;
     					}, //end function
-    					
+
+    					'FrontUsers\Models\FrontUsersAclRulesModel' => function ($sm) {
+    						$model = new FrontUsersAclRulesModel();
+    						return $model;
+    					}, //end function
+
     					/**
     					 * Entities
     					*/
     					'FrontUsers\Entities\FrontUserEntity' => function ($sm) {
     						$entity_user = new FrontUserEntity();
-    						
+
     						//load crypto
     						$objCrypto = $sm->get("FrontCore\Models\Security\CryptoModel");
     						$entity_user->setCrypto($objCrypto);
-    						
+
     						return $entity_user;
     					}, //end function
-    					
+
     					"FrontUsers\Entities\FrontUserRoleAclLinkEntity" => function ($sm) {
     						$entity_role_acl_link = new FrontUserRoleAclLinkEntity();
-    						return $entity_role_acl_link;	
+    						return $entity_role_acl_link;
     					}, //end function
-    					
+
     					"FrontUsers\Entities\FrontUserRoleAdminEntity" => function ($sm) {
     						$entity_role_admin = new FrontUserRoleAdminEntity();
-    						return $entity_role_admin;	
+    						return $entity_role_admin;
     					}, //end function
-    					
+
     					"FrontUsers\Entities\FrontUsersUserTaskEntity" => function ($sm) {
     						$entity_user_task = new FrontUsersUserTaskEntity();
     						return $entity_user_task;
     					}, //end function
-    					
+
     					"FrontUsers\Entities\FrontUserStandardRoleEntity" => function ($sm) {
     						$entity_standard_roles = new FrontUserStandardRoleEntity();
-    						return $entity_standard_roles;	
+    						return $entity_standard_roles;
     					}, //end function
-    					
+
     					'FrontUsers\Entities\FrontUserSettingsEntity' => function ($sm) {
     						$entity_user_settings = new FrontUserSettingsEntity();
     						return $entity_user_settings;
     					}, //end function
-    					
+
     					'FrontUsers\Entities\FrontUserNativePreferencesEntity' => function ($sm) {
     						$entity = new FrontUserNativePreferencesEntity();
     						return $entity;
     					}, //end function
-    					
+
     					'FrontUsers\Entities\FrontUserCacheSettingsEntity' => function ($sm) {
     						$entity = new FrontUserCacheSettingsEntity();
     						return $entity;
     					}, //end function
-    					
+
     					/**
     					 * Tabes
     					 */
     					'FrontUsers\Tables\UsersTable' => function ($sm) {
     						$adapter = $sm->get("db_frontend");
-    							
+
     						//setup result set to return contacts as a contact entity object
     						$resultSetPrototype = new ResultSet();
     						$entity = $sm->get('FrontUsers\Entities\FrontUserEntity');
     						$resultSetPrototype->setArrayObjectPrototype($entity);
-    							
+
     						$tableGateway = new TableGateway(\FrontUsers\Tables\UsersTable::$tableName, $adapter, NULL, $resultSetPrototype);
     						$table = new UsersTable($tableGateway);
     						return $table;
     					}, //end function
-    					
+
     					'FrontUsers\Tables\UserSettingsTable' => function ($sm) {
     						$adapter = $sm->get("db_frontend");
-    							
+
     						//setup result set to return contacts as a contact entity object
     						$resultSetPrototype = new ResultSet();
     						$entity= $sm->get('FrontUsers\Entities\FrontUserSettingsEntity');
     						$resultSetPrototype->setArrayObjectPrototype($entity);
-    							
+
     						$tableGateway = new TableGateway(\FrontUsers\Tables\UserSettingsTable::$tableName, $adapter, NULL, $resultSetPrototype);
     						$table = new UserSettingsTable($tableGateway);
     						return $table;
     					}, //end function
-    					
+
     					'FrontUsers\Tables\UserPreferencesTable' => function ($sm) {
     						$adapter = $sm->get("db_frontend");
-    							
+
     						//setup result set to return contacts as a contact entity object
     						$resultSetPrototype = new ResultSet();
     						$entity = $sm->get('FrontUsers\Entities\FrontUserSettingsEntity');
     						$resultSetPrototype->setArrayObjectPrototype($entity);
-    							
+
     						$tableGateway = new TableGateway(\FrontUsers\Tables\UserPreferencesTable::$tableName, $adapter, NULL, $resultSetPrototype);
     						$table = new UserPreferencesTable($tableGateway);
     						return $table;
     					}, //end function
-    					
+
     					'FrontUsers\Tables\UserNativePreferencesTable' => function ($sm) {
 	    					$adapter = $sm->get("db_frontend");
-	    						
+
 	    					//setup result set to return contacts as a contact entity object
 	    					$resultSetPrototype = new ResultSet();
 	    					$entity = $sm->get('FrontUsers\Entities\FrontUserNativePreferencesEntity');
 	    					$resultSetPrototype->setArrayObjectPrototype($entity);
-	    					
+
 	    					$tableGateway = new TableGateway(\FrontUsers\Tables\UserNativePreferencesTable::$tableName, $adapter, NULL, $resultSetPrototype);
 	    					$table = new UserNativePreferencesTable($tableGateway);
 	    					return $table;
     					}, //end function
-    					
+
     					'FrontUsers\Tables\UserCacheSettingsTable' => function ($sm) {
 	    					$adapter = $sm->get("db_frontend");
-	    						
+
 	    					//setup result set to return contacts as a contact entity object
 	    					$resultSetPrototype = new ResultSet();
 	    					$entity = $sm->get('FrontUsers\Entities\FrontUserCacheSettingsEntity');
 	    					$resultSetPrototype->setArrayObjectPrototype($entity);
-	    					
+
 	    					$tableGateway = new TableGateway(\FrontUsers\Tables\UserCacheSettingsTable::$tableName, $adapter, NULL, $resultSetPrototype);
 	    					$table = new UserCacheSettingsTable($tableGateway);
 	    					return $table;
     					}, //end function
-    					
+
     					/**
     					 * Events
     					 */
@@ -237,7 +243,7 @@ class Module
     					"FrontUsers\Entities\FrontUserStandardRoleEntity" 			=> FALSE,
     					'FrontUsers\Entities\FrontUserNativePreferencesEntity' 		=> FALSE,
     					'FrontUsers\Entities\FrontUserCacheSettingsEntity' 			=> FALSE,
-    					
+
     				), //end shared
     	);
     }//end function

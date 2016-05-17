@@ -1,16 +1,16 @@
 <?php
 namespace FrontFormAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
 /**
  * Dealing with forms
  * @author ettiene
  *
  */
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Forms admin model
@@ -104,13 +104,13 @@ class IndexController extends AbstractActionController
 
 					//set success message
 					$this->flashMessenger()->addSuccessMessage("Form created");
-					
+
 					//redirect to form edit page
 					if ($form_type != "")
 					{
 						return $this->redirect()->toUrl($this->url()->fromRoute("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->get("id"))) . "?ftype=$form_type");
 					}//end if
-					
+
 					return $this->redirect()->toRoute("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->get("id")));
 				} catch (\Exception $e) {
 					//set error message
@@ -243,7 +243,7 @@ class IndexController extends AbstractActionController
 					$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
-			
+
 			//return to index page
 			return $this->redirect()->toRoute("front-form-admin");
 		}//end if
@@ -298,12 +298,12 @@ class IndexController extends AbstractActionController
 
     			//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
     			$class = "\\FrontBehavioursConfig\\Forms\\Forms\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
-    			
+
     			if (class_exists($class))
     			{
     				$form = new $class($form);
     			}//end if
-    			
+
     			//assign data to form is behaviour is being reconfigured
     			if ($objBehaviour instanceof \FrontBehaviours\Entities\FrontBehavioursBehaviourConfigEntity)
     			{

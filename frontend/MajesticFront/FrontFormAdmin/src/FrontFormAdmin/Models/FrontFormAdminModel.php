@@ -280,7 +280,7 @@ return $this->fetchForm($id);
 		$objApiRequest->setApiModule(NULL);
 
 		//execute
-		$objApiRequest->performPUTRequest($objField->getArrayCopy())->getupdateFormFieldsOrderBody();
+		$objApiRequest->performPUTRequest($objField->getArrayCopy())->getBody();
 
 		//reset the API Request object
 		$this->model_api_request = FALSE;
@@ -295,7 +295,7 @@ return $this->fetchForm($id);
 	{
 		//trigger pre event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.pre', $this, array('form_id' => $form_id));
-		
+
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
 		$objApiRequest->setApiAction('forms/form/' . $form_id . '/field-order');
@@ -303,7 +303,7 @@ return $this->fetchForm($id);
 		$objResult = $objApiRequest->performPUTRequest($arr_data)->getBody();
 		return $objResult;
 	}//end function
-	
+
 	/**
 	 * Remove a field allocated to a form
 	 * @triggers removeFormField.pre, removeFormField.post

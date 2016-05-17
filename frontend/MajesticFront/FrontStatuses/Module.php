@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace FrontStatuses;
 
 use Zend\Mvc\ModuleRouteListener;
@@ -8,6 +8,7 @@ use Zend\Db\TableGateway\TableGateway;
 use FrontStatuses\Events\FrontContactStatusesEvents;
 use FrontStatuses\Entities\ContactStatusesEntity;
 use FrontStatuses\Models\FrontContactStatusesModel;
+use FrontStatuses\Entities\ContactStatusEntity;
 
 class Module
 {
@@ -16,7 +17,7 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
-        
+
         /**
          * Register event listeners
          */
@@ -42,8 +43,8 @@ class Module
             ),
         );
     } // end function
-    
-   
+
+
     public function getServiceConfig()
     {
     	return array(
@@ -59,7 +60,7 @@ class Module
     					/**
     					 * Entities
     					 */
-    					'FrontContactStatuses\Entities\ContactStatusEntity' => function ($sm) {
+    					'FrontStatuses\Entities\ContactStatusEntity' => function ($sm) {
     						$entity_contact_status = new ContactStatusEntity();
     						return $entity_contact_status;
     					}, //end function
@@ -70,8 +71,8 @@ class Module
     					'FrontStatuses\Events\FrontContactStatusesEvents' => function ($sm) {
     						$events_front_contact_statuse = new FrontContactStatusesEvents();
     						return $events_front_contact_statuse;
-    					},				
-    			),	
+    					},
+    			),
     	);
     }//end function
 }//end class

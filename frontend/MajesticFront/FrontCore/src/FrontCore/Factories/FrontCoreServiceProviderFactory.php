@@ -23,7 +23,7 @@ class FrontCoreServiceProviderFactory
 	 */
 	public static function getInstance()
 	{
-		if(null === self::$serviceManager)
+		if(!self::$serviceManager instanceof \Zend\ServiceManager\ServiceManager)
 		{
 			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ' : ServiceLocator is not set', 500);
 		}//end if

@@ -1,73 +1,73 @@
 <?php
 namespace FrontProfileSettings\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class ProfileSettingsController extends AbstractActionController
+class ProfileSettingsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Profile Settings Model
 	 * @var \FrontProfileSettings\Models\FrontProfileSettingsModel
 	 */
 	private $model_profile_settings;
-	
+
     public function indexAction()
     {
         //load form
         $form = $this->getProfileSettingsModel()->getProfileSettingsAdminForm();
-        
+
         //load profile settings
         $objProfile = $this->getProfileSettingsModel()->fetchProfileSettings();
         $objProfile->remove("submit");
-        
+
         foreach ($form->getElements() as $objElement)
         {
         	$form->get($objElement->getName())->setAttribute("disabled", "disabled");
         }//end foreach
-        
+
         //bind data to form
         $form->bind($objProfile);
-        
+
         //set form values from profile settings segment
         $form->get("locale_timezone")->setValue($objProfile->get("settings")->locale_timezone);
-        
+
         return array(
-        	"form" => $form,	
+        	"form" => $form,
         	"objProfile" => $objProfile,
         );
     }//end function
-    
+
     public function updateAction()
     {
     	$this->flashMessenger()->addInfoMessage("Profile settings cannot be changed using this channel");
     	return $this->redirect()->toRoute("front-profile-settings");
-    	
+
     	//load form
     	$form = $this->getProfileSettingsModel()->getProfileSettingsAdminForm();
-    	
+
     	//load profile settings
     	$objProfile = $this->getProfileSettingsModel()->fetchProfileSettings();
-    	
+
     	//bind data to form
     	$form->bind($objProfile);
-    	
+
     	$request = $this->getRequest();
     	if ($request->isPost())
     	{
     		$form->setData($request->getPost());
-    		
+
     		if ($form->isValid($request->getPost()))
     		{
     			try {
     				//extract data from form
     				$objProfile = $form->getData();
-    				
+
     				//update the profile
     				$objProfile = $this->getProfileSettingsModel()->updateProfileSettings($objProfile);
-    				
+
     				//set message
     				$this->flashMessenger()->addSuccessMessage("Profile settings updated");
-    				
+
     				return $this->redirect()->toRoute("front-profile-settings");
     			} catch (\Exception $e) {
     				//set error message
@@ -75,12 +75,12 @@ class ProfileSettingsController extends AbstractActionController
     			}//end catch
     		}//end if
     	}//end if
-    	
+
     	return array(
     			"form" => $form,
     	);
     }//end function
-    
+
     /**
      * Create an instance of the Front Profile Settings Model using the Service Manager
      * @return \FrontProfileSettings\Models\FrontProfileSettingsModel
@@ -91,7 +91,7 @@ class ProfileSettingsController extends AbstractActionController
     	{
     		$this->model_profile_settings = $this->getServiceLocator()->get("FrontProfileSettings\Models\FrontProfileSettingsModel");
     	}//end if
-    	
+
     	return $this->model_profile_settings;
     }//end function
 }//end class

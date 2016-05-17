@@ -1,9 +1,9 @@
 <?php
 namespace FrontUsers\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class UserToolkitController extends AbstractActionController
+class UserToolkitController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Core User Settings Model
@@ -31,7 +31,7 @@ class UserToolkitController extends AbstractActionController
 		$arr = array(
 				"todo" => array("title" => "To-do List", "url" => $this->url()->fromRoute("front-users-toolkit", array("action" => "todo-list"))),
 		);
-		
+
 		//check plugins enabled
 		$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 		if (!in_array("to_do_list", $objUser->profile->plugins_enabled))

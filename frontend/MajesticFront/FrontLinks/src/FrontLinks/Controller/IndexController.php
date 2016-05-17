@@ -1,11 +1,11 @@
 <?php
 namespace FrontLinks\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for Links Model instance
@@ -237,12 +237,12 @@ class IndexController extends AbstractActionController
 
     			//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
     			$class = "\\FrontBehavioursConfig\\Forms\\Links\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
-    			
+
     			if (class_exists($class))
     			{
     				$form = new $class($form);
     			}//end if
-    			
+
     			//assign data to form is behaviour is being reconfigured
     			if ($objBehaviour instanceof \FrontBehaviours\Entities\FrontBehavioursBehaviourConfigEntity)
     			{

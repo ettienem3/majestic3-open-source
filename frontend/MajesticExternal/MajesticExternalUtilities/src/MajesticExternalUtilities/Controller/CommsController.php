@@ -1,21 +1,21 @@
 <?php
 namespace MajesticExternalUtilities\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class CommsController extends AbstractActionController
+class CommsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the External Utilities Model
 	 * @var \MajesticExternalUtilities\Models\MajesticExternalUtilitiesModel
 	 */
 	private $model_external_utilities;
-	
+
     public function viewOnlineAction()
     {
     	//set layout
     	$this->layout('layout/body-pane');
-    	
+
 		$comm_history_id = $this->params()->fromRoute("comm_history_id", "");
 		$comm_id = $this->params()->fromQuery("cid", "");
 
@@ -23,9 +23,9 @@ class CommsController extends AbstractActionController
 		if (is_numeric($comm_history_id) || is_numeric($comm_id))
 		{
 			echo "<h3>Data could not be loaded. Required data is not available</h3>";
-			exit;	
+			exit;
 		}//end if
-		
+
 		try {
 			$objCommContent = $this->getExternalUtilitiesModel()->viewCommOnline($comm_history_id, $comm_id);
 		} catch (\Exception $e) {
@@ -35,12 +35,12 @@ class CommsController extends AbstractActionController
 			echo '-->';
 			exit;
 		}//end catch
-		
+
 		return array(
 			"objCommContent" => $objCommContent,
 		);
     }//end function
-    
+
     /**
      * Create an instance of the External Utilities Model using the Service Manager
      * @return \MajesticExternalUtilities\Models\MajesticExternalUtilitiesModel
@@ -51,7 +51,7 @@ class CommsController extends AbstractActionController
     	{
     		$this->model_external_utilities = $this->getServiceLocator()->get("MajesticExternalUtilities\Models\MajesticExternalUtilitiesModel");
     	}//end if
-    	
+
     	return $this->model_external_utilities;
     }//end function
 }//end class

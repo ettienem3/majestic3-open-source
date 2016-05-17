@@ -1,17 +1,17 @@
 <?php
 namespace FrontCommsBulkSend\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class BulkSendController extends AbstractActionController
+class BulkSendController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the Front Comms Bulk Send Model
 	 * @var \FrontCommsBulkSend\Models\FrontCommsBulkSendModel
 	 */
 	private $model_front_comms_bulk_send;
-	
+
 	public function indexAction()
 	{
 		$objBulkSendRequests = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequests($this->params()->fromQuery());
@@ -21,7 +21,7 @@ class BulkSendController extends AbstractActionController
 			"model_front_comms_bulk_send" => $this->getFrontCommsBulkSendModel(),
 		);
 	}//end function
-	
+
 	public function reviewAction()
 	{
 		$id = $this->params()->fromRoute("id", "");
@@ -29,11 +29,11 @@ class BulkSendController extends AbstractActionController
 		{
 			//set error message
 			$this->flashMessenger()->addErrorMessage("Bulk Send Request could not be loaded. ID is not set");
-			
+
 			//redirect to index page
 			$this->redirect()->toRoute("front-comms-bulksend-admin");
 		}//end if
-		
+
 		//load data
 		$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($id);
 		//load the form
@@ -55,9 +55,9 @@ class BulkSendController extends AbstractActionController
 		{
 			$form->remove('submit');
 		}//end if
-		
+
 		$objJourney = $this->getFrontCommsBulkSendModel()->fetchJourney($objBulkSendRequest->get("fk_journey_id"));
-		
+
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
@@ -81,7 +81,7 @@ class BulkSendController extends AbstractActionController
 								$arr_data['contact_created_start'] = date('c', strtotime($arr_data['contact_created_start']));
 							}//end if
 						}//end if
-						
+
 						if (isset($arr_data['contact_created_end']))
 						{
 							if ($arr_data['contact_created_end'] == '')
@@ -91,14 +91,14 @@ class BulkSendController extends AbstractActionController
 								$arr_data['contact_created_end'] = date('c', strtotime($arr_data['contact_created_end']));
 							}//end if
 						}//end if
-						
+
 						//update the request
 						$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->editBulkSendRequest($id, $arr_data);
-							
+
 						//set success message
 						$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been updated");
 					} else {
-						$this->flashMessenger()->addErrorMessage("Form could not be validated");	
+						$this->flashMessenger()->addErrorMessage("Form could not be validated");
 					}//end if
 				} catch (\Exception $e) {
     				//set error message
@@ -114,10 +114,10 @@ class BulkSendController extends AbstractActionController
 				try {
 					//submit request for approval
 					$this->getFrontCommsBulkSendModel()->requestBulkSendRequestApproval($id);
-						
+
 					//set success message
 					$this->flashMessenger()->addInfoMessage("Bulk Send Request has been submitted for Administrator Approval");
-						
+
 					//redirect back to the index
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");
 				} catch (\Exception $e) {
@@ -125,7 +125,7 @@ class BulkSendController extends AbstractActionController
     				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
-			
+
 			/**
 			 * Cancel the request
 			 */
@@ -134,26 +134,26 @@ class BulkSendController extends AbstractActionController
 				try {
 					//submit request for approval cancelation
 					$this->getFrontCommsBulkSendModel()->requestBulkSendApprovalCancellation($id);
-					
+
 					$this->flashMessenger()->addInfoMessage("Approval cancelation request has been sent");
 				} catch (\Exception $e) {
     				//set error message
     				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
 				}//end catch
 			}//end if
-			
+
 			/**
-			 * Delete the request
+			 * Cancel the request
 			 */
-			if (strtolower($request->getPost("delete_request")) == "delete request")
+			if (strtolower($request->getPost("delete_request")) == "cancel request")
 			{
 				try {
 					//delete the request
 					$this->getFrontCommsBulkSendModel()->deleteBulkSendRequest($id);
-					
+
 					//set success message
-					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been deleted");
-					
+					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been cancelled");
+
 					//redirect back to the index page
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");
 				} catch (\Exception $e) {
@@ -162,12 +162,12 @@ class BulkSendController extends AbstractActionController
 				}//end catch
 			}//end if
 		}//end if
-		
+
 		/**
 		 * Load possible required models
 		 */
 		$model_contact_status = $this->getServiceLocator()->get("FrontStatuses\Models\FrontContactStatusesModel");
-		
+
 		return array(
 			"objBulkSendRequest" => $objBulkSendRequest,
 			"objJourney" => $objJourney,
@@ -176,7 +176,7 @@ class BulkSendController extends AbstractActionController
 			'form' => $form,
 		);
 	}//end function
-	
+
 	public function authorizeAction()
 	{
 		$id = $this->params()->fromRoute("id", "");
@@ -184,7 +184,7 @@ class BulkSendController extends AbstractActionController
 		{
 			//set error message
 			$this->flashMessenger()->addErrorMessage("Bulk Send Request could not be loaded. ID is not set");
-				
+
 			//redirect to index page
 			$this->redirect()->toRoute("front-comms-bulksend-admin");
 		}//end if
@@ -195,16 +195,16 @@ class BulkSendController extends AbstractActionController
 			try {
 					//execute autorize request
 					$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, (array) $request->getPost());
-					
+
 					//set success message
 					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been approved");
-					
+
 					//redirect back to the index page
 					return $this->redirect()->toRoute("front-comms-bulksend-admin");
 				} catch (\Exception $e) {
     				//set error message
     				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-					
+
 					//reload data
 					$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, array("time" => time()));
 				}//end catch
@@ -212,12 +212,12 @@ class BulkSendController extends AbstractActionController
 			//simulate authorization in order to get confirmation code
  			$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, array("time" => time()));
 		}//end if
-		
+
 		return array(
 			"objBulkSendRequest" => $objBulkSendRequest
 		);
 	}//end function
-	
+
 	/**
 	 * Create an instance of the Front Comms Bulk Send Model using the Service Manager
 	 * @return \FrontCommsBulkSend\Models\FrontCommsBulkSendModel
@@ -228,7 +228,7 @@ class BulkSendController extends AbstractActionController
 		{
 			$this->model_front_comms_bulk_send = $this->getServiceLocator()->get("FrontCommsBulkSend\Models\FrontCommsBulkSendModel");
 		}//end if
-		
+
 		return $this->model_front_comms_bulk_send;
 	}//end function
 }//end class

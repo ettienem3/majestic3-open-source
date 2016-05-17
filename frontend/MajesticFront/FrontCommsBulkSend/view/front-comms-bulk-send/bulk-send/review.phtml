@@ -153,72 +153,74 @@ $html = str_replace('</form>', '', $html);
 echo $html;
 
 echo "</fieldset>";
-
-echo "<fieldset><h4>Options</h4>";
-
-echo 	"<span class=\"bulk_send_options\">Begin with &nbsp;</span>";
-
-if ($this->objBulkSendRequest->get("allocate_new") == "0")
+if (strtolower($this->objBulkSendRequest->get('request_approval_status')) != 'cancelled')
 {
-	$checked = "checked=\"checked\"";
-} else {
-	$checked = "";
+	echo "<fieldset><h4>Options</h4>";
+
+	echo 	"<span class=\"bulk_send_options\">Begin with &nbsp;</span>";
+
+	if ($this->objBulkSendRequest->get("allocate_new") == "0")
+	{
+		$checked = "checked=\"checked\"";
+	} else {
+		$checked = "";
+	}//end if
+	echo 	"<input type=\"radio\" name=\"allocate_new\" id=\"allocate_new\" value=\"0\"/ $checked>&nbsp;Oldest&nbsp;";
+
+	if ($this->objBulkSendRequest->get("allocate_new") == "1")
+	{
+		$checked = "checked=\"checked\"";
+	} else {
+		$checked = "";
+	}//end if
+	echo 	"<input type=\"radio\" name=\"allocate_new\" id=\"allocate_new\" value=\"1\"/ $checked>&nbsp;Newest";
+	echo 	"<br/>";
+
+	echo 	"<span class=\"bulk_send_options\">Start All &nbsp;</span>";
+
+	if ($this->objBulkSendRequest->get("allocate_all") == "1" && $this->objBulkSendRequest->get("allocate_num") == "")
+	{
+		$checked = "checked=\"checked\"";
+	} else {
+		$checked = "";
+	}//end if
+
+	if (is_numeric($this->objBulkSendRequest->get("allocate_num")))
+	{
+		$allocate_num_value = $this->objBulkSendRequest->get("allocate_num");
+	} else {
+		$allocate_num_value = "";
+	}//end if
+
+	echo 	"<input type=\"hidden\" name=\"allocate_all\" value=\"0\"/>";
+	echo 	"<input type=\"checkbox\" name=\"allocate_all\" id=\"allocate_all\" value=\"1\" $checked/>&nbsp;<span style=\"\">OR</span>&nbsp;";
+	echo 	"<input type=\"text\" name=\"allocate_num\" id=\"allocate_num\" value=\"$allocate_num_value\"/ style=\"width: 100px;\">&nbsp;of <span style=\"font-weight: bold;\">" . $this->objBulkSendRequest->get("send_total") . "</span>&nbsp;Contacts";
+	echo 	"<br/>";
+
+	// echo 	"<span class=\"bulk_send_options\">I agree to the terms and conditions</span>&nbsp;";
+	// echo 	"<input type=\"checkbox\" name=\"terms\" id=\"terms\" value=\"1\"/>";
+	echo "</fieldset><br/>";
+
+	//only display approval and update where first level approval has not taken place yet
+	if ($this->objBulkSendRequest->get("fk_approved_user_id") == "0" || $this->objBulkSendRequest->get("fk_approved_user_id") == "")
+	{
+		echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"Update\" name=\"submit_update\"/>&nbsp;";
+		echo "<input type=\"submit\" value=\"Request Approval\" class=\"btn btn-success\" name=\"request_approval\"/>&nbsp;";
+	} elseif (is_numeric($this->objBulkSendRequest->get("fk_approved_user_id")) && $this->objBulkSendRequest->get("fk_approved_user_id") != "0" && ($this->objBulkSendRequest->get("fk_approved_admin_user_id") == "0" || $this->objBulkSendRequest->get("fk_approved_admin_user_id") == "")) {
+		//display cancel option only where approval has been requested
+		echo "<input type=\"submit\" value=\"Cancel Approval\" class=\"btn btn-danger\" name=\"cancel_approval\"/>&nbsp;";
+	}//end if
+
+	//only display delete option where request is not fully approved, and sending has not been completed
+	if ($this->objBulkSendRequest->get("fk_approved_admin_user_id") > 0 && $this->objBulkSendRequest->get("datetime_ended") != "0000-00-00 00:00:00")
+	{
+		//sending completed
+		echo "<input type=\"submit\" value=\"Cancel Request\" class=\"btn btn-danger\" name=\"delete_request\" id=\"delete_request\"/>";
+	} elseif ($this->objBulkSendRequest->get("fk_approved_admin_user_id") < 1) {
+		//not approved yet
+		echo "<input type=\"submit\" value=\"Cancel Request\" class=\"btn btn-danger\" name=\"delete_request\" id=\"delete_request\"/>";
+	} //end if
 }//end if
-echo 	"<input type=\"radio\" name=\"allocate_new\" id=\"allocate_new\" value=\"0\"/ $checked>&nbsp;Oldest&nbsp;";
-
-if ($this->objBulkSendRequest->get("allocate_new") == "1")
-{
-	$checked = "checked=\"checked\"";
-} else {
-	$checked = "";
-}//end if
-echo 	"<input type=\"radio\" name=\"allocate_new\" id=\"allocate_new\" value=\"1\"/ $checked>&nbsp;Newest";
-echo 	"<br/>";
-
-echo 	"<span class=\"bulk_send_options\">Start All &nbsp;</span>";
-
-if ($this->objBulkSendRequest->get("allocate_all") == "1" && $this->objBulkSendRequest->get("allocate_num") == "")
-{
-	$checked = "checked=\"checked\"";
-} else {
-	$checked = "";
-}//end if
-
-if (is_numeric($this->objBulkSendRequest->get("allocate_num")))
-{
-	$allocate_num_value = $this->objBulkSendRequest->get("allocate_num");
-} else {
-	$allocate_num_value = "";
-}//end if
-
-echo 	"<input type=\"hidden\" name=\"allocate_all\" value=\"0\"/>";
-echo 	"<input type=\"checkbox\" name=\"allocate_all\" id=\"allocate_all\" value=\"1\" $checked/>&nbsp;<span style=\"\">OR</span>&nbsp;";
-echo 	"<input type=\"text\" name=\"allocate_num\" id=\"allocate_num\" value=\"$allocate_num_value\"/ style=\"width: 100px;\">&nbsp;of <span style=\"font-weight: bold;\">" . $this->objBulkSendRequest->get("send_total") . "</span>&nbsp;Contacts";
-echo 	"<br/>";
-
-// echo 	"<span class=\"bulk_send_options\">I agree to the terms and conditions</span>&nbsp;";
-// echo 	"<input type=\"checkbox\" name=\"terms\" id=\"terms\" value=\"1\"/>";
-echo "</fieldset><br/>";
-
-//only display approval and update where first level approval has not taken place yet
-if ($this->objBulkSendRequest->get("fk_approved_user_id") == "0" || $this->objBulkSendRequest->get("fk_approved_user_id") == "")
-{
-	echo "<input type=\"submit\" class=\"btn btn-primary\" value=\"Update\" name=\"submit_update\"/>&nbsp;";
-	echo "<input type=\"submit\" value=\"Request Approval\" class=\"btn btn-success\" name=\"request_approval\"/>&nbsp;";
-} elseif (is_numeric($this->objBulkSendRequest->get("fk_approved_user_id")) && $this->objBulkSendRequest->get("fk_approved_user_id") != "0" && ($this->objBulkSendRequest->get("fk_approved_admin_user_id") == "0" || $this->objBulkSendRequest->get("fk_approved_admin_user_id") == "")) {
-	//display cancel option only where approval has been requested
-	echo "<input type=\"submit\" value=\"Cancel Approval\" class=\"btn btn-danger\" name=\"cancel_approval\"/>&nbsp;";
-}//end if
-
-//only display delete option where request is not fully approved, and sending has not been completed
-if ($this->objBulkSendRequest->get("fk_approved_admin_user_id") > 0 && $this->objBulkSendRequest->get("datetime_ended") != "0000-00-00 00:00:00")
-{
-	//sending completed
-	echo "<input type=\"submit\" value=\"Delete Request\" class=\"btn btn-danger\" name=\"delete_request\" id=\"delete_request\"/>";
-} elseif ($this->objBulkSendRequest->get("fk_approved_admin_user_id") < 1) {
-	//not approved yet
-	echo "<input type=\"submit\" value=\"Delete Request\" class=\"btn btn-danger\" name=\"delete_request\" id=\"delete_request\"/>";
-} //end if
 echo "</form>";
 
 echo "</div></div>";//mj3_tables closing div and mj3_forms closing div

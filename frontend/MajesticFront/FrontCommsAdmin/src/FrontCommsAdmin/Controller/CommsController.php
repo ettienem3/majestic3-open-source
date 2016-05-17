@@ -1,9 +1,9 @@
 <?php
 namespace FrontCommsAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class CommsController extends AbstractActionController
+class CommsController extends AbstractCoreActionController
 {
 	/**
 	 * Container for the CommsAdmin Model

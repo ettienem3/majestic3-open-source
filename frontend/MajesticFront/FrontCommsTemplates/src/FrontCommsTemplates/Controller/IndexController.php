@@ -1,9 +1,9 @@
 <?php
 namespace FrontCommsTemplates\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use FrontCore\Adapters\AbstractCoreActionController;
 
-class IndexController extends AbstractActionController
+class IndexController extends AbstractCoreActionController
 {
 	/**
 	 * Container for Comms Templates Model instance
