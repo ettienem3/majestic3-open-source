@@ -42,6 +42,9 @@ class Module
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
+        //preload the Service Manager instance to the Service Manager Factory
+        FrontCoreServiceProviderFactory::setInstance($e->getApplication()->getServiceManager());
+
         /**
          * Register event listeners
          */
@@ -56,9 +59,6 @@ class Module
         $arr_config = $e->getApplication()->getServiceManager()->get("config");
         $e->getViewModel()->setVariable("app_config", $arr_config);
 		$e->getViewModel()->setVariable("cdn_url", $arr_config["cdn_config"]["url"]);
-
-        //preload the Service Manager instance to the Service Manager Factory
-        FrontCoreServiceProviderFactory::setInstance($e->getApplication()->getServiceManager());
 
         /**
          * Check if user is logged in
@@ -329,6 +329,16 @@ class Module
     						$objNavigation = new FrontNavigationFactory();
     						return $objNavigation;
     					},
+
+    					/**
+    					 * View Helpers
+    					 */
+    					'FrontCore\ViewHelpers\FrontFormatUserDateHelper' => function ($sm) {
+	    					$objHelper = new FrontFormatUserDateHelper();
+	    					$arr_config = $sm->get("config")["profile_config"];
+	    					$objHelper->setProfileConfig($arr_config);
+	    					return $objHelper;
+    					}, //end function
 
     					/**
     					 * Caches
