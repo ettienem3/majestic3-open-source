@@ -1,4 +1,4 @@
-<?php 
+<?php
 //add editor js
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
@@ -77,7 +77,7 @@ echo $this->partial("layout-comm-data-additions");
 			element: jQuery("#copy"),
 			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
 			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
-		});	
+		});
 
 		jQuery.mj_text_editor({
 			element: jQuery("#terms") //terms and conditions
@@ -86,13 +86,13 @@ echo $this->partial("layout-comm-data-additions");
 		jQuery.mj_text_editor({
 			element: jQuery("#copy2"), //content below form
 			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
-			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>			
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
 		});
 
 		jQuery.mj_text_editor({
 			element: jQuery("#submit_copy"), //post submit content
 			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
-			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>	
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
 		});
 
 		jQuery.mj_text_editor({
@@ -101,6 +101,26 @@ echo $this->partial("layout-comm-data-additions");
 
 		jQuery.mj_text_editor({
 			element: jQuery("#_notify_copy"), //notification content
+		});
+
+		//monitor the cache clear link
+		jQuery('.link-form-cache').click(function (e) {
+			e.preventDefault();
+
+			var element = jQuery(this);
+			element.css('color', 'grey');
+			element.attr('disabled', true);
+			jQuery.ajax({
+				url: element.attr('href'),
+			})
+			.done(function (data) {
+				element.css('color', 'green');
+				element.attr('disabled', false);
+			})
+			.fail(function () {
+				element.css('color', 'red');
+				element.attr('disabled', false);
+			});
 		});
 	});
 </script>
@@ -139,6 +159,7 @@ echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Edit ' . $fo
 						$preview_url = "<a href=\"" . $this->url("majestic-external-forms/bf", array("fid" => $objForm->id)) . "\" target=\"__blank\" data-toggle=\"tooltip\" title=\"Preview Form\">" . ICON_SMALL_SEARCH_HTML . "</a>";
 						$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "form-behaviours", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "\" title=\"Configure Form Behaviours\" class=\"behaviours_view\" data-toggle=\"tooltip\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
 						echo '<li role="presentation">' . $preview_url . '</li>';
+						echo "<li role=\"presentation\"><a class=\"link-form-cache\" href=\"" . $this->url("majestic-external-forms/form-cache-webhook", array("action" => "clear-form-cache")) . "?form_id=" . $objForm->id . "\" title=\"Clear Form Cache\">" . ICON_LARGE_CACHE_HTML . "</a></li>";
 					break;
 
 					case "__sales_funnel":
@@ -250,13 +271,13 @@ $behaviours_url = '';
 					case "__viral":
 						//behaviours allowed
 						break;
-				
+
 					default:
 						//behaviours not allowed or coming soon
 						$behaviours_url = '';
 						break;
 				}//end switch
-				
+
 				// create edit and remove urls
  				$arr_field["urls"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $delete_url;
 

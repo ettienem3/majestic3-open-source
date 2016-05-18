@@ -1,6 +1,7 @@
 <?php
 namespace MajesticExternalForms\Controller;
 
+use Zend\View\Model\JsonModel;
 use MajesticExternalForms\Forms\MajesticExternalFormsForm;
 use FrontUserLogin\Models\FrontUserSession;
 use FrontCore\Adapters\AbstractCoreActionController;
@@ -310,7 +311,7 @@ class IndexController extends AbstractCoreActionController
     public function bfJsonAction()
     {
 		//http://www.alpacajs.org/tutorial.html
-    	//enable cors for cross down requests
+    	//enable cors
     	header('Access-Control-Allow-Origin: *');
     	header('Access-Control-Allow-Methods: GET, POST');
     	header("Access-Control-Allow-Headers: X-Requested-With");
@@ -500,31 +501,37 @@ class IndexController extends AbstractCoreActionController
 
     public function clearFormCacheAction()
     {
-    	$request = $this->getRequest();
-    	if ($request->isPost())
-    	{
-    		try {
-    			if (is_numeric($request->getPost('form_id')))
-    			{
-    				$form_id = $request->getPost('form_id');
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			if (is_numeric($request->getPost('form_id')))
+			{
+				$form_id = $request->getPost('form_id');
+			}//end if
+		} else {
+			$form_id = $this->params()->fromQuery('form_id', '');
+		}//end if
 
-    				//clear cache
-    				$this->getFormsCacheModel()->clearFormCache($form_id);
+		try {
+			if (is_numeric($form_id))
+			{
+				//clear cache
+				$this->getFormsCacheModel()->clearFormCache($form_id);
 
-    				//reload form to cache updates
-    				$this->getExternalFormsModel()->loadForm($form_id);
+				//reload form to cache updates
+				$this->getExternalFormsModel()->loadForm($form_id);
 
-    				return new JsonModel(array('Form cache cleared'));
-    			}//end if
+				return new JsonModel(array('Form cache cleared'));
+			} else {
+				//ignore request?
+				return new JsonModel(array('Form not set'));
+			}//end if
+		} catch (\Exception $e) {
+			//do something with the error
+			trigger_error($e->getMessage(), E_USER_WARNING);
+		}//end if
 
-    			return new JsonModel(array('Form cache not cleared'));
-    		} catch (\Exception $e) {
-    			//do something with the error
-    			trigger_error($e->getMessage(), E_USER_WARNING);
-    		}//end catch
-    	}//end if
-
-    	return new JsonModel(array('Form cache cleared'));
+    	return new JsonModel(array('Form not set'));
     }//end function
 
     /**

@@ -502,6 +502,7 @@ class Module
 			"bar-chart" 				=> "glyphicon glyphicon-signal",
 			"behaviours" 				=> "glyphicon glyphicon-pushpin",
 			"bulk"						=> "glyphicon glyphicon-bullhorn",
+    		"cache"						=> "glyphicon glyphicon-flash",
     		"campaigns"					=> "glyphicon glyphicon-magnet",
 			"calendar" 					=> "glyphicon glyphicon-calendar",
     		"city"						=> "glyphicon glyphicon-king",

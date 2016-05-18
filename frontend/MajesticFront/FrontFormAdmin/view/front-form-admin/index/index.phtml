@@ -22,6 +22,26 @@
 				//submit the form
 				jQuery("#search-form").submit();
 			});
+
+			//monitor the cache clear link
+			jQuery('.link-form-cache').click(function (e) {
+				e.preventDefault();
+
+				var element = jQuery(this);
+				element.css('color', 'grey');
+				element.attr('disabled', true);
+				jQuery.ajax({
+					url: element.attr('href'),
+				})
+				.done(function (data) {
+					element.css('color', 'green');
+					element.attr('disabled', false);
+				})
+				.fail(function () {
+					element.css('color', 'red');
+					element.attr('disabled', false);
+				});
+			});
 		});
 
 		function loadSearchFormData(param, element)
@@ -172,6 +192,7 @@
 
 					//set urls
 					$edit_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->id)) . "\" title=\"Edit Form\" data-toggle=\"tooltip\" class=\"page-e-link\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+					$clear_cache_url = "<a class=\"link-form-cache\" href=\"" . $this->url("majestic-external-forms/form-cache-webhook", array("action" => "clear-form-cache")) . "?form_id=" . $objForm->id . "\" title=\"Clear Form Cache\">" . ICON_SMALL_CACHE_HTML . "</a>";
 					break;
 
 				case "__sales_funnel":
@@ -195,6 +216,7 @@ $behaviours_url = "";
 				case "cpp":
 					//set urls
 					$edit_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->id)) . "?ftype=cpp\" title=\"Edit Form\" data-toggle=\"tooltip\" class=\"page-e-link\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+					$clear_cache_url = '';
 					$preview_url = "";
 					$behaviours_url = "";
 					break;
@@ -202,6 +224,7 @@ $behaviours_url = "";
 				default:
 					$preview_url = "";
 					$behaviours_url = "";
+					$clear_cache_url = '';
 					break;
 			}//end switch
 
@@ -211,15 +234,20 @@ $behaviours_url = "";
 			} else {
 				$delete_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "delete-form", "id" => $objForm->id)) . "\" title=\"Delete Form\" data-toggle=\"tooltip\" class=\"\">" . ICON_SMALL_DELETE_HTML . "</a>";
 			}//end if
-			
+
 			$arr_form["urls"] = $edit_url . "&nbsp;" . $behaviours_url . "&nbsp;" . $preview_url . "&nbsp;" . $delete_url;
+			if ($clear_cache_url != '')
+			{
+				$arr_form['urls'] = $clear_cache_url . '&nbsp;' . $arr_form['urls'];
+			}//end if
+
 			$arr[] = $arr_form;
 		}//end function
 
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
 		echo $this->renderSimpleHTMLTable($arr, array("Form", "Type", "Active", $add_url), array("id" => $css_id));
-		
+
 		//insert pagination data
 		echo $this->renderPaginationHelper($this->objForms->hypermedia->pagination, $this->url("front-form-admin"));
 		?>

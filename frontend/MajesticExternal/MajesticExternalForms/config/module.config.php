@@ -93,6 +93,19 @@ return array(
 												),
 										),
 								),
+
+								//cache webhook
+								'form-cache-webhook' => array(
+										'type' => 'segment',
+										'options' => array(
+												'route' => '/clear-form-cache',
+												'defaults' => array(
+														'controller' => 'MajesticExternalForms\Controller\Index',
+														'action' => 'clear-form-cache',
+														"user-bypass-login" => TRUE,
+												),
+										),
+								),
 							),
 					),
 			),

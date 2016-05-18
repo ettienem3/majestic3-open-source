@@ -21,6 +21,12 @@ if ($this->objForm->look_and_feel_content !== FALSE)
 	$content = str_replace("#content", $content, $this->objForm->look_and_feel_content);
 }//end if
 
+//check look and feel css file
+if (isset($this->objForm->look_and_feel_css_file) && $this->objForm->look_and_feel_css_file != "")
+{
+	echo '<link href="' . $this->objForm->look_and_feel_css_file . '" media="screen" rel="stylesheet" type="text/css">';
+}//end if
+
 if (is_string($majestic_content))
 {
 	echo $majestic_content;
@@ -32,12 +38,12 @@ echo $content;
 if ($this->objForm->submit_tracking_script != "" || $this->objForm->form_js_file != '')
 {
 	echo '<noscript>This page requires javascript to be activated.</noscript>';
-	
+
 	if ($this->objForm->submit_tracking_script != "")
 	{
 		echo $this->objForm->submit_tracking_script;
 	}//end if
-	
+
 	if ($this->objForm->form_js_file != '')
 	{
 		echo '<script src="' . $this->objForm->form_js_file . '"></script>';
