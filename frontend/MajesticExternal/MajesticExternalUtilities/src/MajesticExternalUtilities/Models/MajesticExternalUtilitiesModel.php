@@ -53,20 +53,20 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 		);
 
 		$arr_data["util"] = "view-comm-online";
-		
+
 		//where the comm history id is not, us user is probably trying to preview the communication which requires a user session
 		if ($comm_history_id == '' && !FrontUserSession::isLoggedIn())
 		{
-			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : You must be logged in the view this page", 500);		
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : You must be logged in the view this page", 500);
 		}//end if
-		
+
 		//where comm history id is set, use util to authenticate the request regardless of user being logged in
 		if ($comm_history_id != '')
 		{
 			$objRequestAuthentication = $this->setRequestLogin($arr_data);
 			$objApiRequest->setAPIKey($objRequestAuthentication->api_key);
 		}//end if
-		
+
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("utils/comms/view");
 		$objCommContent = $objApiRequest->performGETRequest($arr_data)->getBody()->data;
@@ -149,10 +149,10 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 		$objApiRequest->setAPIKey($arr_user['apikey']);
 		$objApiRequest->setAPIUser(md5($arr_user['uname']));
 		$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
-		
+
 		//setup the object and specify the action
-		$objApiRequest->setApiAction("utils/authenticate?debug_display_errors=1");
-		
+		$objApiRequest->setApiAction("utils/authenticate");
+
 		//set payload
 		$arr_data["tstamp"] = time();
 		$arr_data['key'] = $arr_user['apikey'];
