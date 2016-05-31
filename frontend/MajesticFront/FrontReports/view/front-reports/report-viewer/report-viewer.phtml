@@ -213,8 +213,9 @@
 					jQuery("#" + element_id).append(paginator_container);
 					jQuery.each(objData.objReport.paginator, function (i, objPage) {
 						var page_number = parseInt(i) + 1;
-						jQuery(".report-container-paginator").append(jQuery("<a></a>").css("font-size", "18px").attr("href", "#").attr("title", "Load page " + page_number).attr("data-request-parameters", objPage.params).attr("class", "report-container-paginator-page").html(page_number + "&nbsp;"));
+						jQuery(".report-container-paginator").append(jQuery("<a></a>").css("font-size", "18px").attr("href", "#").attr("title", "Load page " + page_number).attr("data-request-parameters", objPage.params).attr("class", "report-container-paginator-page pull-left").html(page_number + "&nbsp;"));
 					});
+					jQuery(".report-container-paginator").append(jQuery('<div></div>').css('clear', 'both'));
 
 					jQuery(".report-container-paginator-page").click(function (e) {
 						e.preventDefault();
@@ -227,7 +228,7 @@
 					"aaSorting": [], //disable initialsort
 					"bPaginate": bool_paginate,
 					"bLengthChange": false,
-					"bFilter": true,
+					"bFilter": false,
 					"bSort": true,
 					"bInfo": false,
 					"bAutoWidth": true,
@@ -238,12 +239,21 @@
 				var i = 0;
 				var table_toggle_html = "";
 				jQuery("#" + objData.objReport.css_id + " tr:first th").each(function () {
-					table_toggle_html = table_toggle_html + "<a class=\"toggle-col-vis\" data-column=\"" + i + "\">" + jQuery(this).html() + "</a>&nbsp;";
+					table_toggle_html = table_toggle_html + "<a class=\"toggle-col-vis\" data-column=\"" + i + "\" style=\"cursor: pointer;\">" + jQuery(this).html() + "</a>&nbsp;";
 					i++;
 				});
 
 				//append element to table
-				jQuery("#" + element_id).find(".report-container").find(".report-container-header").append("<div class=\"report-container-col-toggle\" title=\"Hide / Show table columns\" data-toggle=\"tooltip\">" + table_toggle_html + "</div>");
+				if (jQuery("#" + element_id).find(".report-container").find(".report-container-header").length == 0 && objData.objReport.report_generators_name == 'HTML Table')
+				{
+					jQuery("#" + element_id).find(".report-container").prepend(jQuery('<div></div>').attr('class', 'report-container-header').html('<h2>' + objData.objReport.display_title + '</h2>'));
+				}//end if
+
+				if (objData.objReport.report_generators_name == 'HTML Table')
+				{
+					jQuery("#" + objData.objReport.css_id).addClass('table table-striped mj3-table');
+					jQuery("#" + element_id).find(".report-container").find(".report-container-header").append("<div class=\"report-container-col-toggle\" title=\"Hide / Show table columns\" data-toggle=\"tooltip\">" + table_toggle_html + "</div>");
+				}//end if
 
 				//enable click on toggle elements
 				jQuery(".toggle-col-vis").click(function (e) {
