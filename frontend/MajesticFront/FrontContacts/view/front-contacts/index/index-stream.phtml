@@ -1,0 +1,238 @@
+<div class="mj3_tables clearfix">
+	<script type="text/javascript" src="<?php echo $this->layout()->cdn_url;?>/js/vendor/jquery/datatable/jquery.dataTables.js"></script>
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+	<script type="text/javascript">
+		var element_table;
+		jQuery(document).ready(function () {
+			jQuery(".ajax-dropdown").change(function () {
+				if (jQuery(this).val() == "_load_data_")
+				{
+					loadSearchFormData(jQuery(this).attr("id"), jQuery(this));
+				}//end if
+			});
+
+			//monitor quick search button
+			jQuery(".quick-search-button").click(function (e) {
+				e.preventDefault();
+
+				//populate values into search form
+				jQuery("#search-form").find("#keyword").val(jQuery("#quick-search-keyword").val());
+
+				//submit the form
+				jQuery("#search-form").submit();
+			});
+
+			//populate the table
+		    element_table = jQuery('#contacts_full_list_table').DataTable({
+				"responsive": true,
+				"aaSorting": [], //disable initialsort
+				"bPaginate": true,
+				"bLengthChange": true,
+				"bFilter": true,
+				"bSort": true,
+				"bInfo": false,
+				"bAutoWidth": true,
+				columns: [
+				            {data: 'id'},
+				            {data: 'name'},
+				            {data: 'email'},
+				            {data: 'source'},
+				            {data: 'reference'},
+				            {data: 'user'},
+				            {data: 'urls'},
+		    			]
+		    });
+
+		    //start loading process
+		    loadDatatableRows(0);
+		});
+
+		function loadSearchFormData(param, element)
+		{
+			//set element data
+			element.empty();
+			element.append(jQuery("<option></option>").text("--loading--"));
+
+			var param_url = "<?php echo $this->url("front-contacts", array("action" => "ajax-search-values")) . "?param=#param";?>";
+
+			//request data
+			jQuery.ajax({
+				url: param_url.replace("#param", param),
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					//reset element
+					element.append(jQuery("<option></option>").text("--select--"));
+					element.append(jQuery("<option></option>").val("_load_data_").text("--select--"));
+					alert("An error occured: " + objData.response);
+					return false;
+				}//end if
+
+				element.empty();
+				element.append(jQuery("<option></option>").val("").text("--select--"));
+				jQuery.each(objData.response, function (i, obj) {
+					element.append(jQuery("<option></option>").val(obj.id).text(obj.val));
+				});
+			})
+			.fail(function () {
+				alert("Data could not be loaded. An unkown error has occured");
+				return false;
+			});
+		}//end function
+
+		function loadDatatableRows(start)
+		{
+			jQuery.ajax({
+				'url': "<?php echo $this->url('front-contacts', array('action' => 'index-stream'));?>?load-data=1&pos=" + start,
+			})
+			.done(function(data) {
+				var objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					console.log(objData.response);
+					return false;
+				}//end if
+
+				//start adding data to the table
+				var arr_data = new Array();
+				jQuery.each(objData.data, function (i, obj) {
+					arr_data[i] = {
+									'id': obj.reg_id,
+									'name': obj.fname + " " + obj.sname,
+									'email': obj.comm_destinations_email,
+									'source': obj.source,
+									'reference': obj.reference,
+									'user': obj.user_uname,
+									'urls': obj.urls
+					};
+				});
+
+				element_table.rows.add(arr_data).draw(false);
+
+				//start the next batch
+				loadDatatableRows(objData.start);
+			})
+			.fail(function () {
+				return false;
+			});
+		}//end function
+	</script>
+
+	 <!-- search here -->
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+
+				</button>
+
+				<span class="navbar-brand">
+				<?php echo ICON_LARGE_CONTACTS_HTML ;?>
+					 &nbsp;
+					My Contacts (Full List)
+				</span>
+			</div>
+
+			<div class="navbar-collapse" id="bs-example-navbar-collapse-1">
+				<form class="navbar-form navbar-right form-inline" role="search" action="<?php echo $this->url('front-contacts'); ?>">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Quick search" id="quick-search-keyword" value="<?php if (isset($this->arr_params["keyword"]) && $this->arr_params["keyword"] != "") {echo $arr_params["keyword"];}?>">
+					</div>
+					<button type="submit" class="btn btn-primary quick-search-button">Search</button>
+					<a class="btn btn-default" data-toggle="collapse" data-target="#advsearch" aria-expanded="false" aria-controls="advsearch">Advanced</a>
+				</form>
+			</div>
+
+			<div class="collapse" id="advsearch">
+				<div class="well clearfix">
+					<form method="post" id="search-form" action="<?php echo $this->url('front-contacts');?>">
+						<div class="form-group">
+							<label for="keyword">Keyword:</label>
+							<input type="text" class="form-control" name="keyword" id="keyword" placeholder="e.g. First Name / Email" value="<?php if (isset($this->arr_params["keyword"]) && $this->arr_params["keyword"] != "") {echo $arr_params["keyword"];}?>"/>
+						</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_date_created_start">From date:</label>
+									<input type="text" class="form-control" data-provide="datepicker" placeholder="from date" name="regtbl_date_created_start" readonly="readonly" value="<?php if (isset($this->arr_params["regtbl_date_created_start"]) && $this->arr_params["regtbl_date_created_start"] != "") {echo $arr_params["regtbl_date_created_start"];}?>"/>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_date_created_end">To date:</label>
+									<input type="text" class="form-control" data-provide="datepicker" placeholder="to date" name="regtbl_date_created_end" readonly="readonly" value="<?php if (isset($this->arr_params["regtbl_date_created_end"]) && $this->arr_params["regtbl_date_created_end"] != "") {echo $arr_params["regtbl_date_created_end"];}?>"/>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_source">Source:</label>
+									<select name="regtbl_source" id="regtbl_source" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_status">Contact status:</label>
+									<select name="regtbl_status" id="regtbl_status" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="regtbl_user">User:</label>
+									<select name="regtbl_user" id="regtbl_user" class="ajax-dropdown form-control">
+										<option value="">--select--</option>
+										<option value="_load_data_">Load Data</option>
+									</select>
+								</div>
+							</div>
+
+
+						<input type="submit" value="Search" class="btn btn-primary pull-right"/>
+
+					</form>
+				</div>
+			</div>
+		</div>
+	</nav>
+	 <!-- search ends here -->
+
+	<ul class="nav nav-tabs">
+		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-contacts", array("action" => "create-contact")); ?>" title="Create a new Contact" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . '&nbsp; Add Contact'; ?></a></li>
+	</ul>
+
+	<div class="mj3_table_contain clearfix">
+
+	<?php
+		$arr_header_fields = array(
+			'ID',
+			'Name',
+			'Email',
+			'Source',
+			'Reference',
+			'User',
+			'&nbsp;',
+		);
+
+		echo $this->renderSimpleHTMLTable(array(), $arr_header_fields, array("id" => 'contacts_full_list_table'));
+
+		//insert contact journey manager
+		echo $this->partial("contact_send_comms_js");
+	?>
+
+	</div>
+
+</div><!--  closing div -->

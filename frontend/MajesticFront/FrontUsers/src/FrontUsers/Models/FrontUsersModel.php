@@ -133,6 +133,29 @@ class FrontUsersModel extends AbstractCoreAdapter
 		return $objUser;
 	} // end updateUser(UserEntity $objUser)
 
+	public function manageUserStatus(FrontUserEntity $objUser)
+	{
+		// trigger .pre event
+		$this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objUser" => $objUser));
+
+		// Create APIRequest object from model
+		$objApiRequest = $this->getApiRequestModel();
+
+		// Setup User object and specify action
+		$objApiRequest->setApiAction($objUser->getHyperMedia("edit-user-status")->url);
+		$objApiRequest->setApiModule(NULL);
+
+		// Execute
+		$objUser = $objApiRequest->performPUTRequest($objUser->getArrayCopy())->getBody();
+		// Recreate User entity
+		$objUser = $this->createUserEntity($objUser->data);
+
+		// trigger .post event
+		$this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objUser" => $objUser));
+
+		return $objUser;
+	}//end function
+
 	/**
 	 * DELETE row of data from User query.
 	 * @param string $id
