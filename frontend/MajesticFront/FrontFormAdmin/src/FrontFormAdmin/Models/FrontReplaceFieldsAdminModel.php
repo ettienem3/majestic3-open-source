@@ -12,7 +12,7 @@ class FrontReplaceFieldsAdminModel extends AbstractCoreAdapter
 	 */
 	private $objCache;
 	private $cache_key = "front-replace-fields-list";
-	
+
 	public function getReplaceFieldSystemForm()
 	{
 		$objForm = $this->getServiceLocator()->get("FrontCore\Models\SystemFormsModel")
@@ -45,18 +45,19 @@ class FrontReplaceFieldsAdminModel extends AbstractCoreAdapter
 	/**
 	 * Fetch a collection of replace fields
 	 * @param array $arr_where - Optional
+	 * @param boolean $use_cache - Optional. Defaults to FALSE
 	 * @return StdClass
 	 */
 	public function fetchReplaceFields($arr_where = array(), $use_cache = FALSE)
 	{
 		//check if data is cached
 		$this->objCache = $this->getServiceLocator()->get("FrontCore\Caches\Cache");
-		
+
 		if ($use_cache == TRUE && $this->objCache->readCacheItem($this->cache_key) != FALSE)
 		{
 			return $this->objCache->readCacheItem($this->cache_key);
 		}//end if
-		
+
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
 
@@ -67,8 +68,8 @@ class FrontReplaceFieldsAdminModel extends AbstractCoreAdapter
 		$objFields = $objApiRequest->performGETRequest($arr_where)->getBody();
 
 		//save data to cache
-		$this->objCache->setCacheItem($this->cache_key, $objFields->data, array("ttl" => 300));
-		
+		$this->objCache->setCacheItem($this->cache_key, $objFields->data, array("ttl" => 3600));
+
 		return $objFields->data;
 	}//end function
 

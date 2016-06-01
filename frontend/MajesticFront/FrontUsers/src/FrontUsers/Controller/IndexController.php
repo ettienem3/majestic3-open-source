@@ -252,7 +252,7 @@ class IndexController extends AbstractCoreActionController
 			// Load specific form of User details
 			$objUser = $this->getUsersModel()->fetchUser($id);
 			$objUser->set("active", (1 - $objUser->get("active")));
-			$objUser = $this->getUsersModel()->updateUser($objUser);
+			$objUser = $this->getUsersModel()->manageUserStatus($objUser);
 
 			// Set successfull message.
 			$this->flashMessenger()->addSuccessMessage("User status has been updated");

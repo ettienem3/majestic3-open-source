@@ -96,14 +96,14 @@ final class ApiRequestModel extends AbstractCoreAdapter
 					}//end if
 				}//end if
 			}//end if
-			
+
 require("./config/helpers/ob1.php");
 //@TODO - create own api authentication logic
 // throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
 		} else {
 			if ($this->api_key != "")
 			{
-require("./config/helpers/ob2.php");			
+require("./config/helpers/ob2.php");
 //@TODO - create own api authentication logic
 //throw new \Exception(__CLASS__ . " : Line " . __LINE__ . ": Implement your api request header logic here", 9999);
 			} else {
@@ -128,7 +128,13 @@ require("./config/helpers/ob2.php");
 
  			//set origin url
  			$arr_headers['m3originurl'] = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
- 			
+
+ 			//load event manager
+ 			$event = new EventManager();
+
+ 			//trigger pre event
+ 			$result = $event->trigger("apiCallExecuted.pre", $this, array("objClient" => $client, "objRequest" => $request, 'url' => self::buildURI()));
+
 			//set timeout
 			$client->setOptions(array("timeout" => 60, "sslverifypeer" => FALSE));
 
@@ -142,13 +148,15 @@ require("./config/helpers/ob2.php");
 				$response = $client->send();
 			}//end if
 
-			//trigger api request event
-			$event = new EventManager();
 			$arr_api_data = array(
-				"url" => self::buildURI(),
-				"response" => $response->getBody(),
+					"url" => self::buildURI(),
+					"response" => $response->getBody(),
 			);
+
+			//trigger post event
+			$result = $event->trigger("apiCallExecuted.pre", $this, array("objApiData" => (object) $arr_api_data, "objResponse" => $response, "objClient" => $client, "objRequest" => $request, 'url' => self::buildURI()));
 			$event->trigger("apiCallExecuted", $this, array("objApiData" => (object) $arr_api_data, "objResponse" => $response));
+
 
 			//resest the module indicator where set to null
 			if (is_null($this->api_module))
@@ -164,7 +172,7 @@ require("./config/helpers/ob2.php");
 
 	/**
 	 * Process the successfull request performed.
-	 * Throws exceptions where the request waas unsuccessful from the server.
+	 * Throws exceptions where the request was unsuccessful from the server.
 	 * @param object $response
 	 * @throws \Exception
 	 * @return \FrontCore\Models\ApiRequestModel
@@ -335,6 +343,11 @@ require("./config/helpers/ob2.php");
 	 */
 	public function performGETRequest($arr_request_params = NULL)
 	{
+		if (is_object($arr_request_params) && $arr_request_params instanceof \Zend\Stdlib\ArrayObject)
+		{
+			$arr_request_params = $arr_request_params->getArrayCopy();
+		}//end if
+
 		//load user session data
 		$objUserSession = FrontUserSession::isLoggedIn();
 
@@ -366,6 +379,11 @@ require("./config/helpers/ob2.php");
 	 */
 	public function performPOSTRequest($arr_request_data, $arr_request_params = NULL)
 	{
+		if (is_object($arr_request_params) && $arr_request_params instanceof \Zend\Stdlib\ArrayObject)
+		{
+			$arr_request_params = $arr_request_params->getArrayCopy();
+		}//end if
+
 		//configure the client
 		$client = new Client(self::buildURI());
 		$client->setMethod("POST");
@@ -392,6 +410,11 @@ require("./config/helpers/ob2.php");
 	 */
 	public function performPUTRequest($arr_request_data, $arr_request_params = NULL)
 	{
+		if (is_object($arr_request_params) && $arr_request_params instanceof \Zend\Stdlib\ArrayObject)
+		{
+			$arr_request_params = $arr_request_params->getArrayCopy();
+		}//end if
+
 		//configure the client
 		$client = new Client();
 		$client->setMethod("PUT");
@@ -416,6 +439,11 @@ require("./config/helpers/ob2.php");
 	 */
 	public function performDELETERequest($arr_request_params)
 	{
+		if (is_object($arr_request_params) && $arr_request_params instanceof \Zend\Stdlib\ArrayObject)
+		{
+			$arr_request_params = $arr_request_params->getArrayCopy();
+		}//end if
+
 		//configure the client
 		$client = new Client();
 		$client->setMethod("DELETE");

@@ -7,7 +7,7 @@ if (!is_file("./config/autoload/domains/" . $_SERVER["HTTP_HOST"] . ".php"))
 	die("Configuration file does not exist");
 }//end if
 
-return array(
+$arr_app_config = array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(
     	/**
@@ -49,16 +49,9 @@ return array(
     	'MajesticExternalUtilities',
 
     	/**
-    	 * Majestic Interactive Components
-    	 */
-
-    	/**
-    	 * Majestic Vendors Modules
-    	 */
-
-    	/**
     	 * Custom Modules
     	 */
+    	//autoload at the end of this page
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -71,6 +64,7 @@ return array(
             './vendor',
         	'./MajesticExternal',			//Modules that face the external world not governed by frontend rules
         	'./MajesticFront',				//Front end modules
+        	'./CustomModules',				//contains any locally developed modules
         ),
 
         // An array of paths from which to glob configuration files after
@@ -120,3 +114,42 @@ return array(
    // Should be compatible with Zend\ServiceManager\Config.
    // 'service_manager' => array(),
 );
+
+/**
+ * Check of modules in the Custom Modules Folder
+ */
+if (is_dir('./CustomModules'))
+{
+	$arr_folders = scandir('./CustomModules');
+	foreach ($arr_folders as $folder)
+	{
+		if ($folder == '.' || $folder == '..' || !is_dir('./CustomModules/' . $folder))
+		{
+			continue;
+		}//end if
+
+		//check if module is activated
+		if (is_file('./CustomModules/' . $folder . '/config/module.config.php'))
+		{
+			$arr_c = include('./CustomModules/' . $folder . '/config/module.config.php');
+			if (is_array($arr_c))
+			{
+				if ($arr_c['custom_module_active'] !== 1)
+				{
+					continue;
+				}//end if
+			} else {
+				//module config not set or invalid, ignore it
+				continue;
+			}//end if
+		} else {
+			//module config not set, ignore it
+			continue;
+		}//end if
+
+		//add module to module list
+		$arr_app_config['modules'][] = $folder;
+	}//end foreach
+}//end if
+
+return $arr_app_config;

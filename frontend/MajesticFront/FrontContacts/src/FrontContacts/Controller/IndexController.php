@@ -87,6 +87,113 @@ class IndexController extends AbstractCoreActionController
 				);
     }//end function
 
+    public function indexStreamAction()
+    {
+    	//extract search params from query
+		if ($this->params()->fromQuery('load-data') == 1)
+		{
+			$arr_data = $this->getContactsModel()->fetchContactsStream();
+			if (!is_file($arr_data['source_data_path']))
+			{
+				echo json_encode(array('error' => 1, 'response' => 'Data does not exist'), JSON_FORCE_OBJECT);
+				exit;
+			}//end if
+
+			//read data from file
+			$start = $this->params()->fromQuery('pos');
+			$file = fopen($arr_data['source_data_path'], 'r');
+			$arr_headers = array();
+			$data_size = 500;
+
+			$total = 0;
+			while (($arr = fgetcsv($file)) !== FALSE)
+			{
+				$total++;
+			}//end while
+			fclose($file);
+
+			if ($total == 1)
+			{
+				$arr_data = $this->getContactsModel()->fetchContactsStream('delete');
+				echo json_encode(array(
+						'data' => array(),
+						'start' => $start,
+				));
+				exit;
+			}//end if
+
+			if ($start >= $total && $start > 0)
+			//if ($start > 0)
+			{
+				echo json_encode(array('error' => 1, 'response' => 'No more data available'), JSON_FORCE_OBJECT);
+				exit;
+			}//end if
+
+			$file = fopen($arr_data['source_data_path'], 'r');
+			$counter = 0;
+			$arr_sdata = array();
+			while (($arr_csv_data = fgetcsv($file)) !== FALSE)
+			{
+				if ($counter == 0)
+				{
+					foreach ($arr_csv_data as $header)
+					{
+						$arr_headers[] = $header;
+					}//end foreach
+					$counter++;
+					continue;
+				}//end if
+
+				if ($counter > $start)
+				{
+					$arr_t = array();
+					foreach ($arr_headers as $k => $field)
+					{
+						$arr_t[$field] = $arr_csv_data[$k];
+					}//end  foreach
+					//amend some values
+					$view_url = "<a href=\"" . $this->url()->fromRoute("front-contacts", array("action" => "view-contact", "id" => $arr_t['reg_id'])) . "\" title=\"View Contact\" data-toggle=\"tooltip\" target=\"_blank\">" . ICON_SMALL_PROFILE_HTML . "</a>";
+					$edit_url = "<a href=\"" . $this->url()->fromRoute("front-contacts", array("action" => "edit-contact", "id" => $arr_t['reg_id'])) . "\" title=\"Edit Contact\" data-toggle=\"tooltip\" target=\"_blank\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+					$comms_url = "<a href=\"" . $this->url()->fromRoute("front-contacts", array("action" => "view-contact", "id" => $arr_t['reg_id'])) . "\" class=\"contact_comms\" data-contact-id=\"" . $arr_t['reg_id'] . "\" target=\"_blank\" title=\"Send a Journey\" data-toggle=\"tooltip\">" . ICON_SMALL_COMMS_HTML . "</a>";
+
+					$arr_t['reg_id'] = "<a href=\"" . $this->url()->fromRoute("front-contacts", array("action" => "edit-contact", "id" => $arr_t['reg_id'])) . "\" title=\"Edit Contact\" target=\"_blank\"><span style=\"background-color: " . $arr_t['registration_status_colour'] . "\" class=\"label label-info\" data-toggle=\"tooltip\" title=\"" . $arr_t['registration_status_status'] . "\">" . $arr_t['reg_id'] . "</span></a>";
+					$arr_t['urls'] = $view_url . '&nbsp;' . $edit_url . '&nbsp;' . $comms_url;
+					$arr_sdata[] = $arr_t;
+				}//end if
+
+				$counter++;
+				if ($counter == $start + $data_size)
+				{
+					//stop, time to return data
+					break;
+				}//end if
+			}//end while
+			fclose($file);
+
+			echo json_encode(array(
+					'data' => $arr_sdata,
+					'start' => $start + $data_size,
+					'total' => $total,
+ 			));
+			exit;
+		}//end if
+
+    	//load contacts
+    	$arr_data = $this->getContactsModel()->fetchContactsStream();
+    	$objContacts = (object) array();
+
+    	if (!isset($objForm))
+    	{
+    		$objForm = FALSE;
+    	}//end if
+
+    	return array(
+    			"objForm" => $objForm,
+    			"objContacts" => $objContacts,
+    			"arr_params" => $arr_params,
+    	);
+    }//end function
+
     public function ajaxSearchValuesAction()
     {
     	try {

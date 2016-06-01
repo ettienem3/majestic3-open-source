@@ -56,9 +56,19 @@ class Module
     						return $model_locations;
     					}, //end functoin
 
+    					"FrontLocations\Models\FrontLocationsCustomCitiesModel" => function ($sm) {
+    						$model_custom_cities = new FrontLocationsCustomCitiesModel();
+    						return $model_custom_cities;
+    					}, //end function
+
     					/**
     					 * Entities
     					 */
+    					"FrontLocations\Entities\FrontLocationsCustomCityEntity" => function ($sm) {
+    						$entity_custom_city = new FrontLocationsCustomCityEntity();
+    						return $entity_custom_city;
+    					}, //end function
+    					
     					"FrontLocations\Entities\FrontLocationsEntity" => function ($sm) {
     						$entity_location = new FrontLocationsEntity();
     						return $entity_location;
@@ -71,10 +81,6 @@ class Module
     						$events_frontlocations = new FrontLocationsEvents();
     						return $events_frontlocations;
     					},
-    			),
-
-    			'shared' => array(
-    					"FrontLocations\Entities\FrontLocationsEntity" => FALSE,
     			),
 
     	);

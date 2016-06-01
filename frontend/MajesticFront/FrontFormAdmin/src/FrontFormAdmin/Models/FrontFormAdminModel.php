@@ -257,7 +257,6 @@ return $this->fetchForm($id);
 
 		//create form field entiry
 		$objField = $this->createFormFieldEntity($objResult->data);
-
 		return $objField;
 	}//end function
 

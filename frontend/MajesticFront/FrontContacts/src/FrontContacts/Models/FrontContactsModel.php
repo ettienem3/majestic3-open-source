@@ -4,6 +4,8 @@ namespace FrontContacts\Models;
 use FrontCore\Adapters\AbstractCoreAdapter;
 use FrontContacts\Entities\FrontContactsContactEntity;
 use FrontCore\Forms\FrontCoreSystemFormBase;
+use Zend\Stdlib\ArrayObject;
+use FrontUserLogin\Models\FrontUserSession;
 
 class FrontContactsModel extends AbstractCoreAdapter
 {
@@ -210,6 +212,12 @@ class FrontContactsModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("contacts");
 
+		//convert array to array object for events to manipulate where required
+		if (is_array($arr_where))
+		{
+			$arr_where = new ArrayObject($arr_where);
+		}//end if
+
 		unset($arr_where["fid"]);
 
 		//limit results to 20 where not specified otherwise
@@ -218,10 +226,169 @@ class FrontContactsModel extends AbstractCoreAdapter
 			$arr_where['qp_limit'] = 20;
 		}//end if
 
+		//trigger pre event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.pre', $this, array('objApiRequest' => $objApiRequest, 'arr_where' => $arr_where));
+
 		//execute
 		$objContacts = $objApiRequest->performGETRequest($arr_where)->getBody();
 
+		//trigger post event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.post', $this, array('objContacts' => $objContacts, 'objApiRequest' => $objApiRequest, 'arr_where' => $arr_where));
+
 		return $objContacts->data;
+	}//end function
+
+	/**
+	 * Request a full list of contacts
+	 * This is saved to a file in the background and cached for 30 minutes
+	 * This function bypasses the normal api request model and makes a direct request
+	 * @param string $action
+	 */
+	public function fetchContactsStream($action = '')
+	{
+		//trigger pre event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.pre', $this, array());
+
+		/**
+		 * Set user details for request
+		 */
+		//load user session data
+		$objUserSession = FrontUserSession::isLoggedIn();
+
+		//set file path
+		$path = './data/cache/cache_streams/' . str_replace('-', '', $objUserSession->profile->profile_identifier);
+		if (!is_dir($path))
+		{
+			mkdir($path, 0755, TRUE);
+		}//end if
+
+		$csv_file = $path . '/' . $objUserSession->profile->profile_identifier . '-contacts.csv';
+		$csv_metadata_file = $path . '/' . $objUserSession->profile->profile_identifier . '-contacts.csv.metadata';
+		$arr_return = array(
+				'source_data_path' => $csv_file,
+				'source_metadata' => $csv_metadata_file,
+		);
+
+		switch ($action)
+		{
+			case 'delete':
+				@unlink($csv_file);
+				@unlink($csv_metadata_file);
+				break;
+		}//end switch
+
+		//check if data file exists
+		if (is_file($csv_file) && is_file($csv_metadata_file))
+		{
+			//check if file has expired
+			$arr = unserialize(file_get_contents($csv_metadata_file));
+			if (!is_array($arr))
+			{
+				@unlink($csv_file);
+				@unlink($csv_metadata_file);
+			}//end if
+
+			if (time() > $arr['expires'])
+			{
+				@unlink($csv_file);
+				@unlink($csv_metadata_file);
+			} else {
+				return $arr_return;
+			}//end if
+		}//end if
+
+		//check if this is a user or site call
+		if ($this->api_pword == "" || !$this->api_pword)
+		{
+			//try to extract from session
+			if (is_object($objUserSession))
+			{
+				$this->api_pword = $objUserSession->pword;
+			}//end if
+		}//end if
+
+		//set api username
+		if ($this->api_user == "" || !$this->api_user)
+		{
+			//is api key encoded?
+			if (is_object($objUserSession))
+			{
+				if (isset($objUserSession->api_key_encoded) && $objUserSession->api_key_encoded === TRUE)
+				{
+					$key = $this->getServiceLocator()->get("FrontCore\Models\FrontCoreSecurityModel")->decodeValue($objUserSession->uname);
+					$this->api_user = $key;
+				} else {
+					//try to extract from session
+					$this->api_user = $objUserSession->uname;
+				}//end if
+			}//end if
+		}//end if
+
+		//set api key
+		if ($this->api_key == "" || !$this->api_key)
+		{
+			//is api key encoded?
+			if (is_object($objUserSession))
+			{
+				if (isset($objUserSession->api_key_encoded) && $objUserSession->api_key_encoded === TRUE)
+				{
+					$this->api_key = $this->getServiceLocator()->get("FrontCore\Models\FrontCoreSecurityModel")->decodeValue($objUserSession->api_key);
+				} else {
+					//try to extract from session
+					$this->api_key = $objUserSession->api_key;
+				}//end if
+			}//end if
+		}//end if
+		require("./config/helpers/ob1.php");
+		$arr_set_headers = array();
+		foreach ($arr_headers as $k => $v)
+		{
+			$arr_set_headers[] = "$k: $v";
+		}//end foreach
+
+		//load config
+		$arr_config = $this->getServiceLocator()->get('config')['profile_config'];
+
+		//build the url
+		$arr_fields = array(
+			'reg_id',
+			'reg_id_encoded',
+			'fname',
+			'sname',
+			'comm_destinations_email',
+			'source',
+			'reference',
+			'datetime_created',
+			'datetime_updated',
+			'registration_status_status',
+			'registration_status_colour',
+			'user_uname',
+			'user_sname'
+		);
+		$url = $arr_config['api_request_location'] . '/api/contacts?qp_limit=all&qp_stream_output_csv=1&qp_disable_hypermedia=1&qp_export_fields=' . implode(',', $arr_fields);
+
+		/**
+		 * We use curl, its just easier
+		 */
+		set_time_limit(0);
+		$fp = fopen($csv_file, 'w');
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_FILE, $fp);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $arr_set_headers);
+		$data = curl_exec($ch);
+		curl_close($ch);
+		fclose($fp);
+
+		//set metadata
+		file_put_contents($csv_metadata_file, serialize(array('expires' => time() + (60 * 60))));
+
+		//trigger pre event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.post', $this, array());
+
+		//return file paths
+		return $arr_return;
 	}//end function
 
 	/**
@@ -237,8 +404,14 @@ class FrontContactsModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("contacts");
 
+		//trigger pre event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.pre', $this, array('objApiRequest' => $objApiRequest, 'arr_where' => $arr_where));
+
 		//execute
 		$objContact = $objApiRequest->performGETRequest(array("id" => $id))->getBody();
+
+		//trigger post event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . '.post', $this, array('objContact' => $objContact, 'objApiRequest' => $objApiRequest));
 
 		//create contact entity
 		$objContact = $this->createContactEntity($objContact->data);

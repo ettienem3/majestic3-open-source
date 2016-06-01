@@ -81,7 +81,7 @@ class FrontGenericFieldsAdminModel extends AbstractCoreAdapter
 		$objField = $this->createGenericFieldEntity($objField->data);
 
 		//trigger post event
-		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objField" => $objField));
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objField" => $objField));
 
 		return $objField;
 	}//end function
@@ -111,7 +111,7 @@ class FrontGenericFieldsAdminModel extends AbstractCoreAdapter
 		$objField = $this->createGenericFieldEntity($objField->data);
 
 		//trigger post event
-		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objField" => $objField));
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objField" => $objField));
 
 		return $objField;
 	}//end function
@@ -138,7 +138,7 @@ class FrontGenericFieldsAdminModel extends AbstractCoreAdapter
 		$objField = $objApiRequest->performDELETERequest(array())->getBody();
 
 		//trigger post event
-		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objField" => $objField));
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objField" => $objField));
 
 		//recreate field entity
 		$objField = $this->createGenericFieldEntity($objField->data);

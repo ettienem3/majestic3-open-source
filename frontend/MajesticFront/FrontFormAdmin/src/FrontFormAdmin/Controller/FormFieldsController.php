@@ -373,6 +373,11 @@ class FormFieldsController extends AbstractCoreActionController
     		}//end if
     	}//end if
 
+    	if (method_exists($objField, 'setFormFieldDefaulfContent'))
+    	{
+    		$objField->setFormFieldDefaulfContent((array) $this->params()->fromRoute());
+    	}//end if
+
     	//bind data late in order to recreate field entity above
     	$form->bind($objField);
 
