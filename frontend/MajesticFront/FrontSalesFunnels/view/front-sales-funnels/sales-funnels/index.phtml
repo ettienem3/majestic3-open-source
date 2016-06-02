@@ -22,10 +22,10 @@
 					iframe_container.find(".mj3-toolkit").find("#mj3-toolkit-iframe").attr("src", iframe_container_url);
 				}//end if
 			});
-			
+
 			if (window.location.href.indexOf("?create-tracker=1") >= 0 )
 			{
-				loadAvailableTrackers();
+				setTimeout(function () {loadAvailableTrackers();}, 1000);
 			}//end if
 
 			jQuery("#create_sales_funnel").click(function (e) {
@@ -107,7 +107,7 @@
 			$arr_sales_funnel["form"] = $objSalesFunnel->get("forms_form");
 			$arr_sales_funnel["status"] = $objSalesFunnel->get("sf_status");
 			$arr_sales_funnel["deal_number"] = $objSalesFunnel->get("sf_deal_number");
-	
+
 			//set date
 			$arr_sales_funnel["date"] = $this->renderFormatUserDate(array("date" =>  $objSalesFunnel->get("tstamp"), "options" => array(
 					"output_format" => "d M Y H:i",
