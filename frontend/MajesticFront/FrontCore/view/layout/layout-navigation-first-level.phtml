@@ -276,6 +276,12 @@ if ($objUser !== FALSE)
 			unset($arr_secondary_menu["Welcome " . $objUser->fname]["Inbox"]);
 		}//end if
 
+		//webhooks
+		if (!in_array('webhooks', $arr_plugins))
+		{
+			unset($arr_secondary_menu[$this->objProfileSettings->get("menu_main_administration", "Administration")]["advanced"]['Manage Webhooks']);
+		}//end if
+
 		if (count($arr_primary_menu[$this->objProfileSettings->get("menu_main_sale", "Sale")]) == 0)
 		{
 			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_sale", "Sale")]);
