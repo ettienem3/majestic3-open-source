@@ -310,7 +310,6 @@ $behaviours_url = '';
 			<h2>Form Settings</h2>
 		<?php
 			$form = $this->form;
-			$form->setAttribute("action", $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $this->objForm->get("id"))));
 			$form->prepare();
 
 			echo $this->renderSystemFormHelper($form, $this, array("enable_accordion" => TRUE, "generate_field_groups" => TRUE));

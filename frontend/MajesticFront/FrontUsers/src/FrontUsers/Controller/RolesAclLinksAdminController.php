@@ -141,7 +141,7 @@ class RolesAclLinksAdminController extends AbstractCoreActionController
 					//redirect back to the role acl links index page
 					return $this->redirect()->toRoute("front-role-acl-links/admin", array("role_id" => $role_id));
 				} catch (\Exception $e) {
-					$form_message = $e->getMessage() . " " . $e->getPrevious();
+					$form_message = $this->frontControllerErrorHelper()->formatErrors($e);
 				}//end catch
 			}//end function
 		}//end if

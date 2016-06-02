@@ -144,12 +144,10 @@ class IndexController extends AbstractCoreActionController
 
 		//load form
 		$form = $this->getFormAdminModel()->getFormAdminForm($form_type);
+		$form->get("fk_form_type_id")->setAttribute("disabled", "disabled");
 
 		//save form type and remove option from form
 		$fk_form_type_id = $objForm->get("fk_form_type_id");
-
-		//disable form type element
-		$form->get("fk_form_type_id")->setAttribute("disabled", "disabled");
 
 		//bind data to form
 		$form->bind($objForm);
@@ -158,10 +156,10 @@ class IndexController extends AbstractCoreActionController
 		if ($request->isPost())
 		{
 			$arr_data = $request->getPost();
-			$arr_data["fk_form_type_id"] = $fk_form_type_id;
+			$arr_data['fk_form_type_id'] = $fk_form_type_id;
 			$form->setData($arr_data);
 
-			if ($form->isValid($request->getPost()))
+			if ($form->isValid())
 			{
 				try {
 					//update the form
