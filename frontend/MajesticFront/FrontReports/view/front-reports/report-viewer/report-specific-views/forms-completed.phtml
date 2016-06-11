@@ -1,0 +1,59 @@
+<script type="text/javascript">
+	function doReportSpecificOperations()
+	{
+		//set link to form
+		jQuery('.mj3-table tbody tr td:nth-child(8)').html(function () {
+			var contact_id = jQuery(this).parent().find('td:nth-child(1)').html();
+			var form_name = jQuery(this).parent().find('td:nth-child(9)').html();
+			var form_id = jQuery(this).html();
+			var link = '<a class="report-view-form-completed" data-contact-id="' + contact_id + '"  data-form-id="' + form_id + '" href="<?php echo $this->url('front-contacts', array('id' => '101010101019', 'action' => 'view-contact'));?>?fid=' + form_id + '" target="_blank" title="View Form">' + contact_id + '</a>';
+			var link_form_name = '<a class="report-view-form-completed" data-contact-id="' + contact_id + '"  data-form-id="' + form_id + '" href="<?php echo $this->url('front-contacts', array('id' => '101010101019', 'action' => 'view-contact'));?>?fid=' + form_id + '" target="_blank" title="View Form">' + form_name + '</a>';
+			link = link.replace('101010101019', contact_id);
+			link_form_name = link_form_name.replace('101010101019', contact_id);
+			
+			jQuery(this).html(link);
+			jQuery(this).parent().find('td:nth-child(9)').html(link_form_name);
+		});
+
+		//add function to monitor click on form link
+		jQuery('.report-view-form-completed').click(function (e) {
+			e.preventDefault();
+
+			//extract required information
+			var contact_id = jQuery(this).attr('data-contact-id');
+			var form_id = jQuery(this).attr('data-form-id');
+			var contact_url = "<?php echo $this->url('front-contacts', array('action' => 'ajax-view-contact', 'id' => '01010100101')) ?>";
+			contact_url = contact_url.replace('01010100101', contact_id);
+			jQuery.ajax({
+				url: contact_url
+			})
+			.done(function (data) {
+				var objData = jQuery.parseJSON(data);
+
+				if (objData.error == 1)
+				{
+					alert(objData.response);
+					return false;
+				}//end if
+
+				//create form url
+				var form_url = "<?php echo $this->url('majestic-external-forms/bf', array('fid' => '0011122332', 'reg_id' => '001212312')); ?>";
+				form_url = form_url.replace('0011122332', form_id);
+				form_url = form_url.replace('001212312', objData.data.reg_id_encoded);
+				window.open(form_url);
+			})
+			.fail(function () {
+				alert('Requested window could not be loaded, request has been aborted');
+				return false;
+			});
+		});
+		
+		//set link to contact
+		jQuery('.mj3-table tbody tr td:nth-child(1)').html(function () {
+			var contact_id = jQuery(this).html();
+			var link = '<a href="<?php echo $this->url('front-contacts', array('id' => '101010101019', 'action' => 'view-contact'));?>" target="_blank" title="View Contact">' + contact_id + '</a>';
+			link = link.replace('101010101019', contact_id);
+			jQuery(this).html(link);
+		});
+	}//end function
+</script>
