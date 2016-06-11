@@ -485,7 +485,7 @@ class IndexController extends AbstractCoreActionController
     	{
     		try {
     			//request contact information
-    			$objData = $this->getExternalFormsModel()->loadContact($form_id, $reg_id);
+    			$objData = $this->getExternalFormsModel()->loadContact($form_id, $reg_id, $request->getPost('cid'));
     			echo json_encode(array("error" => 0, "response" => $objData));
     			exit;
     		} catch (\Exception $e) {

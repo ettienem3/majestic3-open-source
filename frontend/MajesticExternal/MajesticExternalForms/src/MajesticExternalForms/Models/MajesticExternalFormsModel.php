@@ -174,8 +174,9 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 	 * Load contact details where requested
 	 * @param int $form_id
 	 * @param str $reg_id
+	 * @param str $comm_history_id
 	 */
-	public function loadContact($form_id, $reg_id)
+	public function loadContact($form_id, $reg_id, $comm_history_id = '')
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -185,7 +186,7 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 		$objApiRequest->setAPIKey($objUserLoginDetails->api_key);
 
 		//request contact details from the api
-		$objApiRequest->setApiAction("contacts/$reg_id?fid=$form_id");
+		$objApiRequest->setApiAction("contacts/$reg_id?fid=$form_id&cid=$comm_history_id");
 
 		try {
 			$objContact = $objApiRequest->performGETRequest()->getBody()->data;
@@ -327,28 +328,28 @@ var_dump($e->getMessage()); exit;
 		if (!$objUserSession)
 		{
 			$cache_key = "ex_form_" . $form_id . "_" . $_SERVER["HTTP_HOST"] . "_key";
-			
+
 			//check if data has been cached
-			$objData = $this->getFormsCacheModel()->readFormCache($cache_key);		
+			$objData = $this->getFormsCacheModel()->readFormCache($cache_key);
 			if (!$objData || is_null($objData))
 			{
 				//create the request object
 				$objApiRequest = $this->getApiRequestModel();
-				
+
 				//disable api session login
 				$objApiRequest->setAPISessionLoginDisable();
-				
+
 				//load master user details
 				$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
-				
+
 				//set api request authentication details
 				$objApiRequest->setAPIKey($arr_user['apikey']);
 				$objApiRequest->setAPIUser(md5($arr_user['uname']));
 				$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
-				
+
 				//setup the object and specify the action
 				$objApiRequest->setApiAction("user/authenticate-form?debug_display_errors=1");
-					
+
 				//set payload
 				$arr_data = array(
 						"fid" => $form_id,
@@ -357,14 +358,14 @@ var_dump($e->getMessage()); exit;
 				);
 
 				$objData = $objApiRequest->performPOSTRequest($arr_data)->getBody();
-				
+
 				//cache the data
 				$this->getFormsCacheModel()->setFormCache($cache_key, $objData);
 			}//end if
 
 			return $objData->data;
 		}//end function
-		
+
 		return FALSE;
 	}//end function
 

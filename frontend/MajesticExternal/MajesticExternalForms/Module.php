@@ -12,6 +12,7 @@ use MajesticExternalForms\Models\MajesticExternalFormsCacheModel;
 use MajesticExternalForms\ViewHelpers\ExternalFormRenderHelper;
 use MajesticExternalForms\ControllerHelpers\ExternalFormsControllerErrorHelper;
 use FrontCore\Caches\FrontCachesFileSystem;
+use MajesticExternalForms\Models\MajesticExternalLocations;
 
 class Module
 {
@@ -72,6 +73,11 @@ class Module
     				'MajesticExternalForms\Models\MajesticExternalFormsModel' => function ($sm) {
     					$model_forms = new MajesticExternalFormsModel();
     					return $model_forms;
+    				}, //end function
+    				
+    				'MajesticExternalForms\Models\MajesticExternalLocations' => function ($sm) {
+    					$model = new MajesticExternalLocations();
+    					return $model;
     				}, //end function
 
 

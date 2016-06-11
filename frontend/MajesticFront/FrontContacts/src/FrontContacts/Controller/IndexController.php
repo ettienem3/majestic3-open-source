@@ -149,7 +149,7 @@ class IndexController extends AbstractCoreActionController
 					$arr_t = array();
 					foreach ($arr_headers as $k => $field)
 					{
-						$arr_t[$field] = $arr_csv_data[$k];
+						$arr_t[$field] = utf8_encode($arr_csv_data[$k]);
 					}//end  foreach
 					//amend some values
 					$view_url = "<a href=\"" . $this->url()->fromRoute("front-contacts", array("action" => "view-contact", "id" => $arr_t['reg_id'])) . "\" title=\"View Contact\" data-toggle=\"tooltip\" target=\"_blank\">" . ICON_SMALL_PROFILE_HTML . "</a>";
@@ -345,6 +345,30 @@ class IndexController extends AbstractCoreActionController
     		"form" => $form,
     		"objContact" => $objContact,
     	);
+    }//end function
+    
+    public function ajaxViewContactAction()
+    {
+    	//set contact id
+    	$reg_id = $this->params()->fromRoute("id", "");
+    	
+    	if ($reg_id == "")
+    	{
+    		//set error message
+    		echo json_encode(array('error' => 1, 'response' => "Contact could not be loaded. ID is not set"), JSON_FORCE_OBJECT);
+    		exit;
+    	}//end if
+    	
+    	try {
+    		//load the contact
+    		$objContact = $this->getContactsModel()->fetchContact($reg_id);
+    		echo json_encode(array('error' => 0, 'data' => $objContact->getArrayCopy()), JSON_FORCE_OBJECT);
+    		exit;
+    	} catch (\Exception $e) {
+    		//set error message
+    		echo json_encode(array('error' => 1, 'response' => $this->frontControllerErrorHelper()->formatErrors($e)), JSON_FORCE_OBJECT);
+    		exit;
+    	}//end catch
     }//end function
 
     public function createContactAction()

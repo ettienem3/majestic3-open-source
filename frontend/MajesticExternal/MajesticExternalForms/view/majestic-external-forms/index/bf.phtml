@@ -16,7 +16,7 @@
 		jQuery.ajax({
 			url: "/forms/ajax-load-contact",
 			type: "post",
-			data: form + "&r=<?php echo $this->reg_id;?>&f=<?php echo $this->form_id;?>",
+			data: form + "&r=<?php echo $this->reg_id;?>&f=<?php echo $this->form_id;?>&cid=<?php echo $this->additional_data["cid"];?>",
 		})
 		.done(function (data) {
 			var objData = jQuery.parseJSON(data);
@@ -119,17 +119,17 @@ if (isset($this->objLookAndFeel) && $this->objLookAndFeel->css_file != "")
 	</div>
 </div>
 
-<?php 
+<?php
 //add tracking script
 if ($this->objFormRawData->submit_tracking_script != '' || $this->objFormRawData->form_js_file != '')
 {
 	echo '<noscript>This page requires javascript to be activated. You might not be able to submit the form.</noscript>';
-	
+
 	if ($this->objFormRawData->form_js_file != '')
 	{
 		echo '<script src="' . $this->objFormRawData->form_js_file . '"></script>';
 	}//end if
-	
+
 	if ($this->objFormRawData->submit_tracking_script != '')
 	{
 		echo $this->objFormRawData->submit_tracking_script;

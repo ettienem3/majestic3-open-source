@@ -5,6 +5,7 @@ use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
 use MajesticExternalContacts\Events\MajesticExternalContactsEvents;
+use MajesticExternalContacts\Models\MajesticExternalContactsModel;
 
 class Module
 {
@@ -86,6 +87,14 @@ class Module
     {
     	return array(
     			'factories' => array(
+    					/**
+    					 * Models
+    					 */
+    					'MajesticExternalContacts\Models\MajesticExternalContactsModel' => function ($sm) {
+    						$model = new MajesticExternalContactsModel();
+    						return $model;
+    					}, //end function
+    					
     					/**
     					 * Events
     					 */

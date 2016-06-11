@@ -267,6 +267,12 @@
 			        //amend link style
 			        jQuery(this).toggleClass("table-col-hidden");
 				});
+
+				//check if report specific view functions have been enabled...
+				if (typeof doReportSpecificOperations == 'function')
+				{
+					doReportSpecificOperations();
+				}//end if
 			}//end if
 
 			//remove disabled status from submit button
@@ -285,6 +291,7 @@
 			e.preventDefault();
 
 			loadReportOutput(jQuery(this).serialize());
+			jQuery('.report-output-container').focus();
 			return false;
 		});
 
@@ -357,3 +364,18 @@
 		</div>
 	</div>
 </div>
+
+<?php 
+//include additional views where applicable
+if (strtolower($this->objReport->data->report->report_generators_name) == 'html table' && $this->objReport->data->report->report_type == 'report')
+{
+	$report_name = strtolower(str_replace(' ', '-', trim($this->objReport->data->report->display_title)));
+	if ($report_name != '')
+	{
+		$path = __DIR__ . DIRECTORY_SEPARATOR . 'report-specific-views' . DIRECTORY_SEPARATOR . $report_name . '.phtml';
+		if (is_file($path))
+		{
+			echo $this->partial('front-reports/report-viewer/report-specific-views/' . $report_name . '.phtml');	
+		}//end if
+	}//end if
+}//end if
