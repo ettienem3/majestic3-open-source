@@ -6,7 +6,7 @@
 			var contact_id = jQuery(this).parent().find('td:nth-child(1)').html();
 			var form_name = jQuery(this).parent().find('td:nth-child(9)').html();
 			var form_id = jQuery(this).html();
-			var link = '<a class="report-view-form-completed" data-contact-id="' + contact_id + '"  data-form-id="' + form_id + '" href="<?php echo $this->url('front-contacts', array('id' => '101010101019', 'action' => 'view-contact'));?>?fid=' + form_id + '" target="_blank" title="View Form">' + contact_id + '</a>';
+			var link = '<a class="report-view-form-completed" data-contact-id="' + contact_id + '"  data-form-id="' + form_id + '" href="<?php echo $this->url('front-contacts', array('id' => '101010101019', 'action' => 'view-contact'));?>?fid=' + form_id + '" target="_blank" title="View Form">' + form_id + '</a>';
 			var link_form_name = '<a class="report-view-form-completed" data-contact-id="' + contact_id + '"  data-form-id="' + form_id + '" href="<?php echo $this->url('front-contacts', array('id' => '101010101019', 'action' => 'view-contact'));?>?fid=' + form_id + '" target="_blank" title="View Form">' + form_name + '</a>';
 			link = link.replace('101010101019', contact_id);
 			link_form_name = link_form_name.replace('101010101019', contact_id);
