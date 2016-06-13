@@ -15,7 +15,7 @@ echo "<div class=\"mj3_table_contain clearfix\">";
 
 //echo 	"<h3 class=\"\" data-uk-toggle=\"{target: '#journey-details-summary', animation:'uk-animation-slide-left, uk-animation-slide-bottom'}\">Journey Details: <a href=\"" . $this->url("front-comms-admin/journeys", array("id" => $this->objJourney->get("id"), "action" => "edit")) . "\" title=\"Edit Journey\">" . $this->objJourney->get("journey") . "</a></h3>";
 echo 	"<div id=\"journey-details-summary\">";
-echo 		"<h4>Desription : " . $this->objJourney->get("description") . "</h4>";
+echo 		"<h4>Description : " . $this->objJourney->get("description") . "</h4>";
 if ($this->objJourney->isExpired() === TRUE)
 {
 	echo 		"<p style=\"padding: 7px;\" class=\"text-danger bg-danger\">Warning: This journey has expired</p>";
@@ -41,7 +41,7 @@ foreach ($this->objJourney->get("comms") as $objComm)
 	{
 		echo 	"<td>" . ICON_SMALL_ACTIVE_HTML . "</td>";
 	} else {
-		echo 	"<td>" . ICON_SMALL_ACTIVE_HTML . "</td>";
+		echo 	"<td>" . ICON_SMALL_INACTIVE_HTML . "</td>";
 	}//end if
 
 	echo 		"<td><a href=\"" . $this->url("front-comms-admin/comms", array("journey_id" => $this->objJourney->get("id"), "id" => $objComm->id, "action" => edit)) . "\" title=\"Edit Communication\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
