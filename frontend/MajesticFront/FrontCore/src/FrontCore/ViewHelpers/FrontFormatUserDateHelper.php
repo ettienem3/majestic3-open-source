@@ -47,7 +47,7 @@ class FrontFormatUserDateHelper extends AbstractHelper
 		}//end if
 
 		//is the date specified?
-		if (!isset($arr_date["date"]) || $arr_date["date"] == "" || $arr_date['date'] == '0000-00-00 00:00:00' || $arr_date['date'] == '0000-00-00')
+		if (!isset($arr_date["date"]) || trim($arr_date["date"]) == "" || trim($arr_date['date']) == '0000-00-00 00:00:00' || trim($arr_date['date']) == '0000-00-00')
 		{
 			return FALSE;
 		}//end if
@@ -67,6 +67,20 @@ class FrontFormatUserDateHelper extends AbstractHelper
 			}//end if
 
 			//format date to requested format and apply user timezone
+			$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+			$timezone = $objUser->locale_timezone;
+			if ($timezone == '')
+			{
+				//try profile defined timezone
+				$timezone = $objUser->profile->settings->locale_timezone;
+			}//end if
+			
+			if ($timezone != '')
+			{
+				$objTimezone = new \DateTimeZone($timezone);
+				$objDate->setTimezone($objTimezone);
+			}//end if
+
 			$date = $objDate->format($this->output_format);
 			return $date;
 		} catch (\Exception $e) {
