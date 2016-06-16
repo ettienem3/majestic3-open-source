@@ -1,8 +1,6 @@
 <div class="mj3_tables clearfix">
 	<?php echo $this->renderStandardViewHeader(ICON_LARGE_WEBHOOK_HTML .'&nbsp; Manage Webhooks'); ?>
 
-
-
 	<ul class="nav nav-tabs">
 		<li class="mj3_btnchangeform"><a class="btn btn-success" href="<?php echo $this->url("front-power-tools/webhooks", array("action" => "create-webhook")); ?>" title="Create a Webhook" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML;?> Create Webhook</a></li>
 		<li role="presentation"><a class="btn btn-primary" href="<?php echo $this->url("front-power-tools/webhooks", array("action" => "webhook-urls")); ?>" title="Manage Urls / Endpoints" data-toggle="tooltip"><?php //echo ICON_MEDIUM_ADD_HTML;?> Manage Urls / Endpoints</a></li>
@@ -18,15 +16,37 @@
 				continue;
 			} //end if
 
-			$arr_webhook["title"] = $objWebhook->get("title");
+			$arr_webhook["title"] = "<span title=\"" . $objWebhook->get('target_url') .  $objWebhook->get('target_path') . "\" data-toggle=\"tooltip\">" . $objWebhook->get("title") . "</span>";
 			$arr_webhook["description"] = $objWebhook->get("description");
 			$arr_webhook["method"] = $objWebhook->get("http_method");
-
+			
+			switch($objWebhook->get("delivery_speed"))
+			{
+				case 10: //send immediatly, 10 coins
+					$arr_webhook['execute_time'] = 'Immediatly';
+					break;
+				
+				case 5: //wait 5 minutes, 3 coins
+					$arr_webhook['execute_time'] = '5 Minutes';
+					break;
+				
+				case 3: //wait 20 minutes, 1 coin
+					$arr_webhook['execute_time'] = '20 Minutes';
+					break;
+				
+				case 1: //wait 60 minutes
+				default:
+					$arr_webhook['execute_time'] = '60 Minutes';
+					break;
+			}//end if
+			
 			if ($objWebhook->get("active") == 1) {
 
-				$arr_webhook["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-status", "id" => $objWebhook->get("id"))) . "\" title=\"Deactivate Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+				//$arr_webhook["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-status", "id" => $objWebhook->get("id"))) . "\" title=\"Deactivate Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</a>";
+				$arr_webhook["active"] = "<span title=\"This webhook is active\" data-toggle=\"tooltip\">" . ICON_SMALL_ACTIVE_HTML . "</span>";
 			} else {
-				$arr_webhook["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-status", "id" => $objWebhook->get("id"))) . "\" title=\"Activate Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+				//$arr_webhook["active"] = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "toggle-webhook-status", "id" => $objWebhook->get("id"))) . "\" title=\"Activate Webhook\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</a>";
+				$arr_webhook["active"] = "<span title=\"This webhook is inactive\" data-toggle=\"tooltip\">" . ICON_SMALL_INACTIVE_HTML . "</span>";
 			} //end if
 
 			//set urls
@@ -42,7 +62,7 @@
 // 		$add_url = "<a href=\"" . $this->url("front-power-tools/webhooks", array("action" => "create-webhook")) . "\" title=\"Create a Webhook\" data-toggle=\"tooltip\">" . ICON_MEDIUM_ADD_HTML . "</a>";
 		$add_url = "";
 		echo $this->renderDataTableHelper();
-		echo $this->renderSimpleHTMLTable($arr, array("Title", "Description", "Method", "Active", $add_url));
+		echo $this->renderSimpleHTMLTable($arr, array("Title", "Description", "Method", "Speed", "Active", $add_url));
 
 		?>
 
