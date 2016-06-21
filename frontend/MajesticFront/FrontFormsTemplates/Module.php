@@ -6,6 +6,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\Db\TableGateway\TableGateway;
 
 use FrontFormsTemplates\Events\FrontFormsTemplatesEvents;
+use FrontFormsTemplates\Models\FrontFormsTemplatesModel;
 
 class Module
 {
