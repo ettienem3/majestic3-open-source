@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace FrontFormsTemplates;
 
 use Zend\Mvc\ModuleRouteListener;
@@ -6,7 +6,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\Db\TableGateway\TableGateway;
 
 use FrontFormsTemplates\Events\FrontFormsTemplatesEvents;
-	
+
 class Module
 {
 	public function onBootstrap(MvcEvent $e)
@@ -14,7 +14,7 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
-        
+
         /**
          * Register event listeners
          */
@@ -40,20 +40,20 @@ class Module
             ),
         );
     }
-    
+
     public function getServiceConfig()
     {
     	return array(
     			'factories' => array(
-    					
+
     					/**
     					 * Models
     					 */
-    					'FrontFormsTemplates\Models\FrontFormsModels' => function ($sm) {
+    					'FrontFormsTemplates\Models\FrontFormsTemplatesModel' => function ($sm) {
     						$model_front_forms_templates = new FrontFormsTemplatesModel();
     						return $model_front_forms_templates;
     					},//end function
-    					
+
     					/**
     					 * Entities
     					 */
@@ -61,7 +61,7 @@ class Module
     						$entity_forms = new FormEntity();
     						return $entity_forms;
     					},// end function
-    					
+
     					/**
     					 * Events
     					 */
@@ -69,9 +69,9 @@ class Module
     						$events_frontformstemplates = new FrontFormsTemplatesEvents();
     						return $events_frontformstemplates;
     					},
-    			),	
-    			
+    			),
+
     	);
     }//end function
-    
+
 }//end class
