@@ -7,6 +7,7 @@ use Zend\Db\TableGateway\TableGateway;
 
 use FrontFormsTemplates\Events\FrontFormsTemplatesEvents;
 use FrontFormsTemplates\Models\FrontFormsTemplatesModel;
+use FrontFormsTemplates\Entities\FormTemplateEntity;
 
 class Module
 {
@@ -58,8 +59,8 @@ class Module
     					/**
     					 * Entities
     					 */
-    					'FrontFormsTemplates\Entities\FormsEntity' => function ($sm) {
-    						$entity_forms = new FormEntity();
+    					'FrontFormsTemplates\Entities\FormTemplateEntity' => function ($sm) {
+    						$entity_forms = new FormTemplateEntity();
     						return $entity_forms;
     					},// end function
 

@@ -192,19 +192,19 @@ class FilesController extends AbstractCoreActionController
     								)
     						)));
     				$httpadapter->setValidators(array($filesize, $extension), $files['file']['name']);
-
     				if ($httpadapter->isValid())
     				{
     					//set uploads path
     					$uploads_path = "./data/tmp/uploads";
     					if (!is_dir($uploads_path))
     					{
-    						mkdir($uploads_path, 0755, TRUE);
+    						mkdir($uploads_path, 0777, TRUE);
     					}//end if
 
     					$httpadapter->setDestination($uploads_path);
-
-    					if($httpadapter->receive($files['file']['name']))
+						//$r = $httpadapter->receive($files['file']['name']);
+    					$r = $httpadapter->receive();
+    					if($r)
     					{
     						$newfile = $httpadapter->getFileName();
 
@@ -213,6 +213,13 @@ class FilesController extends AbstractCoreActionController
     						if (!isset($arr_data["filename"]) || $arr_data["filename"] == "")
     						{
     							$f = array_pop($arr_t);
+    							if ($files['file']['name'] != "")
+    							{
+    								$f = $files['file']['name'];
+    							} else {
+    								$f = array_pop($arr_t);
+    							}//end if
+    							
     							$f = preg_replace('/[^a-zA-Z0-9_.]/', '', $f);
     							if ($f == "")
     							{
@@ -234,7 +241,7 @@ class FilesController extends AbstractCoreActionController
     						}//end if
 
     						//remove local file
-    						unlink($newfile);
+     						unlink($newfile);
     					}//end if
     				} else {
     					//file validation failed
