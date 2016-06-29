@@ -1,0 +1,199 @@
+<html>
+	<body>
+		<div id="formGoesHere">Waiting for form to load....</div>
+		
+		<script type="text/javascript">
+		jQuery.fn.extend({
+			majestic3Webform: function (options) {
+				var source_url = options.source_url;
+				var element_to_populate = options.element_target;
+				var element_form_id = options.element_form_id || "sample_web_form";
+				var process_form_submit_function = options.form_process_function || false;
+				
+				/**
+				 * Request form source
+				 */
+				 jQuery.ajax({
+					 url: source_url,
+					 dataType: 'json',
+				 })
+				 .done(function (objData) {
+					 objData.form_element_id = element_form_id;
+					 var form = buildForm(objData);
+					 //add simple html button as submit button to form
+					 form.append(jQuery("<div></div>", {id: "form_element_submit_button"}).attr("class", "form_element_collection form_element_button").html(
+						jQuery('<button></button>', {id: element_form_id + "_submit_button"}).html("Send").on('click', process_form_submit_function)	 
+					 ));
+					 
+					 jQuery(element_to_populate).html(form);
+					 return true;
+				 })
+				 .fail(function () {
+					 element_to_populate.html('An error has occurred, please try again later');
+					 return false;
+				 });
+				
+				//helper functions below
+				/**
+				 * Build form
+				 */
+				function buildForm(objData)
+				{
+					//check if errors were encountered
+					if (objData.error == 1)
+					{
+						alert(objData.response);
+						return false;
+					}//end if
+	
+					//confirm form data has been received
+					if (typeof objData.response.objForm == "undefined")
+					{
+						alert("Form could not retrieved");
+						return false;
+					}//end if
+				
+					//start building the form
+					var form = jQuery("<form></form>")
+										.attr("id", objData.form_element_id)
+										.attr("method", "post");
+					
+					//do form elements
+					jQuery.each(objData.response.objForm.objFormElements, function (name, objElement) {
+						var form_element = buildElement(objElement);
+						if (form_element != false)
+						{
+							form.append(form_element);
+						}//end if
+					});
+					
+					return form;
+				}//end function
+				
+	
+				/**
+				 * Build form elements
+				 */ 
+				function buildElement(objElement)
+				{
+					switch (objElement.type)
+					{
+						default:
+							var element = jQuery("<input/>", {"type": objElement.type});
+						
+							if (objElement.type == "checkbox" && objElement.value == "1")
+							{
+								element.attr("checked", true);
+							}//end if
+							break;
+						case "submit":
+							//ignore submit buttons
+							element = false;
+							break;
+							
+						case "radio":
+							var element = jQuery("<div></div>");
+							if (typeof objElement.options.value_options != "undefined")
+							{
+								jQuery.each(objElement.options.value_options, function (key, value) {
+									var e = jQuery("<input/>", {type: "radio", value: key, text: value, name: objElement.name});
+									
+									//append option to select
+									e.appendTo(element);
+								});
+							}//end if
+							break;
+							
+						case "select":
+							var element = jQuery("<select></select>");
+							
+							//add options
+							if (typeof objElement.options.empty_option != "undefined")
+							{
+								element.append(jQuery("<option></option>", {value: '', text: objElement.options.empty_option}));	
+							}//end if
+							if (typeof objElement.options.value_options != "undefined")
+							{
+								jQuery.each(objElement.options.value_options, function (key, value) {
+									var e = jQuery("<option></option>", {value: key, text: value});
+								
+									//check if value matched set value received
+									if (value == objElement.value)
+									{
+										e.attr("selected", true);
+									}//end if
+									
+									//append option to select
+									e.appendTo(element);
+								});
+							}//end if
+							break;
+							
+						case "textarea":
+							var element = jQuery("<textarea></textarea>");
+							break;
+					}//end switch
+					
+					if (element == false)
+					{
+						return element;	
+					}//end if
+					
+					//set element attributes
+					jQuery.each(objElement.attributes, function (key, value) {
+						element.attr(key, value);
+					});
+					
+					//create label
+					var label = jQuery("<label></label>", {text: objElement.label});
+					
+					//create container
+					var container = jQuery("<div></div>", {id: "form_element_" + objElement.name}).attr("class", "form_element_collection form_element_" + objElement.type);
+					//add element to label
+					element.appendTo(label);			
+					//add label to container
+					label.appendTo(container);
+									
+					return container;
+				}//end function	
+			}
+		});
+		
+		//form submit callback event, triggered on button click for form
+		function processFormSubmit(form_id, url)
+		{
+			//send data to majestic
+			jQuery.ajax({
+				url: url,
+				type: 'post',
+				data: jQuery(form_id).serialize()
+			})
+			.done(function (data) {
+				//deal with form errors if any etc...
+				console.log(data);
+			})
+			.fail(function () {
+				console.log('A failure occured, data could not be sent');
+			});
+			
+			//print form data
+			console.log(jQuery("#" + form_id).serialize());
+			return false;
+		}//end function
+		
+		jQuery(document).ready(function () {
+			var url = "https://#your_majestic3_frontend_domain/forms/bf/json/#form_id";
+			var form_id = "form1";
+			var process_form_callback = function (e) {e.preventDefault(), processFormSubmit('#' + form_id, url)};
+			
+			//configure and create majestic form
+			jQuery("#formGoesHere").majestic3Webform({
+				source_url: url, 
+				element_target: "#formGoesHere", 
+				element_form_id: form_id,
+				form_process_function: process_form_callback
+			});
+		});
+	</script>
+	</body>
+</html>
