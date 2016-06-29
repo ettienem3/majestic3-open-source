@@ -13,7 +13,7 @@ https://wiki.majestic3.com
 
 ### QUESTIONS AND FEEDBACK
 
-Online documentation can be found at https://wiki.majestic3.com/?post_type=api-sections&p=14.
+Online documentation can be found at https://wiki.majestic3.com/category/frequently-asked-questions
 
 If you find code in this repository behaving in an unexpected manner or
 contrary to its documented behavior, please create an issue in our GitHub
