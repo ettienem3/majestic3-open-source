@@ -175,6 +175,13 @@
 			var element_id = "front_" + objData.objReport.css_id;
 			jQuery(".report-output-container").html("<div id=\"" + element_id + "\"></div>");
 
+			//was a coded report requested
+			if (objData.objReport.report_generators_id == '13')
+			{
+				//switch operation to download
+				objData.objReport.download_flag = "1";
+			}//end if
+
 			//was a download requested?
 			if (objData.objReport.download_flag != "0")
 			{
@@ -365,7 +372,7 @@
 	</div>
 </div>
 
-<?php 
+<?php
 //include additional views where applicable
 if (strtolower($this->objReport->data->report->report_generators_name) == 'html table' && $this->objReport->data->report->report_type == 'report')
 {
@@ -375,7 +382,7 @@ if (strtolower($this->objReport->data->report->report_generators_name) == 'html 
 		$path = __DIR__ . DIRECTORY_SEPARATOR . 'report-specific-views' . DIRECTORY_SEPARATOR . $report_name . '.phtml';
 		if (is_file($path))
 		{
-			echo $this->partial('front-reports/report-viewer/report-specific-views/' . $report_name . '.phtml');	
+			echo $this->partial('front-reports/report-viewer/report-specific-views/' . $report_name . '.phtml');
 		}//end if
 	}//end if
 }//end if
