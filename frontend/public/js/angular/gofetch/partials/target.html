@@ -1,0 +1,161 @@
+<div ng-include src="'/js/angular/gofetch/partials/menu.html'" class="container-menu"></div>
+
+<div class="row content main-page-container" ng-controller="TargetCtrl">
+	<div class="col-sm-9">
+		<!-- page activity indicator -->
+		<div ng-bind-html="pageActivity | sanitize"></div>
+			
+		<!-- initiate data loding process -->
+		<div data-ng-init="loadCommunicatePageContent()"></div>
+		
+		<div class="col-sm-4" ng-hide="!page_content_loaded_flag">
+			<table class="table table-striped table-hover">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Episodes</th>
+						<th>Expires</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="objJourney in objJourneys track by objJourney.id">
+						<td>{{objJourney.journey}}</td>
+						<td>{{objJourney.comms}}</td>
+						<td>{{objJourney.date_expiry}}</td>
+						<td>{{objJourney.description}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<!-- Filter Form -->
+		<div class="col-sm-4" ng-hide="!page_content_loaded_flag">
+			<form novalidate class="form-horizontal" ng-show="page_content_loaded_flag">	
+			    <div class="form-group">
+			        <label for="journey" class="control-label col-xs-2">Journey</label>
+			        <div class="col-xs-10">
+			            <select ng-model="form_filter.journey" id="inputJourney" class="form-control" required="required">
+			            	<option value="" disabled selected>Select Journey</option>
+			            	<option ng-repeat="objJourney in form_fields.journey" value="{{objJourney.value}}">{{objJourney.text}}</option>
+			            </select>
+			        </div>
+			    </div>
+			    					    
+			    <div class="form-group">
+			        <label for="inputDateStart" class="control-label col-xs-2">From Date</label>
+			        <div class="col-xs-10">
+						<input ng-model="form_filter.start_date" type="text" readonly="readonly" class="form-control" id="inputDateStart" placeholder="Start Date" data-provide="datepicker" data-date-format="dd-mm-yyyy">
+			        </div>
+			    </div>
+			    
+			    <div class="form-group">
+			        <label for="inputDateEnd" class="control-label col-xs-2">To Date</label>
+			        <div class="col-xs-10">
+						<input ng-model="form_filter.end_date" type="text" readonly="readonly" class="form-control" id="inputDateEnd" placeholder="End Date" data-provide="datepicker" data-date-format="dd-mm-yyyy">
+			        </div>
+			    </div>
+			    			    
+			    <div class="form-group">
+			        <label for="inputSource" class="control-label col-xs-2">Origin</label>
+			        <div class="col-xs-10">
+			            <select ng-model="form_filter.source" id="inputSource" class="form-control">
+			            	<option value="" selected>Select Origin</option>
+			            	<option ng-repeat="objSource in form_fields.sources" value="{{objSource.value}}">{{objSource.text}}</option>
+			            </select>
+			        </div>
+			    </div>	
+			    
+			    <div class="form-group">
+			        <label for="inputReference" class="control-label col-xs-2">Guest Type</label>
+			        <div class="col-xs-10">
+			            <select ng-model="form_filter.reference" id="inputReference" class="form-control">
+			            	<option value="" selected>Select Guest Type</option>
+			            	<option ng-repeat="objReference in form_fields.references" value="{{objReference.value}}">{{objReference.text}}</option>
+			            </select>
+			        </div>
+			    </div>	
+			    
+			    <div class="form-group">
+			        <label for="inputStatus" class="control-label col-xs-2">Status</label>
+			        <div class="col-xs-10">
+			            <select ng-model="form_filter.status" id="inputStatus" class="form-control">
+			            	<option value="" selected>Select Status</option>
+			            	<option ng-repeat="objStatus in form_fields.statuses" value="{{objStatus.value}}">{{objStatus.text}}</option>
+			            </select>
+			        </div>
+			    </div>
+			    
+			    <div class="form-group">
+			        <label for="inputUser" class="control-label col-xs-2">User</label>
+			        <div class="col-xs-10">
+			            <select ng-model="form_filter.user" id="inputUser" class="form-control">
+			            	<option value="" selected>Select User</option>
+			            	<option ng-repeat="objUser in form_fields.users" value="{{objUser.value}}">{{objUser.text}}</option>
+			            </select>
+			        </div>
+			    </div>
+			    
+			    <button class="btn btn-danger" ng-click="filterFormReset()"><span class="glyphicon glyphicon-ban-circle"></span> Reset</button>
+			    	&nbsp;&nbsp;
+			    <button class="btn btn-primary" ng-click="filterFormSubmit()"><span class="glyphicon glyphicon-filter"></span> Filter</button>
+			</form>
+		</div>	
+		
+		<!-- Target results section -->
+		<div class="col-sm-4" ng-hide="!page_content_loaded_flag">
+			<div ng-hide="!objContacts" class="text-left">
+				<div>
+					<div class="panel panel-primary">
+						<div class="panel-heading">Origin</div>
+						<div class="panel-body">
+							<div ng-repeat="objData in objContacts.source">
+								<span>{{objData.registrations_source}}:</span> &nbsp;<span>{{objData.count_contacts}}</span>
+							</div>
+						</div>
+						<hr/>
+					</div>
+					
+					<div class="panel panel-primary">
+						<div class="panel-heading">Guest Type</div>
+						<div class="panel-body">
+							<div ng-repeat="objData in objContacts.reference">
+								<span>{{objData.registrations_reference}}:</span> &nbsp;<span>{{objData.count_contacts}}</span>
+							</div>					
+						</div>
+						<hr/>
+					</div>
+					
+					<div class="panel panel-primary">
+						<div class="panel-heading">Status</div>
+						<div class="panel-body">
+							<div ng-repeat="objData in objContacts.status">
+								<span>{{objData.registration_status_status}}:</span> &nbsp;<span>{{objData.count_contacts}}</span>
+							</div>					
+						</div>
+						<hr/>
+					</div>
+					
+					<div class="panel panel-primary">
+						<div class="panel-heading">User</div>
+						<div class="panel-body">
+							<div ng-repeat="objData in objContacts.user">
+								<span>{{objData.users_uname}}:</span> &nbsp;<span>{{objData.count_contacts}}</span>
+							</div>					
+						</div>
+						<hr/>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+				<div>
+					<div class="alert alert-info">
+						<span class="glyphicon glyphicon-info-sign"></span>&nbsp;The data detailed above is an approximation based on data currently available and is subject to change without notice.
+					</div>
+				</div>
+				<div>
+					<button class="btn btn-success" ng-click="requestBulkSend()"><span class="glyphicon glyphicon-screenshot"></span>&nbsp;Target</button>
+				</div>														
+			</div>
+		</div>		
+	</div>
+</div>

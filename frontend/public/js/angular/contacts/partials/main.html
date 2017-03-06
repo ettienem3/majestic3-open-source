@@ -1,0 +1,122 @@
+<div id="container" class="container-fluid" ng-controller="ContactsHomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<a href="#!/create" class="btn btn-success pull-right" title="Create Contact"><span class="glyphicon glyphicon-plus"></span> Add Contact</a>
+					<a href="" ng-click="refreshRecords()" title="Refresh Data" style="margin-right: 5px;" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-refresh"></span> Refresh</a>
+					<button ng-click="togglePanel('filterContactsPanelState', true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-filter"></span>&nbsp;Filter</button>
+					<a href="/front/contacts" title="Revert back to the old view" class="btn btn-default pull-right" style="margin-right: 5px;">Switch to old view</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Status</th>
+							<th>Name</th>
+							<th>Email</th>
+							<th>Source</th>
+							<th>Reference</th>
+							<th>User</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}" ng-style="objRecord.unsubscribe > 0 && {'background-color':'#fce8e8'}">
+							<td>{{objRecord.reg_id}}</td>
+							<td><span class="label label-info" style="background-color: {{objRecord.registration_status_colour}}; cursor: zoom-in;" title="Current Status: {{objRecord.registration_status_status}}" ng-click="loadContactDetails(objRecord, 'status')">{{objRecord.registration_status_status}}</span></td>
+							<td>
+								<span>{{objRecord.fname}} {{objRecord.sname}}</span>
+							</td>
+							<td>{{objRecord.comm_destinations_email}}</td>
+							<td><span style="cursor: zoom-in;" ng-click="loadContactDetails(objRecord, 'data')">{{objRecord.source}}</span></td>
+							<td><span style="cursor: zoom-in;" ng-click="loadContactDetails(objRecord, 'data')">{{objRecord.reference}}</span></td>
+							<td><span style="cursor: zoom-in;" ng-click="loadContactDetails(objRecord, 'data')">{{objRecord.user_uname}}</span></td>
+							<td>
+								<a href="#!/view/{{objRecord.reg_id}}" title="View Contact Details"><span class="glyphicon glyphicon-eye-open"></span></a>
+								<a href="#!/update/{{objRecord.reg_id}}" title="Edit Contact Details"><span class="glyphicon glyphicon-pencil"></span></a>
+								<a href="" title="Journey Details" ng-hide="objRecord.unsubscribe > 0 || objRecord.registration_status_status == 'Bin'" ng-click="loadContactDetails(objRecord, 'journeys')"><span class="glyphicon glyphicon-volume-down"></span></a>
+							</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<div ng-show="contactToolkitPanel" id="contactToolkitPanel" class="panel-show-centre aside left am-fade-and-slide-bottom" style="height: 70%; width: 65%;">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{toolkit_panel_title}}<button ng-click="togglePanel('contactToolkitPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body" id="contact_toolkit_section" style="height: 1150px;">
+					<span ng-bind-html="global_wait_image | sanitize"></span>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="togglePanel('contactToolkitPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Filter Contacts -->
+	<div ng-show="filterContactsPanelState" id="filterContactsPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Filter Contacts</span><button ng-click="togglePanel('filterContactsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <form novalidate role="form">
+							<formly-form model="contactFilter.model" fields="contactFilter.fields" form="contactFilter.form" options="contactFilter.options">
+							  	<button type="submit" class="btn btn-primary" ng-disabled="progress.active() || contactFilter.form.$invalid" ng-click="contactFilter.submitForm()">Filter Data</button>
+							  	&nbsp;
+							  	<button type="submit" class="btn btn-success" ng-click="contactFilter.clearForm()">Clear Filter</button>
+							</formly-form>
+						 </form>		 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('filterContactsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>		
+</div>
+
+    <!-- Put custom templates here -->
+    <script type="text/ng-template" id="datepicker.html">
+      <p class="input-group">
+        <input  type="text"
+                id="{{::id}}"
+                name="{{::id}}" 
+				readonly="readonly" 
+                ng-model="model[options.key]"
+                class="form-control"
+                ng-click="datepicker.open($event)"
+                uib-datepicker-popup="{{to.datepickerOptions.format}}"
+                is-open="datepicker.opened"
+                datepicker-options="to.datepickerOptions" />
+        <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="datepicker.open($event)" ng-disabled="to.disabled"><i class="glyphicon glyphicon-calendar"></i></button>
+        </span>
+      </p>
+    </script>

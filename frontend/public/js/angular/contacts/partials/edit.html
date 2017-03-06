@@ -1,0 +1,70 @@
+<div id="container" class="container-fluid" ng-controller="ContactsEditCtrl">
+	<div class="row">
+		<div class="container-body">
+			<!-- home page content is injectec -->
+			<div ng-bind-html="pageContent | sanitize"></div>
+			<!-- end of home page content -->
+			
+			<!-- initiate data loding process -->
+			<div ng-init="loadContact()"></div>
+			<div>
+				<div class="pull-left" ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+				<button class="btn btn-warning pull-right" ng-click="togglePanel('changeFormLayoutPanel', true);" title="Change Form used to display details"><span class="glyphicon glyphicon-blackboard"></span>&nbsp; Change Layout</button>
+				<a href="#!/view/{{objContactData.reg_id}}" class="btn btn-primary pull-right" title="Back" style="margin-right: 5px;"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp; Back</a>
+			</div>
+			<div style="clear:both;"></div>
+			<hr/>
+			<div>
+				<div ng-show="progress.active()" ng-bind-html="global_wait_image | sanitize"></div>
+				<div id="messages" class="alert" ng-show="messages" ng-bind="messages"></div>
+				<div>
+					<form role="form" novalidate>
+						<!-- Manage errors until these can be displayed with elements... -->
+				  		<div ng-show="contactForm.fields.objCustomErrors.length > 0">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="bg-danger">
+										<div><strong>Validation Problems: </strong></div>
+										<div ng-repeat="err in contactForm.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+							                <i class="glyphicon glyphicon-remove"></i>
+							                <span>
+							                    {{err.message}}
+							                </span>
+							            </div>
+									</div>
+								</div>
+							</div>
+							<hr/>
+						</div>
+						
+						<formly-form model="contactForm.model" fields="contactForm.fields" form="contactForm.form" >
+						 
+						 	<button type="submit" class="btn btn-primary" ng-disabled="progress.active() || contactForm.form.$invalid" ng-click="contactForm.submitContact()"><span class="glyphicon glyphicon-cloud-upload"></span>&nbsp;Update Contact</button>
+						</formly-form>					
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div ng-show="changeFormLayoutPanel" id="changeFormLayoutPanel" class="panel-show-right aside left am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Change Layout<button ng-click="togglePanel('changeFormLayoutPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body" id="change_panels_section">
+					<span class="wait-image" ng-bind-html="global_wait_image | sanitize"></span>
+					<ul>
+						<li ng-repeat="objForm in objCPPFormsList">
+							<a href="" title="Change layout to {{objForm.form}}" ng-click="loadCPPForm({cpp_form_id: objForm.id}); togglePanel('changeFormLayoutPanel', false)">{{objForm.form}}</a>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="togglePanel('changeFormLayoutPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

@@ -3,6 +3,10 @@
 <?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Form Look and Feels'); ?>
 
 <ul class="nav nav-tabs">
+	<?php if (isset($this->layout()->app_config['frontend_views_config']) && $this->layout()->app_config['frontend_views_config']['enabled'] == true && $this->layout()->app_config['frontend_views_config']['angular-views-enabled']['form-look-and-feel'] == true) : ?>
+		<li role="presentation"><a href="<?php echo $this->url("front-form-templates", array("action" => "app")); ?>" class="btn" title="Use new view" data-toggle="tooltip"><?php echo 'Switch to New View'; ?></a></li>
+	<?php endif;?>
+		
 	<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-templates", array("action" => "create")); ?>" class="btn btn-success" title="Create Look and Feel" data-toggle="tooltip"><?php echo ICON_MEDIUM_ADD_HTML. 'Create Look and Feel' ?></a></li>
 </ul>
 	<div class="mj3_table_contain clearfix">

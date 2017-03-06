@@ -1,0 +1,136 @@
+<div id="container" class="container-fluid" ng-controller="JourneyEpisodesCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="pageTitle | sanitize"></div>
+					<div class="pull-left">
+						<a href="#!/" class="btn btn-primary pull-left"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;Back to Journeys</a>
+						<a href="#!/summary/{{objJourney.id}}" class="btn btn-primary pull-left" style="margin-left: 5px;"><span class="glyphicon glyphicon-option-vertical"></span>&nbsp;Journey Summary</a>					
+					</div>
+					<div class="pull-right">
+						<button ng-click="refreshData()" class="btn btn-primary"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+						<button ng-click="togglePanel('createJourneyEpisodePanel', true)" class="btn btn-success" title="Add episode to journey"><span class="glyphicon glyphicon-plus-sign"></span> Add Episode</button>						
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+			</div>
+			
+			<!-- Journey details -->
+			<div class="container-fluid col-xs-12">
+				<div class="row">
+					<div class="well">
+						<h2>{{objJourney.journey}}</h2>
+						<hr/>
+						<div class="">
+							Description: {{objJourney.description}}
+						</div>
+						<div class="">
+							Expiry: {{objJourney.date_expiry_formatted}}
+						</div>
+						<div class="">
+							Status: <span ng-show="objJourney.active == 1" class="text-success glyphicon glyphicon-ok">(Active)</span><span ng-show="objJourney.active == 0" class="text-danger glyphicon glyphicon-remove">(Inactive)</span>
+						</div>
+						<div class="">
+							Priority: {{objJourney.priority}}
+						</div>					
+					</div>
+				</div>	
+				
+				<div class="row container-fluid">
+					<!-- Episodes menu -->
+					<div class="pull-left col-sm-2" data-spy="affix" data-offset-top="30" ng-hide="objJourneyEpisodes.length == 0">
+						<div class="sidebar">
+							<nav class="navbar navbar-inverse navbar-fixed-side">
+								<ul class="nav nav-pills nav-stacked">
+									<li class="list-group-item" ng-repeat="objEpisode in objJourneyEpisodes track by objEpisode.id" ><a ng-click="scrollToEpisode(objEpisode)">Episode {{objEpisode.comm_num}}</a></li>
+								</ul>
+							</nav>
+						</div>		
+					</div>
+							
+					<!-- Episode details -->
+					<div  class="col-xs-10 pull-right" ng-repeat="objEpisode in objJourneyEpisodes track by objEpisode.id">
+						<div class="panel panel-primary journey_episode_{{objEpisode.id}}" id="journey_episode_{{objEpisode.id}}_section">
+							<div class="panel-heading">
+								<div class="pull-left">Episode {{objEpisode.comm_num}} ({{objEpisode.comm_via_data_comm_via}})</div>
+								<div class="clearboth"></div>
+							</div>
+							<div class="panel-body">
+								<div>
+									<button ng-show="objEpisode.active == 0" ng-click="activateEpisode(objEpisode)" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Activate Episode</button>
+									<button ng-show="objEpisode.active == 1" ng-click="deactivateEpisode(objEpisode)" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Deactivate Episode</button>
+									
+									<button ng-click="alertEpisodeAction()" ng-show="objEpisode.active == 1" class="btn btn-warning"><span class="glyphicon glyphicon-pencil"></span> Update Episode</button>
+									<a href="#!/episode/{{objJourney.id}}/{{objEpisode.id}}" ng-show="objEpisode.active == 0" class="btn btn-primary"><span class="glyphicon glyphicon-pencil"></span> Update Episode</a>
+									
+									<a href="/utils/comms/view?cid={{objEpisode.id_encoded}}" class="btn btn-primary" title="Preview episode" target="_blank"><span class="glyphicon glyphicon-zoom-in"></span> Preview</a>
+									<button ng-click="deleteEpisode(objEpisode)" ng-show="objEpisode.active == 0" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> Delete Epsiode</button>								
+								</div>
+								<hr/>
+								
+								<div class="pull-left col-xs-4">
+									<ul class="list-group">
+										<li class="list-group-item text-danger bg-danger" ng-show="objEpisode.__status_reason != ''"><strong>This episode is not sending currently</strong><br/>{{objEpisode.__status_reason}}</li>
+										<li class="list-group-item"><strong>Episode Number:</strong> {{objEpisode.comm_num}}</li>
+										<li class="list-group-item"><strong>Episode Status:</strong> <span ng-show="objEpisode.active == 1" class="text-success bg-success" style="padding: 5px;">Active</span><span ng-show="objEpisode.active == 0" class="text-danger bg-danger" style="padding: 5px;">Inactive</span></li>
+										<li class="list-group-item"><strong>Timing:</strong> {{objEpisode.__timing_delay}}</li>
+										<li class="list-group-item"><strong>Description:</strong> {{objEpisode.description}}</li>
+										<li class="list-group-item"><strong>Start Date:</strong> {{objEpisode.date_start}}</li>
+										<li class="list-group-item"><strong>Expiry Date:</strong> {{objEpisode.date_expiry}}</li>
+										<li class="list-group-item"><strong>Delivery Channel:</strong> {{objEpisode.comm_via_data_comm_via}}</li>
+										<li class="list-group-item"><strong>Subject:</strong> {{objEpisode.subject}}</li>
+										<li class="list-group-item"><strong>From:</strong> {{objEpisode.comm_from_name}} &lt;{{objEpisode.comm_from}}&gt;</li>
+										<li class="list-group-item"><strong>Reply to:</strong> {{objEpisode.reply_to}}</li>
+										<li class="list-group-item" ng-show="objEpisode.cc != ''"><strong>Carbon Copy (CC):</strong> {{objEpisode.cc}}</li>
+									</ul>	
+								</div>
+								
+								<div style="margin-left: 15px;" class="pull-left col-xs-7">
+									<h4 class="h4">Content</h4>
+									<div class="well" style="height: 500px; overflow: auto;">
+										<div class="">
+											<span ng-bind-html="objEpisode.content | sanitize"></span>
+										</div>
+									</div>
+								</div>
+								<div class="clearboth"></div>						
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="clearboth"></div>
+			</div>
+			
+			<!-- create episode panel -->
+			<div ng-show="createJourneyEpisodePanel" id="createJourneyEpisodePanel" class="panel-show-centre aside am-fade-and-slide-top">
+				<!-- Dialog content -->
+				<div class="panel panel-primary">
+						<div class="panel-heading">
+							<h3 class="panel-title">Create new Episode<button ng-click="togglePanel('createJourneyEpisodePanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+						</div>
+						<div class="panel-body">
+							<div>
+							      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+							      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							      
+								  <form novalidate role="form">
+									<formly-form model="createEpisodeForm.model" fields="createEpisodeForm.fields" form="createEpisodeForm.form">
+									  <button type="submit" ng-hide="progress.active()" class="btn btn-primary" ng-disabled="progress.active() || createEpisodeForm.form.$invalid" ng-click="createEpisodeForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Continue</button>
+									</formly-form>
+								  </form>			 
+							</div>
+						</div>
+						<div class="panel-footer">					
+							<button ng-click="togglePanel('createJourneyEpisodePanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+							<div style="clear: both;"></div>
+						</div>
+				</div>
+			</div>				
+	</div>
+</div>

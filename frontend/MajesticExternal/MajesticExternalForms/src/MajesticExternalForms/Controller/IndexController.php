@@ -66,7 +66,7 @@ class IndexController extends AbstractCoreActionController
 	    	$arr_return["form_url"] = $this->url()->fromRoute("majestic-external-forms/bf", array("fid" => $form_id));
     	} catch (\Exception $e) {
 //@TODO do something with the error
-// var_dump($e->getMessage() . " : " . $e->getPrevious()); exit;
+			echo '<!--' . $e->getMessage() . " : " . $e->getPrevious() . '-->';
 			die("The requested form could not be loaded. Response: " . $this->frontControllerErrorHelper()->formatErrors($e));
     	}//end catch
 
@@ -161,7 +161,7 @@ class IndexController extends AbstractCoreActionController
     		$objCaptcha = new \Zend\Captcha\Image(array(
     				'expiration' => '300',
     				'wordlen' => '7',
-    				'font' => 'data/fonts/arial.ttf',
+    				'font' => 'fonts/arial.ttf',
     				'fontSize' => '20',
     				'imgDir' => 'public/captcha',
     				'imgUrl' => '/captcha',
@@ -314,8 +314,53 @@ class IndexController extends AbstractCoreActionController
     	//enable cors
     	header('Access-Control-Allow-Origin: *');
     	header('Access-Control-Allow-Methods: GET, POST');
-    	header("Access-Control-Allow-Headers: X-Requested-With");
+    	header("Access-Control-Allow-Headers: content-type");
+    	//header("Access-Control-Allow-Headers: X-Requested-With");
 
+    	/**
+    	 * Has contact information been requested
+    	 */
+    	$request = $this->getRequest();
+    	$action = $request->getPost("a");
+    	$reg_id = $request->getPost("r");
+    	$form_id = $request->getPost("f");
+    	if ($request->isPost() && $action == 'load-contact' && $reg_id != "" && $form_id != "")
+    	{
+    		try {
+    			//load form details to check if form allows data to be populated
+    			//set container for additional params
+    			$arr_additional_params = array();
+    			$arr_additional_params['raw_data'] = 1;
+    			//load form details
+    			$arr_return = $this->getExternalFormsModel()->loadForm($form_id, NULL, $arr_additional_params);
+    			if ($arr_return['objFormRawData']->populate_form != 1)
+    			{
+    				$objResult = new JsonModel(array(
+    					'error' => 1,
+    					'response' => 'Operation is not permitted by form',
+    				));
+    				return $objResult;
+    			}//end if
+
+    			//request contact information
+    			$objData = $this->getExternalFormsModel()->loadContact($form_id, $reg_id, $request->getPost('cid'));
+    			$objResult = new JsonModel(array(
+    					'error' => 0,
+    					'response' => $objData,
+    			));
+    			return $objResult;
+    		} catch (\Exception $e) {
+    			$objResponse = new JsonModel(array(
+    					'error' => 1,
+    					'response' => $e->getMessage(),
+    			));
+    			return $objResponse;
+    		}//end catch
+    	}//end if
+
+    	/**
+    	 * Load and process form details
+    	 */
     	//set json output
     	$this->getResponse()->getHeaders()->addHeaders(array('Content-type' => 'application/json'));
     	$this->layout("layout/external/forms/json");
@@ -361,7 +406,23 @@ class IndexController extends AbstractCoreActionController
     	if ($request->isPost())
     	{
 			$form = $arr_return["objForm"];
-			$form->setData($request->getPost());
+
+			//check if data has been received and is not json
+			$arr_data_tmp = (array) $request->getPost();
+			if (count($arr_data_tmp) == 0)
+			{
+				//check if json has been received
+				$json = file_get_contents('php://input');
+				$arr_data_tmp = json_decode($json, TRUE);
+			}//end if
+
+			if (count($arr_data_tmp) > 0)
+			{
+				$form->setData($arr_data_tmp);
+			} else {
+				$form->setData($request->getPost());
+			}//end if
+
 			if ($form->isValid($request->getPost()))
 			{
 				try {
@@ -404,7 +465,7 @@ class IndexController extends AbstractCoreActionController
 				{
 					if ($form->has($key))
 					{
-						$form->get($key)->setMessage($arr_messages);
+						$form->get($key)->setMessages($arr_messages);
 					}//end if
 				}//end foreach
 
@@ -433,7 +494,7 @@ class IndexController extends AbstractCoreActionController
     	//check if reg id is encoded, if not, do not process
     	if (is_numeric($reg_id))
     	{
-    		$this->flashMessenger()->addErrorMessage("An error occured attempting to load data");
+    		$this->flashMessenger()->addErrorMessage("An error occurred attempting to load data");
 
     		//redirect back to form
     		return $this->redirect()->toRoute("majestic-external-forms/bf", array("fid" => $form_id));
@@ -452,11 +513,16 @@ class IndexController extends AbstractCoreActionController
     			exit;
     		}//end if
     	} catch (\Exception $e) {
-    		var_dump($e->getMessage() . " : " . $e->getPrevious()); exit;
+    		 $this->flashMessenger()->addErrorMessage("A problem has occurred trying to load the requested page " . '<!--' . $e->getMessage() . '-->');
+
+    		//redirect back to form
+    		return $this->redirect()->toRoute("majestic-external-forms/bf", array("fid" => $form_id, 'reg_id' => $reg_id));
     	}//end catch
 
 		return array(
 				"objForm" => $objData,
+				'reg_id' => $reg_id,
+				'form_id' => $form_id,
 		);
     }//end function
 
@@ -465,7 +531,155 @@ class IndexController extends AbstractCoreActionController
      */
     public function vfAction()
     {
+    	//set container for additional params
+    	$arr_additional_params = array();
 
+    	$form_id = $this->params()->fromRoute("fid");
+    	$reg_id = $this->params()->fromRoute("reg_id", NULL);
+    	$arr_additional_params["reg_id"] = $reg_id;
+
+    	//check if reg id is encoded, if not, do not process
+    	if (is_numeric($reg_id) || $reg_id == '')
+    	{
+    		$this->flashMessenger()->addErrorMessage("An error occured attempting to load data");
+
+    		//redirect back to form
+    		return $this->redirect()->toRoute("majestic-external-forms/vfs", array("fid" => $form_id));
+    	}//end if
+
+    	//load comm history id
+    	$comm_history_id = $this->params()->fromQuery("cid", "");
+    	if ($comm_history_id != "")
+    	{
+    		$arr_additional_params["cid"] = $comm_history_id;
+    	}//end if
+
+    	//check form id has been set
+    	if (!is_string($form_id))
+    	{
+    		echo "Form could not be loaded. Required information is not available.";
+    		exit;
+    	}//end if
+
+    	try {
+    		//load form details
+    		$arr_additional_params['behaviour'] = '__viral';
+    		$arr_form = $this->getExternalFormsModel()->loadForm($form_id, $reg_id, $arr_additional_params);
+    		$arr_form["additional_data"] = $arr_additional_params;
+
+    		//add plain form url
+    		$arr_form["form_url"] = $this->url()->fromRoute("majestic-external-forms/vf", array("fid" => $form_id, 'reg_id' => $arr_additional_params['reg_id']));
+    	} catch (\Exception $e) {
+    		die("The requested form could not be loaded. Response: " . $this->frontControllerErrorHelper()->formatErrors($e));
+    	}//end catch
+
+    	//set layout
+    	$this->layout('layout/external/angular');
+
+    	//format form data
+    	$objForm = $this->renderSystemAngularFormHelper($arr_form['objForm'], NULL);
+    	$arr_form['objForm'] = $objForm;
+
+    	$arr_form_look_and_feel = array('objLookAndFeel' => $arr_form['objLookAndFeel']);
+    	unset($arr_form['objLookAndFeel']);
+
+    	return array(
+    		'arr_form' => $arr_form,
+    		'arr_additional_params' => $arr_additional_params,
+    		'arr_look_and_feel' => $arr_form_look_and_feel,
+    	);
+    }//end function
+
+    public function vfAjaxRequestAction()
+    {
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['viral-forms-external'] != true)
+    	{
+    		return new JsonModel(array(
+    				'error' => 1,
+    				'response' => 'Requested functionality is not available',
+    		));
+    	}//end if
+
+    	$arr_params = $this->params()->fromQuery();
+    	if (isset($arr_params['acrq']))
+    	{
+    		$acrq = $arr_params['acrq'];
+    	}//end if
+
+    	$request = $this->getRequest();
+    	if ($request->isPost())
+    	{
+    		$arr_post_data = json_decode(file_get_contents('php://input'), true);
+    		if (isset($arr_post_data['acrq']))
+    		{
+    			$acrq = $arr_post_data['acrq'];
+    			unset($arr_post_data['acrq']);
+    		}//end if
+    	}//end if
+
+    	try {
+    		switch ($acrq)
+    		{
+    			case 'load-contact-data':
+
+    				break;
+
+    			case 'load-referral-data':
+
+    				break;
+
+    			case 'submit-data':
+    				//convert data to acceptable array
+    				$total_field_groups = $arr_post_data['_total_field_groups'];
+    				$max_form_referrals = $arr_post_data['_max_form_referrals_allowed'];
+					$form_id = $arr_post_data['_form_id'];
+					$reg_id = $arr_post_data['reg_id'];
+					unset($arr_post_data['_total_field_groups'], $arr_post_data['_max_form_referrals_allowed'], $arr_post_data['_form_id']);
+
+					$arr_additional_data = array(
+						'behaviour' => '__viral',
+						'reg_id' => $reg_id,
+					);
+
+    				$arr_data = array();
+    				foreach ($arr_post_data as $field => $value)
+    				{
+    					$str = substr($field, 0, 1);
+    					if ($str == '_' || !is_numeric($str))
+    					{
+    						continue;
+    					}//end if
+
+    					$field = str_replace($str . '_', '', $field);
+						$arr_data[$str][$field] = $value;
+    				}//end foreach
+
+    				$objResult = $this->getExternalFormsModel()->processFormSubmit($form_id, $arr_data, $arr_additional_data);
+    				$objResult->submit_data = $arr_data;
+					$objResponse = new JsonModel(array(
+						'objData' => $objResult,
+					));
+					return $objResponse;
+    				break;
+    		}//end switch
+    	} catch (\Exception $e) {
+    		$objResponse = new JsonModel(array(
+    				'error' => 1,
+    				'response' => $this->frontControllerErrorHelper()->formatErrors($e),
+    				'raw_response' => $e->getMessage(),
+    				'submit_data' => $arr_data,
+    		));
+
+    		return $objResponse;
+    	}//end catch
+
+    	$objResponse = new JsonModel(array(
+    			'error' => 1,
+    			'response' => 'An invalid request has been received',
+    	));
+
+    	return $objResponse;
     }//end function
 
     /**
@@ -481,18 +695,19 @@ class IndexController extends AbstractCoreActionController
     	$request = $this->getRequest();
     	$reg_id = $request->getPost("r");
     	$form_id = $request->getPost("f");
+    	$replace_content = $request->getPost('rcontent');
     	if ($request->isPost() && $reg_id != "" && $form_id != "")
     	{
     		try {
     			//request contact information
-    			$objData = $this->getExternalFormsModel()->loadContact($form_id, $reg_id, $request->getPost('cid'));
+    			$objData = $this->getExternalFormsModel()->loadContact($form_id, $reg_id, $request->getPost('cid'), $replace_content);
+    			//echo \FrontCore\Models\FrontCoreModel::JSON_STRING_SAFE(json_encode(array("error" => 0, "response" => $objData)));
     			echo json_encode(array("error" => 0, "response" => $objData));
     			exit;
     		} catch (\Exception $e) {
     			echo json_encode(array("error" => 1, "response" => $e->getMessage()));
     			exit;
     		}//end catch
-
     	}//end if
 
     	echo json_encode(array("error" => 1, "response" => "Data could not be retrieved"));

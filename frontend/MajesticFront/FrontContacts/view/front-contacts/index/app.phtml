@@ -1,0 +1,15 @@
+<!-- Angular-UI Bootstrap has tabs directive we want -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.0.3/ui-bootstrap-tpls.js"></script>
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_CONTACTS_HTML .'&nbsp; My Contacts'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+</script>
+<script src="/js/angular/contacts/app.js"></script>
+<script src="/js/angular/contacts/controllers.js"></script>
+<script src="/js/angular/contacts/services.js"></script>
+
+<?php
+echo '<div ng-app="frontEndContactsApp"><div ng-view></div></div>';
+return;

@@ -149,13 +149,17 @@
 	<ul class="nav nav-tabs">
 
 		<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("action" => "select-profile-layout")); ?>" class="btn btn-primary" title="Change screen layout" data-toggle="tooltip"><?php echo ICON_MEDIUM_LAYOUT_HTML . '&nbsp; Change Layout'; ?></a></li>
+		
+		<?php if (isset($this->layout()->app_config['frontend_views_config']) && $this->layout()->app_config['frontend_views_config']['enabled'] == true && $this->layout()->app_config['frontend_views_config']['angular-views-enabled']['contact-list'] == true) : ?>
+			<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("action" => "app")); ?>" class="btn" title="Use new view" data-toggle="tooltip"><?php echo 'Switch to New View'; ?></a></li>
+		<?php endif;?>
+		
 		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-contacts", array("action" => "create-contact")); ?>" title="Create a new Contact" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . '&nbsp; Add Contact'; ?></a></li>
 	</ul>
 
 	<div class="mj3_table_contain clearfix">
 
 	<?php
-
 		//start setting display fields
 		$arr_normal_display_fields["ID"] = "id";
 
@@ -286,6 +290,11 @@
 		//echo $this->renderDataTableHelper(array("return_script" => true), $css_id);
 		echo $this->renderSimpleHTMLTable($arr, $arr_header_fields, array("id" => $css_id));
 
+		//insert pagination data
+		if (count($this->arr_params) > 0)
+		{
+			$this->objContacts->hypermedia->pagination->additional_link_data = $this->arr_params;
+		}//end if
 		//insert pagination data
 		echo $this->renderPaginationHelper($this->objContacts->hypermedia->pagination, $this->url("front-contacts"));
 

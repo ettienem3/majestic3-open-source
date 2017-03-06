@@ -1,6 +1,6 @@
 <div class="mj3_tables clearfix">
 
-	<?php echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . ' &nbsp; Manage Journey Communications'); ?>
+	<?php echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML . ' &nbsp; Manage Journey Communications: ' . $this->objJourney->get('journey')); ?>
 
 	<ul class="nav nav-tabs">
 		<li role="presentation"><a href="<?php echo $this->url("front-comms-admin/journeys"); ?>" title="Back" data-toggle="tooltip"><?php echo ICON_MEDIUM_BACK_HTML; ?></a></li>
@@ -45,7 +45,7 @@
 
 			//loop trough the table fields
 			$arr_data["content"] 		= $objCommAdmin->content;
-			$arr_data["description"] 	= $objCommAdmin->description;
+			$arr_data["description"] 	= $objCommAdmin->description . ' (Type: ' . $objCommAdmin->comm_types_data_comm_type . ')';
 			$arr_data["subject"] 		= $objCommAdmin->subject;
 			$arr_data["behaviour"] 		= $objCommAdmin->journey_id;
 
@@ -133,7 +133,7 @@ $attachments_url = ""; //disabled for now because of sending structure...
 			//loop through the comms
 			echo "<div class=\"journey-comm-details\">";
 			echo 	"<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";
-			foreach ($arr as $arr_comm) 
+			foreach ($arr as $arr_comm)
 			{
 				echo 		"<tr>";
 				echo 			"<th>Delay:</th>";
@@ -185,7 +185,7 @@ $attachments_url = ""; //disabled for now because of sending structure...
 				echo 				$arr_comm["activate_commadmin"] . "&nbsp;" . $arr_comm["url"];
 				echo 			"</th>";
 				echo 		"</tr>";
-				
+
 				if (isset($arr_comm['comm_activate_error']) && $arr_comm['comm_activate_error'] != '')
 				{
 					echo 	'<tr>';
@@ -193,10 +193,10 @@ $attachments_url = ""; //disabled for now because of sending structure...
 					echo 		'<td><span class="journey-comm-details-description bg-danger text-danger">' . $arr_comm['comm_activate_error'] . '</span></td>';
 					echo 	'</tr>';
 				}//end if
-				
+
 				echo 		"<tr>";
 				echo 			"<td>";
-				echo 				"<span class=\"journey-comm-details-type\">Type: " . $arr_comm["type"] . "</span>";
+				echo 				"<span class=\"journey-comm-details-type\">Medium: " . $arr_comm["type"] . "</span>";
 				echo 			"</td>";
 				echo 			"<td>";
 				echo 				"<span class=\"journey-comm-details-description\">" . $arr_comm["description"] . "</span>";

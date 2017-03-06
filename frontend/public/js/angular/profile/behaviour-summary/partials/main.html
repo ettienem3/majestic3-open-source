@@ -1,0 +1,473 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<!-- Forms -->
+				<div class="row" ng-show="objSectionForms.length > 0">
+					<div class="">
+						<h4>Forms</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+									<th>Form</th>
+									<th>Behaviour Status</th>
+									<th>Form Status</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionForms track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+									<td>(ID: {{objB.fk_form_id}}) {{objB.target_data_fk_form_id.form}}</td>
+									<td>
+										<span ng-show="objB.active == 1" title="Behaviour is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.active == 0" title="Behaviour is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<span ng-show="objB.target_data_fk_form_id.active == 1" title="Form is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.target_data_fk_form_id.active == 0" title="Form is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<a href="" ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', true, objB)" title="Display more data"><span class="glyphicon glyphicon-eye-open"></span></a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Fields -->
+				<div class="row" class="objSectionFormFields.length > 0">
+					<div class="">
+						<h4>Fields</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+									<th>Form</th>
+									<th>Field</th>
+									<th>Behaviour Status</th>
+									<th>Field Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionFormFields track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+									<td>(ID: {{objB.target_data_fk_form_id.id}}) {{objB.target_data_fk_form_id.form}}</td>
+									<td>(ID: {{objB.fk_fields_all_id}}) {{objB.target_data_fk_fields_all_id.description}}</td>
+									<td>
+										<span ng-show="objB.active == 1" title="Behaviour is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.active == 0" title="Behaviour is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<span ng-show="objB.target_data_fk_fields_all_id.active == 1" title="Field is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.target_data_fk_fields_all_id.active == 0" title="Field is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<a href="" ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', true, objB)" title="Display more data"><span class="glyphicon glyphicon-eye-open"></span></a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>				
+				</div>
+				
+				<!-- Journeys -->
+				<div class="objSectionJourneys.length > 0">
+					<div class="">
+						<h4>Journeys</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+									<th>Journey</th>
+									<th>Behaviour Status</th>
+									<th>Journey Status</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionJourneys track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+									<td>(ID: {{objB.fk_journey_id}}) {{objB.target_data_fk_journey_id.journey}}</td>
+									<td>
+										<span ng-show="objB.active == 1" title="Behaviour is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.active == 0" title="Behaviour is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<span ng-show="objB.target_data_fk_journey_id.active == 1" title="Journey is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.target_data_fk_journey_id.active == 0" title="Journey is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<a href="" ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', true, objB)" title="Display more data"><span class="glyphicon glyphicon-eye-open"></span></a>
+									</td>									
+								</tr>
+							</tbody>
+						</table>
+					</div>					
+				</div>
+				
+				<!-- Statuses -->
+				<div class="row" ng-show="objSectionStatuses.length > 0">
+					<div class="">
+						<h4>Statuses</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+									<th>Contact Status</th>
+									<th>Behaviour Status</th>
+									<th>Status</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionStatuses track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+									<td>(ID: {{objB.fk_reg_status_id}}) {{objB.target_data_fk_reg_status_id.status}}</td>
+									<td>
+										<span ng-show="objB.active == 1" title="Behaviour is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.active == 0" title="Behaviour is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<span ng-show="objB.target_data_fk_reg_status_id.active == 1" title="Contact Status is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.target_data_fk_reg_status_id.active == 0" title="Contact Status is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<a href="" ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', true, objB)" title="Display more data"><span class="glyphicon glyphicon-eye-open"></span></a>
+									</td>										
+								</tr>
+							</tbody>
+						</table>
+					</div>				
+				</div>
+				
+				<!-- Links -->
+				<div class="row" ng-show="objSectionLinks.length > 0">
+					<div class="">
+						<h4>Tracking Links</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+									<th>Link</th>
+									<th>Behaviour Status</th>
+									<th>Status</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionLinks track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+									<td>
+										<span ng-show="objB.active == 1" title="Behaviour is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.active == 0" title="Behaviour is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<span ng-show="objB.target_data_fk_links_id.active == 1" title="Tracking Link is activated" class="text-success glyphicon glyphicon-ok"></span>
+										<span ng-show="objB.target_data_fk_links_id.active == 0" title="Tracking Link is deactivated" class="text-danger glyphicon glyphicon-remove"></span>
+									</td>
+									<td>
+										<a href="" ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', true, objB)" title="Display more data"><span class="glyphicon glyphicon-eye-open"></span></a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+				<!-- Trackers -->
+				<div class="row" ng-show="objSectionTrackers.length > 0">
+					<div class="">
+						<h4>Trackers</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionTrackers track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+				<!-- Campaigns -->
+				<div class="row" ng-show="objSectionCampaigns.length > 0">
+					<div class="">
+						<h4>Campaigns</h4>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Behaviour ID</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objB in objSectionCampaigns track by objB.id">
+									<td>{{objB.id}}</td>
+									<td><span ng-bind-html="setActionDescription(objB) | sanitize"></span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Filter form -->
+	<div ng-show="filterFormPanelState" id="filterFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Filter Data <button ng-click="togglePanel('filterFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('filterFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Behaviour Details Panel -->
+	<div ng-show="displayBehaviourTargetDataPanel" id="displayBehaviourTargetDataPanel" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Behaviour Details <button ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-xs-5">
+							<h4>Behaviour Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>Section</td>
+										<td><span ng-bind-html="setBeahviourSectionDescription(objViewBehaviour)"></span></td>
+									</tr>
+									<tr>
+										<td>Description</td>
+										<td>{{objViewBehaviour.description}}</td>
+									</tr>
+									<tr>
+										<td>Action</td>
+										<td><span ng-bind-html="setActionDescription(objViewBehaviour)"></span></td>
+									</tr>	
+									<tr>
+										<td>Active</td>
+										<td>
+											<span class="text-success glyphicon glyphicon-ok" ng-show="objViewBehaviour.active == 1"></span>
+											<span class="text-danger glyphicon glyphicon-remove" ng-show="objViewBehaviour.active == 0"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>
+					
+					<!-- Forms -->
+					<div class="row" ng-hide="!objViewBehaviour.target_data_fk_form_id">
+						<div class="col-xs-5">
+							<h4>Form Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>ID</td>
+										<td>{{objViewBehaviour.target_data_fk_form_id.id}}</td>
+									</tr>
+									<tr>
+										<td>Form</td>
+										<td>{{objViewBehaviour.target_data_fk_form_id.form}}</td>
+									</tr>
+									<tr>
+										<td>Description</td>
+										<td>{{objViewBehaviour.target_data_fk_form_id.description}}</td>
+									</tr>
+									<tr>
+										<td>Active</td>
+										<td>
+											<span class="text-success glyphicon glyphicon-ok" ng-show="objViewBehaviour.target_data_fk_form_id.active == 1"></span>
+											<span class="text-danger glyphicon glyphicon-remove" ng-show="objViewBehaviour.target_data_fk_form_id.active == 0"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>
+					
+					<!-- Form Fields -->
+					<div class="row" ng-hide="!objViewBehaviour.target_data_fk_fields_all_id">
+						<div class="col-xs-5">
+							<h4>Form Field Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td></td>
+										<td></td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>	
+					
+					<!-- Journey -->
+					<div class="row" ng-hide="!objViewBehaviour.target_data_fk_journey_id">
+						<div class="col-xs-5">
+							<h4>Journey Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>ID</td>
+										<td>{{objViewBehaviour.target_data_fk_journey_id.id}}</td>
+									</tr>
+									<tr>
+										<td>Journey</td>
+										<td>{{objViewBehaviour.target_data_fk_journey_id.journey}}</td>
+									</tr>
+									<tr>
+										<td>Description</td>
+										<td>{{objViewBehaviour.target_data_fk_journey_id.description}}</td>
+									</tr>
+									<tr>
+										<td>Active</td>
+										<td>
+											<span class="text-success glyphicon glyphicon-ok" ng-show="objViewBehaviour.target_data_fk_journey_id.active == 1"></span>
+											<span class="text-danger glyphicon glyphicon-remove" ng-show="objViewBehaviour.target_data_fk_journey_id.active == 0"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>	
+					
+					<!-- Status -->
+					<div class="row" ng-hide="!objViewBehaviour.target_data_fk_reg_status_id">
+						<div class="col-xs-5">
+							<h4>Status Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>ID</td>
+										<td>{{objViewBehaviour.target_data_fk_reg_status_id.id}}</td>
+									</tr>
+									<tr>
+										<td>Status</td>
+										<td><span style="color: {{objViewBehaviour.target_data_fk_reg_status_id.colour}};">{{objViewBehaviour.target_data_fk_reg_status_id.status}}</span></td>
+									</tr>
+									<tr>
+										<td>Description</td>
+										<td>{{objViewBehaviour.target_data_fk_reg_status_id.description}}</td>
+									</tr>
+									<tr>
+										<td>Active</td>
+										<td>
+											<span class="text-success glyphicon glyphicon-ok" ng-show="objViewBehaviour.target_data_fk_reg_status_id.active == 1"></span>
+											<span class="text-danger glyphicon glyphicon-remove" ng-show="objViewBehaviour.target_data_fk_reg_status_id.active == 0"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>
+					
+					<!-- Tracking Link -->
+					<div class="row" ng-hide="!objViewBehaviour.target_data_fk_links_id">
+						<div class="col-xs-5">
+							<h4>Tracking Link Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>ID</td>
+										<td>{{objViewBehaviour.target_data_fk_links_id.id}}</td>
+									</tr>
+									<tr>
+										<td>Link</td>
+										<td>{{objViewBehaviour.target_data_fk_links_id.link}}</td>
+									</tr>
+									<tr>
+										<td>Description</td>
+										<td>{{objViewBehaviour.target_data_fk_links_id.description}}</td>
+									</tr>
+									<tr>
+										<td>Active</td>
+										<td>
+											<span class="text-success glyphicon glyphicon-ok" ng-show="objViewBehaviour.target_data_fk_reg_status_id.active == 1"></span>
+											<span class="text-danger glyphicon glyphicon-remove" ng-show="objViewBehaviour.target_data_fk_reg_status_id.active == 0"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>	
+					
+					<!-- user details -->
+					<div class="row" ng-hide="!objViewBehaviour.target_data_fk_user_id">
+						<div class="col-xs-5">
+							<h4>User Details</h4>
+							<table class="table table-striped">
+								<tbody>
+									<tr>
+										<td>ID</td>
+										<td>{{objViewBehaviour.target_data_fk_user_id.id}}</td>
+									</tr>
+									<tr>
+										<td>Username</td>
+										<td>{{objViewBehaviour.target_data_fk_user_id.uname}}</td>
+									</tr>
+									<tr>
+										<td>Active</td>
+										<td>
+											<span class="text-success glyphicon glyphicon-ok" ng-show="objViewBehaviour.target_data_fk_user_id.active == 1"></span>
+											<span class="text-danger glyphicon glyphicon-remove" ng-show="objViewBehaviour.target_data_fk_user_id.active == 0"></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<hr/>
+						</div>
+					</div>
+				</div>
+				
+				<div class="panel-footer">					
+					<button ng-click="toggleDisplayPanel('displayBehaviourTargetDataPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

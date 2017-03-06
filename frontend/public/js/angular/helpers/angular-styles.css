@@ -1,0 +1,195 @@
+@CHARSET "UTF-8";
+
+/*Sliding panes*/
+.panel-show-left {
+	position: fixed; 
+	top: 50px; 
+	left: 0px; 
+	bottom: 0px;
+	width: 450px;
+	z-index: 1038;
+	background-color: #f5f5f5;
+	overflow: auto;
+}
+
+.panel-show-right {
+	position: fixed; 
+	top: 50px; 
+	right: 0px; 
+	bottom: 0px;
+	width: 350px;
+	z-index: 1038;
+	background-color: #f5f5f5;
+	overflow: auto;
+}
+
+.panel-show-top {
+	position: fixed; 
+	top: 50px; 
+	right: 0px; 
+	left: 0px;
+	height: 250px;
+	z-index: 1038;
+	background-color: #f5f5f5;
+	overflow: auto;
+}
+
+.panel-show-bottom {
+	position: fixed; 
+	height: 250px;
+	right: 0px; 
+	left: 0px;
+	bottom: 0px;
+	z-index: 1038;
+	background-color: #f5f5f5;
+	overflow: auto;
+}
+
+.panel-show-centre {
+	position: fixed; 
+	height: 50%;
+	width: 50%;
+	top: 20%;
+	left: 20%;
+	z-index: 1038;
+	background-color: #f5f5f5;
+	overflow: auto;
+}
+
+.panel-show-centre-full-screen {
+	position: fixed; 
+	height: 95%;
+	width: 95%;
+	top: 3%;
+	left: 3%;
+	z-index: 1038;
+	background-color: #f5f5f5;
+	overflow: auto;
+}
+
+.slide-panel-backdrop {
+	position: fixed; 
+	top: 0px; 
+	left: 0px; 
+	bottom: 0px; 
+	right: 0px; 
+	z-index: 1038;
+}
+
+/*End sliding panels*/
+
+/* Bootstrap overides */
+.panel {
+	border-radius: 0px;
+}
+
+.panel-heading {
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+}
+
+.btn {
+	border: 0px;
+	border-radius: 0px;
+}
+
+.btn-default, .btn-primary, .btn-danger, .btn-success, .btn-warning {
+	border-color: none; !important
+}
+
+button.close {
+	color: white;
+	opacity: 1;
+	position: relative;
+	top: -3px;
+}
+
+.container-full-width {
+	left: 0px !important;
+	right: 0px !important;
+	width: 100% !important;
+}
+
+.container-full-height {
+	top: 50px !important;
+	bottom: 0px !important;
+	height: 100% !important;
+}
+
+
+/**
+ * For the correct positioning of the placeholder element, the dnd-list and
+ * it's children must have position: relative
+ */
+.simpleOrderList ul[dnd-list],
+.simpleOrderList ul[dnd-list] > li {
+	position: relative;
+}
+
+/**
+ * The dnd-list should always have a min-height,
+ * otherwise you can't drop to it once it's empty
+ */
+.simpleOrderList ul[dnd-list] {
+    min-height: 42px;
+    padding-left: 0px;
+}
+
+/**
+ * The dndDraggingSource class will be applied to
+ * the source element of a drag operation. It makes
+ * sense to hide it to give the user the feeling
+ * that he's actually moving it.
+ */
+.simpleOrderList ul[dnd-list] .dndDraggingSource {
+    display: none;
+}
+
+/**
+ * An element with .dndPlaceholder class will be
+ * added to the dnd-list while the user is dragging
+ * over it.
+ */
+.simpleOrderList ul[dnd-list] .dndPlaceholder {
+    display: block;
+    background-color: #ddd;
+    min-height: 42px;
+}
+
+/**
+ * The dnd-lists's child elements currently MUST have
+ * position: relative. Otherwise we can not determine
+ * whether the mouse pointer is in the upper or lower
+ * half of the element we are dragging over. In other
+ * browsers we can use event.offsetY for this.
+ */
+.simpleOrderList ul[dnd-list] li {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    display: block;
+    padding: 10px 15px;
+    margin-bottom: -1px;
+}
+
+/**
+ * Show selected elements in green
+ */
+.simpleOrderList ul[dnd-list] li.selected {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+/**
+* ui.select bootstrap styling
+*/
+.ui-select-multiple.ui-select-bootstrap {
+    min-height: 34px;        
+    height: auto;
+    padding: .3em;
+}
+
+.ui-select-offscreen {
+	display: none;
+}

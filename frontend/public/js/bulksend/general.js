@@ -1,6 +1,13 @@
 jQuery(document).ready(function () {
-	//enable datepickers
-	jQuery(".datepicker").datepicker({ dateFormat: "dd-mm-yy" });
+	//set identifyable date field datepickers
+	//jQuery(".datepicker").datepicker({ dateFormat: "dd-mm-yy" });
+	jQuery('#contact_created_start').addClass('datepicker');
+	jQuery('#contact_created_end').addClass('datepicker');
+	
+	//give lazyload time to load all the required files
+	setTimeout(function(){ 	//enable datepickers
+		jQuery(".datepicker").datepicker({ dateFormat: "dd-mm-yy" });
+	}, 4000);
 	
 	//hide some fields
 	//display form operator

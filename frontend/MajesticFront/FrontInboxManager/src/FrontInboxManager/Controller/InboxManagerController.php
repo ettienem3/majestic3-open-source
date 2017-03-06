@@ -2,6 +2,7 @@
 namespace FrontInboxManager\Controller;
 
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class InboxManagerController extends AbstractCoreActionController
 {
@@ -13,11 +14,141 @@ class InboxManagerController extends AbstractCoreActionController
 
 	public function indexAction()
 	{
-		$objMessages = $this->getInboxManagerModel()->fetchInboxMessages($this->params()->fromQuery());
+		try {
+			$objMessages = $this->getInboxManagerModel()->fetchInboxMessages($this->params()->fromQuery());
+
+			return array(
+				"objMessages" => $objMessages,
+			);
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+		}//end catch
+	}//end function
+
+	public function appAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['inbox'] != true)
+		{
+			$this->flashMessenger()->addInfoMessage('The requested view is not available');
+			return $this->redirect()->toRoute('front-inbox-manager');
+		}//end if
+
+		$this->layout('layout/angular/app');
+		$arr_params = $this->params()->fromQuery();
+		$arr_params['qp_limit'] = 9;
+		$objMessages = $this->getInboxManagerModel()->fetchInboxMessages($arr_params);
 
 		return array(
-			"objMessages" => $objMessages,
+				"objMessages" => $objMessages,
 		);
+	}//end function
+
+	public function ajaxRequestAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['inbox'] != true)
+		{
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => 'Requested functionality is not available',
+			));
+		}//end if
+
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
+
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
+			{
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+		}//end if
+
+		try {
+			switch ($acrq)
+			{
+				case 'index':
+					//load messages
+					$objMessages = $this->getInboxManagerModel()->fetchInboxMessages($arr_params);
+					$objHyperMedia = $objMessages->hypermedia;
+					unset($objMessages->hypermedia);
+					$arr_messages = array();
+					foreach ($objMessages as $objMessage)
+					{
+						//format datetime received
+						$date = $this->formatUserDate(array("date" =>  $objMessage->tstamp, "options" => array(
+								"output_format" => "d M Y H:i",
+						)));
+						$objMessage->set('datetime_received', $date);
+
+						$arr_messages[] = $objMessage->getArrayCopy();
+					}//end foreach
+
+					$objMessages = (object) $arr_messages;
+					$objMessages->hypermedia = $objHyperMedia;
+					$objResult = new JsonModel(array(
+							'objData' => $objMessages,
+					));
+					return $objResult;
+					break;
+
+				case 'load-comm-content':
+					//load the message
+					$objMessage = $this->getInboxManagerModel()->fetchInboxMessage($arr_params['id']);
+					if (!$objMessage)
+					{
+						$objResult = new JsonModel(array(
+								'error' => 1,
+								'response' => 'Requested data could not be located',
+						));
+						return $objResult;
+					}//end if
+
+					$objResult = new JsonModel(array(
+							'objData' => (object) $objMessage->getArrayCopy(),
+					));
+					return $objResult;
+					break;
+
+				case 'delete-inbox-item':
+					$this->getInboxManagerModel()->deleteInboxMessage($arr_params['id']);
+					$objData = (object) array('message' => 'Inbox item has been removed');
+
+					$objResult = new JsonModel(array(
+							'objData' => $objData,
+					));
+					return $objResult;
+					break;
+
+				case 'forward-to-user':
+
+					$objResult = new JsonModel(array(
+							'objData' => $objData,
+					));
+					return $objResult;
+					break;
+			}//end switch
+		} catch (\Exceptoin $e) {
+			$objResult = new JsonModel(array(
+					'error' => 1,
+					'response' => $e->getMessage(),
+			));
+			return $objResult;
+		}//end catch
+
+		$objResult = new JsonModel(array(
+				'error' => 1,
+				'response' => 'Request type is not specified',
+		));
+		return $objResult;
 	}//end function
 
 	public function readMessageAction()
@@ -31,9 +162,6 @@ class InboxManagerController extends AbstractCoreActionController
 			//redirect back to the index page
 			return $this->redirect()->toRoute("front-inbox-manager");
 		}//end if
-
-		//load the message
-		$objMessage = $this->getInboxManagerModel()->fetchInboxMessage($id);
 
 		return array(
 			"objMessage" => $objMessage,
@@ -51,6 +179,12 @@ class InboxManagerController extends AbstractCoreActionController
 		try {
 			//load the message
 			$objMessage = $this->getInboxManagerModel()->fetchInboxMessage($id);
+
+			//format datetime received
+			$date = $this->formatUserDate(array("date" =>  $objMessage->tstamp, "options" => array(
+					"output_format" => "d M Y H:i",
+			)));
+			$objMessage->set('datetime_received', $date);
 
 			//format html
 			$html .= "<table class=\"table-simple-style data-table mj3-table table table-striped dataTable\" width=\"100%\">";

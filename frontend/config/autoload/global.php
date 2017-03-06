@@ -106,4 +106,23 @@ return array(
 	'cdn_config' => array(
 			'url' => 'https://cdn-aws.majestic3.com',
 		),
+		
+	'frontend_views_config' => array(
+			'enabled' => true,
+			'angular-views-enabled' => array(
+					'contact-list' 				=> true,
+					'contact-specific' 			=> true,
+					'links' 					=> true,
+					'inbox' 					=> true,
+					'forms-admin' 				=> true,
+					'form-look-and-feel'		=> true,
+					'viral-forms-external' 		=> true,
+					'journey-dates'				=> true,
+					'journeys'					=> true,
+					'test-journeys'				=> true,
+					'bulk-send-tool'			=> true,
+					'reports-basic'				=> true,
+					'reports-dashboards'		=> true,
+			),
+	),
 );

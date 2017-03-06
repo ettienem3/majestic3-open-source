@@ -1,30 +1,73 @@
+<?php
+$replace_content = '';
+if (isset($this->objLookAndFeel))
+{
+	$replace_content = urlencode($this->objLookAndFeel->content);
+}//end if
+
+if ($this->objFormRawData->copy != '')
+{
+	$replace_content .= urlencode($this->objFormRawData->copy);
+}//end if
+
+if ($this->objFormRawData->submit_copy != '')
+{
+	$replace_content .= urlencode($this->objFormRawData->submit_copy);
+}//end if
+?>
+
 <script type="text/javascript">
 	jQuery(document).ready(function () {
 		//request contact data
 		<?php if (isset($this->reg_id) && $this->reg_id != "" && $this->form_posted !== TRUE) : ?>
-		loadContact();
+			loadContact();
 		<?php endif;?>
 
 		//bootstrap form
 		jQuery(".form-element").addClass("form-group");
+
+		//set international dailing code labels
+		jQuery('label[for=cell_num_country_id]').text('International Dialing Code');
+		jQuery('label[for=work_num_country_id]').text('International Dialing Code');
+		jQuery('label[for=fax_num_country_id]').text('International Dialing Code');
+		jQuery('label[for=tel_num_country_id]').text('International Dialing Code');
 	});
 
 	<?php if (isset($this->reg_id) && $this->reg_id != "" && $this->form_posted !== TRUE) : ?>
 	function loadContact()
 	{
+		//activate wait modal
+		jQuery('#form-notification-modal').modal('show');
+
 		var form = jQuery(".form").serialize();
 		jQuery.ajax({
 			url: "/forms/ajax-load-contact",
 			type: "post",
-			data: form + "&r=<?php echo $this->reg_id;?>&f=<?php echo $this->form_id;?>&cid=<?php echo $this->additional_data["cid"];?>",
+			data: form + "&r=<?php echo $this->reg_id;?>&f=<?php echo $this->form_id;?>&cid=<?php echo $this->additional_data["cid"];?>&rcontent=<?php echo $replace_content;?>",
 		})
 		.done(function (data) {
 			var objData = jQuery.parseJSON(data);
 
 			if (objData.error == 1)
 			{
+				jQuery('#form-notification-modal').modal('hide');
 				console.log(objData.response);
 				return false;
+			}//end if
+
+			if (typeof objData.response.replace_content != 'undefined')
+			{
+				var replace_string = jQuery('.mj3_webform').html();
+				jQuery.each(objData.response.replace_content, function (field, value) {
+					replace_string = replace_string.replace(field, value);
+				});
+
+				if (replace_string != '')
+				{
+					jQuery('.mj3_webform').html(replace_string);
+				}//end if
+
+				delete objData.response.replace_content;
 			}//end if
 
 			//populate the form fields
@@ -74,29 +117,27 @@
 					}//end if
 				}//end if
 			});
+
+			jQuery('#form-notification-modal').modal('hide');
 		})
 		.fail(function (data) {
 			//console.log("Error collection form data");
 			//console.log(data);
+			jQuery('#form-notification-modal').modal('hide');
 		});
 	}//end function
 	<?php endif;?>
 </script>
 
 <?php
-//check look and feel css file
-if (isset($this->objLookAndFeel) && $this->objLookAndFeel->css_file != "")
-{
-	echo '<link href="' . $this->objLookAndFeel->css_file . '" media="screen" rel="stylesheet" type="text/css">';
-}//end if
+//add forms widget
+echo $this->headScript()->appendFile($this->basePath() . '/js/plugins/mj-forms-widgets.js');
 ?>
 
 <div class="mj3_tables clearfix">
 	<div class="mj3_webform">
 
 		<?php
-			//add forms widget
-			echo $this->headScript()->appendFile($this->basePath() . '/js/plugins/mj-forms-widgets.js');
 			$form = $this->form;
 			$form->prepare();
 
@@ -134,5 +175,42 @@ if ($this->objFormRawData->submit_tracking_script != '' || $this->objFormRawData
 	{
 		echo $this->objFormRawData->submit_tracking_script;
 	}//end if
+}//end if
+
+//check if additional raw html is made available
+if (isset($this->objFormRawData->_inject_raw_html) && $this->objFormRawData->_inject_raw_html != '')
+{
+	echo $this->objFormRawData->_inject_raw_html;
+}//end if
+
+//check look and feel css file
+if (isset($this->objLookAndFeel) && $this->objLookAndFeel->css_file != "")
+{
+	echo '<link href="' . $this->objLookAndFeel->css_file . '" media="screen" rel="stylesheet" type="text/css">';
+}//end if
+
+//check look and feel attached files
+if (isset($this->objLookAndFeel) && isset($this->objLookAndFeel->attached_files) && is_array($this->objLookAndFeel->attached_files) && count($this->objLookAndFeel->attached_files) > 0)
+{
+	foreach ($this->objLookAndFeel->attached_files as $objFile)
+	{
+		if ($objFile->active != 1 || $objFile->filemanager_content_http_path == '' || $objFile->filemanager_content_active != 1 || $objFile->filemanager_content_file_name == '')
+		{
+			continue;
+		}//end if
+
+		$arr_t = explode('.', $objFile->filemanager_content_file_name);
+		$type = array_pop($arr_t);
+		switch (strtolower($type))
+		{
+			case 'css':
+				echo '<link href="' . $objFile->filemanager_content_http_path . '" media="screen" rel="stylesheet" type="text/css">';
+				break;
+
+			case 'js':
+				echo '<script src="' . $objFile->filemanager_content_http_path  . '"></script>';
+				break;
+		}//end switch
+	}//end foreach
 }//end if
 ?>

@@ -1,0 +1,227 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					
+					<button ng-click="toggleForm('createFormState', false)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add Link</button>
+					<button ng-click="refreshRecords()" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					<a href="/front/links" title="Use old view" class="btn btn-default pull-right" style="margin-right: 5px;">Switch to old view</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Link</th>
+							<th>URL</th>
+							<th>Status</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+				        	<td>{{objRecord.link}}</td>
+				       	 	<td>{{objRecord.url}}</td>
+				       	 	<td><a href="" ng-click="submitToggleStatus(objRecord.id)" title="Toggle Status"><span ng-class="objRecord.active == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'"></span></a></td>
+				       	 	<td>
+								<a href="" title="Update Tracking Link" ng-click="toggleForm('editFormState', objRecord.id)" ><span class="glyphicon glyphicon-pencil"></span></a>
+								&nbsp;
+								<a href="" title="Manage Behaviours" ng-click="toggleForm('behavioursFormState', objRecord.id)"><span class="glyphicon glyphicon-link"></span></a>
+								&nbsp;
+								<a href="" title="Delete Tracking Link" ng-click="toggleForm('deleteFormState', objRecord.id)" ng-hide="{{objRecord.flag_prevent_delete}} > 0"><span class="text-danger glyphicon glyphicon-trash"></span></a>
+				       	 	</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<!-- Edit form -->
+	<div ng-show="editFormState" id="editFormState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Update Tracking Link <button ng-click="toggleForm('editFormState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;">Sending…</div>
+						  <form novalidate role="form">
+							<formly-form model="vm.model" fields="vm.formFields" form="vm.form" options="vm.options">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || vm.form.$invalid" ng-click="submitEditForm(vm.model)">Submit</button>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="toggleForm('editFormState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Create form -->
+	<div ng-show="createFormState" id="createFormState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Create Tracking Link <button ng-click="toggleForm('createFormState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;">Sending…</div>
+						  <form novalidate role="form">
+							<formly-form model="vm.model" fields="vm.formFields" form="vm.form" options="vm.options">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || vm.form.$invalid" ng-click="submitCreateForm(vm.form)">Submit</button>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleForm('createFormState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Delete panel -->
+	<div ng-show="deleteFormState" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">Remove Tracking Link <button ng-click="toggleForm('deleteFormState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;">Sending…</div>
+					      	<div>ID: {{objDeleteRecord.id}}</div>
+							<div>Link: {{objDeleteRecord.link}}</div>
+							<div>Description: {{objDeleteRecord.description}}</div>
+							<div>URL: {{objDeleteRecord.url}}</div>
+							<div>Status: {{objDeleteRecord.status}}</span></div>	
+							<br/>
+							<button ng-click="submitDeleteForm(objDeleteRecord.id)" class="btn btn-warning" type="button">Delete</button>		 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleForm('deleteFormState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Behaviours panel -->
+	<div ng-show="behavioursFormState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Tracking Link Behaviours<button ng-click="toggleForm('behavioursFormState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						 <div ng-show="progress.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						 
+						 <div class="col-xs-6">
+						 	<div class="pull-right">
+						 		<button class="btn btn-primary" ng-click="loadLinkBehaviours()"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+						 		<button class="btn btn-success" ng-click="loadAvailableLinkBehaviours()"><span class="glyphicon glyphicon-plus-sign"></span> Add Behaviour</button>
+						 	</div>
+						 	<div class="clearboth"></div>
+						 	
+						 	<div>
+								 <table class="table table-striped table-hover">
+								 	<thead>
+								 		<tr>
+								 			<th>ID</th>
+								 			<th>Action</th>
+								 			<th>Description</th>
+								 			<th>Status</th>
+								 			<th>&nbsp;</th>
+								 		</tr>
+								 	</thead>
+								 	<tbody>
+								 		<tr ng-repeat="objBehaviour in objLinkBehaviours track by objBehaviour.id">
+								 			<td>{{objBehaviour.id}}</td>
+								 			<td><span title="{{objBehaviour.description}}">{{objBehaviour.action_title}}</span></td>
+								 			<td>{{objBehaviour.description}}</td>
+								 			<td>
+								 				<a href="" title="Deactivate Behaviour" ng-show="objBehaviour.active == 1" ng-click="toggleLinkBehaviourStatus(objBehaviour)"><span class="text-success glyphicon glyphicon-ok"></span></a>
+								 				<a href="" title="Activate Behaviour" ng-show="objBehaviour.active == 0" ng-click="toggleLinkBehaviourStatus(objBehaviour)"><span class="text-danger glyphicon glyphicon-remove"></span></a>
+								 			</td>
+								 			<td>
+								 				<a href="" title="Update behaviour" ng-click="updateLinkBehaviour(objBehaviour)"><span class="glyphicon glyphicon-pencil"></span></a>
+								 				<a href="" title="Delete behaviour" ng-click="deleteLinkBehaviour(objBehaviour)"><span class="text-danger glyphicon glyphicon-trash"></span></a>
+								 			</td>
+								 		</tr>
+								 	</tbody>
+								 </table>
+							</div>
+						</div>
+						
+						<div class="col-xs-4">
+							<!-- create behaviour -->
+							<div ng-show="objLinkAvailableBehaviours.length > 0">
+								<div class="dropdown">
+									<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Select Behaviour <span class="caret"></span></button>
+									<ul class="dropdown-menu">
+										<li ng-repeat="objAction in objLinkAvailableBehaviours">
+											<a href="" ng-click="loadLinkBehaviourCreateForm(objAction)">{{objAction.label}}</a>
+										</li>
+									</ul>
+								</div>
+								<hr/>
+								<div ng-show="loadlinkBehaviourConfigForm.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+								
+								<div ng-show="objBehaviourConfigForm.fields.length > 0 && !updateLinkBehaviourConfigFlag">
+									<h4>Configure Behaviour Settings</h4>
+									<small class="text-primary">{{objBehaviourConfigForm.objSelectedBehaviourDetails.label}}</small>
+									<form novalidate role="form">
+										<formly-form model="objBehaviourConfigForm.model" fields="objBehaviourConfigForm.fields" form="objBehaviourConfigForm.form">
+										  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || objBehaviourConfigForm.form.$invalid" ng-click="objBehaviourConfigForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+										</formly-form>
+								 	</form>									 												
+								</div>
+							</div>							
+							
+							<!-- update behaviour -->
+							<div ng-show="updateLinkBehaviourConfigFlag">
+								<div ng-show="loadlinkBehaviourConfigForm.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+								
+								<div ng-show="objBehaviourConfigForm.fields.length > 0">
+									<h4>Configure Behaviour Settings</h4>
+									<small class="text-primary">{{objBehaviourConfigForm.model.action_title}}</small>
+									<form novalidate role="form">
+										<formly-form model="objBehaviourConfigForm.model" fields="objBehaviourConfigForm.fields" form="objBehaviourConfigForm.form">
+										  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || objBehaviourConfigForm.form.$invalid" ng-click="objBehaviourConfigForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+										</formly-form>
+								 	</form>									 												
+								</div>
+							</div>							
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleForm('behavioursFormState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

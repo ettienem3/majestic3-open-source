@@ -304,7 +304,7 @@ class ExternalFormRenderHelper extends AbstractHelper
 		//check if field names should be displayed
 		if ($_GET["show_field_names"] == 1)
 		{
-			$form->get($field)->setLabel($form->get($field)->getLabel() . " - (<span style=\"font-weight: bold;\">" . $form->get($field)->getName() . "</span>)");
+			$form->get($field)->setLabel($form->get($field)->getLabel() . " - (" . $form->get($field)->getName() . ")");
 		}//end if
 
 		$form->get($field)->setLabelAttributes(array("class" => "label"));
@@ -318,23 +318,23 @@ class ExternalFormRenderHelper extends AbstractHelper
 				} else {
 					$html .= "<div class=\"form-element form-element-" . $field . " \">";
 
-					$html .= 		"<div class='container container_field'>";
+					$html .= 		"<div class='container container_field_label'>";
 					$html .=			 $this->view->formLabel($form->get($field));
 					$html .=		"</div>";
- 					$html .= $this->view->formElement($form->get($field));
-
+					$html .= 		"<div class='container container_field_element'>";
+ 					$html .= 			$this->view->formElement($form->get($field));
  					//add required information
-					if ($form->get($field)->getAttribute("required") == "required")
-					{
-						$html .= "<span class=\"required-input\">*</span>";
-					}//end if 
-
-					//add element errors where set
-					if (count($form->get($field)->getMessages()) > 0)
-					{
-						$html .= $this->view->formElementErrors($form->get($field));
-					}//end if
-
+ 					if ($form->get($field)->getAttribute("required") == "required")
+ 					{
+ 						$html .= "<span class=\"required-input\">*</span>";
+ 					}//end if
+ 					
+ 					//add element errors where set
+ 					if (count($form->get($field)->getMessages()) > 0)
+ 					{
+ 						$html .= $this->view->formElementErrors($form->get($field));
+ 					}//end if
+ 					$html .=		"</div>";
 					$html .= 	"</div>";
 				}//end if
 				break;
@@ -380,22 +380,22 @@ class ExternalFormRenderHelper extends AbstractHelper
 				$html .= "<div class=\"form-element form-element-" . $field . " \">";
 
 				$html .= 		"<div class='container container_field'>";
-
 				$html .=			 $this->view->formLabel($form->get($field));
 				$html .=		"</div>";
-				$html .= $this->view->formElement($form->get($field));
-
+				$html .= 		"<div class='container container_field'>";
+				$html .= 			$this->view->formElement($form->get($field));
 				//add required information
 				if ($form->get($field)->getAttribute("required") == "required")
 				{
 					$html .= "<span class=\"required-input\">*</span>";
 				}//end if
-
+				
 				//add element errors where set
 				if (count($form->get($field)->getMessages()) > 0)
 				{
 					$html .= $this->view->formElementErrors($form->get($field));
 				}//end if
+				$html .=		"</div>";
 
 				$arr_attributes = $form->get($field)->getAttributes();
 

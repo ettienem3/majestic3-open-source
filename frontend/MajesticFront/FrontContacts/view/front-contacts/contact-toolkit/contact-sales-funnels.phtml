@@ -25,7 +25,7 @@ echo 	"</tr>";
 
 foreach ($this->objSalesFunnels as $objForm)
 {
-	if (!is_object($objForm) || !is_numeric($objForm->get("id")))
+	if (!is_object($objForm) || !method_exists($objForm, 'get') || !is_numeric($objForm->get("id")))
 	{
 		continue;
 	}//end if

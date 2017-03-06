@@ -1,0 +1,84 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="CommentsCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<div class="pull-right">
+						<button ng-click="togglePanel('createCommentPanel', true)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Comment</button>
+						<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Comment</th>
+							<th>User</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.datetime_created}}</td>
+							<td>{{objRecord.comment}}</td>
+							<td>{{objRecord.users_uname}}</td>
+							<td>
+								<a href="" title="Delete this comment" ng-click="deleteRecord(objRecord.id)" ng-show="objRecord.id > 0" style="color: red;"><span class="glyphicon glyphicon-trash"></span></a>
+							</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+
+	<div ng-show="createCommentPanel" class="panel-show-centre aside right am-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Add Comment<button ng-click="togglePanel('createCommentPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div>
+								<form ng-submit="vm.submit()" name="vm.form" novalidate>
+									<formly-form model="vm.comment" fields="vm.commentFields" form="vm.form">
+										<button type="submit" class="btn btn-primary" ng-disabled="vm.form.$invalid"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+									</formly-form>
+								</form>
+							</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('createCommentPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+</div>

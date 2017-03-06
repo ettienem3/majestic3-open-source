@@ -30,7 +30,13 @@ class FieldsController extends AbstractCoreActionController
     		$arr_params = array_merge($arr_params, (array) $request->getPost());
     	}//end foreach
 
-        $objFields = $this->getFieldsModel()->fetchCustomFields($arr_params);
+    	try {
+        	$objFields = $this->getFieldsModel()->fetchCustomFields($arr_params);
+        } catch (\Exception $e) {
+        	$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+        	return $this->redirect()->toRoute('home');
+        }//end catch
+        	
         return array(
         		"objFields" => $objFields,
         		"arr_params" => $arr_params,

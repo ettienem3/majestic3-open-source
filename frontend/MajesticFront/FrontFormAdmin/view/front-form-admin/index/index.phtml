@@ -139,6 +139,10 @@
 
 	<ul class="nav nav-tabs">
 		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "create-form")); ?>" title="Create a new form" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_LARGE_ADD_HTML .'&nbsp;Add Form'; ?></a></li>
+		
+		<?php if (isset($this->layout()->app_config['frontend_views_config']) && $this->layout()->app_config['frontend_views_config']['enabled'] == true && $this->layout()->app_config['frontend_views_config']['angular-views-enabled']['forms-admin'] == true) : ?>
+			<li role="presentation" class="mj3_btnchangeform"><a href="<?php echo $this->url("front-form-admin/form", array("action" => "app")); ?>" class="btn btn-default" title="Use new view" data-toggle="tooltip">Switch to new view</a></li>
+		<?php endif;?>		
 	</ul>
 
 	<div class="mj3_table_contain">
@@ -179,9 +183,24 @@
 			{
 				case "__web":
 				case "web":
+					$preview_url = "<a href=\"" . $this->url("majestic-external-forms/bf", array("fid" => $objForm->id)) . "\" target=\"__blank\" title=\"Preview Form\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+
+					if (in_array("behaviours_basic", $arr_plugins) || in_array("behaviours_advanced", $arr_plugins))
+					{
+						$behaviours_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "form-behaviours", "id" => $objForm->id)) . "?form_id=" . $objForm->id . "\" title=\"Configure Form Behaviours\"  data-toggle=\"tooltip\" class=\"behaviours_view\">" . ICON_SMALL_BEHAVIOURS_HTML . "</a>";
+					} else {
+						$behaviours_url = "";
+					}//end if
+
+					//set urls
+					$edit_url = "<a href=\"" . $this->url("front-form-admin/form", array("action" => "edit-form", "id" => $objForm->id)) . "\" title=\"Edit Form\" data-toggle=\"tooltip\" class=\"page-e-link\">" . ICON_SMALL_MODIFY_HTML . "</a>";
+					$clear_cache_url = "<a class=\"link-form-cache\" href=\"" . $this->url("majestic-external-forms/form-cache-webhook", array("action" => "clear-form-cache")) . "?form_id=" . $objForm->id . "\" title=\"Clear Form Cache\">" . ICON_SMALL_CACHE_HTML . "</a>";
+					break;
+					break;
+
 				case "__viral":
 				case "viral":
-					$preview_url = "<a href=\"" . $this->url("majestic-external-forms/bf", array("fid" => $objForm->id)) . "\" target=\"__blank\" title=\"Preview Form\" data-toggle=\"tooltip\">" . ICON_SMALL_SEARCH_HTML . "</a>";
+					$preview_url = "";
 
 					if (in_array("behaviours_basic", $arr_plugins) || in_array("behaviours_advanced", $arr_plugins))
 					{

@@ -1,0 +1,77 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<a href="/front/inbox/manager" title="Use old view" class="btn btn-default pull-right">Switch to old view</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>From</th>
+							<th>Subject</th>
+							<th>Date</th>
+							<th>In Reply To</th>
+							<th>User</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+				        	<td><span ng-show="objRecord.new == 1" class="glyphicon glyphicon-certificate" style="color: green;" title="Message not viewed yet">&nbsp;</span>{{objRecord.from_name}}</td>
+				       	 	<td>
+				       	 		<a href="" ng-click="viewReplyContent(objRecord.id)" title="View reply content">{{objRecord.email_subject}}</a>
+				       	 	</td>
+				       	 	<td>{{objRecord.tstamp}}</td>
+				       	 	<td>
+				       	 		<a href="" ng-show="objRecord.archived == 0" ng-click="loadCommContent(objRecord.id)" title="Click to view"><span class="glyphicon glyphicon-search"></span></a>
+				       	 		<a href="" ng-show="objRecord.archived == 1" title="Content has been archived" disabled="disabled"><span style="color: grey;" class="glyphicon glyphicon-cloud-upload"></span></a>
+				       	 	</td>
+							<td><a href="/front/contacts?regtbl_user={{objRecord.users_id}}&qp_limit=20" title="Load contacts for user">{{objRecord.users_fname}} {{objRecord.users_sname}}</a></td>
+				       	 	<td>
+								<a href="/front/contacts/view-contact/{{objRecord.fk_reg_id}}" title="View Contact Details" target="_blank"><span class="glyphicon glyphicon-eye-open"></span></a>
+								<a href="" ng-click="deleteInboxItem(objRecord.id)" title="Delete this message"><span class="glyphicon glyphicon-trash"></span></a>
+				       	 	</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+
+	<!-- read message panel -->
+	<div ng-show="readMessagePanel" class="panel-show-centre aside right am-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Message Content<button ng-click="togglePanel('readMessagePanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div ng-bind-html="inboxMessageContent | sanitize"></div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('readMessagePanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+</div>

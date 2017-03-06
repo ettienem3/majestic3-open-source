@@ -39,7 +39,12 @@ class SalesFunnelsController extends AbstractCoreActionController
     	}//end catch
 
        	//load contact sales funnels
-       	$objSalesFunnels = $this->getFrontSalesFunnelModel()->fetchSalesFunnels(array("contact_id" => $objContact->get("id")));
+       	try {
+       		$objSalesFunnels = $this->getFrontSalesFunnelModel()->fetchSalesFunnels(array("contact_id" => $objContact->get("id")));
+       	} catch (\Exception $e) {
+       		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+       		return $this->redirect()->toRoute('home');
+       	}//end catch
 
        	return array(
        		"objContact" => $objContact,

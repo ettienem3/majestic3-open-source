@@ -13,7 +13,12 @@ class SetupPanelController extends AbstractCoreActionController
 
 	public function indexAction()
 	{
-		$objPanels = $this->getFrontPanelsModel()->fetchProfilePanels();
+		try {
+			$objPanels = $this->getFrontPanelsModel()->fetchProfilePanels();
+     	} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch
 
 		return array(
 			"objPanels" => $objPanels,
@@ -63,7 +68,12 @@ class SetupPanelController extends AbstractCoreActionController
 		}//end if
 
 		//load the panel
-		$objPanel = $this->getFrontPanelsModel()->fetchProfilePanel($id);
+		try {
+			$objPanel = $this->getFrontPanelsModel()->fetchProfilePanel($id);
+     	} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch
 
 		//load form
 		$form = $this->getFrontPanelsModel()->getProfilePanelAdminForm();
@@ -108,7 +118,12 @@ class SetupPanelController extends AbstractCoreActionController
 		}//end if
 
 		//load the panel
-		$objPanel = $this->getFrontPanelsModel()->fetchProfilePanel($id);
+		try {
+			$objPanel = $this->getFrontPanelsModel()->fetchProfilePanel($id);
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+			return $this->redirect()->toRoute('home');
+		}//end catch
 
 		$request = $this->getRequest();
 		if ($request->isPost())
@@ -138,7 +153,12 @@ class SetupPanelController extends AbstractCoreActionController
 		}//end if
 
 		//load the panel
-		$objPanel = $this->getFrontPanelsModel()->fetchProfilePanel($id);
+		try {
+			$objPanel = $this->getFrontPanelsModel()->fetchProfilePanel($id);
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+			return $this->redirect()->toRoute('home');
+		}//end catch			
 
 		$objPanel->set("active", (1 - $objPanel->get("active")));
 		$this->getFrontPanelsModel()->editProfilePanel($objPanel);
@@ -149,7 +169,12 @@ class SetupPanelController extends AbstractCoreActionController
 
 	public function userPanelsAction()
 	{
-		$objUserPanels = $this->getFrontPanelsModel()->fetchUserPanels();
+		try {
+			$objUserPanels = $this->getFrontPanelsModel()->fetchUserPanels();
+		} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		$objUserPanels = array();
+     	}//end catch
 
 		return array(
 			"objUserPanels" => $objUserPanels,
@@ -158,7 +183,12 @@ class SetupPanelController extends AbstractCoreActionController
 
 	public function userSortPanelsAction()
 	{
-		$objUserPanels = $this->getFrontPanelsModel()->fetchUserPanels();
+		try {
+			$objUserPanels = $this->getFrontPanelsModel()->fetchUserPanels();
+		} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		$objUserPanels = array();
+     	}//end catch
 
 		return array(
 				"objUserPanels" => $objUserPanels,

@@ -2,7 +2,7 @@
 echo $this->doctype();
 ?>
 <html>
-	<?php 
+	<?php
 	echo $this->partial('layout/forms/header');
 	?>
 	<body>
@@ -14,7 +14,7 @@ echo $this->doctype();
 					<?php echo $this->partial("layout/flash-messages");?>
 					<!-- External content -->
 					<?php echo $this->content; ?>
-					
+
 					<?php
 					if ($_GET["debug_display_errors"] == 1)
 					{
@@ -22,8 +22,45 @@ echo $this->doctype();
 					}//end if
 					?>
 				</div>
+
+				<!-- notification modal -->
+				<div id="form-notification-modal" class="modal fade" role="dialog">
+					<div class="modal-dialog">
+						<!-- Modal content-->
+						<div class="modal-content">
+							<div class="modal-header">
+								<h4 class="modal-title">Requesting data...</h4>
+							</div>
+							<div class="modal-body text-center">
+								<p>
+									<img src="<?php echo $this->layout()->cdn_url;?>/images/m3frontend/animations/please_wait_large.gif" alt="Operation in progress"/>
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" style="display: none;" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+
+					</div>
+				</div>
 			</div>
 		</div>
+
+			<?php
+				//add any additional javascript files set
+				if (isset($this->layout()->arr_additional_js_files) && is_array($this->layout()->arr_additional_js_files))
+				{
+					echo '<!-- Additional Javascript files specified -->';
+					echo implode(' ', $this->layout()->arr_additional_js_files);
+				}//end if
+
+				//add any additional css files set
+				if (isset($this->layout()->arr_additional_css_files) && is_array($this->layout()->arr_additional_css_files))
+				{
+					echo '<!-- Additional CSS files specified -->';
+					echo implode(' ', $this->layout()->arr_additional_css_files);
+				}//end if
+			?>
 	</body>
 </html>
 

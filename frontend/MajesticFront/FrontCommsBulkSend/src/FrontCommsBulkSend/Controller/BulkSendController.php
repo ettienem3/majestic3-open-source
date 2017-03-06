@@ -14,208 +14,386 @@ class BulkSendController extends AbstractCoreActionController
 
 	public function indexAction()
 	{
-		$objBulkSendRequests = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequests($this->params()->fromQuery());
+		try {
+			$objBulkSendRequests = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequests($this->params()->fromQuery());
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+			return $this->redirect()->toRoute('home');
+		}//end catch
 
 		return array(
-			"objBulkSendRequests" => $objBulkSendRequests,
-			"model_front_comms_bulk_send" => $this->getFrontCommsBulkSendModel(),
+				"objBulkSendRequests" => $objBulkSendRequests,
+				"model_front_comms_bulk_send" => $this->getFrontCommsBulkSendModel(),
 		);
 	}//end function
 
-	public function reviewAction()
+	public function appAction()
 	{
-		$id = $this->params()->fromRoute("id", "");
-		if ($id == "")
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['bulk-send-tool'] != true)
 		{
-			//set error message
-			$this->flashMessenger()->addErrorMessage("Bulk Send Request could not be loaded. ID is not set");
-
+			$this->flashMessenger()->addInfoMessage('The requested view is not available');
 			//redirect to index page
-			$this->redirect()->toRoute("front-comms-bulksend-admin");
+			$this->redirect()->toRoute("front-comms-bulksend");
 		}//end if
 
-		//load data
-		$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($id);
-		//load the form
-		$form = $this->getFrontCommsBulkSendModel()->getBulkCommSendForm();
-		$objFormData = $this->getServiceLocator()->get('FrontCommsBulkSend\Entities\FrontCommsBulkSendRequestEntity');
-		$objFormData->set($objBulkSendRequest->get('arr_form_data'));
-		if (is_array($objFormData->get('contact_created_start')))
+		$this->layout('layout/angular/app');
+	}//end function
+
+	public function ajaxRequestAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['journeys'] != true)
 		{
-			$arr = $objFormData->get('contact_created_start');
-			$objFormData->set('contact_created_start', $arr[0]);
-		}//end if
-		if (is_array($objFormData->get('contact_created_end')))
-		{
-			$arr = $objFormData->get('contact_created_end');
-			$objFormData->set('contact_created_end', $arr[0]);
-		}//end if
-		$form->bind($objFormData);
-		if ($form->has('submit'))
-		{
-			$form->remove('submit');
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => 'Requested functionality is not available',
+			));
 		}//end if
 
-		$objJourney = $this->getFrontCommsBulkSendModel()->fetchJourney($objBulkSendRequest->get("fk_journey_id"));
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
 
 		$request = $this->getRequest();
 		if ($request->isPost())
 		{
-			/**
-			 * Update the request
-			 */
-			if (strtolower($request->getPost("submit_update")) == "update")
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
 			{
-				try {
-					$form->setData($request->getPost());
-					if ($form->isValid())
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+
+			if (isset($arr_post_data['journey_id']))
+			{
+				$arr_params['journey_id'] = $arr_post_data['journey_id'];
+			}//end if
+		}//end if
+
+		try {
+			switch ($acrq)
+			{
+				case 'load-pending-requests':
+					$objRequests = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequests();
+
+					$arr_requests = array();
+					foreach ($objRequests as $objRequest)
 					{
-						$arr_data = (array) $request->getPost();
-						//amend dates
-						if (isset($arr_data['contact_created_start']))
+						if (isset($objRequest->id))
 						{
-							if ($arr_data['contact_created_start'] == '')
-							{
-								unset($arr_data['contact_created_start']);
-							} else {
-								$arr_data['contact_created_start'] = date('c', strtotime($arr_data['contact_created_start']));
-							}//end if
+							$arr_requests[] = $objRequest;
+						}//end if
+					}//end foreach
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (array) $arr_requests,
+					));
+					return $objResult;
+					break;
+
+				case 'load-request-data':
+					$objRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($arr_params['id']);
+
+					$objResult = new JsonModel(array(
+							'error' => 0,
+							'objData' => (object) $objRequest->getArrayCopy(),
+					));
+					return $objResult;
+					break;
+
+				case 'load-contact-statuses':
+					$arr_statuses = $this->getFrontCommsBulkSendModel()->fetchContactStatuses();
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (object) $arr_statuses,
+					));
+					return $objResult;
+					break;
+
+				case 'load-web-forms':
+					$objForms = $this->getFrontCommsBulkSendModel()->fetchWebForms(array(
+						'qp_export_fields' 				=> 'id,form,form_types_behaviour,description', //only load specific fields
+						'qp_limit' 						=> 'all', //load all forms
+						'qp_disable_hypermedia' 		=> 1, //hypermedia must be disabled for qp_limit => all to be accepted
+					));
+
+					$arr = array();
+					foreach ($objForms as $objForm)
+					{
+						if ($objForm->id == "" || str_replace('_', '', $objForm->form_types_behaviour) != 'web')
+						{
+							continue;
 						}//end if
 
-						if (isset($arr_data['contact_created_end']))
+						$arr[] = $objForm;
+					}//end foreach
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (object) $arr,
+					));
+					return $objResult;
+					break;
+
+				case 'load-trackers':
+					$objForms = $this->getFrontCommsBulkSendModel()->fetchWebForms(array(
+							'qp_export_fields' 				=> 'id,form,form_types_behaviour,description', //only load specific fields
+							'qp_limit' 						=> 'all', //load all forms
+							'qp_disable_hypermedia' 		=> 1, //hypermedia must be disabled for qp_limit => all to be accepted
+					));
+
+					$arr = array();
+					foreach ($objForms as $objForm)
+					{
+						if ($objForm->id == "" || str_replace('_', '', $objForm->form_types_behaviour) != 'salesfunnel')
 						{
-							if ($arr_data['contact_created_end'] == '')
-							{
-								unset($arr_data['contact_created_end']);
-							} else {
-								$arr_data['contact_created_end'] = date('c', strtotime($arr_data['contact_created_end']));
-							}//end if
+							continue;
 						}//end if
 
-						//update the request
-						$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->editBulkSendRequest($id, $arr_data);
+						$arr[] = $objForm;
+					}//end foreach
 
-						//set success message
-						$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been updated");
+					$objResult = new JsonModel(array(
+							'error' => 0,
+							'objData' => (object) $arr,
+					));
+					return $objResult;
+					break;
+
+				case 'load-users':
+					$objUsers = $this->getFrontCommsBulkSendModel()->fetchUsers();
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => $objUsers,
+					));
+					return $objResult;
+					break;
+
+				case 'load-target-group':
+					$arr_request = $this->formatBulkSendRequestData($arr_post_data['data']);
+					$objData = $this->getFrontCommsBulkSendModel()->runBulkSendRequestEstimate($arr_request);
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => $objData,
+					));
+					return $objResult;
+					break;
+
+				case 'load-standard-fields':
+					$objFields = $this->getFrontCommsBulkSendModel()->fetchStandardFields();
+
+					$arr_fields = array();
+					foreach ($objFields as $objField)
+					{
+						if (!is_object($objField) || $objField->get("id") == "")
+						{
+							continue;
+						}//end if
+
+						//only allow fields with predefined options
+						switch ($objField->get('fields_types_input_type'))
+						{
+							case 'checkbox':
+							case 'select':
+							case 'radio':
+								$arr_fields[] = $objField->getArrayCopy();
+								break;
+						}//end switch
+
+						//@TODO set options for additional fields such as fname, sname and email...
+					}//end foreach
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (object) $arr_fields,
+					));
+					return $objResult;
+					break;
+
+				case 'load-standard-field-details':
+ 					$objField = $this->getFrontCommsBulkSendModel()->fetchStandardFieldData($arr_params['field_id']);
+
+					$objResult = new JsonModel(array(
+							'error' => 0,
+							'objData' => (object) array(
+									'objField' => (object) $objField->getArrayCopy()
+							)
+					));
+					return $objResult;
+					break;
+
+				case 'load-custom-fields':
+					$objFields = $this->getFrontCommsBulkSendModel()->fetchCustomFields(array(
+						'qp_export_fields' 				=> 'id,field,description,fields_types_input_type,fields_types_field_type', //only load specific fields
+						'qp_limit' 						=> 'all', //load all forms
+						'qp_disable_hypermedia' 		=> 1, //hypermedia must be disabled for qp_limit => all to be accepted
+					));
+
+					$arr_fields = array();
+					foreach ($objFields as $objField)
+					{
+						if (!$objField instanceof \FrontFormAdmin\Entities\FrontFormAdminFieldEntity)
+						{
+							continue;
+						}//end if
+
+						if (!is_object($objField) || $objField->get("id") == "")
+						{
+							continue;
+						}//end if
+
+						//only allow fields with predefined options
+						switch ($objField->get('fields_types_input_type'))
+						{
+							case 'checkbox':
+							case 'select':
+							case 'radio':
+								$arr_fields[] = $objField->getArrayCopy();
+								break;
+						}//end switch
+					}//end foreach
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (object) $arr_fields,
+					));
+					return $objResult;
+					break;
+
+				case 'load-custom-field-details':
+					$objField = $this->getFrontCommsBulkSendModel()->fetchCustomFieldData($arr_params['field_id']);
+
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (object) array(
+								'objField' => (object) $objField->getArrayCopy()
+						)
+					));
+					return $objResult;
+					break;
+
+				case 'create-send-request':
+					$arr_request = $this->formatBulkSendRequestData($arr_post_data);
+
+					//set additional values
+					$arr_request['journey_id'] = (int) $arr_post_data['journey_id'];
+
+					//submit the data
+					$objData = $this->getFrontCommsBulkSendModel()->createBulkSendRequest($arr_request);
+
+					$objResult = new JsonModel(array(
+							'error' => 0,
+							'objData' => (object) $objData->getArrayCopy(),
+					));
+					return $objResult;
+					break;
+
+				case 'cancel-send-request':
+					$objRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($arr_post_data['request_id']);
+
+					if (!is_object($objRequest))
+					{
+						$objResult = new JsonModel(array(
+							'error' => 1,
+							'response' => 'The requested Request could not be located',
+						));
+						return $objResult;
 					} else {
-						$this->flashMessenger()->addErrorMessage("Form could not be validated");
+						if ($objRequest->get('id') != $arr_post_data['request_id'])
+						{
+							$objResult = new JsonModel(array(
+									'error' => 1,
+									'response' => 'The requested Request could not be located',
+							));
+							return $objResult;
+						}//end if
 					}//end if
-				} catch (\Exception $e) {
-    				//set error message
-    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-				}//end catch
-			}//end if
 
-			/**
-			 * Request admin approval
-			 */
-			if (strtolower($request->getPost("request_approval")) == "request approval")
-			{
-				try {
-					//submit request for approval
-					$this->getFrontCommsBulkSendModel()->requestBulkSendRequestApproval($id);
+					$objResponse = $this->getFrontCommsBulkSendModel()->requestBulkSendApprovalCancellation($objRequest->get('id'));
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => $objResult,
+					));
+					return $objResult;
+					break;
 
-					//set success message
-					$this->flashMessenger()->addInfoMessage("Bulk Send Request has been submitted for Administrator Approval");
+				case 'approve-send-request':
+					$objRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($arr_post_data['request_id']);
 
-					//redirect back to the index
-					return $this->redirect()->toRoute("front-comms-bulksend-admin");
-				} catch (\Exception $e) {
-    				//set error message
-    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-				}//end catch
-			}//end if
+					if (!is_object($objRequest))
+					{
+						$objResult = new JsonModel(array(
+								'error' => 1,
+								'response' => 'The requested Request could not be located',
+						));
+						return $objResult;
+					} else {
+						if ($objRequest->get('id') != $arr_post_data['request_id'])
+						{
+							$objResult = new JsonModel(array(
+									'error' => 1,
+									'response' => 'The requested Request could not be located',
+							));
+							return $objResult;
+						}//end if
+					}//end if
 
-			/**
-			 * Cancel the request
-			 */
-			if (strtolower($request->getPost("cancel_approval")) == "cancel approval")
-			{
-				try {
-					//submit request for approval cancelation
-					$this->getFrontCommsBulkSendModel()->requestBulkSendApprovalCancellation($id);
+					$objResponse = $this->getFrontCommsBulkSendModel()->requestBulkSendRequestApproval($objRequest->get('id'));
+					$objResult = new JsonModel(array(
+							'error' => 0,
+							'objData' => $objResult,
+					));
+					return $objResult;
+					break;
 
-					$this->flashMessenger()->addInfoMessage("Approval cancelation request has been sent");
-				} catch (\Exception $e) {
-    				//set error message
-    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-				}//end catch
-			}//end if
+				case 'release-send-request':
+					$objRequest = $this->getFrontCommsBulkSendModel()->fetchBulkSendRequest($arr_post_data['request_id']);
 
-			/**
-			 * Cancel the request
-			 */
-			if (strtolower($request->getPost("delete_request")) == "cancel request")
-			{
-				try {
-					//delete the request
-					$this->getFrontCommsBulkSendModel()->deleteBulkSendRequest($id);
+					if (!is_object($objRequest))
+					{
+						$objResult = new JsonModel(array(
+								'error' => 1,
+								'response' => 'The requested Request could not be located',
+						));
+						return $objResult;
+					} else {
+						if ($objRequest->get('id') != $arr_post_data['request_id'])
+						{
+							$objResult = new JsonModel(array(
+									'error' => 1,
+									'response' => 'The requested Request could not be located',
+							));
+							return $objResult;
+						}//end if
+					}//end if
 
-					//set success message
-					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been cancelled");
+					$objResponse = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($objRequest->get('id'), array('confirmation_code' => time() . '-' . $objRequest->get('id')));
+					$objResult = new JsonModel(array(
+							'error' => 0,
+							'objData' => $objResult,
+					));
+					return $objResult;
+					break;
+			}//end switch
+		} catch (\Exception $e) {
+			$objResult = new JsonModel(array(
+					'error' => 1,
+					'response' => $e->getMessage(),
+			));
+			return $objResult;
+		}//end catch
 
-					//redirect back to the index page
-					return $this->redirect()->toRoute("front-comms-bulksend-admin");
-				} catch (\Exception $e) {
-					//set error message
-					$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-				}//end catch
-			}//end if
-		}//end if
-
-		/**
-		 * Load possible required models
-		 */
-		$model_contact_status = $this->getServiceLocator()->get("FrontStatuses\Models\FrontContactStatusesModel");
-
-		return array(
-			"objBulkSendRequest" => $objBulkSendRequest,
-			"objJourney" => $objJourney,
-			"model_contact_status" => $model_contact_status,
-			"model_front_comms_bulk_send" => $this->getFrontCommsBulkSendModel(),
-			'form' => $form,
-		);
-	}//end function
-
-	public function authorizeAction()
-	{
-		$id = $this->params()->fromRoute("id", "");
-		if ($id == "")
-		{
-			//set error message
-			$this->flashMessenger()->addErrorMessage("Bulk Send Request could not be loaded. ID is not set");
-
-			//redirect to index page
-			$this->redirect()->toRoute("front-comms-bulksend-admin");
-		}//end if
-
-		$request = $this->getRequest();
-		if ($request->isPost())
-		{
-			try {
-					//execute autorize request
-					$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, (array) $request->getPost());
-
-					//set success message
-					$this->flashMessenger()->addSuccessMessage("Bulk Send Request has been approved");
-
-					//redirect back to the index page
-					return $this->redirect()->toRoute("front-comms-bulksend-admin");
-				} catch (\Exception $e) {
-    				//set error message
-    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-
-					//reload data
-					$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, array("time" => time()));
-				}//end catch
-		} else {
-			//simulate authorization in order to get confirmation code
- 			$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->authorizeBulkSendRequest($id, array("time" => time()));
-		}//end if
-
-		return array(
-			"objBulkSendRequest" => $objBulkSendRequest
-		);
+		$objResult = new JsonModel(array(
+				'error' => 1,
+				'response' => 'Request type is not specified',
+		));
+		return $objResult;
 	}//end function
 
 	/**
@@ -230,5 +408,228 @@ class BulkSendController extends AbstractCoreActionController
 		}//end if
 
 		return $this->model_front_comms_bulk_send;
+	}//end function
+
+	/**
+	 * Take data received from views and formulate approriate array for api call
+	 * @param stdClass $objData
+	 * @return array
+	 */
+	private function formatBulkSendRequestData($objData)
+	{
+		$arr_data = array();
+
+		if (isset($objData['objJourney']) && isset($objData['objJourney']['id']))
+		{
+			$arr_data['journey_id'] = $objData['objJourney']['id'];
+		}//end if
+
+		foreach ($objData as $key => $objSection)
+		{
+			switch ($key)
+			{
+				case 'id':
+					$arr_data['id'] = $objSection;
+					break;
+
+				case 'objHasStatuses':
+					if (!isset($arr_data['contact_status_equals']))
+					{
+						$arr_data['contact_status_equals'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_status_equals'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objNotHaveStatuses':
+					if (!isset($arr_data['contact_status_not_equals']))
+					{
+						$arr_data['contact_status_not_equals'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_status_not_equals'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objHasWebForm':
+					if (!isset($arr_data['webform_completed']))
+					{
+						$arr_data['webform_completed'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['webform_completed'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objNotHaveWebForm':
+					if (!isset($arr_data['webform_not_completed']))
+					{
+						$arr_data['webform_not_completed'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['webform_not_completed'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objHasTracker':
+					if (!isset($arr_data['tracker_exists']))
+					{
+						$arr_data['tracker_exists'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['tracker_exists'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objNotHaveTracker':
+					if (!isset($arr_data['tracker_not_exists']))
+					{
+						$arr_data['tracker_not_exists'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['tracker_not_exists'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objHasUser':
+					if (!isset($arr_data['contact_equals_user']))
+					{
+						$arr_data['contact_equals_user'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_equals_user'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objNotHaveUser':
+					if (!isset($arr_data['contact_not_equals_user']))
+					{
+						$arr_data['contact_not_equals_user'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_not_equals_user'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objHasSource':
+					if (!isset($arr_data['contact_source_equals']))
+					{
+						$arr_data['contact_source_equals'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_source_equals'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objNotHaveSource':
+					if (!isset($arr_data['contact_source_not_equals']))
+					{
+						$arr_data['contact_source_not_equals'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_source_not_equals'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objHasReference':
+					if (!isset($arr_data['contact_reference_equals']))
+					{
+						$arr_data['contact_reference_equals'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_reference_equals'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objNotHaveReference':
+					if (!isset($arr_data['contact_reference_not_equals']))
+					{
+						$arr_data['contact_reference_not_equals'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						$arr_data['contact_reference_not_equals'][] = $v['id'];
+					}//end foreach
+					break;
+
+				case 'objStandardFields':
+					if (!isset($arr_data['standard_fields']))
+					{
+						$arr_data['standard_fields'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						foreach($v['values'] as $kk => $vv)
+						{
+							$arr_data['standard_fields'][] = array(
+								'field_name' => $v['data']['field'],
+								'field_id' => $v['data']['id'],
+								'operator' => $vv['operator'],
+								'value' => $vv['value'],
+							);
+						}//end foreach
+					}//end foreach
+					break;
+
+				case 'objCustomFields':
+					if (!isset($arr_data['custom_fields']))
+					{
+						$arr_data['custom_fields'] = array();
+					}//end if
+
+					foreach ($objSection as $k => $v)
+					{
+						foreach($v['values'] as $kk => $vv)
+						{
+							$arr_data['custom_fields'][] = array(
+									'field_name' => $v['data']['field'],
+									'field_id' => $v['data']['id'],
+									'operator' => $vv['operator'],
+									'value' => $vv['value'],
+							);
+						}//end foreach
+					}//end foreach
+					break;
+
+				case 'objOptions':
+					foreach($objSection as $key => $value)
+					{
+						if (is_numeric($value))
+						{
+							$value = (int) $value;
+						}//end if
+
+						$arr_data[$key] = $value;
+					}//end foreach
+					break;
+			}//end switch
+		}//end foreach
+
+		return $arr_data;
 	}//end function
 }//end class

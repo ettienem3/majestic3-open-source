@@ -1,0 +1,200 @@
+<div id="container" class="container-fluid" ng-controller="ContentCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left">
+						<a href="#!/" class="btn btn-primary" ng-disabled="progress.active()" title="Back"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+			</div>
+			
+			<div class ="row">
+				<div class="col-xs-12">					
+					<!-- Config form goes here -->
+				  	<form novalidate role="form">					
+						<formly-form model="templateAdminForm.model" fields="templateAdminForm.fields" form="templateAdminForm.form" options="templateAdminForm.options">														
+							<div>
+								<button type="submit" class="btn btn-primary pull-right" ng-disabled="progress.active() || templateAdminForm.form.$invalid" ng-click="templateAdminForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+							</div>
+							<div style="clear: both;"></div>
+						</formly-form>
+				 	</form>
+				</div>
+			</div>
+			<hr/>
+			
+			<div class="row" ng-show="objRecord != false">
+				<div class="col-xs-5 pull-left">
+					<div>
+						<div class="pull-left">
+							<h4>Attached Files</h4>
+						</div>
+						<div class="pull-right">
+							<button class="btn btn-success" ng-disabled="progress.active()" ng-click="togglePanel('attachTemplateFilePanelState', true)"><span class="glyphicon glyphicon-plus-sign"></span> Attach File</button>
+						</div>
+						<div class="clearboth"></div>
+					</div>
+					
+					<hr/>
+					<table class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th>Description</th>
+								<th>File</th>
+								<th>Status</th>
+								<th>&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objFile in objRecordAttachedFiles track by objFile.id">
+								<td>{{objFile.description}}</td>
+								<td>{{objFile.filemanager_content_file_name}}</td>
+								<td>
+									<a href="" title="Deactivate File" ng-click="toggleAttachedFileStatus(objFile)" ng-show="objFile.active == 1"><span class="text-success glyphicon glyphicon-ok"></span></a>
+									<a href="" title="Activate File" ng-click="toggleAttachedFileStatus(objFile)" ng-show="objFile.active == 0"><span class="text-danger glyphicon glyphicon-remove"></span></a>
+								</td>
+								<td>
+									<a href="" title="Update File Details" ng-click="togglePanel('attachTemplateFilePanelState', true, objFile.id)"><span class="glyphicon glyphicon-pencil"></span></a>
+									<a href="" title="Display File Content" ng-click="togglePanel('displayFileContentPanelState', true, objFile.id)"><span class="glyphicon glyphicon-eye-open"></span></a>
+									<a href="" title="Remove File" ng-click="detachFileFromTemplate(objFile)"><span class="text-danger glyphicon glyphicon-trash"></span></a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-xs-5 pull-right">
+					<div>
+						<div class="pull-left">
+							<h4>Forms using Look and Feel</h4>
+						</div>
+						<div class="pull-right">
+							<button class="btn btn-primary" ng-click="loadFormsUsingTemplate()" ng-disabled="progress.active()"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+							<button class="btn btn-warning" ng-click="clearFormCaches()" ng-show="objFormsUsingTemplate.length > 0" ng-disabled="progress.active()"><span class="glyphicon glyphicon-flash"></span> Clear Cache</button>
+						</div>
+						<div class="clearboth"></div>
+					</div>
+					<hr/>
+					
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Form</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objForm in objFormsUsingTemplate track by objForm.id">
+								<td>{{objForm.id}}</td>
+								<td>{{objForm.form}}</td>
+								<td>
+									<span class="text-success glyphicon glyphicon-ok" ng-show="objForm.active == 1"></span>
+									<span class="text-danger glyphicon glyphicon-remove" ng-show="objForm.active == 0"></span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="clearboth"></div>
+			</div>
+	</div>
+	
+	<!-- Attach a file panel -->
+	<div ng-show="attachTemplateFilePanelState" id="attachTemplateFilePanelState" class="panel-show-centre aside am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Attach File<button ng-click="togglePanel('attachTemplateFilePanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <div ng-show="progress.active()">
+						  	<p>Please be patient, this could take a while...</p>
+						  </div>
+						  
+						  <div ng-show="!progress.active()" class="col-xs-7">
+						  		<label for="file">Select File</label>
+						  		<div class="input-group">
+						  			<select ng-model="attachFileModel.fk_id_filemanager_content">
+						  				<option value="">--select--</option>
+						  				<option ng-repeat="objF in objAvailableFiles track by objF.id" value="{{objF.id}}">{{objF.file}}</option>
+						  			</select>
+						  		</div>
+						  		<br/>
+						  		
+						  		<label for="description">Description</label>
+						  		<div class="input-group">
+						  			<input type="text" ng-model="attachFileModel.description" placeholder="Add a short description"/>
+						  		</div>
+						  		<br/>
+						  		
+						  		<label for="active">Status</label>
+						  		<div class="input-group">
+						  			<input type="checkbox" ng-model="attachFileModel.active" ng-true-value="1" ng-false-value="0"/>
+						  		</div>
+						  		<br/>
+						  		
+						  		<div class="input-group">
+						  			<button class="btn btn-primary" ng-click="attachFileToTemplate(objF)"><span class="glyphicon glyphicon-cloud-upload"></span> Attach File</button>
+						  		</div>
+						  </div>			 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('attachTemplateFilePanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- display file content panel -->
+	<div ng-show="displayFileContentPanelState" id="displayFileContentPanelState" class="panel-show-centre aside am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">File Content<button ng-click="togglePanel('displayFileContentPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  
+						  <!-- File details -->
+						  <div class="row">
+						  	<div class="col-xs-10">
+						  		<h4>File Location</h4>
+							  	<a href="{{attachedFileContentModel.file_details.filemanager_content_http_path}}" target="_blank" title="Browse to File">{{attachedFileContentModel.file_details.filemanager_content_http_path}}</a>
+						  	</div>
+						  </div>
+						  
+						  <!-- file content -->
+						  <div class="row">
+						  	<div class="col-xs-10">
+							  	<h4>File Content</h4>
+							  	<div class="well">
+							  		<pre ng-bind-html="attachedFileContentModel.file_content | sanitize"></pre>
+							  	</div>
+							 </div>
+						  </div>			 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('displayFileContentPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>
+
+
+<script type="text/ng-template" id="textarea-tinymce.html">
+	<textarea ui-tinymce="options.data.tinymceOption"  ng-model="model[options.key]" class="form-control"></textarea>
+</script>

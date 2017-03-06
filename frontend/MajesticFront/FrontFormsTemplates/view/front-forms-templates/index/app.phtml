@@ -1,0 +1,24 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Form Look and Feels'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+
+	var global_tinymce_replace_fields_container = jQuery.parseJSON('<?php echo $this->arr_replace_fields;?>');
+	var global_tinymce_profile_images = jQuery.parseJSON('<?php echo $this->arr_profile_images;?>');
+</script>
+
+<script src="/js/plugins/mj-plugins.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/tinymce/tinymce.min.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/tinymce/jquery.tinymce.min.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/tinymce/tinymceui.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/ui-select/dist/select.min.js"></script>
+
+<script src="/js/angular/forms-admin-templates/app.js"></script>
+<script src="/js/angular/forms-admin-templates/controllers.js"></script>
+<script src="/js/angular/forms-admin-templates/services.js"></script>
+
+<?php
+echo '<div ng-app="frontEndFormTemplateAdminApp"><div ng-view></div></div>';
+return;

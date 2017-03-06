@@ -1,0 +1,80 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="FormsCompletedCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+					
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>					
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<div class="pull-right">
+						<button ng-click="togglePanel('completeFormPanel', true)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus"></span>&nbsp;Complete Form</button>
+						<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Type</th>
+							<th>Form</th>
+							<th>User</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.tstamp}}</td>
+							<td>{{objRecord.form_behaviour_label}}</td>
+							<td><span ng-bind-html="injectFormHyperLink(objRecord) | sanitize"></span></td>
+							<td>{{objRecord.uname}}</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+
+	<div ng-show="completeFormPanel" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Complete a form (Web)<button ng-click="togglePanel('completeFormPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div>
+								<ul>
+									<li ng-repeat="objForm in objAvailableForms"><span ng-bind-html="generateFormLink(objForm)"></span></li>
+								</ul>
+							</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('completeFormPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+</div>

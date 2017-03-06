@@ -4,10 +4,13 @@
 
 	<ul class="nav nav-tabs">
 		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-links", array("action" => "create")); ?>" title="Create new Communication Link" data-toggle="tooltip" class="btn btn-success"><?php echo ICON_MEDIUM_ADD_HTML . ' Add Link'; ?></a></li>
+		
+		<?php if (isset($this->layout()->app_config['frontend_views_config']) && $this->layout()->app_config['frontend_views_config']['enabled'] == true && $this->layout()->app_config['frontend_views_config']['angular-views-enabled']['links'] == true) : ?>
+			<li role="presentation" class="mj3_btnchangeform"><a href="<?php echo $this->url("front-links", array("action" => "app")); ?>" class="btn btn-default" title="Use new view" data-toggle="tooltip"><?php echo 'Switch to new view'; ?></a></li>
+		<?php endif;?>
 	</ul>
 
 	<div class="mj3_table_contain clearfix">
-
 		<script type="text/javascript">
 			jQuery(document).ready(function () {
 				//activate behaviours views
@@ -19,7 +22,7 @@
 		//load session for plugins enabled
 		$objUserSession = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 		$arr_plugins = (array) $objUserSession->profile->plugins_enabled;
-		
+
 		/**
 		 * Prepare data
 		 */
@@ -40,7 +43,7 @@
 			}//end if
 
 			$edit_url = "<a href=\"" . $this->url("front-links", array("action" => "edit", "id" => $objLink->id)) . "\" title=\"Edit Link\" data-toggle=\"tooltip\">" . ICON_SMALL_MODIFY_HTML . "</a>";
-			
+
 			if ($objLink->flag_prevent_delete > 0)
 			{
 				$delete_url = "<span title=\"Link cannot be removed. It has been trakced in the past\" data-toggle=\"tooltip\">" . ICON_SMALL_DELETE_HTML . "</span>";
@@ -54,7 +57,7 @@
 			} else {
 				$behaviours_url = "";
 			}//end if
-			
+
 			$arr_data["url"] = $behaviours_url . "&nbsp;" . $edit_url . "&nbsp;" . $delete_url;
 
 			$arr[] = $arr_data;

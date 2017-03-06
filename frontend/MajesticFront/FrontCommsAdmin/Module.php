@@ -3,7 +3,6 @@ namespace FrontCommsAdmin;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
-use Zend\Db\TableGateway\TableGateway;
 
 use FrontCommsAdmin\Events\FrontCommsAdminEvents;
 use FrontCommsAdmin\Events\FrontCommDatesEvents;
@@ -17,6 +16,7 @@ use FrontCommsAdmin\Entities\FrontJourneysEntity;
 use FrontCommsAdmin\Models\FrontCommsAdminCommEmbeddedImagesModel;
 use FrontCommsAdmin\Entities\FrontCommEmbeddedImageEntity;
 use FrontCommsAdmin\Caches\FrontCommsJourneyCache;
+use FrontCommsAdmin\Models\FrontJourneysTestModel;
 
 class Module
 {
@@ -90,6 +90,11 @@ class Module
     						return $model_comm_embedded_images;
     					}, //end function
 
+    					'FrontCommsAdmin\Models\FrontJourneysTestModel' => function ($sm) {
+    						$model = new FrontJourneysTestModel();
+    						return $model;
+    					}, //end function
+    					
     					/**
     					 * Entities
     					 */

@@ -1,0 +1,297 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					
+					<button ng-click="togglePanel('createFormPanelState', true)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add Journey</button>
+					<button ng-click="refreshRecords()" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					<button ng-click="togglePanel('filterFormPanelState', true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-filter"></span>&nbsp;Filter</button>
+					<a href="/front/comms/admin/journeys" title="Use old view" class="btn btn-default pull-right" style="margin-right: 5px;">Switch to old view</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Expiry Date</th>
+							<th>Priority</th>
+							<th>Status</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+							<td>{{objRecord.id}}</td>
+				        	<td>{{objRecord.journey}}</td>
+				        	<td>{{objRecord.description}}</td>
+				        	<td><span ng-bind-html="setJourneyDisplayDate(objRecord.date_expiry) | sanitize"></span></td>
+				        	<td>
+				        		{{objRecord.priority}}
+				        		<!--<span ng-show="objRecord.priority < 5">Low</span>
+				        		<span ng-show="objRecord.priority == 5">Medium</span>
+				        		<span ng-show="objRecord.priority > 5">High</span>-->
+				        	</td>
+				       	 	<td>
+				       	 		<a href="" ng-click="submitToggleStatus(objRecord.id)" title="Toggle Status"><span class="journey_{{objRecord.id}}_status" ng-class="{{objRecord.active}} == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'"></span></a>
+				       	 		<a href="" ng-click="togglePanel('journeyStatisticsPanelState', true, objRecord.id)" title="View Journey Statistics"><span class="glyphicon glyphicon-dashboard"></span></a>
+				       	 	</td>
+				       	 	<td>
+								<a href="" title="Update Journey Details" ng-click="togglePanel('editFormPanelState', true, objRecord.id)" ><span class="glyphicon glyphicon-pencil"></span></a>
+								<a href="" title="Configure Journey Behaviours" ng-click="togglePanel('journeyBehavioursPanelState', true, objRecord.id)"><span class="glyphicon glyphicon-link"></span></a>
+								<a href="#!/episodes/{{objRecord.id}}" title="Manage Journey Episodes"><span class="glyphicon glyphicon-th-list"></span></a>
+								<a href="#!/summary/{{objRecord.id}}" title="Journey Summary"><span class="glyphicon glyphicon-option-vertical"></span></a>
+								<a href="" title="Delete Journey" ng-click="togglePanel('deleteFormPanelState', true, objRecord.id)" ng-hide="{{objRecord.flag_prevent_delete}} > 0"><span class="glyphicon glyphicon-trash"></span></a>
+				       	 	</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->  
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<!-- Filter form -->
+	<div ng-show="filterFormPanelState" id="filterFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Filter Data <button ng-click="togglePanel('filterFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						  <form novalidate role="form">
+							<formly-form model="formFilter.model" fields="formFilter.fields" form="formFilter.form">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || formFilter.form.$invalid" ng-click="formFilter.submitForm()">Submit</button>
+							  &nbsp;
+							  <button type="submit" class="btn btn-success" ng-click="formFilter.clearModel()">Clear Filter</button>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('filterFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Create form -->
+	<div ng-show="createFormPanelState" id="createFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Create Journey <button ng-click="togglePanel('createFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;">Sending...</div>
+					      <div ng-show="loadJourneyForm.active()" style="color: red; font-size: 14px;">Requesting Form...</div>
+						  <form novalidate role="form">
+							<formly-form model="adminForm.model" fields="adminForm.fields" form="adminForm.form">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active()" ng-click="adminForm.submitForm()">Submit</button>
+							</formly-form>
+						 </form>						 			 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('createFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+		
+	<!-- Edit form -->
+	<div ng-show="editFormPanelState" id="editFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Update Journey <button ng-click="togglePanel('editFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;">Sending...</div>
+					      <div ng-show="loadJourneyForm.active()" style="color: red; font-size: 14px;">Requesting Form...</div>
+						  <form novalidate role="form">
+							<formly-form model="adminForm.model" fields="adminForm.fields" form="adminForm.form">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || adminForm.form.$invalid" ng-click="adminForm.submitForm()">Submit</button>
+							</formly-form>
+						 </form>					 
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="togglePanel('editFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Delete panel -->
+	<div ng-show="deleteFormPanelState" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">Remove Journey <button ng-click="togglePanel('deleteFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						<div>Journey: {{objCurrentRecord.journey}}</div>
+						<div>Description: {{objCurrentRecord.description}}</div>					
+						<br/>
+						<button ng-click="submitDeleteForm(objCurrentRecord)" class="btn btn-warning" type="button">Delete</button>		 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('deleteFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Behaviours Panel -->
+	<div ng-show="journeyBehavioursPanelState" id="journeyBehavioursPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Journey Behaviours</span><button ng-click="togglePanel('journeyBehavioursPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						<div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						<div ng-hide="progress.active()">
+							<div class="row">
+								<div class="col-xs-6">
+									<div class="pull-right">
+										<button class="btn btn-primary" ng-click="togglePanel('journeyBehavioursPanelState', false); togglePanel('journeyBehavioursPanelState', true, objCurrentRecord.id)"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+										<button class="btn btn-success" ng-click="loadAvailableJourneyBehaviours()"><span class="glyphicon glyphicon-plus-sign"></span> Add Behaviour</button>
+									</div>
+									<div class="clearboth"></div>
+									
+									<table class="table table-striped table-hover">
+										<thead>
+											<tr>
+												<th>Action</th>
+												<th>Description</th>
+												<th>Status</th>
+												<th>&nbsp;</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="objBeh in objJourneyBehaviours track by objBeh.id">
+												<td>{{objBeh.action_title}}</td>
+												<td>{{objBeh.description}}</td>
+												<td>
+													<a href="" ng-click="toggleJourneyBehaviourStatus(objBeh)" title="Deactivate behaviour" ng-show="objBeh.active == 1"><span class="text-success glyphicon glyphicon-ok"></span></a>
+													<a href="" ng-click="toggleJourneyBehaviourStatus(objBeh)" title="Activate behaviour" ng-show="objBeh.active == 0"><span class="text-danger glyphicon glyphicon-remove"></span></a>
+												</td>
+												<td>
+													<a href="" ng-click="updateJourneyBehaviour(objBeh)" title="Update Behaviour"><span class="glyphicon glyphicon-pencil"></span></a>&nbsp;
+													<a href="" ng-click="deleteJourneyBehaviour(objBeh)" title="Delete Behaviour"><span class="text-danger glyphicon glyphicon-trash"></span></a>&nbsp;
+												</td>
+											</tr>
+										</tbody>
+									</table>								
+								</div>
+								<div class="col-xs-4">
+									<!-- create behaviour -->
+									<div ng-show="objJourneyAvailableBehaviours.length > 0">
+										<div class="dropdown">
+											<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Select Behaviour <span class="caret"></span></button>
+											<ul class="dropdown-menu">
+												<li ng-repeat="objAction in objJourneyAvailableBehaviours">
+													<a href="" ng-click="loadJourneyBehaviourCreateForm(objAction)">{{objAction.label}}</a>
+												</li>
+											</ul>
+										</div>
+										<hr/>
+										<div ng-show="loadJourneyBehaviourConfigForm.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+										
+										<div ng-show="formJourneyBehaviour.fields.length > 0">
+											<h4>Configure Behaviour Settings</h4>
+											<small class="text-primary">{{formJourneyBehaviour.objSelectedBehaviourDetails.label}}</small>
+											<form novalidate role="form">
+												<formly-form model="formJourneyBehaviour.model" fields="formJourneyBehaviour.fields" form="formJourneyBehaviour.form">
+												  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || formJourneyBehaviour.form.$invalid" ng-click="formJourneyBehaviour.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+												</formly-form>
+										 	</form>									 												
+										</div>
+									</div>
+									
+									<!-- update behaviour -->
+									<div ng-show="updateJourneyConfigFlag">
+										<div ng-show="loadJourneyBehaviourConfigForm.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+										
+										<div ng-show="formJourneyBehaviour.fields.length > 0">
+											<h4>Configure Behaviour Settings</h4>
+											<small class="text-primary">{{formJourneyBehaviour.model.action_title}}</small>
+											<form novalidate role="form">
+												<formly-form model="formJourneyBehaviour.model" fields="formJourneyBehaviour.fields" form="formJourneyBehaviour.form">
+												  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || formJourneyBehaviour.form.$invalid" ng-click="formJourneyBehaviour.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+												</formly-form>
+										 	</form>									 												
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>	
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('journeyBehavioursPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+		
+	<!-- Stats Panel -->
+	<div ng-show="journeyStatisticsPanelState" id="journeyStatisticsPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Journey Statistics</span><button ng-click="togglePanel('journeyStatisticsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						<div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						<div class="row">
+							<div class="col-xs-4">
+								<div id="_journey_stats_sending_status"></div>
+							</div>
+							
+							<div class="col-xs-7">
+								<div id="_contact_status_sending_status"></div>
+							</div>
+							<hr/>
+						</div>	
+						
+						<div class="row col-xs-10">
+							<div id="_journey_contact_episode_progression"></div>
+							<hr/>
+						</div>	
+						
+						<div class="row col-xs-10">
+							<div id="_journey_contact_episode_history"></div>
+						</div>										
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('journeyStatisticsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>		
+</div>

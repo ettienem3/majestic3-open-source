@@ -2,6 +2,7 @@
 namespace FrontCommsAdmin\Controller;
 
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class CommDatesController extends AbstractCoreActionController
 {
@@ -10,182 +11,199 @@ class CommDatesController extends AbstractCoreActionController
 	 * @var \FrontCommsAdmin\Models\FrontCommDatesModel
 	 */
 	private $model_commdates;
-
-    public function indexAction()
+    
+    public function appAction()
     {
-    	//load the commdates
-    	$objCommDates = $this->getCommDatesModel()->fetchCommDates($this->params()->fromQuery());
-    	return array("objCommDates" => $objCommDates);
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['journey-dates'] != true)
+    	{
+    		$this->flashMessenger()->addInfoMessage('The requested view is not available');
+    		return $this->redirect()->toRoute('home');
+    	}//end if
+    	
+    	$this->layout('layout/angular/app');
+    	    	
+    	return array();
     }//end function
-
-    /**
-     * Create a new Commdate
-     * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>|multitype:\Zend\Form\Form
-     */
-    public function createAction()
+    
+    public function ajaxRequestAction()
     {
-    	$form = $this->getCommDatesModel()->getCommDatesForm();
-
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['journey-dates'] != true)
+    	{
+    		return new JsonModel(array(
+    				'error' => 1,
+    				'response' => 'Requested functionality is not available',
+    		));
+    	}//end if
+    	
+    	$arr_params = $this->params()->fromQuery();
+    	if (isset($arr_params['acrq']))
+    	{
+    		$acrq = $arr_params['acrq'];
+    	}//end if
+    	
     	$request = $this->getRequest();
     	if ($request->isPost())
     	{
-    		//set the form data
-    		$form->setData($request->getPost());
-
-    		if ($form->isValid())
+    		$arr_post_data = json_decode(file_get_contents('php://input'), true);
+    		if (isset($arr_post_data['acrq']))
     		{
-    			try {
-    				//create the Commdate
-    				$objCommDate = $this->getCommDatesModel()->createCommDate($form->getData());
-
-    				//set success message
-    				$this->flashMessenger()->addSuccessMessage("Comm Date Created");
-
-    				//redirect to index page
-    				return $this->redirect()->toRoute("front-comms-admin/dates");
-    			} catch (\Exeption $e) {
-					//set error message
-					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
-    			}//end catch
+    			$acrq = $arr_post_data['acrq'];
+    			unset($arr_post_data['acrq']);
     		}//end if
     	}//end if
-
-    	return array("form" => $form);
-    }//end function
-
-    /**
-     * Update an Existing commdate
-     * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>|multitype:\Zend\Form\Form
-     */
-    public function editAction()
-    {
-    	//get the id
-    	$id = $this->params()->fromRoute("id", "");
-
-    	if ($id == "")
-    	{
-    		//set the message return to index page
-    		$this->flashMessenger()->addErrorMessage("Comm Date could not be loaded. Id is not set");
-    		//redirect to index page
-    		return $this->redirect()->toRoute("front-comms-admin/dates");
-    	}//end if
-
-    	//load the commdates details
-    	$objCommDate = $this->getCommDatesModel()->fetchCommDate($id);
-
-    	//load the form
-    	$form = $this->getCommDatesModel()->getCommDatesForm();
-    	//bind the data
-    	$form->bind($objCommDate);
-
-    	$request = $this->getRequest();
-    	if ($request->isPost())
-    	{
-    		//set the form data
- 			$form->setData($request->getPost());
-
- 			if ($form->isValid())
- 			{
- 				try {
- 					$objCommDate = $form->getData();
- 					//set id from route
- 					$objCommDate->set("id", $id);
- 					$objCommDate = $this->getCommDatesModel()->updateCommDate($objCommDate);
-
- 					//set success message
- 					$this->flashMessenger()->addSuccessMessage("Comm Date Updated");
-
- 					//redirect to index page
- 					return $this->redirect()->toRoute("front-comms-admin/dates");
- 				} catch (\Exception $e) {
-					//set error message
-					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
- 				}//end catch
- 			}//end if
-    	}//end if
-
-    	return array(
-    			"form" => $form,
-    			"objCommDate" => $objCommDate,
-    	);
-    }//end function
-
-    /**
-     * Delete an Existing Commdate
-     * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>
-     */
-    public function deleteAction()
-    {
-    	$id = $this->params()->fromRoute("id", "");
-
-    	if ($id == "")
-    	{
-    		//set error message
-    		$this->flashMessenger()->addErrorMessage("Comm Date could not be deleted. Id not set");
-    		//return to index page
-    		return $this->redirect()->toRoute("front-comms-admin/dates");
-    	}//end if
-
-    	$request = $this->getRequest();
-    	if ($request->isPost())
-    	{
-    		if (strtolower($request->getPost("delete")) == "yes")
-    		{
-    			//delete the commdate
-    			try {
-    				$objCommDate = $this->getCommdatesModel()->deleteCommDate($id);
-
-    				//set the message
-    				$this->flashMessenger()->addSuccessMessage("Comm Date deleted");
-    			} catch (\Exeption $e) {
-    				$this->flashMessenger()->addErrorMessage($e->getMessage());
-    			}//end catch
-    		}//end if
-
-    		//redirect to index page
-    		return $this->redirect()->toRoute("front-comms-admin/dates");
-    	}//end if
-
-		//load data
-		$objCommDate = $this->getCommDatesModel()->fetchCommDate($id);
-		return array(
-			"objCommDate" => $objCommDate,
-		);
-    }//end function
-
-    /**
-     * Activate or Deactivate a Comm date
-     */
-    public function statusAction()
-    {
-    	$id = $this->params()->fromRoute("id", "");
-
-    	if ($id == "")
-    	{
-    		//set error message
-    		$this->flashMessenger()->addErrorMessage("Comm Date could not be Activated. Id not set");
-
-    		//return to index page
-    		return $this->redirect()->toRoute("front-comms-admin/dates");
-    	}//end if
-
+    	
     	try {
-    		//load the Comm date details
-    		$objCommDate = $this->getCommDatesModel()->fetchCommDate($id);
-    		$objCommDate->set("active", (1 - $objCommDate->get("active")));
-
-    		//update the Commdate
-    		$objCommDate = $this->getCommDatesModel()->updateCommDate($objCommDate);
-
-    		//set the success message
-    		$this->flashMessenger()->addSuccessMessage("Comm Date Status update");
-    	} catch (\Exeption $e) {
-    		//set Message
-    		$this->flashMessenger()->addErrorMessage($e->getMessage());
-    	}//end if
-
-    	//redirect to the index page
-    	return $this->redirect()->toRoute("front-comms-admin/dates");
+    		//map request to the correct function
+    		switch ($acrq)
+    		{
+    			case 'list-records':
+    				$objCommDates = $this->getCommDatesModel()->fetchCommDates();
+    				$arr_comm_dates = array();
+    				foreach ($objCommDates as $objDate)
+    				{
+    					if (is_numeric($objDate->id))
+    					{
+    						
+    						$arr_comm_dates[] = $objDate;
+    					}//end if
+    				}//end foreach
+    				//load admin form
+    				$form = $this->getCommDatesModel()->getCommDatesForm();
+    				$objResult = new JsonModel(array(
+    					'objData' => (object) $arr_comm_dates,	
+    				));
+    				break;
+    				
+    			case 'create-record':
+    				//load admin form
+    				$form = $this->getCommDatesModel()->getCommDatesForm();
+    				$form->setData($arr_post_data);
+    				
+    				if ($form->isValid())
+    				{
+    					//create the trigger
+    					$arr_data = (array) $form->getData();
+    					$objRecord = $this->getCommDatesModel()->createCommDate($arr_data);
+    					
+    					$objResult = new JsonModel(array(
+    						'objData' => (object) $objRecord->getArrayCopy(),	
+    					));
+    				} else {
+    					//return form errors
+    					$objResult = new JsonModel(array(
+    						'error' => 1,
+    						'response' => 'Form could not be validated',
+    						'form_messages' => $form->getMessages()
+    					));
+    				}//end if
+    				break;
+    				
+    			case 'edit-record':
+    				//load the record
+    				$objRecord = $this->getCommDatesModel()->fetchCommDate($arr_post_data['id']);
+    				if (!$objRecord)
+    				{
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'The requested record could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$form = $this->getCommDatesModel()->getCommDatesForm();
+    				$form->bind($objRecord);
+    				$form->setData($arr_post_data);
+    				
+    				if ($form->isValid())
+    				{
+    					$objData = $form->getData();
+    					$objData->set('id', $arr_post_data['id']);
+    					$objData = $this->getCommDatesModel()->updateCommDate($objData);
+    					
+    					$objResult = new JsonModel(array(
+    						'objData' => (object) $objData->getArrayCopy()	
+    					));
+    				} else {
+    					$objResult = new JsonModel(array(
+    						'error' => 1,
+    						'response' => 'Form could be validated',
+    						'form_messages' => $form->getMessages()
+    					));
+    				}//end if
+    				break;
+    				
+    			case 'delete-record':
+    				//load the record
+    				$objRecord = $this->getCommDatesModel()->fetchCommDate($arr_post_data['id']);
+    				if (!$objRecord)
+    				{
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'The requested record could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$this->getCommDatesModel()->deleteCommDate($objRecord->get('id'));
+    				$objResult = new JsonModel(array(
+    					'objData' => (object) $objRecord->getArrayCopy(),	
+    				));
+    				break;
+    				
+    			case 'toggle-record-status':
+    				//load the record
+    				$objRecord = $this->getCommDatesModel()->fetchCommDate($arr_post_data['id']);
+    				if (!$objRecord)
+    				{
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'The requested record could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$objRecord->set('active', (1 - $objRecord->get('active')));
+    				$objRecord = $this->getCommDatesModel()->updateCommDate($objRecord);
+    				$objResult = new JsonModel(array(
+    					'objData' => (object) $objRecord->getArrayCopy(),	
+    				));
+    				break;
+    				
+    			case 'load-admin-form':
+    				//load admin form
+    				$form = $this->getCommDatesModel()->getCommDatesForm();
+    				$objForm = $this->renderSystemAngularFormHelper($form, NULL);
+    				
+    				$objResult = new JsonModel(array(
+    					'objForm' => $objForm,	
+    				));
+    				break;
+    		}//end switch
+    	
+    		if (!$objResult instanceof \Zend\View\Model\JsonModel)
+    		{
+    			$objResult = new JsonModel(array(
+    					'error' => 1,
+    					'response' => 'Data could not be loaded, an unknown problem has occurred',
+    			));
+    		}//end if
+    	
+    		return $objResult;
+    	} catch (\Exception $e) {
+    		$objResult = new JsonModel(array(
+    				'error' => 1,
+    				'response' => $this->frontControllerErrorHelper()->formatErrors($e),
+    		));
+    		return $objResult;
+    	}//end catch
+    	
+    	$objResult = new JsonModel(array(
+    			'error' => 1,
+    			'response' => 'Request type is not specified',
+    	));
+    	return $objResult;    	
     }//end function
 
     /**

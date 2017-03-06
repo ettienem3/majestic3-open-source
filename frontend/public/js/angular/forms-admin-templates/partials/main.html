@@ -1,0 +1,57 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left">
+						<a href="/front/form/admin/form/app" class="btn btn-primary" title="Go to Forms"><span class="glyphicon glyphicon-list-alt"></span> Forms</a>
+					</div>
+					<div class="pull-right">
+						<a href="/front/form/templates" class="btn btn-default" title="Switch to Old View">Switch to Old View</a>&nbsp;
+						<a href="#!/content/0" class="btn btn-success pull-right" title="Create a new Look and Feel"><span class="glyphicon glyphicon-plus-sign"></span> Create Look and Feel</a>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+			</div>
+			
+			<div class ="row">
+				<div class="col-xs-10">
+					<div class="clearboth"></div>
+					<hr/>
+					
+					<div class="">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Name</th>
+									<th>Status</th>
+									<th>&nbsp;</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+									<td>{{objRecord.id}}</td>
+									<td>{{objRecord.template}}</span>
+									<td>
+										<a href="" title="Deactivate Look and Feel" ng-click="toggleTemplateStatus(objRecord)" ng-show="objRecord.active == 1"><span class="text-success glyphicon glyphicon glyphicon-ok"></span></a>
+										<a href="" title="Activate Look and Feel" ng-click="toggleTemplateStatus(objRecord)" ng-show="objRecord.active == 0"><span class="text-danger glyphicon glyphicon glyphicon-remove"></span></a>
+									</td>	
+									<td>
+										<a href="#!/content/{{objRecord.id}}" title="Update Look and Feel"><span class="glyphicon glyphicon-pencil"></span></a>
+										<a href="" ng-click="deleteTemplate(objRecord)" title="Remove this Look and Feel" ng-show="objRecord.flag_prevent_delete == 0"><span class="text-danger glyphicon glyphicon-trash"></span></a>
+									</td>					
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>

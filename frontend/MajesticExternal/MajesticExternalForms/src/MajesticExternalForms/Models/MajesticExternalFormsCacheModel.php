@@ -30,7 +30,7 @@ class MajesticExternalFormsCacheModel extends AbstractCoreAdapter
 	 */
 	public function setFormCache($key, $objData)
 	{
-		$this->storageFactory->setItem("external-form-" . md5($_SERVER["HTTP_HOST"]) . "-" . $key, $objData);
+		$r = $this->storageFactory->setItem("external-form-" . md5($_SERVER["HTTP_HOST"]) . "-" . $key, $objData);
 	}//end function
 
 	/**

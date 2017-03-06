@@ -1,2 +1,51 @@
-<h1>Viral form post submit</h1>
 <?php
+$content = "<div class=\"form-post-submit-content\" #css-style>";
+
+//check if form has style attributes
+if ($this->objForm->margins != "")
+{
+	$content = str_replace("#css-style", " style=\"margins : " . $this->objForm->margins . "px;\"", $content);
+} else {
+	$content = str_replace("#css-style", "", $content);
+}//end if
+
+//set submit content
+$content .= $this->objForm->submit_copy;
+
+//close div
+$content .= "</div>";
+
+//apply look and feel where set
+if ($this->objForm->look_and_feel_content !== FALSE)
+{
+	$content = str_replace("#content", $content, $this->objForm->look_and_feel_content);
+}//end if
+
+//check look and feel css file
+if (isset($this->objForm->look_and_feel_css_file) && $this->objForm->look_and_feel_css_file != "")
+{
+	echo '<link href="' . $this->objForm->look_and_feel_css_file . '" media="screen" rel="stylesheet" type="text/css">';
+}//end if
+
+if (is_string($majestic_content))
+{
+	echo $majestic_content;
+}//end if
+
+echo $content;
+
+//set tracking script where applicatable
+if ($this->objForm->submit_tracking_script != "" || $this->objForm->form_js_file != '')
+{
+	echo '<noscript>This page requires javascript to be activated.</noscript>';
+
+	if ($this->objForm->submit_tracking_script != "")
+	{
+		echo $this->objForm->submit_tracking_script;
+	}//end if
+
+	if ($this->objForm->form_js_file != '')
+	{
+		echo '<script src="' . $this->objForm->form_js_file . '"></script>';
+	}//end if
+}//end if

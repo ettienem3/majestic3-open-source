@@ -1,0 +1,105 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<h3 class="pull-left">Manage Tracking Links</h3>
+					<button ng-controller="CreateCtrl" ng-click="toggleCreateForm()" class="btn btn-success pull-right" type="button">Add</button>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Link</th>
+							<th>URL</th>
+							<th>Status</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-row-record-id="{{objRecord.id}}">
+				        	<td>{{objRecord.link}}</td>
+				       	 	<td>{{objRecord.url}}</td>
+				       	 	<td><span ng-class="{{objRecord.active}} == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'"></span></td>
+				       	 	<td>
+								<a href="" title="Update Tracking Link" ng-click="toggleEditForm(objRecord.id)" ><span class="glyphicon glyphicon-pencil"></span></a>
+								<a href="" title="Delete Tracking Link" ng-click="toggleDeleteForm(objRecord.id)" ><span class="glyphicon glyphicon-trash"></span></a>
+				       	 	</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+	</div>
+	
+					
+	<div ng-show="editFormState" id="editFormState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Update Tracking Link <button ng-click="toggleEditForm()" class="close pull-right" type="button">×</button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-controller="HomeCtrl as vm">
+					      <div  ng-if="!vm.model">
+					        Loading...
+					      </div>
+						<form novalidate name="vm.form" ng-submit="vm.onSubmitEdit()">
+							<formly-form model="vm.model" fields="vm.formFields" form="vm.form" options="vm.options">
+							  <button type="submit" class="btn btn-primary" ng-disabled="!vm.form.$valid" ng-click="vm.submit(vm.model)">Submit</button>
+							</formly-form>
+						</form>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="toggleEditForm()" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<div ng-controller="CreateCtrl as vmc" ng-show="vmc.createFormState" id="createFormState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Create Tracking Link <button ng-click="toggleCreateForm()" class="close pull-right" type="button">×</button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div  ng-if="!vmc.model">
+					        Loading...
+					      </div>
+						<form novalidate name="vmc.formCreate" ng-submit="vmc.onSubmitCreate(vmc.model)">
+							<formly-form model="vmc.model" fields="vmc.formFields" form="vmc.formCreate" options="vmc.options">
+							  <button type="submit" class="btn btn-primary" ng-disabled="!vmc.formCreate.$valid">Submit</button>
+							</formly-form>formly multiple on one page
+						</form>
+					</div>
+					<pre>{{vmc.model | json}}</pre>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="toggleCreateForm()" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<div ng-show="deleteFormState" class="panel-show-right aside right am-slide-right">
+		<button ng-click="toggleDeleteForm()">Close</button>
+	</div>
+<!--  
+	<div ng-show="editFormState" class="panel-show-top aside top am-slide-top" ng-model="recordData">Link: {{recordData.link}} URL: {{recordData.url}}
+		<button ng-click="toggleEditForm()">Close</button>
+	</div>
+	
+	<div ng-show="deleteFormState" class="panel-show-bottom aside bottom am-slide-bottom">{{recordData.link}} {{recordData.url}}
+		<button ng-click="toggleDeleteForm()">Close</button>
+	</div>
+	-->
+</div>

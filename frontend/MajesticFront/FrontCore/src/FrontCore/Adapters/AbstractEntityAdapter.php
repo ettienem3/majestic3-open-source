@@ -74,7 +74,7 @@ abstract class AbstractEntityAdapter extends AbstractCoreAdapter
 		{
 			$this->objData->id = '';
 		}//end if
-		
+
 		$this->objData->id_encoded = $this->objData->id . "_encoded";
 	}//end function
 
@@ -88,9 +88,18 @@ abstract class AbstractEntityAdapter extends AbstractCoreAdapter
 	{
 		if (!is_object($this->objData))
 		{
-			throw new \Exception(__CLASS__ . " : Data is not set", 500);
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Data is not set", 500);
 		}//end if
 
+		//make sure numeric values are not returned in strings
+		foreach ($this->objData as $field => $value)
+		{
+			if (is_numeric($value))
+			{
+				$this->objData->$field = $value * 1;
+			}//end if
+		}//end foreach
+		
 		return (array) $this->objData;
 	}//end function
 

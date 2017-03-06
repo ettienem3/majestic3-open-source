@@ -16,29 +16,29 @@ class FrontSalesFunnelsModel extends AbstractCoreAdapter
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-		
+
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("sales-funnels/admin");
-		
+
 		//execute
 		$objResult = $objApiRequest->performGETRequest($arr_where)->getBody();
-	
+
 		//create sales funnel entities
 		$arr = array();
 		foreach ($objResult->data as $obj)
 		{
 			if (!is_numeric($obj->id))
 			{
-				continue;	
+				continue;
 			}//end if
-			
+
 			$objSalesFunnel = $this->createSalesFunnelEntity($obj);
 			$arr[] = $objSalesFunnel;
 		}//end foreach
-		
+
 		return (object) $arr;
 	}//end function
-	
+
 	/**
 	 * Load a specific sales funnel
 	 * @param FrontContactsContactEntity $objContact
@@ -49,19 +49,19 @@ class FrontSalesFunnelsModel extends AbstractCoreAdapter
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-		
+
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("sales-funnels/admin/$id?contact_id=" . $objContact->get("id"));
-		
+
 		//execute
 		$objResult = $objApiRequest->performGETRequest(array())->getBody();
-		
+
 		//create sales funnel entity
 		$objSalesFunnel = $this->createSalesFunnelEntity($objResult->data);
-		
+
 		return $objSalesFunnel;
 	}//end function
-	
+
 	/**
 	 * Create a new sales funnel
 	 * @trigger : createSalesFunnel.pre, createSalesFunnel.post
@@ -73,25 +73,25 @@ class FrontSalesFunnelsModel extends AbstractCoreAdapter
 	{
 		//create entity
 		$objSalesFunnel = $this->createSalesFunnelEntity($arr_data);
-		
+
 		//trigger pre event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel));
-		
+
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-		
+
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("sales-funnels/admin?contact_id=" . $objContact->get("id") . "&fid=" . $arr_data["fk_form_id"]);
-		
+
 		//execute
 		$objResult = $objApiRequest->performPOSTRequest($objSalesFunnel->getArrayCopy())->getBody();
-		
+
 		//trigger post event
-		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel));
-		
-		return $objSalesFunnel;
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel, 'objResult' => $objResult));
+
+		return $objResult->data;
 	}//end function
-	
+
 	/**
 	 * Update a sales funnel
 	 * @trigger : editSalesFunnel.pre, editSalesFunnel.post
@@ -103,22 +103,22 @@ class FrontSalesFunnelsModel extends AbstractCoreAdapter
 	{
 		//trigger pre event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel));
-		
+
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-		
+
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("sales-funnels/admin/" . $objSalesFunnel->get("id") . "?contact_id=" . $objContact->get("id"));
-		
+
 		//execute
 		$objResult = $objApiRequest->performPUTRequest($objSalesFunnel->getArrayCopy())->getBody();
-		
+
 		//trigger post event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel));
-		
+
 		return $objSalesFunnel;
 	}//end function
-	
+
 	/**
 	 * Delete a sales funnel
 	 * @trigger : deleteSalesFunnel.pre, deleteSalesFunnel.post
@@ -130,22 +130,22 @@ class FrontSalesFunnelsModel extends AbstractCoreAdapter
 	{
 		//trigger pre event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel));
-		
+
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
-		
+
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("sales-funnels/admin/" . $objSalesFunnel->get("id") . "?contact_id=" . $objContact->get("id"));
-		
+
 		//execute
 		$objResult = $objApiRequest->performDELETERequest(array())->getBody();
-		
+
 		//trigger post event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objSalesFunnel" => $objSalesFunnel));
-		
+
 		return $objSalesFunnel;
 	}//end function
-	
+
 	/**
 	 * Create an instance of Sales Funnel entity
 	 * @param mixed $objData
@@ -154,7 +154,7 @@ class FrontSalesFunnelsModel extends AbstractCoreAdapter
 	private function createSalesFunnelEntity($objData)
 	{
 		$objSalesFunnel = $this->getServiceLocator()->get("FrontSalesFunnels\Entities\FrontSalesFunnelContactSalesFunnelEntity");
-		
+
 		//populate data
 		$objSalesFunnel->set($objData);
 		return $objSalesFunnel;

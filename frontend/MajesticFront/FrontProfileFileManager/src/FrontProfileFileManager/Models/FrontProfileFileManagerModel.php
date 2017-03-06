@@ -58,6 +58,17 @@ class FrontProfileFileManagerModel extends AbstractCoreAdapter
 		$objResult = $objApiRequest->performPOSTRequest($arr_data);
 	}//end function
 	
+	public function toggleFileStatus($id)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+		
+		//setup the object and specify action
+		$objApiRequest->setApiAction("profile/file-manager/" . $id);
+		
+		$objResult = $objApiRequest->performPUTRequest(array('id' => $id));
+	}//end function
+	
 	public function deleteFile($mode, $location)
 	{
 		//create the request object

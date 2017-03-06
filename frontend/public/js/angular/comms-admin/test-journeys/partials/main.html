@@ -1,0 +1,126 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					
+					<button ng-click="togglePanel('createFormPanelState', true)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add Test</button>
+					<button ng-click="refreshRecords()" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					<button ng-click="togglePanel('filterFormPanelState', true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-filter"></span>&nbsp;Filter</button>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Journey ID</th>
+							<th>Journey</th>
+							<th>Contact ID</th>
+							<th>Contact</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+							<td>{{objRecord.id}}</td>
+				        	<td>{{objRecord.fk_journey_id}}</td>
+				        	<td>{{objRecord.journeys_journey}}</td>
+				        	<td>{{objRecord.fk_reg_id}}</td>
+				        	<td>{{objRecord.contact_fname}} {{objRecord.contact_sname}}</td>
+				       	 	<td>
+								<a href="" title="Delete Test" ng-click="togglePanel('deleteFormPanelState', true, objRecord.id)"><span class="text-danger glyphicon glyphicon-trash"></span></a>
+				       	 	</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->  
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<!-- Filter form -->
+	<div ng-show="filterFormPanelState" id="filterFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Filter Data <button ng-click="togglePanel('filterFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						  <form novalidate role="form">
+							<formly-form model="formFilter.model" fields="formFilter.fields" form="formFilter.form">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || formFilter.form.$invalid" ng-click="formFilter.submitForm()">Submit</button>
+							  &nbsp;
+							  <button type="submit" class="btn btn-success" ng-click="formFilter.clearModel()">Clear Filter</button>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('filterFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Create form -->
+	<div ng-show="createFormPanelState" id="createFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Create Test <button ng-click="togglePanel('createFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;">Sending...</div>
+					      
+						  <form novalidate role="form">
+							<formly-form model="adminForm.model" fields="adminForm.fields" form="adminForm.form">
+							  <button type="submit" class="btn btn-primary" ng-disabled="progress.active()" ng-click="adminForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+							</formly-form>
+						 </form>						 			 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('createFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Delete panel -->
+	<div ng-show="deleteFormPanelState && delete_record_id > 0" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">Remove Test <button ng-click="togglePanel('deleteFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						<p>Are you sure you wish to remove this test record?</p>				
+						<br/>
+						<button ng-click="submitDeleteForm('')" class="btn btn-warning" type="button" title="Only remove this specific record">Delete record</button>
+						<br/><br/><button ng-click="submitDeleteForm('journey')" class="btn btn-warning" type="button" title="Remove all tests for this journey">Delete Journey</button>
+						<br/><br/><button ng-click="submitDeleteForm('contact')" class="btn btn-warning" type="button" title="Remove all tests for this contact">Delete Contact</button>		 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('deleteFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>			
+</div>

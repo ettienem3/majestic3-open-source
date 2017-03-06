@@ -1,0 +1,114 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+		<div class="container-body">
+			<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+			
+			<!-- initiate data loading process -->
+			<div data-ng-init="loadRecords()"></div>
+			<div class="col-md-12">
+				<a href="" ng-click="togglePanel('createRecord', true)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-plus-sign"></span> Add Trigger</a>
+				<a href="" ng-click="loadRecords()" class="btn btn-primary pull-right" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span> Refresh</a>
+			</div>
+			<div style="clear:both;"></div>
+			<hr/>
+			
+			<div class="">
+				<div class="col-md-12">
+					<div ng-show="progress.load_records_progress.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+
+					<table id="tblRecords" class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th>Description</th>
+								<th>Start Journey</th>
+								<th>Time</th>
+								<th>Condition</th>
+								<th>Field</th>
+								<th>Start every year</th>
+								<th>Restart Journey</th>
+								<th>Status</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+								<td>{{objRecord.description}}</td>
+								<td><span title="{{objRecord.journey_description}}">{{objRecord.journeys_journey}}</span></td>
+								<td>{{objRecord.send_string}}</td>
+								<td>
+									<span ng-show="objRecord.send_before == 1">before</span>
+									<span ng-show="objRecord.send_before == 0">after</span>
+								</td>
+								<td>{{objRecord.fields_custom_description}}<span ng-hide="objRecord.fields_custom_field == null || objRecord.fields_custom_field == ''"> ({{objRecord.fields_custom_field}})</span></td>
+								<td>
+									<span ng-show="objRecord.yearly == 1">Yes</span>
+									<span ng-show="objRecord.yearly == 0">No</span>
+								</td>
+								<td>
+									<span ng-show="objRecord.restart == 1">Yes</span>
+									<span ng-show="objRecord.restart == 0">No</span>
+								</td>
+								<td>
+									<a href="" ng-click="toggleRecordStatus(objRecord)" title="Update Status">
+										<span ng-show="objRecord.active == 1" style="color:green;" class="glyphicon glyphicon-ok-circle"></span>
+										<span ng-show="objRecord.active == 0" style="color:red;" class="glyphicon glyphicon-remove-circle"></span>
+									</a>
+								</td>
+								<td>
+									<a href="" ng-click="togglePanel('editRecord', true, objRecord)"><span class="glyphicon glyphicon-pencil"></span></a>
+									<a href="" ng-click="deleteRecord(objRecord)"><span style="color:red;" class="glyphicon glyphicon-trash"></span></a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Create Admin Form -->
+	<div ng-show="createRecord" id="createRecord" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">Create Trigger<button ng-click="togglePanel('createRecord', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+			</div>
+			<div class="panel-body">
+				<div ng-show="progress.load_admin_form.active() || progress.process_form_submit.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+				
+				<form novalidate role="form">
+					<formly-form model="objForm.model" fields="objForm.fields">
+					  	<button ng-hide="progress.load_admin_form.active() || progress.process_form_submit.active()" type="submit" class="btn btn-primary" ng-disabled="objForm.form.$invalid" ng-click="objForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+					</formly-form>
+				</form>					 				
+			</div>
+			<div class="panel-footer">
+				<button ng-click="togglePanel('createRecord', false)" class="btn btn-success pull-right" type="button">Close</button>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Edit Admin Form -->
+	<div ng-show="editRecord" id="editRecord" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">Update Trigger<button ng-click="togglePanel('editRecord', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+			</div>
+			<div class="panel-body">
+				<div ng-show="progress.load_admin_form.active() || progress.process_form_submit.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+				
+				<form novalidate role="form">
+					<formly-form model="objForm.model" fields="objForm.fields">
+					  	<button ng-hide="progress.load_admin_form.active() || progress.process_form_submit.active()" type="submit" class="btn btn-primary" ng-disabled="objForm.form.$invalid" ng-click="objForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+					</formly-form>
+				</form>									 				
+			</div>
+			<div class="panel-footer">
+				<button ng-click="togglePanel('editRecord', false)" class="btn btn-success pull-right" type="button">Close</button>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>	
+</div>

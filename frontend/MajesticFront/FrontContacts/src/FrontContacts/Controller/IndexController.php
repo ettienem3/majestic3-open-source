@@ -5,6 +5,7 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use FrontUserLogin\Models\FrontUserSession;
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\Stdlib\ArrayObject;
 
 class IndexController extends AbstractCoreActionController
 {
@@ -37,6 +38,12 @@ class IndexController extends AbstractCoreActionController
 	 * @var \FrontContacts\Models\FrontContactsSystemFieldsModel
 	 */
 	private $model_front_contact_system_fields;
+
+	/**
+	 * Container for Angular Data requests
+	 * @var \Zend\Stdlib\ArrayObject
+	 */
+	private $objAngularRequestData;
 
     public function indexAction()
     {
@@ -194,6 +201,441 @@ class IndexController extends AbstractCoreActionController
     	);
     }//end function
 
+    public function appAction()
+    {
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['contact-list'] != true)
+    	{
+    		$this->flashMessenger()->addInfoMessage('The requested view is not available');
+    		return $this->redirect()->toRoute('front-contacts');
+    	}//end if
+
+    	$this->layout('layout/angular/app');
+
+    	//load contacts
+		$objContacts = $this->getContactsModel()->fetchContacts(array('qp_limit' => 20));
+
+    	return array(
+    			'objContacts' => $objContacts,
+    	);
+    }//end function
+
+    public function ajaxRequestAction()
+    {
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['contact-list'] != true)
+    	{
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => 'Requested functionality is not available',
+			));
+    	}//end if
+
+    	if (!$this->objAngularRequestData)
+    	{
+    		$this->objAngularRequestData = new ArrayObject();
+    	}//end if
+
+    	$arr_params = $this->params()->fromQuery();
+    	if (isset($arr_params['acrq']))
+    	{
+    		$acrq = $arr_params['acrq'];
+    	}//end if
+
+    	$request = $this->getRequest();
+    	$arr_post_data = false;
+    	if ($request->isPost())
+    	{
+    		$arr_post_data = json_decode(file_get_contents('php://input'), true);
+    		if (isset($arr_post_data['acrq']))
+    		{
+    			$acrq = $arr_post_data['acrq'];
+    			unset($arr_post_data['acrq']);
+    		}//end if
+    		if (isset($arr_post_data['cid']))
+    		{
+    			$arr_params['cid'] = $arr_post_data['cid'];
+    			unset($arr_post_data['cid']);
+    		}//end if
+    	}//end if
+
+    	$this->objAngularRequestData->acrq = $acrq;
+    	$this->objAngularRequestData->arr_params = $arr_params;
+    	$this->objAngularRequestData->arr_post_data = $arr_post_data;
+
+    	if (isset($this->objAngularRequestData->arr_params['cid']))
+    	{
+    		$this->objAngularRequestData->cid = $this->objAngularRequestData->arr_params['cid'];
+    		unset($this->objAngularRequestData->arr_params['cid']);
+    	}//end if
+
+    	try {
+    		//map request to the correct function
+    		switch ($acrq)
+    		{
+    			case 'list-contacts':
+					$arr_where = array();
+					foreach ($arr_params as $k => $v)
+					{
+						if (substr($k, 0, strlen('regtbl_')) == 'regtbl_')
+						{
+							$arr_where[$k] = $v;
+						}//end if
+					}//end foreach
+
+					if (isset($arr_params['keyword']) && $arr_params['keyword'] != '')
+					{
+						$arr_where['keyword'] = $arr_params['keyword'];
+					}//end if
+
+					if (isset($arr_params['qp_limit']) && is_numeric($arr_params['qp_limit']))
+					{
+						$arr_where['qp_limit'] = (int) $arr_params['qp_limit'];
+					}//end if
+
+					if (isset($arr_params['qp_start']) && is_numeric($arr_params['qp_start']))
+					{
+						$arr_where['qp_start'] = (int) $arr_params['qp_start'];
+					}//end if
+
+    				$objContacts = $this->getContactsModel()->fetchContacts($arr_where);
+    				$arr_contacts = array();
+    				foreach ($objContacts as $objContact)
+    				{
+    					if (isset($objContact->id))
+    					{
+    						$arr_contacts[] = $objContact;
+    					}//end if
+    				}//end foreach
+
+    				$objData = (object) $arr_contacts;
+    				$objData->hypermedia = $objContacts->hypermedia;
+
+    				$objResult = new JsonModel(array(
+						'objData' => $objData,
+    				));
+    				break;
+
+    			case 'load-contact':
+    				$objContact = $this->getContactsModel()->fetchContact($this->objAngularRequestData->cid);
+
+    				//fix some dates
+    				$date = $this->formatUserDate(array("date" => $objContact->get('datetime_created'), "options" => array(
+    						"output_format" => "d M Y H:i",
+    				)));
+    				if (!$date)
+    				{
+    					$date = '';
+    				}//end if
+    				$objContact->set('datetime_created', $date);
+
+    				$date = $this->formatUserDate(array("date" => $objContact->get('datetime_updated'), "options" => array(
+    						"output_format" => "d M Y H:i",
+    				)));
+    				if (!$date)
+    				{
+    					$date = '';
+    				}//end if
+    				$objContact->set('datetime_updated', $date);
+
+    				$date = $this->formatUserDate(array("date" => $objContact->get('datetime_form'), "options" => array(
+    						"output_format" => "d M Y H:i",
+    				)));
+    				if (!$date)
+    				{
+    					$date = '';
+    				}//end if
+    				$objContact->set('datetime_form', $date);
+
+
+    				$date = $this->formatUserDate(array("date" => $objContact->get('tstamp'), "options" => array(
+    						"output_format" => "d M Y H:i",
+    				)));
+    				if (!$date)
+    				{
+    					$date = '';
+    				}//end if
+    				$objContact->set('tstamp', $date);
+
+    				$objData = (object) $objContact->getArrayCopy();
+    				$objResult = new JsonModel(array(
+    						'objData' => $objData,
+    				));
+    				break;
+
+    			case 'create-contact':
+    				//check if form id has been set
+    				if (is_numeric($this->objAngularRequestData->arr_post_data['cpp_form_id']))
+    				{
+    					$cpp_form_id = (int) $this->objAngularRequestData->arr_post_data['cpp_form_id'];
+    				} else {
+    					//use the first available form
+    					$arr_forms = $this->getContactsModel()->getContactProfileForm();
+    					end($arr_forms);
+    					$cpp_form_id = key($arr_forms);
+    				}//end if
+
+    				//load the form
+    				$form = $this->getContactsModel()->getContactProfileForm($cpp_form_id);
+    				$form->setData($this->objAngularRequestData->arr_post_data);
+    				if ($form->isValid())
+    				{
+    					try {
+	    					$arr_data = (array) $form->getData();
+	    					$objContact = $this->getContactsModel()->createContact($arr_data, $cpp_form_id);
+
+	    					$objResult = new JsonModel(array(
+	    							'objData' => array(
+	    									'objContact' => (object) $objContact->getArrayCopy(),
+	    							),
+	    					));
+	    					return $objResult;
+    					} catch (\Exception $e) {
+							//set error message
+							$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
+							$objResult = new JsonModel(array(
+									'error' => 1,
+									'response' => $e->getMessage(),
+									'form_messages' => (object) $form->getMessages(),
+							));
+							return $objResult;
+    					}//end catch
+    				} else {
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'Form is not valid',
+    							'form_errors' => (array) $form->getMessages(),
+    					));
+    					return $objResult;
+    				}//end if
+
+    				$objResult = new JsonModel(array(
+    						'objData' => $this->objAngularRequestData->arr_post_data,
+    				));
+    				return $objResult;
+    				break;
+
+    			case 'update-contact':
+    				//load contact
+    				$objContact = $this->getContactsModel()->fetchContact($this->objAngularRequestData->cid);
+
+					//check if form id has been set
+					if (is_numeric($this->objAngularRequestData->arr_post_data['cpp_form_id']))
+					{
+						$cpp_form_id = (int) $this->objAngularRequestData->arr_post_data['cpp_form_id'];
+					} else {
+						//use the first available form
+						$arr_forms = $this->getContactsModel()->getContactProfileForm();
+						end($arr_forms);
+						$cpp_form_id = key($arr_forms);
+					}//end if
+
+					//load the form
+					$form = $this->getContactsModel()->getContactProfileForm($cpp_form_id);
+					$form->setData($this->objAngularRequestData->arr_post_data);
+					if ($form->isValid())
+					{
+						try {
+							$arr_data = (array) $form->getData();
+							$objContact->set($arr_data);
+							$objContact = $this->getContactsModel()->updateContact($objContact, $cpp_form_id);
+
+							$objResult = new JsonModel(array(
+									'objData' => array(
+											'objContact' => (object) $objContact->getArrayCopy(),
+									),
+							));
+							return $objResult;
+						} catch (\Exception $e) {
+							//set error message
+							$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
+							$objResult = new JsonModel(array(
+									'error' => 1,
+									'response' => $e->getMessage(),
+									'form_messages' => (object) $form->getMessages(),
+							));
+							return $objResult;
+						}//end catch
+					} else {
+						$objResult = new JsonModel(array(
+								'error' => 1,
+								'response' => 'Form validation failed',
+								'form_messages' => (object) $form->getMessages(),
+						));
+						return $objResult;
+					}//end if
+
+    				$objResult = new JsonModel(array(
+    					'objData' => $this->objAngularRequestData->arr_post_data,
+    				));
+    				return $objResult;
+    				break;
+
+    			case 'load-sources':
+    				//load form
+    				$form = $this->getContactsModel()->getContactSystemFieldsForm();
+    				$arr_source_data = $form->get('source_dropdown')->getValueOptions();
+
+    				$objResult = new JsonModel(array(
+    						'objData' => (object) $arr_source_data,
+    				));
+    				break;
+
+    			case 'load-references':
+    				//load form
+    				$form = $this->getContactsModel()->getContactSystemFieldsForm();
+    				$arr_reference_data = $form->get('reference_dropdown')->getValueOptions();
+
+    				$objResult = new JsonModel(array(
+    						'objData' => (object) $arr_reference_data,
+    				));
+    				break;
+
+    			case 'load-users':
+    				//load form
+    				$form = $this->getContactsModel()->getContactSystemFieldsForm();
+    				$arr_users_data = $form->get('user_id')->getValueOptions();
+
+    				$objResult = new JsonModel(array(
+    						'objData' => (object) $arr_users_data,
+    				));
+    				break;
+
+    			case 'load-statuses':
+	    			$objStatuses = $this->getContactStatusModel()->fetchContactStatuses();
+	    			$arr_data = array();
+	    			foreach ($objStatuses as $objStatus)
+	    			{
+	    				if (!is_numeric($objStatus->id))
+	    				{
+	    					continue;
+	    				}//end if
+
+	    				$arr_data[] = array("id" => $objStatus->id, "status" => $objStatus->status);
+	    			}//end foreach
+
+    				$objResult = new JsonModel(array(
+    						'objData' => (object) $arr_data,
+    				));
+    				break;
+
+    			case 'update-user-meta-data':
+    				//load the contact
+    				$objContact = $this->getContactsModel()->fetchContact($this->objAngularRequestData->cid);
+
+    				//extract fields from data and validate some values
+					$objUser = $this->getUsersModel()->fetchUser($this->objAngularRequestData->arr_post_data['user_id']);
+    				$objStatus = $this->getContactStatusModel()->fetchContactStatus($this->objAngularRequestData->arr_post_data['reg_status_id']);
+
+    				$objContact->set('source', 				$this->objAngularRequestData->arr_post_data['source']);
+    				$objContact->set('reference', 			$this->objAngularRequestData->arr_post_data['reference']);
+    				$objContact->set('user_id',  			(int) $this->objAngularRequestData->arr_post_data['user_id']);
+    				$objContact->set('reg_status_id', 		(int) $this->objAngularRequestData->arr_post_data['reg_status_id']);
+
+    				$this->getContactsModel()->updateContact($objContact, "systemfields");
+
+    				$objResult = new JsonModel(array(
+    						'objData' => (object) array('response' => 'Contact has been updated'),
+    				));
+    				break;
+
+    			case 'load-cpp-form':
+    				//extract form id from url
+    				if (isset($this->objAngularRequestData->arr_params['cpp_fid']) && is_numeric($this->objAngularRequestData->arr_params['cpp_fid']))
+    				{
+    					$form_id = $this->objAngularRequestData->arr_params['cpp_fid'];
+    					$form = $this->getContactsModel()->getContactProfileForm($form_id);
+    				}//end if
+
+    				//select contact profile form to use
+    				if (is_array($form) && $form_id == "")
+    				{
+    					//check if form id is set in user session
+    					$objUserStorage = FrontUserSession::getUserLocalStorageObject();
+    					if (isset($objUserStorage->readUserNativePreferences()->cpp_form_id) && is_string($objUserStorage->readUserNativePreferences()->cpp_form_id))
+    					{
+    						$form_id = $objUserStorage->readUserNativePreferences()->cpp_form_id;
+    						if (!is_numeric($form_id))
+    						{
+    							//use the first available form
+    							$arr_forms = $this->getContactsModel()->getContactProfileForm();
+    							$form_id = key($arr_forms);
+    						}//end if
+
+    						//load the form
+    						$form = $this->getContactsModel()->getContactProfileForm($form_id);
+    					}//end if
+    				}//end if
+
+    				if (is_null($form))
+    				{
+    					//use the first available form
+    					$arr_forms = $this->getContactsModel()->getContactProfileForm();
+    					end($arr_forms);
+    					$form_id = key($arr_forms);
+    					//load the form
+    					$form = $this->getContactsModel()->getContactProfileForm($form_id);
+    				}//end if
+
+    				$objForm = $this->renderSystemAngularFormHelper($form, NULL);
+    				$objResult = new JsonModel(array(
+    						'objData' => $objForm,
+    				));
+    				break;
+
+    			case 'load-cpp-form-list':
+    				//use the first available form
+    				$arr_forms = $this->getContactsModel()->getContactProfileForm();
+
+    				$objResult = new JsonModel(array(
+    						'objData' => (object) $arr_forms,
+    				));
+    				break;
+
+    			case 'load-contact-filter-form-fields':
+					$form = $this->getContactsModel()->getContactFilterForm();
+
+					$objForm = $this->renderSystemAngularFormHelper($form, NULL);
+					$objResult = new JsonModel(array(
+							'objData' => $objForm,
+					));
+    				break;
+
+    			case 'load-contact-statistics':
+    				$objContact = $this->getContactsModel()->fetchContact($this->objAngularRequestData->cid);
+
+    				$objData = $this->getContactsModel()->fetchContactStatistics($objContact->get('id'), $this->objAngularRequestData->arr_params);
+    				$objResult = new JsonModel(array(
+    					'objData' => $objData,
+    				));
+    				return $objResult;
+    				break;
+    		}//end switch
+
+    		if (!$objResult instanceof \Zend\View\Model\JsonModel)
+    		{
+    			$objResult = new JsonModel(array(
+    					'error' => 1,
+    					'response' => 'Data could not be loaded, an unknown problem has occurred',
+    			));
+    		}//end if
+
+    		return $objResult;
+    	} catch (\Exception $e) {
+    		$objResult = new JsonModel(array(
+    				'error' => 1,
+    				'response' => $e->getMessage(),
+    		));
+    		return $objResult;
+    	}//end catch
+
+    	$objResult = new JsonModel(array(
+    			'error' => 1,
+    			'response' => 'Request type is not specified',
+    	));
+    	return $objResult;
+    }//end function
+
     public function ajaxSearchValuesAction()
     {
     	try {
@@ -306,6 +748,11 @@ class IndexController extends AbstractCoreActionController
     	try {
     		//load the contact
     		$objContact = $this->getContactsModel()->fetchContact($reg_id);
+
+    		if ($objContact->get("unsub") > 0)
+    		{
+    			$this->flashMessenger()->addInfoMessage('Contact is unsubscribed');
+    		}//end if
     	} catch (\Exception $e) {
     		//set error message
     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
@@ -346,19 +793,19 @@ class IndexController extends AbstractCoreActionController
     		"objContact" => $objContact,
     	);
     }//end function
-    
+
     public function ajaxViewContactAction()
     {
     	//set contact id
     	$reg_id = $this->params()->fromRoute("id", "");
-    	
+
     	if ($reg_id == "")
     	{
     		//set error message
     		echo json_encode(array('error' => 1, 'response' => "Contact could not be loaded. ID is not set"), JSON_FORCE_OBJECT);
     		exit;
     	}//end if
-    	
+
     	try {
     		//load the contact
     		$objContact = $this->getContactsModel()->fetchContact($reg_id);
@@ -529,6 +976,11 @@ class IndexController extends AbstractCoreActionController
 
     	//load the contact
     	$objContact = $this->getContactsModel()->fetchContact($reg_id);
+
+    	if ($objContact->get("unsub") > 0)
+    	{
+    		$this->flashMessenger()->addInfoMessage('Contact is unsubscribed');
+    	}//end if
 
     	//bind data to form
     	$form->bind($objContact);
@@ -925,6 +1377,14 @@ class IndexController extends AbstractCoreActionController
     	$form = $this->getContactsModel()->getContactSystemFieldsForm();
     	$arr_source_data = $form->get('source_dropdown')->getValueOptions();
     	return new JsonModel($arr_source_data);
+    }//end function
+    
+    public function ajaxLoadReferenceListAction()
+    {
+    	//load form
+    	$form = $this->getContactsModel()->getContactSystemFieldsForm();
+    	$arr_reference_data = $form->get('reference_dropdown')->getValueOptions();
+    	return new JsonModel($arr_reference_data);
     }//end function
 
     /**

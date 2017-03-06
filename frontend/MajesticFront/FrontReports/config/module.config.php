@@ -3,6 +3,7 @@ return array(
     'controllers' => array(
         'invokables' => array(
 			'FrontReports\Controller\ReportViewer' => 'FrontReports\Controller\ReportViewerController',
+        	'FrontReports\Controller\ConfigureProfileReportOptions' => 'FrontReports\Controller\ConfigureProfileReportOptionsController',
         ),
     ),
 
@@ -15,6 +16,16 @@ return array(
 									'defaults' => array(
 											'controller' => 'FrontReports\Controller\ReportViewer',
 											'action'     => 'index',
+									),
+							),
+					),
+					'front-report-config' => array(
+							'type' => 'segment',
+							'options' => array(
+									'route' => '/front/reports/config[/:action][/:id]',
+									'defaults' => array(
+											'controller' => 'FrontReports\Controller\ConfigureProfileReportOptions',
+											'action' => 'index',
 									),
 							),
 					),

@@ -322,6 +322,18 @@ class FrontAdminFormRenderHelper extends AbstractHelper
 				} else {
 					if ($form->get($field)->getLabel() != "")
 					{
+						switch (strtolower(str_replace(' ', '', $form->get($field)->getLabel())))
+						{
+							case 'countryforcellnumber':
+							case 'countryforcworknumber':
+							case 'countryforfaxnumber':
+							case 'countryforhomenumber':
+								$arr_options = $form->get($field)->getOptions();
+								$arr_options['label'] = 'International Dialing Code';
+								$form->get($field)->setOptions($arr_options);
+								break;
+						}//end switch
+						
 						$html .= 	$this->view->formLabel($form->get($field));
 					}//end if
 

@@ -19,6 +19,8 @@
 				continue;
 			}//end if
 
+			$arr_data = array();
+			$arr_data['id'] = $objCity->id;
 			$arr_data["city"] = $objCity->city;
 
 			if ($objCity->active == 1)
@@ -35,7 +37,7 @@
 
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
-		echo $this->renderSimpleHTMLTable($arr, array("City", "Active", "Province"), array("id" => $css_id));
+		echo $this->renderSimpleHTMLTable($arr, array('ID', "City", "Active", "Province"), array("id" => $css_id));
 		?>
 
 	</div>

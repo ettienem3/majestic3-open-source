@@ -1,4 +1,74 @@
 <?php
+$replace_content = '';
+if (isset($this->objForm->objLookAndFeel) && $this->objForm->objLookAndFeel->content != "")
+{
+	$replace_content = urlencode($this->objForm->objLookAndFeel->content);
+}//end if
+
+if ($this->objForm->submit_copy != '')
+{
+	$replace_content .= urlencode($this->objForm->submit_copy);
+}//end if
+
+if ($this->objForm->reject_copy != '')
+{
+	$replace_content .= urlencode($this->objForm->reject_copy);
+}//end if
+?>
+
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+		//request contact data
+		loadContact();
+	});
+
+	function loadContact()
+	{
+		//activate wait modal
+		jQuery('#form-notification-modal').modal('show');
+
+		var form = jQuery(".form").serialize();
+		jQuery.ajax({
+			url: "/forms/ajax-load-contact",
+			type: "post",
+			data: form + "&r=<?php echo $this->reg_id;?>&f=<?php echo $this->form_id;?>&rcontent=<?php echo $replace_content;?>",
+		})
+		.done(function (data) {
+			var objData = jQuery.parseJSON(data);
+
+			if (objData.error == 1)
+			{
+				console.log(objData.response);
+				jQuery('#form-notification-modal').modal('hide');
+				return false;
+			}//end if
+
+			if (typeof objData.response.replace_content != 'undefined')
+			{
+				var replace_string = jQuery('.m3-form-post-submit-content-container').html();
+				jQuery.each(objData.response.replace_content, function (field, value) {
+					replace_string = replace_string.replace(field, value);
+				});
+
+				if (replace_string != '')
+				{
+					jQuery('.m3-form-post-submit-content-container').html(replace_string);
+				}//end if
+
+				delete objData.response.replace_content;
+			}//end if
+			jQuery('#form-notification-modal').modal('hide');
+		})
+		.fail(function (data) {
+			//console.log("Error collection form data");
+			//console.log(data);
+			jQuery('#form-notification-modal').modal('hide');
+		});
+	}//end function
+</script>
+
+<div class="m3-form-post-submit-content-container">
+<?php
 $content = "<div class=\"form-post-submit-content\" #css-style>";
 
 //check if form has style attributes
@@ -16,15 +86,35 @@ $content .= $this->objForm->submit_copy;
 $content .= "</div>";
 
 //apply look and feel where set
-if ($this->objForm->look_and_feel_content !== FALSE)
+if (isset($this->objForm->objLookAndFeel) && $this->objForm->objLookAndFeel->content != "")
 {
-	$content = str_replace("#content", $content, $this->objForm->look_and_feel_content);
+	$content = str_replace("#content", $content, $this->objForm->objLookAndFeel->content);
 }//end if
 
-//check look and feel css file
-if (isset($this->objForm->look_and_feel_css_file) && $this->objForm->look_and_feel_css_file != "")
+//check look and feel css files
+if (isset($this->objForm->objLookAndFeel) && is_array($this->objForm->objLookAndFeel->attached_files) && count($this->objForm->objLookAndFeel->attached_files) > 0)
 {
-	echo '<link href="' . $this->objForm->look_and_feel_css_file . '" media="screen" rel="stylesheet" type="text/css">';
+	foreach ($this->objForm->objLookAndFeel->attached_files as $k => $objFile)
+	{
+		if ($objFile->filemanager_content_file_mode != 'document')
+		{
+			continue;
+		}//end if
+
+		$arr_t = explode('.', $objFile->filemanager_content_http_path);
+		$t = array_pop($arr_t);
+		if (strtolower($t) == 'css')
+		{
+			echo '<link href="' . $objFile->filemanager_content_http_path . '" media="screen" rel="stylesheet" type="text/css">';
+			continue;
+		}//end if
+
+		if (strtolower($t) == 'js')
+		{
+			echo '<script src="' . $objFile->filemanager_content_http_path . '"></script>';
+			continue;
+		}//end if
+	}//end foreach
 }//end if
 
 if (is_string($majestic_content))
@@ -49,3 +139,5 @@ if ($this->objForm->submit_tracking_script != "" || $this->objForm->form_js_file
 		echo '<script src="' . $this->objForm->form_js_file . '"></script>';
 	}//end if
 }//end if
+?>
+</div>

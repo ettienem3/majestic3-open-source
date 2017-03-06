@@ -1,0 +1,21 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_CONTACTS_HTML .'&nbsp; Contact Data'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+
+	var global_contact_data = JSON.parse('<?php echo str_replace("'", "", json_encode($this->objContact->getArrayCopy(), JSON_FORCE_OBJECT))?>');
+	var global_contact_unsubscribed = <?php echo (int) $this->objContact->get('unsubscribe');?>;
+	var global_contact_id = '<?php echo $this->objContact->get('reg_id'); ?>';
+	var global_contact_id_encoded = '<?php echo $this->objContact->get('reg_id_encoded'); ?>';
+</script>
+<script src="/js/angular/contact-toolkit/app.js"></script>
+<script src="/js/angular/contact-toolkit/controllers.js"></script>
+<script src="/js/angular/contact-toolkit/services.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/highcharts.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/data.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/no-data-to-display.js"></script>
+
+<?php
+echo '<div ng-app="frontEndContactToolkitApp"><div ng-view></div></div>';
+return;

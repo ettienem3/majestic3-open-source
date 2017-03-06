@@ -3,13 +3,13 @@
 echo $this->renderStandardViewHeader(ICON_MEDIUM_PROFILES_HTML . '&nbsp;Advanced Profile Settings');
 ?>
 
-	<ul class="nav nav-tabs">
+	<!-- <ul class="nav nav-tabs">
 
 		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-profile-settings", array("action" => "update")); ?>" title="Update Profile" class="btn btn-success" data-toggle="tooltip">Update Profile</a></li>
 
 		<li class="mj3_btnchangeform"><a href="<?php echo $this->url("front-profile-native-settings"); ?>" title="Update Profile Options" class="btn btn-success" data-toggle="tooltip">Update Profile Options</a></li>
 
-	</ul>
+	</ul>-->
 
 	<?php
 		if (is_object($this->objProfile->get("profile_limits"))):
@@ -113,9 +113,11 @@ echo $this->renderStandardViewHeader(ICON_MEDIUM_PROFILES_HTML . '&nbsp;Advanced
         	});
 		</script>
 
-		<h3>Limits</h3>
-		<div id="container-limit-guages"></div>
-		<div class="clearfix"></div>
+		<fieldset><legend>Limits</legend>
+			<div id="container-limit-guages"></div>
+			<div class="clearfix"></div>
+		</fieldset>
+
 	<?php endif;?>
 	<script type="text/javascript">
 		jQuery(document).ready(function () {
@@ -124,15 +126,48 @@ echo $this->renderStandardViewHeader(ICON_MEDIUM_PROFILES_HTML . '&nbsp;Advanced
 		});
 	</script>
 
-	<h3>Profile Configuration</h3>
-	<div class="mj3_forms clearfix">
-
-		<?php
-			$form = $this->form;
-			$form->prepare();
-			echo $this->renderSystemFormHelper($form, $this);
-		?>
-
-	</div>
-
+	<fieldset><legend>Profile Capabilities</legend>
+		<div class="mj3_table_contain clearfix">
+			<table>
+				<thead>
+					<tr>
+						<th>Plugin</th>
+						<th>Alias</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php 
+						foreach ($this->objProfile->get('profile_plugins') as $objPlugin)
+						{
+							echo '<tr>';
+							echo 	'<td>' . $objPlugin->common_plugins_available_name . '</td>';
+							echo 	'<td>' . $objPlugin->common_plugins_available_plugin_identifier . '</td>';
+							echo 	'<td>';
+							if ($objPlugin->active == 1 && $objPlugin->common_plugins_available_active == 1)
+							{
+								echo ICON_SMALL_ACTIVE_HTML;
+							} else {
+								echo ICON_SMALL_INACTIVE_HTML;
+							}//end if
+							echo 	'</td>';
+							echo '</tr>';
+						}//end foreach
+					?>
+				</tbody>
+			</table>
+		</div>
+	</fieldset>
+	<hr/>
+	
+	<fieldset><legend>Profile Configuration</legend>
+		<div class="mj3_forms clearfix">
+			<?php
+				$form = $this->form;
+				$form->prepare();
+				echo $this->renderSystemFormHelper($form, $this);
+			?>
+	
+		</div>
+	</fieldset>
 </div>

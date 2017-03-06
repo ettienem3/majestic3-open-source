@@ -1,297 +1,17 @@
 <?php
+ini_set('display_errors', 1);
 //load user
 $objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
 
 if ($objUser !== FALSE)
 {
-	//aligned to the left
-	$arr_primary_menu = array(
-		$this->objProfileSettings->get("menu_main_relationship", "Relationship") => array(
-			"My Contacts" => array(
-				"route" => "front-contacts",
-			),
-
-			"My Journeys" => array(
-				"route" => "front-comms-admin/journeys",
-			),
-
-			"My To-do List" => array(
-				"route" => "front-users-tasks",
-				"url" => $this->url("front-users-tasks", array("user_id" => $objUser->id))
-			),
-
-			"advanced" => array(
-				"Send a bulk journey" => array(
-					"route" => "front-comms-bulksend",
-				),
-
-				"Create / Update a look and feel" => array(
-					"route" => "front-comms-templates",
-				),
-
-				"My Links" => array(
-					"route" => "front-links",
-				),
-
-				"Setup comm-dates" => array(
-					"routes" => "front-comms-admin/dates",
-				),
-
-	// 			"Setup SMS campaigns" => array(
-	// 				"route" => "home",
-	// 			),
-
-	// 			"Setup short-codes" => array(
-	// 				"route" => "home",
-	// 			),
-			),
-		), //end Relationship
-
-		$this->objProfileSettings->get("menu_main_data", "Data") => array(
-			"My Forms" => array(
-				"route" => "front-form-admin/form",
-			),
-
-			"My Images and Documents" => array(
-					"route" => "front-profile-file-manager",
-			),
-
-			"My Fields" => array(
-				"nested" => array(
-						"Manage all fields" => array(
-								"route" => "front-form-admin/fields",
-					),
-
-				),
-			),
-
-			"My # Library" => array(
-				"nested" => array(
-						"View replace fields" => array(
-								"route" => "front-form-admin/replace-fields",
-						),
-
-						"Setup generic fields" => array(
-								"route" => "front-form-admin/generic-fields",
-						),
-				),
-			),
-
-			"Reports" => array(
-					"nested" => array(
-							"Basic Reports" => array(
-									"route" => "front-report-viewer",
-							),
-							"Dashboards" => array(
-									"route" => "front-dashboard-viewer",
-							),
-					)
-			),
-
-			"advanced" => array(
-				"Create / Update a look and feel" => array(
-					"route" => "front-form-templates",
-				),
-
-				"Manage Statuses" => array(
-					"route" => "front-statuses",
-				),
-
-	// 			"Database manager" => array(
-	// 				"route" => "home",
-	// 			),
-
-	// 			"Custom Tables" => array(
-	// 				"route" => "front-custom-tables",
-	// 			),
-
-	// 			"Manage Cities" => array(
-	// 					"route" => "home",
-	// 			),
-
-
-				"Locations" => array(
-					"route" => "front-locations",
-				),
-			),
-		), //end Data
-
-		$this->objProfileSettings->get("menu_main_sale", "Sale") => array(
-			"My Trackers" => array(
-				"route" => "front-form-admin/form",
-				"url" => $this->url("front-form-admin/form") . "?forms_type_id=3",
-			),
-
-	// 		"My Bridges" => array(
-	// 			"route" => "home",
-	// 		),
-		), //end Sale
-	);
-
-	//aligned to the right
-	$arr_secondary_menu = array(
-			$this->objProfileSettings->get("menu_main_administration", "Administration") => array(
-	// 				"Image and document library" => array(
-	// 						"route" => "front-profile-file-manager",
-	// 				),
-
-	// 				"Reports" => array(
-	// 						"route" => "home",
-	// 				),
-
-	// 				"Empty bin" => array(
-	// 						"route" => "home",
-	// 				),
-
-					"Manage Users" => array(
-							"route" => "front-users",
-					),
-
-					"advanced" => array(
-							"Profile Information" => array(
-								"route" => "front-profile-settings",
-							),
-
-							"Profile Options" => array(
-								"route" => "front-profile-native-settings",
-							),
-
-							"Manage User Roles" => array(
-								"route" => "front-users-roles/admin",
-							),
-
-							"Manage Data Access Rules" => array(
-								"route" => "front-user-data-acl-rules",
-							),
-
-							"Setup Profile Panels" => array(
-									"route" => "front-panels-setup",
-							),
-
-// 							"Manage Webhooks" => array(
-// 									"route" => "front-power-tools/webhooks",
-// 							),
-					),
-			), //end My Company
-
-			"Welcome " . $objUser->fname => array(
-					"Inbox" => array(
-						"route" => "front-inbox-manager",
-					),
-
-					"My Preferences" => array(
-						"url" => $this->url("front-user-login", array("action" => "user-native-preferences")),
-					),
-
-					"My Settings" => array(
-						"url" => $this->url("front-user-login", array("action" => "user-settings")),
-					),
-
-					"My Panels" => array(
-						"route" => "front-panels-setup",
-						"url" => $this->url("front-panels-setup", array("action" => "user-panels")),
-					),
-
-					"Logout" => array(
-						"url" => $this->url("front-user-login", array("action" => "logout")),
-					),
-			), //end user menu
-	);
-
-	//set route params array
+	//generated from FrontCoreUserMenuEvents
+	$arr_primary_menu = $this->layout()->arr_primary_menu;
+	$arr_secondary_menu = $this->layout()->arr_secondary_menu;
+	$arr_plugins = $this->layout()->arr_plugins;
 	$arr_route_params = array(
-		"user_id" => $objUser->id,
+		'user_id' => $objUser->id,	
 	);
-
-	//amend menu items based on enabled core plugins
-	$arr_plugins = $objUser->profile->plugins_enabled;
-
-	if (is_array($arr_plugins))
-	{
-		//links
-		if (!in_array("comm_links", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_relationship", "Relationship")]["advanced"]["Setup comm-links"]);
-		}//end if
-
-		//look and feel
-		if (!in_array("look_and_feel", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_relationship", "Relationship")]["advanced"]["Create / Update a look and feel"]);
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]["advanced"]["Create / Update a look and feel"]);
-		}//end if
-
-		//bulk send
-		if (!in_array("bulk_send", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_relationship", "Relationship")]["advanced"]["Send a bulk journey"]);
-		}//end if
-
-		//file library
-		if (!in_array("file_library", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]["My Images and Documents"]);
-		}//end if
-
-		//panels
-		if (!in_array("panels", $arr_plugins))
-		{
-			unset($arr_secondary_menu[$this->objProfileSettings->get("menu_main_administration", "Administration")]["advanced"]["Setup Profile Panels"]);
-			unset($arr_secondary_menu["Welcome " . $objUser->fname]["My Panels"]);
-		}//end if
-
-		//user to do list
-		if (!in_array("to_do_list", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_relationship", "Relationship")]["My To-do List"]);
-		}//end if
-
-		//replace and generic fields
-		if (!in_array("replace_fields", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]["My # Library"]["nested"]["View replace fields"]);
-		}//end if
-
-		//replace and generic fields
-		if (!in_array("generic_fields", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]["My # Library"]["nested"]["Setup generic fields"]);
-		}//end if
-
-		//replace and generic fields
-		if (!in_array("generic_fields", $arr_plugins) && !in_array("replace_fields", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]["My # Library"]);
-		}//end if
-
-		//trackers
-		if (!in_array("sales_funnels", $arr_plugins))
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_sale", "Sale")]["My Trackers"]);
-		}//end if
-
-		//inbox
-		if (!in_array("inbox", $arr_plugins))
-		{
-			unset($arr_secondary_menu["Welcome " . $objUser->fname]["Inbox"]);
-		}//end if
-
-		//webhooks
-		if (!in_array('webhooks', $arr_plugins))
-		{
-			unset($arr_secondary_menu[$this->objProfileSettings->get("menu_main_administration", "Administration")]["advanced"]['Manage Webhooks']);
-		}//end if
-
-		if (count($arr_primary_menu[$this->objProfileSettings->get("menu_main_sale", "Sale")]) == 0)
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_sale", "Sale")]);
-		}//end if
-
-		if (count($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]) == 0)
-		{
-			unset($arr_primary_menu[$this->objProfileSettings->get("menu_main_data", "Data")]);
-		}//end if
-	}//end if
 } else {
 	$arr_primary_menu = array();
 	$arr_secondary_menu = array();
@@ -300,7 +20,6 @@ if ($objUser !== FALSE)
 		'user_id' => '',
 	);
 }//end if
-
 
 // is menu cached?
 if (isset($objUser) && is_array($objUser->main_menu_html))
@@ -311,9 +30,8 @@ if (isset($objUser) && is_array($objUser->main_menu_html))
 		{
 			//regenerate html
 		} else {
-//disable caching due to delayed user acl generation in core, make another plan at some point
-// 			echo $objUser->main_menu_html["html"];
-// 			return;
+ 			echo $objUser->main_menu_html["html"];
+ 			return;
 		}//end if
 	}//end if
 }//end if
@@ -345,6 +63,11 @@ ob_start();
 			<!-- Primary Menu -->
 			<ul class="nav navbar-nav">
 				<?php
+					if (!isset($arr_primary_menu) || !is_array($arr_primary_menu))
+					{
+						$arr_primary_menu = array();
+					}//end if
+					
 					foreach ($arr_primary_menu as $label => $arr_menu)
 					{
 						//strip advanced options
@@ -399,13 +122,18 @@ ob_start();
 								foreach ($arr_child["nested"] as $k => $arr_v)
 								{
 									//check user access
-									if (\FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_v["route"]) == TRUE)
+									if (isset($arr_v["route"]) && $arr_v["route"] != '' && \FrontUserLogin\Models\FrontUserSession::userHasAccess($arr_v["route"]) == TRUE)
 									{
 										if (!isset($arr_v["title"]))
 										{
 											$arr_v["title"] = "";
 										}//end if
 										echo 	"<li><a href=\"" . $this->url($arr_v["route"], $arr_route_params) . "\" title=\"" . $arr_v["title"] . "\">" . $k . "</a></li>";
+									} else {
+										if (isset($arr_v['url']) && $arr_v['url'] != '')
+										{
+											echo 	"<li><a href=\"" . $arr_v['url'] . "\" title=\"" . $arr_v["title"] . "\">" . $k . "</a></li>";
+										}//end if
 									}//end if
 								}//end foreach
 								echo "</ul>";
@@ -432,7 +160,13 @@ ob_start();
 								{
 									$arr_child["title"] = "";
 								}//end if
-								echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+								
+								if (isset($arr_child["url"]) && $arr_child['url'] != '')
+								{
+									echo 	"<li><a href=\"" . $arr_child['url'] . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+								} else {
+									echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+								}//end if
 							}//end foreach
 
 							echo 	"</ul>";
@@ -449,6 +183,11 @@ ob_start();
 			<!-- Session Menu -->
 			<ul class="nav navbar-nav navbar-right">
 				<?php
+					if (!isset($arr_secondary_menu) || !is_array($arr_secondary_menu))
+					{
+						$arr_secondary_menu = array();
+					}//end if
+					
 					foreach ($arr_secondary_menu as $label => $arr_menu)
 					{
 						//strip advanced options
@@ -502,7 +241,13 @@ ob_start();
 											{
 												$arr_child["title"] = '';
 											}//end if
-											echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+											
+											if (isset($arr_child["url"]) && $arr_child["url"] != '')
+											{
+												echo 	"<li><a href=\"" . $arr_child['url'] . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+											} else {
+												echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+											}//end if
 										}//end if
 									}//end if
 									break;
@@ -545,7 +290,22 @@ ob_start();
 								{
 									$arr_child["title"] = '';
 								}//end if
-								echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+
+								if (isset($arr_child['url']) && $arr_child['url'] != '')
+								{
+									switch ($child)
+									{
+										case "Flush Cache":
+											echo 	"<li><a class=\"global_profile_cache_clear\" href=\"" . $arr_child['url'] . "\" title=\"" . $arr_child["title"] . "\"><span class=\"glyphicon glyphicon-flash text-danger\"></span> " . $child . "</a></li>";
+											break;
+											
+										default:
+											echo 	"<li><a href=\"" . $arr_child['url'] . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+											break;
+									}//end switch
+								} else {
+									echo 	"<li><a href=\"" . $this->url($arr_child["route"], $arr_route_params) . "\" title=\"" . $arr_child["title"] . "\">" . $child . "</a></li>";
+								}//end if
 							}//end foreach
 
 							echo 	"</ul>";
@@ -564,8 +324,20 @@ ob_start();
 <?php
 $str = ob_get_clean();
 //cache to user session
-$objUser->main_menu_html = array(
-		"html" => $str,
-		"expires" => time() + (60 * 2),
-);
+if (is_object($objUser))
+{
+	$objUser->main_menu_html = array(
+			"html" => $str,
+			"expires" => time() + (60 * 2),
+	);
+	
+	if (count($arr_primary_menu) > 0)
+	{
+		$objUser->main_menu_html['arr_menu'] = array(
+					'arr_primary_menu' 		=> $arr_primary_menu,
+					'arr_secondary_menu' 	=> $arr_secondary_menu,
+					'arr_plugins' 			=> $arr_plugins,
+			);
+	}//end if
+}//end if
 echo $str;

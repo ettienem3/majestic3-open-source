@@ -1,2 +1,56 @@
-<h1>Viral Form pre submit</h1>
+<script type="text/javascript">
+	var global_page_config = {
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+
+	var global_viral_form_config = JSON.parse('<?php echo json_encode($this->arr_form); ?>');
+	var global_viral_additional_params = JSON.parse('<?php echo json_encode($this->arr_additional_params); ?>');
+</script>
+<script src="/js/angular/forms-external-viral/app.js"></script>
+<script src="/js/angular/forms-external-viral/controller.js"></script>
+<script src="/js/angular/forms-external-viral/services.js"></script>
+
 <?php
+//check if a look and feel has been set
+$form_string = '<div ng-app="formExternalViralApp"><div ng-view></div></div>';
+if (isset($this->arr_look_and_feel) && isset($this->arr_look_and_feel['objLookAndFeel']->content) && $this->arr_look_and_feel['objLookAndFeel']->content != '')
+{
+	$str = str_replace('#content', $form_string, $this->arr_look_and_feel['objLookAndFeel']->content);
+} else {
+	$str = $form_string;
+}//end if
+
+echo $str;
+
+//add css files where set
+if (isset($this->arr_look_and_feel['objLookAndFeel']) && isset($this->arr_look_and_feel['objLookAndFeel']->css_file) && $this->arr_look_and_feel['objLookAndFeel']->css_file != '')
+{
+	echo '<link href="' . $this->arr_look_and_feel['objLookAndFeel']->css_file . '" media="screen" rel="stylesheet" type="text/css">';
+}//end if
+
+//check look and feel attached files
+if (isset($this->arr_look_and_feel['objLookAndFeel']) && isset($this->arr_look_and_feel['objLookAndFeel']->attached_files) && is_array($this->arr_look_and_feel['objLookAndFeel']->attached_files) && count($this->arr_look_and_feel['objLookAndFeel']->attached_files) > 0)
+{
+	foreach ($this->arr_look_and_feel['objLookAndFeel']->attached_files as $objFile)
+	{
+		if ($objFile->active != 1 || $objFile->filemanager_content_http_path == '' || $objFile->filemanager_content_active != 1 || $objFile->filemanager_content_file_name == '')
+		{
+			continue;
+		}//end if
+
+		$arr_t = explode('.', $objFile->filemanager_content_file_name);
+		$type = array_pop($arr_t);
+		switch (strtolower($type))
+		{
+			case 'css':
+				echo '<link href="' . $objFile->filemanager_content_http_path . '" media="screen" rel="stylesheet" type="text/css">';
+				break;
+
+			case 'js':
+				echo '<script src="' . $objFile->filemanager_content_http_path  . '"></script>';
+				break;
+		}//end switch
+	}//end foreach
+}//end if
+
+return;

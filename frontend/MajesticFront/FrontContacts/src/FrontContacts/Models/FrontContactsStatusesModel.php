@@ -9,9 +9,10 @@ class FrontContactsStatusesModel extends AbstractCoreAdapter
 	/**
 	 * Fecth the contact status history for the set contact
 	 * @param mixed $contact_id
+	 * @param array $arr_params - Optional
 	 * @return \FrontContacts\Entities\FrontContactsContactStatusEntity
 	 */
-	public function fetchContactStatusHistory($contact_id)
+	public function fetchContactStatusHistory($contact_id, $arr_params = array())
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -20,7 +21,8 @@ class FrontContactsStatusesModel extends AbstractCoreAdapter
 		$objApiRequest->setApiAction("contacts/data/$contact_id/statuses");
 		
 		//execute
-		$objContactStatusHistory = $objApiRequest->performGETRequest()->getBody();
+		$objContactStatusHistory = $objApiRequest->performGETRequest($arr_params)->getBody();
+		$objHypermedia = $objContactStatusHistory->data->hypermedia;
 		
 		//create data entities
 		foreach ($objContactStatusHistory->data as $objContactStatus)
@@ -35,7 +37,9 @@ class FrontContactsStatusesModel extends AbstractCoreAdapter
 			$arr[] = $objContactStatusEntity;
 		}//end foreach
 		
-		return (object) $arr;
+		$objData = (object) $arr;
+		$objData->hypermedia = $objHypermedia;
+		return $objData;
 	}//end function
 	
 	/**

@@ -5,6 +5,7 @@ return array(
             'FrontCommsAdmin\Controller\Comms'					=> 'FrontCommsAdmin\Controller\CommsController',
         	'FrontCommsAdmin\Controller\CommDates'				=> 'FrontCommsAdmin\Controller\CommDatesController',
         	'FrontCommsAdmin\Controller\Journeys'				=> 'FrontCommsAdmin\Controller\JourneysController',
+        	'FrontCommsAdmin\Controller\JourneysTest'			=> 'FrontCommsAdmin\Controller\JourneysTestController',
         	'FrontCommsAdmin\Controller\CommEmbeddedImages'		=> 'FrontCommsAdmin\Controller\CommEmbeddedImagesController',
         ),
     ),
@@ -47,7 +48,7 @@ return array(
 											'route' => '/dates[/:action][/:id]',
 											'defaults' => array(
 													'controller' => 'FrontCommsAdmin\Controller\CommDates',
-													'action' => 'index',
+													'action' => 'app',
 											),
 									),
 								),
@@ -62,6 +63,17 @@ return array(
 												),
 										),
 									),
+									
+								'test-journeys' => array(
+										'type'	=> 'segment',
+										'options'	=> array(
+												'route'		=> '/test-journeys[/:action][/:id]',
+												'defaults'	=> array(
+														'controller'	=> 'FrontCommsAdmin\Controller\JourneysTest',
+														'action'		=> 'app',
+												),
+										),
+								),
 							),
 					),
 			),

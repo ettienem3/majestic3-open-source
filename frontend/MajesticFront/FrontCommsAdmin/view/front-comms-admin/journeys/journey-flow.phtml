@@ -119,7 +119,7 @@
 					  // Normalize for fixed-depth.
 					  nodes.forEach(function(d) { d.y = d.depth * 180; });
 
-					  // Update the nodesâ€¦
+					  // Update the nodes
 					  var node = svg.selectAll("g.node")
 					      .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
@@ -311,7 +311,7 @@
 
 		<div id="d3-data-area"></div>
 		<canvas id="canvas" width="1000px" height="400px"></canvas>
-		<button class="btn btn-default" id="savesvg">Export to Image</button>
+		<!--<button class="btn btn-default" id="savesvg">Export to Image</button>-->
 		<div id="svgdataurl"></div>
 
 	</div>

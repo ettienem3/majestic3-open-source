@@ -33,6 +33,8 @@ use FrontCore\Events\FrontCoreSystemFormEvents;
 use FrontCore\Models\Security\CryptoModel;
 use FrontCore\ControllerHelpers\FrontControllerExceptionErrorHelper;
 use FrontCore\ViewHelpers\FrontFormatUserDateHelper;
+use FrontCore\ViewHelpers\FrontAdminAngularFormRenderHelper;
+use FrontCore\Events\FrontCoreUserMenuEvents;
 
 class Module
 {
@@ -123,6 +125,12 @@ class Module
 								$response->setStatusCode(302);
 								$response->sendHeaders();
 								exit();
+							} else {
+								//register user menu events
+								$eventsUserMenu = $e->getApplication()->getServiceManager()->get("FrontCore\Events\FrontCoreUserMenuEvents");
+								$eventsUserMenu->registerEvents();
+								$eventsUserMenu->setViewModel($e->getViewModel());
+								$eventsUserMenu->configureDefaultMenu();
 							}//end if
 	        			}//end if
 	        		},
@@ -168,6 +176,16 @@ class Module
 		        	$arr[] = $objApiData;
 		        	$arr[] = $response;
 		        	$e->getViewModel()->setVariable("api_logs", $arr);
+	        	}//end if
+
+	        	if (isset($_GET["debug_display_queries"]) && $_GET["debug_display_queries"] == 1)
+	        	{
+	        		$response = $objApiData->response;
+		        	$objQueryData = @json_decode($response);
+		        	if (isset($objQueryData->QUERY_INFORMATION))
+		        	{
+		        		$e->getViewModel()->setVariable("objQueryLogs", $objQueryData->QUERY_INFORMATION);
+		        	}//end if
 	        	}//end if
 	        });
         }//end if
@@ -217,6 +235,20 @@ class Module
 						'frontControllerErrorHelper' => function ($sm) {
 							$plugin = new FrontControllerExceptionErrorHelper();
 							return $plugin;
+						}, //end function
+
+						/**
+						 * Convert dates for display based on user timezone
+						 */
+						"formatUserDate" => function (AbstractPluginManager $pluginManager) {
+							$objHelper = new FrontFormatUserDateHelper();
+							$arr_config = $pluginManager->getServiceLocator()->get("config")["profile_config"];
+							$objHelper->setProfileConfig($arr_config);
+							return $objHelper;
+						},
+						
+						"renderSystemAngularFormHelper" => function ($sm) {
+							return new FrontAdminAngularFormRenderHelper();
 						}, //end function
     				),
     	);
@@ -321,14 +353,11 @@ class Module
     						$events = new FrontCoreSystemFormEvents();
     						return $events;
     					}, //end function
-
-    					/**
-    					 * Navigation
-    					 */
-    					'FrontCore\Factories\FrontNavigationFactory' => function ($sm) {
-    						$objNavigation = new FrontNavigationFactory();
-    						return $objNavigation;
-    					},
+    					
+    					'FrontCore\Events\FrontCoreUserMenuEvents' => function ($sm) {
+    						$events = new FrontCoreUserMenuEvents();
+    						return $events;
+    					}, //end function
 
     					/**
     					 * View Helpers
@@ -346,6 +375,7 @@ class Module
     					//auto loaded for cache instance, prefers redis over file system
     					'FrontCore\Caches\Cache' => function ($sm) {
     						$arr_config = $sm->get("config");
+    						
     						try{
     							$cache = StorageFactory::factory($arr_config["cache_redis_config_common"]);
     							$objCache = new FrontCachesRedis($cache);
@@ -431,6 +461,10 @@ class Module
     				return new FrontAdminFormRenderHelper();
     			}, //end function
 
+    			"renderSystemAngularFormHelper" => function (AbstractPluginManager $pluginManager) {
+    				return new FrontAdminAngularFormRenderHelper();
+    			}, //end function
+
     			"renderSystemFormHelpButtonHelper" => function (AbstractPluginManager $pluginManager) {
     				return new FrontStandardViewFormHelpButtonHelper();
     			}, //end function
@@ -500,7 +534,7 @@ class Module
 			"back"						=> "glyphicon glyphicon-arrow-left",
     		"back_left"					=> "glyphicon glyphicon-arrow-left",
 			"bar-chart" 				=> "glyphicon glyphicon-signal",
-			"behaviours" 				=> "glyphicon glyphicon-pushpin",
+			"behaviours" 				=> "glyphicon glyphicon-link",
 			"bulk"						=> "glyphicon glyphicon-bullhorn",
     		"cache"						=> "glyphicon glyphicon-flash",
     		"campaigns"					=> "glyphicon glyphicon-magnet",
@@ -510,6 +544,7 @@ class Module
 			"comms" 					=> "glyphicon glyphicon-volume-down",
 			"contacts"					=> 'glyphicon glyphicon-user',
     		"contact_status"			=> "glyphicon glyphicon-record",
+    		'dashboard'					=> 'glyphicon glyphicon-dashboard',
 			"database" 					=> "glyphicon glyphicon-oil",
 			"delete" 					=> "glyphicon glyphicon-remove",
 			"duplicate" 				=> "glyphicon glyphicon-floppy-disk",
@@ -537,7 +572,7 @@ class Module
 			"loading" 					=> "glyphicon glyphicon-transfer",
     		"location"					=> "glyphicon glyphicon-cloud-upload",
     		"look_feel"					=> "glyphicon glyphicon-refresh",
-			"modify" 					=> "glyphicon glyphicon-wrench",
+			"modify" 					=> "glyphicon glyphicon-pencil",
 			"next" 						=> "glyphicon glyphicon-arrow-right",
 			"order"						=> "glyphicon glyphicon-sort-by-order",
     		"panels"					=> "glyphicon glyphicon-flag",

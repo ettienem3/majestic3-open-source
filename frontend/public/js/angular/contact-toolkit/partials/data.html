@@ -1,0 +1,305 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="ContactDataCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadContactData()"></div>
+				<div class="col-md-8" >
+					<div class="pull-left">
+						<h5>Contact Data</h5>
+					</div>
+					
+					<div class="pull-right">
+						<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+				
+				<div class="col-md-8" >
+					<table st-table="contactDataCollection" st-safe-src="rowCollection" class="table table-striped">
+						<tr>
+							<td>Source</td>
+							<td><strong>{{objContactData.source}}</strong></td>
+							<td>
+								<button class="btn btn-success pull-right" ng-click="updateContactData({panel: 'updateContactMetaDataPanel', item: 'source'})" title="Update Source"><span class="glyphicon glyphicon-cloud-upload"></span></button>
+							</td>
+						</tr>
+						<tr>
+							<td>Reference</td>
+							<td><strong>{{objContactData.reference}}</strong></td>
+							<td>
+								<button class="btn btn-success pull-right" ng-click="updateContactData({panel: 'updateContactMetaDataPanel', item: 'reference'})" title="Update Reference"><span class="glyphicon glyphicon-cloud-upload"></span></button>
+							</td>
+						</tr>
+						<tr>
+							<td>Status</td>
+							<td><strong>{{objContactData.registration_status_status}}</strong></td>
+							<td>
+								<button class="btn btn-success pull-right" ng-click="updateContactData({panel: 'updateContactMetaDataPanel', item: 'status'})" title="Update Status"><span class="glyphicon glyphicon-cloud-upload"></span></button>
+							</td>
+						</tr>	
+						<tr>
+							<td>User</td>
+							<td><strong>{{objContactData.user_uname}} ({{objContactData.user_fname}} {{objContactData.user_sname}})</strong></td>
+							<td>
+								<button class="btn btn-success pull-right" ng-click="updateContactData({panel: 'updateContactMetaDataPanel', item: 'user'})" title="Update User"><span class="glyphicon glyphicon-cloud-upload"></span></button>
+							</td>
+						</tr>
+						<tr>
+							<td>Last updated</td>
+							<td><strong>{{objContactData.datetime_updated}}</strong></td>
+							<td></td>
+						</tr>	
+						<tr>
+							<td>In profile since</td>
+							<td><strong>{{objContactData.datetime_created}}</strong></td>
+							<td></td>
+						</tr>																													
+					</table>
+					<hr/>
+					
+					<div>
+						<h6>Dashboards</h6>
+						<button class="btn btn-primary" ng-click="loadContactStatistics('loadJourneyDataStats')" title="Load Contact Journey Statistics"><span class="glyphicon glyphicon-dashboard"></span>&nbsp; Journeys</button>&nbsp;
+						<button class="btn btn-primary" ng-click="loadContactStatistics('loadCommsDataStats')" title="Load Contact Episode History Statistics"><span class="glyphicon glyphicon-dashboard"></span>&nbsp; Episodes</button>&nbsp;
+						<button class="btn btn-primary" ng-click="loadContactStatistics('loadFormsCompletedStats')" title="Load Contact Forms Completed Statistics"><span class="glyphicon glyphicon-dashboard"></span>&nbsp; Forms</button>&nbsp;
+						<div ng-bind-html="chart_loading_image | sanitize"></div>
+					</div>
+					<hr/>
+					
+					<!-- stats charts -->
+					<!-- Journey data -->
+					<div ng-show="show_contact_journey_stats == true">
+						<!-- Single button -->
+						<div class="btn-group">
+						  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						    <h5>Journey Statistics <span class="caret"></span></h5> 
+						  </button>
+						  <ul class="dropdown-menu">
+						    <li><a href="" ng-click="chartBuildJourneysChart({chart_type: 'line'})">Show Line Chart</a></li>
+						    <li><a href="" ng-click="chartBuildJourneysChart({chart_type: 'column'})">Show Column Chart</a></li>
+						    <li><a href="" ng-click="chartBuildJourneysChart({chart_type: 'bar'})">Show Bar Chart</a></li>
+						    <li><a href="" ng-click="chartBuildJourneysChart({chart_type: 'spline'})">Show Spline Chart</a></li>
+						    <li><a href="" ng-click="chartBuildJourneysChart({chart_type: 'area'})">Show Area Chart</a></li>
+						    <li role="separator" class="divider"></li>
+						    <li><a href="" ng-click="show_contact_journey_stats_table = !show_contact_journey_stats_table">Toggle Chart Data</a></li>
+						  </ul>
+						</div>
+						
+						<!-- chart container -->
+						<div id="contactDataJourneyStatsChart"></div>
+						
+						<!-- Table containing data -->
+						<div ng-show="show_contact_journey_stats_table">
+							<table id="contactDataJourneyStatsCollection" class="table table-striped">
+								<thead>
+									<tr>
+										<th></th>
+										<th>Next Episode</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="objContactJourney in objContactChartData.loadJourneyDataStats">
+										<th>{{objContactJourney.journeys_journey}} (Started: {{objContactJourney.datetime_started}})</th>
+										<td>{{objContactJourney.next_comm}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					
+					<!-- Comms data -->
+					<div ng-show="show_contact_comms_stats == true">
+						<!-- Single button -->
+						<div class="btn-group">
+						  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						    <h5>Episode Statistics <span class="caret"></span></h5> 
+						  </button>
+						  <ul class="dropdown-menu">
+						    <li><a href="" ng-click="chartBuildCommsHistoryChart({chart_type: 'line'})">Show Line Chart</a></li>
+						    <li><a href="" ng-click="chartBuildCommsHistoryChart({chart_type: 'column'})">Show Column Chart</a></li>
+						    <li><a href="" ng-click="chartBuildCommsHistoryChart({chart_type: 'bar'})">Show Bar Chart</a></li>
+						    <li><a href="" ng-click="chartBuildCommsHistoryChart({chart_type: 'spline'})">Show Spline Chart</a></li>
+						    <li><a href="" ng-click="chartBuildCommsHistoryChart({chart_type: 'area'})">Show Area Chart</a></li>
+						    <li role="separator" class="divider"></li>
+						    <li><a href="" ng-click="show_contact_comms_stats_table = !show_contact_comms_stats_table">Toggle Chart Data</a></li>
+						  </ul>
+						</div>
+						
+						<!-- chart container -->
+						<div id="contactDataCommHistoryStatsChart"></div>
+						
+						<!-- Table containing data -->
+						<div ng-show="show_contact_comms_stats_table">
+							<table id="contactDataCommHistoryStatsCollection" class="table table-striped">
+								<thead>
+									<tr>
+										<th></th>
+										<th>Next Episode</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="objContactEpisode in objContactChartData.loadCommsDataStats">
+										<th>{{objContactJourney.journeys_journey}} (Started: {{objContactJourney.datetime_started}})</th>
+										<td>{{objContactJourney.next_comm}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					</div>
+					
+					<!-- Forms Completed data -->
+					<div ng-show="show_contact_forms_completed_stats">
+						<!-- Single button -->
+						<div class="btn-group" id="toggleFormsCompletedButton">
+						  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						    <h5>Forms Completed Statistics <span class="caret"></span></h5> 
+						  </button>
+						  <ul class="dropdown-menu">
+						    <li><a href="" ng-click="chartBuildFormsCompletedChart({chart_type: 'line'})">Show Line Chart</a></li>
+						    <li><a href="" ng-click="chartBuildFormsCompletedChart({chart_type: 'column'})">Show Column Chart</a></li>
+						    <li><a href="" ng-click="chartBuildFormsCompletedChart({chart_type: 'bar'})">Show Bar Chart</a></li>
+						    <li><a href="" ng-click="chartBuildFormsCompletedChart({chart_type: 'spline'})">Show Spline Chart</a></li>
+						    <li><a href="" ng-click="chartBuildFormsCompletedChart({chart_type: 'area'})">Show Area Chart</a></li>
+						    <li role="separator" class="divider"></li>
+						    <li><a href="" ng-click="show_contact_forms_completed_stats_table = !show_contact_forms_completed_stats_table">Toggle Chart Data</a></li>
+						  </ul>
+						</div>
+						
+						<!-- chart container -->
+						<div id="contactDataFormsCompletedStatsChart"></div>
+						
+						<!-- Table containing data -->
+						<div ng-show="show_contact_forms_completed_stats_table">
+							<table id="contactDataFormsCompletedCollection" class="table table-striped">
+								<thead>
+									<tr>
+										<th></th>
+										<th>Completed</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="objContactForm in objContactChartData.loadFormsCompletedStats.form_completed_count">
+										<th>{{objContactForm.forms_form}} ({{objContactForm.form_types_form_type}})</th>
+										<td>{{objContactForm.count_forms_completed}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>				
+				</div>
+	</div>
+	
+	<div ng-show="updateContactMetaDataPanel" class="panel-show-centre aside right am-flip-x">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{panel_heading}}<button ng-click="togglePanel('updateContactMetaDataPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div id="form_container">
+								<span ng-bind="form_container_message"></span>
+								
+								<!-- User -->
+								<form role="form" novalidate id="contactMetaDataFormUsers" name="contactMetaDataFormUsers" ng-show="contactMetaDataFormReady && contactMetaDataFormUserReady && !progress.active()" ng-submit="formSubmit(contactModel)">
+									<div class="form-group">
+										<label class="control-label" for="user_id">Select User</label>
+										<select name="user_id" ng-model="contactModel.user_id" required="required">
+											<option value="">--select--</option>
+											<option ng-repeat="objUser in formObjects.users" value="{{objUser.id}}">{{objUser.value}}</option>
+										</select>
+									</div>
+									
+									<div class="form-group">
+										<input type="submit" value="Update User" class="btn btn-primary"/>
+									</div>
+								</form>
+								
+								<!-- Source -->
+								<form role="form" novalidate id="contactMetaDataFormSource" name="contactMetaDataFormSource" ng-show="contactMetaDataFormReady && contactMetaDataFormSourceReady && !progress.active()" ng-submit="formSubmit(contactModel)">
+									<div class="form-group">
+										<label class="control-label" for="source">Select Source</label>
+										<select name="source" ng-model="contactModel.source">
+											<option value="">--select--</option>
+											<option ng-repeat="obj in formObjects.sources" value="{{obj.id}}">{{obj.value}}</option>
+										</select>
+									</div>
+									
+									<div class="form-group">
+										<h5>OR</h5>
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label" for="source">Set another Source</label>
+										<input type="text" name="source" ng-model="contactModel.source"/>
+									</div>
+									
+									<div class="form-group">
+										<input type="submit" value="Update Source" class="btn btn-primary"/>
+									</div>
+								</form>	
+
+								<!-- Reference -->
+								<form role="form" novalidate id="contactMetaDataFormReference" name="contactMetaDataFormReference" ng-show="contactMetaDataFormReady && contactMetaDataFormReferenceReady && !progress.active()" ng-submit="formSubmit(contactModel)">
+									<div class="form-group">
+										<label class="control-label" for="reference">Select Reference</label>
+										<select name="reference" ng-model="contactModel.reference">
+											<option value="">--select--</option>
+											<option ng-repeat="obj in formObjects.references" value="{{obj.id}}">{{obj.value}}</option>
+										</select>
+									</div>
+									
+									<div class="form-group">
+										<h5>OR</h5>
+									</div>
+									
+									<div class="form-group">
+										<label class="control-label" for="source">Set another Reference</label>
+										<input type="text" name="source" ng-model="contactModel.reference"/>
+									</div>
+									
+									<div class="form-group">
+										<input type="submit" value="Update Reference" class="btn btn-primary"/>
+									</div>
+								</form>	
+								
+								<!-- Status -->
+								<form role="form" novalidate id="contactMetaDataFormStatus" name="contactMetaDataFormStatus" ng-show="contactMetaDataFormReady && contactMetaDataFormStatusReady && !progress.active()" ng-submit="formSubmit(contactModel)">
+									<div class="form-group">
+										<label class="control-label" for="reg_status_id">Select Status</label>
+										<select name="reg_status_id" ng-model="contactModel.reg_status_id" required="required">
+											<option value="">--select--</option>
+											<option ng-repeat="obj in formObjects.statuses" value="{{obj.id}}">{{obj.value}}</option>
+										</select>
+									</div>
+									
+									<div class="form-group">
+										<input type="submit" value="Update Status" class="btn btn-primary"/>
+									</div>
+								</form>																															
+							</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('updateContactMetaDataPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

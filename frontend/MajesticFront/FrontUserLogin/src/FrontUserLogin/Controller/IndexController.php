@@ -6,6 +6,7 @@ use Zend\View\Model\ViewModel;
 use FrontUserLogin\Models\FrontUserLoginModel;
 use Zend\Form\Form;
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class IndexController extends AbstractCoreActionController
 {
@@ -61,6 +62,13 @@ class IndexController extends AbstractCoreActionController
 						{
 							return $this->redirect()->toRoute("home");
 						} else {
+							//check if contacts angular home page is enabled
+							$arr_frontend_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+							if ($arr_frontend_config['enabled'] == true || $arr_frontend_config['angular-views-enabled']['contact-list'] == true)
+							{
+								return $this->redirect()->toRoute('front-contacts', array('action' => 'app'));
+							}//end if
+
 							//redirect to the contacts index page
 							return $this->redirect()->toRoute("front-contacts");
 						}//end if
@@ -340,6 +348,93 @@ class IndexController extends AbstractCoreActionController
 		return array(
 
 		);
+	}//end function
+
+	public function ajaxUserLoginAction()
+	{
+		// Load User Login form
+		$form = $this->getUserLoginModel()->getUserLoginForm();
+
+		// HTTP request
+		$request = $this->getRequest();
+
+		if ($request->isPost())
+		{
+			// Populate data into User Login form
+			$form->setData($request->getPost());
+			if ($form->isValid())
+			{
+				//check terms and conditions
+				if ($request->getPost("terms_and_conditions") != "1")
+				{
+					$arr_response = array(
+						'error' => 1,
+						'response' => 'You have to agree to any set terms and conditions',
+					);
+
+					return new JsonModel($arr_response);
+				}//end if
+
+				try {
+					$objUser = $this->getUserLoginModel()->userLogin($form->getData());
+					if (!$objUser)
+					{
+						$arr_response = array(
+								'error' => 1,
+								'response' => 'Login failed 1',
+								'url' => $this->url()->fromRoute("front-user-login"),
+						);
+
+						return new JsonModel($arr_response);
+					}//end if
+
+					//load user prefences
+					$objUserData = FrontUserSession::getUserLocalStorageObject();
+
+					$arr_response = array(
+							'error' => 0,
+							'response' => 1,
+					);
+
+					return new JsonModel($arr_response);
+				} catch (\Exception $e) {
+					$arr_response = array(
+							'error' => 1,
+							'response' => 'Login failed 2',
+							'url' => $this->url()->fromRoute("front-user-login"),
+					);
+
+					return new JsonModel($arr_response);
+				} // end try
+			} // end if
+		} // end if
+
+		$arr_response = array(
+				'error' => 1,
+				'response' => 'Login failed 3',
+				'url' => $this->url()->fromRoute("front-user-login"),
+		);
+
+		return new JsonModel($arr_response);
+	}//end function
+
+	public function ajaxUserLoggedInAction()
+	{
+		//check if user is already logged in, if so, redirect to the home page
+		if (FrontUserSession::isLoggedIn() !== FALSE)
+		{
+			$arr_response = array(
+				'error' => 0,
+				'response' => 1,
+			);
+		} else {
+			$arr_response = array(
+					'error' => 1,
+					'response' => 0,
+			);
+		}//end if
+
+		return new JsonModel($arr_response);
 	}//end function
 
 	/**

@@ -11,6 +11,11 @@ if (is_object($this->objContactJourneys))
 	
 	foreach ($this->objContactJourneys as $objJourney)
 	{
+		if (!method_exists($objJourney, 'get'))
+		{
+			continue;
+		}//end if
+		
 		//set date
 		$date = $this->renderFormatUserDate(array("date" =>  $objJourney->get("tstamp"), "options" => array(
 				"output_format" => "d M Y H:i",

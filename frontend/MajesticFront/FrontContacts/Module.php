@@ -16,6 +16,7 @@ use FrontContacts\Entities\FrontContactsContactStatusEntity;
 use FrontContacts\Entities\FrontContactsJourneyEntity;
 use FrontContacts\Entities\FrontContactsCommTemplateEntity;
 use FrontContacts\Models\FrontContactsSystemFieldsModel;
+use FrontContacts\Models\FrontContactsLinkedContactsModel;
 
 class Module
 {
@@ -96,6 +97,11 @@ class Module
     					"FrontContacts\Models\FrontContactsSystemFieldsModel" => function ($sm) {
     						$model_contact_system_fields = new FrontContactsSystemFieldsModel();
     						return $model_contact_system_fields;
+    					}, //end function
+    					
+    					'FrontContacts\Models\FrontContactsLinkedContactsModel' => function ($sm) {
+    						$model = new FrontContactsLinkedContactsModel();
+    						return $model;
     					}, //end function
     					
     					/**

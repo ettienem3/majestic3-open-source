@@ -14,6 +14,7 @@ class BehaviourSourceChangeForm extends FrontCoreSystemFormBase
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'source',
 				'content',
 				'loggedin',

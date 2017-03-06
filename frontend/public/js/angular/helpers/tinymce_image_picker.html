@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html html leng="en">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+	<!--[if lt IE 9]><script type="text/javascript" src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script><![endif]-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<div class="messages" style="margin: 18px;'">
+		<p>Loading...</p>
+		<img src="https://cdn-aws.majestic3.com/images/m3frontend/animations/please_wait.gif" />
+	</div>
+	<div class="container" style="display: none;">
+	    <div class="col-md-12">
+	        <div class="well">
+				<div id="myCarousel" class="carousel slide" data-ride="carousel">
+				  <!-- Indicators -->				
+				  <!-- Wrapper for slides -->
+				  <div class="carousel-inner" role="listbox">
+				  	<div class="item item_image_container active">
+				  		<p><strong>Scroll to select Image</strong></p>
+				  		<p>Click on the image to add it to your content.</p>
+				  	</div>
+					<!-- content is injected by javascript -->
+				  </div>
+				
+				  <!-- Left and right controls -->
+				  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+				    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				    <span class="sr-only">Previous</span>
+				  </a>
+				  <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+				    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				    <span class="sr-only">Next</span>
+				  </a>
+				</div>
+	        </div>
+	        <hr/>
+	        <div>
+	        	<button class="btn btn-primary toggle-carousel pull-left" style="margin-left: 5px;">Toggle Carousel</button>
+	        	<button class="btn btn-success close_window pull-right">Close</button>
+	        </div>
+	        <div style="clear:both;"></div>
+	    </div>
+	</div>
+	
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script type="text/javascript">
+		jQuery(document).ready(function () {
+			//https://www.tinymce.com/docs/advanced/creating-custom-dialogs/
+			//http://stackoverflow.com/questions/24900018/tinymce4-file-picker-callback-return-additional-params
+			if (typeof top.tinymce == 'undefined')
+			{
+				jQuery('.messages').html('<p>Data is not available</p>').css('color', 'red').css('font-size', 'x-large');
+			} else {
+				// Get the parameters passed into the window from the top frame
+				var args = top.tinymce.activeEditor.windowManager.getParams();
+				if (typeof args.objImages == 'undefined')
+				{
+					jQuery('.messages').html('<p>Data is not available</p>').css('color', 'red').css('font-size', 'x-large');
+					return;
+				}//end if
+				
+				jQuery.each(args.objImages, function (i, objImage) {
+					if (typeof objImage.url != 'undefined')
+					{
+						var html = '<div class="item item_image_container item_image_container_handle"><img class="add_image" src="' + objImage.url + '" /></div>';
+						jQuery('.carousel-inner').append(html);
+					}//end if
+				});
+				
+				//now hide the message box
+				jQuery('.messages').hide();
+				jQuery('.container').show('fast');
+				jQuery('#myCarousel').carousel({ interval: false });
+			}//end if
+			
+			//monitor buttons
+			jQuery('.close_window').click(function (e) {
+				e.preventDefault();
+				closeImageWindow();
+			});
+			
+			jQuery('.add_image').click(function (e) {
+				e.preventDefault();
+				addImage(jQuery(this));
+			});
+			
+			jQuery('.toggle-carousel').click(function (e) {
+				e.preventDefault();
+				jQuery('#myCarousel').toggleClass('carousel');
+				
+				//hide or show direction controls
+				if (jQuery('#myCarousel').hasClass('carousel'))
+				{
+					jQuery('.carousel-control').show();
+					jQuery('.item_image_container_handle').toggleClass('item_image_container item_image_container_grid item pull-left col-sm-3');
+				} else {
+					jQuery('.carousel-control').hide();
+					jQuery('.item_image_container_handle').toggleClass('item_image_container item_image_container_grid item pull-left col-sm-3');
+				}//end if
+			});
+		});
+		
+		function closeImageWindow()
+		{
+			top.tinymce.activeEditor.windowManager.close();
+		}//end function
+		
+		function addImage(element)
+		{
+			var image_src = element.attr('src');
+			if (image_src == '')
+			{
+				alert('Image could not be added, required data is not available');
+				return false;
+			}//end if
+			
+			top.tinymce.activeEditor.windowManager.getParams().onInsert(image_src);
+		}//end function
+	</script>	
+	
+	<style>
+		.carousel-control {
+		  padding-top:10%;
+		  width:5%;
+		}
+		.item_image_container {
+			height: 370px;
+			width: 455px;
+			display: inline-block;
+    		vertical-align: middle;
+    		text-align: center;
+		}
+		
+		.item_image_container img {
+			margin: auto;
+			max-height: 360px;
+  			max-width: 445px;
+		}
+		
+		.item_image_container_grid {
+			margin: 5px;
+		}
+		
+		.item_image_container_grid img {
+			max-height: 360px;
+  			max-width: 445px;
+		}
+	</style>	
+</body>
+</html>

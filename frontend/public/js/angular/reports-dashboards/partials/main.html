@@ -1,0 +1,88 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+		<div class="container-body">
+			<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+			
+			<!-- initiate data loding process -->
+			<div data-ng-init="loadInitData()"></div>
+			
+			<div class="col-md-12">
+				<div ng-show="progress.load_chart_data.active()" ng-bind-html="global_wait_image | sanitize"></div>
+				<div class="alert alert-info" ng-show="message != ''">
+					<span ng-bind-html="message | sanitize"></span>
+				</div>
+			</div>
+			<hr/>
+			
+			<!-- Dashboards Carousel -->
+			<div class="col-md-12">
+				<div id="dashboardCarousel" ng-class="objCarouselOptions.enabled == 1 ? 'carousel slide' : ''" data-ride="carousel" data-interval="false">
+					<!-- Wrapper for slides -->
+					<div id="dashboardCarouselContainer" ng-class="objCarouselOptions.enabled == 1 ? 'carousel-inner' : ''" role="listbox">
+					  <div class="item active">
+					    <div id="dashboardMain">
+					    	<!-- chart will render here -->
+					    </div>
+					  </div>
+					
+					  <div class="item">
+					   	<div id="dashboardDBGrowth">
+					    	<!-- chart will render here -->
+					    </div>				    
+					  </div>
+					  		
+					  <div class="item">
+					   	<div id="dashboardUnsubscribes">
+					    	<!-- chart will render here -->
+					    </div>				    
+					  </div>
+					  			
+					  <div class="item">
+					   	<div id="dashboardStatuses">
+					    	<!-- chart will render here -->
+					    </div>				    
+					  </div>
+					  					  					  					
+					  <div class="item">
+					   	<div id="dashboardSources">
+					    	<!-- chart will render here -->
+					    </div>				    
+					  </div>
+					
+					  <div class="item">
+					   	<div id="dashboardReferences">
+					    	<!-- chart will render here -->
+					    </div>				    
+					  </div>
+					
+					<!-- user history not available?
+					  <div class="item">
+					   	<div id="dashboardUserHistory">
+					    	
+					    </div>				    
+					  </div>
+					</div>
+					-->
+					
+					<!-- Left and right controls -->
+					<div ng-show="objCarouselOptions.enabled == 1">
+					  <button class="left" href="#dashboardCarousel" role="button" data-slide="prev">
+					    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+					    <span class="sr-only">Previous</span>
+					  </button>
+					  <button class="right" href="#dashboardCarousel" role="button" data-slide="next">
+					    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+					    <span class="sr-only">Next</span>
+					  </button>
+					</div>
+				</div>
+			</div>	
+			
+			<!-- options -->
+			<div class="col-md-8">
+				<hr/>
+				<button class="btn btn-success" ng-click="objCarouselOptions.enabled = 1 - objCarouselOptions.enabled"><span class="glyphicon glyphicon-eye-close" ng-show="objCarouselOptions.enabled == 1"></span><span class="glyphicon glyphicon-eye-open" ng-show="objCarouselOptions.enabled == 0"></span> Toggle Carousel</button>
+			</div>		
+		</div>
+	</div>
+</div>

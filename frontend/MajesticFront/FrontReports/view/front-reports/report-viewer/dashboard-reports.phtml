@@ -1,0 +1,99 @@
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/highcharts.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/data.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/drilldown.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/no-data-to-display.js"></script>
+
+<script type="text/javascript">
+	var global_page_config = {
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_DASHBOARD_HTML .'&nbsp; Dashboards'); ?>',
+	};
+
+	var arr_months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	
+	var source_series_label 		= 'Source';
+	var reference_series_label 		= 'Reference';
+	var status_series_label			= 'Status';
+	var dbgrowth_series_label		= 'Profile Growth';
+	var unsubscribes_series_label	= 'Unsubscibe';
+	
+	var global_chart_config_template = {
+	        chart: {
+	        	renderTo: 'setTarget',
+	            type: 'column',
+	            zoomType: 'xy',
+	            events: {
+	            	drilldown: function (e) {
+	            		if (!e.seriesOptions && typeof e.point.options.drilldown_callback === 'function') {
+	            			var chart = this;
+	            			var arr_data = e.point.options.drilldown_callback(e.point.options.name);	            			
+	            			chart.addSeriesAsDrilldown(e.point, arr_data);
+	            		}//end if
+	            	}
+	            }
+	        },
+	        noData: {
+				useHTML: true
+	        },
+	        title: {
+	            text: 'Set Title'
+	        },
+	        yAxis: {
+	        	allowDecimals: false,
+	            min: 0,
+	            title: {
+	                text: 'Count'
+	            },
+	            stackLabels: {
+	                enabled: true,
+	                style: {
+	                    fontWeight: 'bold',
+	                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+	                }
+	            }
+	        },
+	        credits: {
+	        	enabled: false,
+	        },
+	        plotOptions: {
+	            column: {
+	                stacking: 'normal',
+	                dataLabels: {
+	                    enabled: true,
+	                    crop: true,
+	                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+	                    style: {
+	                        textShadow: '0 0 3px black'
+	                    },
+	                    formatter: function () {
+	                    	if (typeof this.point.col_text !== 'undefined')
+	                    	{
+	                    		return this.y + '<br/> ' + this.point.col_text;	
+	                    	}//end if
+	                    	
+	                    	return this.y
+	                    }
+	                }
+	            }
+	       },
+	       xAxis: {
+	    	   labels: {
+	    		   formatter: function () {
+	    			   var objDate = new Date(this.value);
+	    			   return arr_months[objDate.getMonth()] + ' ' + objDate.getFullYear();
+	    		   }
+	    	   }
+	       },
+	       drilldown: {
+	    	   series: []
+	       },
+	       series: Array()
+	};	
+</script>
+<script src="/js/angular/reports-dashboards/app.js"></script>
+<script src="/js/angular/reports-dashboards/controllers.js"></script>
+<script src="/js/angular/reports-dashboards/services.js"></script>
+
+<?php
+echo '<div ng-app="frontDashboardReportViewerApp"><div ng-view></div></div>';
+return;

@@ -74,6 +74,23 @@ jQuery(document).ready(function () {
 			element.css('margin-left', '10px').before(country_code_element.show());
 		});
 	}//end if
+	
+	//deal with labels
+	if (jQuery('*').hasClass('label-hide')) 
+	{
+		jQuery('.label-hide').each(function (i, element) {
+			jQuery(element).parent().parent().find('.container_field_label').hide();
+		});
+	}//end if
+	
+	//deal with labels as placeholder
+	if (jQuery('*').hasClass('label-as-placeholder')) 
+	{
+		jQuery('.label-as-placeholder').each(function (i, element) {
+			var text = jQuery(element).parent().parent().find('.container_field_label').find('label').html();
+			jQuery(element).attr('placeholder', text);
+		});
+	}//end if
 });
 
 
@@ -117,13 +134,14 @@ jQuery(document).ready(function () {
 		    '//cdn-aws.majestic3.com/bootstrap/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
 		], function () {
 			jQuery("input[data-form-field-type=date]").attr("readonly", true).datepicker({
-				 showOn: "both",
-				 buttonImageOnly: true,
-				 buttonImage: "/img/icons/small/calendar.png",
-				 buttonText: "Calendar",
-				 dateFormat: "dd/mm/yy",
+				 //showOn: "both",
+				 //buttonImageOnly: true,
+				 //buttonImage: "/img/icons/small/calendar.png",
+				 //buttonText: "Calendar",
+				 dateFormat: "dd/mm/yyyy",
 				 changeMonth: true,
-				 changeYear: true
+				 changeYear: true,
+				 clearBtn: true
 			});
 		});
 	}//end if
@@ -136,7 +154,7 @@ function setProvincesFromCountry(country_id)
 {
 	var element = jQuery("#province_id");
 	//disable element
-	element.attr("disabled", "disablebd");
+	element.attr("disabled", "disabled");
 	
 	//update element status to updating
 	element.empty();

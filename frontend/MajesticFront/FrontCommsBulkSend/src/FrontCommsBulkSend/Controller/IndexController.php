@@ -15,7 +15,12 @@ class IndexController extends AbstractCoreActionController
     public function indexAction()
     {
        	//load journeys
-       	$objJourneys = $this->getFrontCommsBulkSendModel()->fetchJourneys($this->params()->fromQuery());
+       	try {
+       		$objJourneys = $this->getFrontCommsBulkSendModel()->fetchJourneys($this->params()->fromQuery());
+        } catch (\Exception $e) {
+       		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+       		return $this->redirect()->toRoute('home');
+       	}//end catch
 
        	return array(
        		"objJourneys" => $objJourneys,
@@ -32,54 +37,59 @@ class IndexController extends AbstractCoreActionController
     		return $this->redirect()->toRoute("front-comms-bulksend");
     	}//end if
 
-    	//load the form
-		$form = $this->getFrontCommsBulkSendModel()->getBulkCommSendForm();
-
-		$request = $this->getRequest();
-		if ($request->isPost())
-		{
-			$form->setData($request->getPost());
-			if ($form->isValid())
+    	try {
+	    	//load the form
+			$form = $this->getFrontCommsBulkSendModel()->getBulkCommSendForm();
+	
+			$request = $this->getRequest();
+			if ($request->isPost())
 			{
-				$arr_data = (array) $form->getData();
-				$arr_data['journey_id'] = $id;
-
-				//amend dates
-				if (isset($arr_data['contact_created_start']))
+				$form->setData($request->getPost());
+				if ($form->isValid())
 				{
-					if ($arr_data['contact_created_start'] == '')
+					$arr_data = (array) $form->getData();
+					$arr_data['journey_id'] = $id;
+	
+					//amend dates
+					if (isset($arr_data['contact_created_start']))
 					{
-						unset($arr_data['contact_created_start']);
-					} else {
-						$arr_data['contact_created_start'] = date('c', strtotime($arr_data['contact_created_start']));
+						if ($arr_data['contact_created_start'] == '')
+						{
+							unset($arr_data['contact_created_start']);
+						} else {
+							$arr_data['contact_created_start'] = date('c', strtotime($arr_data['contact_created_start']));
+						}//end if
 					}//end if
-				}//end if
-
-				if (isset($arr_data['contact_created_end']))
-				{
-					if ($arr_data['contact_created_end'] == '')
+	
+					if (isset($arr_data['contact_created_end']))
 					{
-						unset($arr_data['contact_created_end']);
-					} else {
-						$arr_data['contact_created_end'] = date('c', strtotime($arr_data['contact_created_end']));
+						if ($arr_data['contact_created_end'] == '')
+						{
+							unset($arr_data['contact_created_end']);
+						} else {
+							$arr_data['contact_created_end'] = date('c', strtotime($arr_data['contact_created_end']));
+						}//end if
 					}//end if
+	
+	    			//create request
+	    			$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->createBulkSendRequest($arr_data);
+	
+	    			//set success message
+	    			$this->flashMessenger()->addSuccessMessage("Bulk Send Request created successfully");
+	    			$this->flashMessenger()->addInfoMessage("The request must be reviewed and approved");
+	
+	    			//return to the index page
+	    			return $this->redirect()->toRoute("front-comms-bulksend");
 				}//end if
-
-    			//create request
-    			$objBulkSendRequest = $this->getFrontCommsBulkSendModel()->createBulkSendRequest($arr_data);
-
-    			//set success message
-    			$this->flashMessenger()->addSuccessMessage("Bulk Send Request created successfully");
-    			$this->flashMessenger()->addInfoMessage("The request must be reviewed and approved");
-
-    			//return to the index page
-    			return $this->redirect()->toRoute("front-comms-bulksend");
 			}//end if
-		}//end if
-
-    	//load journey data
-    	$objJourney = $this->getFrontCommsBulkSendModel()->fetchJourney($id);
-
+	
+	    	//load journey data
+	    	$objJourney = $this->getFrontCommsBulkSendModel()->fetchJourney($id);
+	    } catch (\Exception $e) {
+	    	$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+	    	return $this->redirect()->toRoute('home');
+	    }//end catch
+	    	
     	return array(
     			"objJourney" 			=> $objJourney,
     			"objBulkSendRequest" 	=> $objBulkSendRequest,

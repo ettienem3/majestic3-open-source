@@ -2,8 +2,10 @@
 namespace FrontCore\ViewHelpers;
 
 use Zend\View\Helper\AbstractHelper;
+use  Zend\Mvc\Controller\Plugin\PluginInterface;
+use Zend\Stdlib\DispatchableInterface as Dispatchable;
 
-class FrontFormatUserDateHelper extends AbstractHelper
+class FrontFormatUserDateHelper extends AbstractHelper implements PluginInterface
 {
 	/**
 	 * Container for the profile configuration
@@ -74,7 +76,7 @@ class FrontFormatUserDateHelper extends AbstractHelper
 				//try profile defined timezone
 				$timezone = $objUser->profile->settings->locale_timezone;
 			}//end if
-			
+
 			if ($timezone != '')
 			{
 				$objTimezone = new \DateTimeZone($timezone);
@@ -97,6 +99,16 @@ class FrontFormatUserDateHelper extends AbstractHelper
 
 			return $arr_date["date"];
 		}//end catch
+	}//end function
+
+	public function setController(Dispatchable $controller)
+	{
+
+	}//end function
+
+	public function getController()
+	{
+
 	}//end function
 
 	/**

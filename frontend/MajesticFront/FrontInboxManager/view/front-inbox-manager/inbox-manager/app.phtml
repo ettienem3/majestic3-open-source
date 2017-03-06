@@ -1,0 +1,14 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_INBOX_HTML .'&nbsp;Inbox'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+		pagination: JSON.parse('<?php echo json_encode($this->objMessages->hypermedia->pagination, JSON_FORCE_OBJECT);?>')
+	};
+</script>
+<script src="/js/angular/inbox/app.js"></script>
+<script src="/js/angular/inbox/controllers.js"></script>
+<script src="/js/angular/inbox/services.js"></script>
+
+<?php
+echo '<div ng-app="frontEndApp"><div ng-view></div></div>';
+return;

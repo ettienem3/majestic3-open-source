@@ -1,0 +1,148 @@
+<div id="container" class="container-fluid" ng-controller="JourneySummaryCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="pageTitle | sanitize"></div>
+					<div class="pull-left">
+						<a href="#!/" class="btn btn-primary pull-left"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;Back to Journeys</a>
+						<a href="#!/episodes/{{objJourney.id}}" class="btn btn-primary pull-left" style="margin-left: 5px;"><span class="glyphicon glyphicon-th-list"></span>&nbsp;Journey Episodes</a>
+					</div>
+					<div class="pull-right">
+						<button ng-click="refreshData()" class="btn btn-primary"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+			</div>
+			
+			<!-- Journey details -->
+			<div class="container col-xs-12">
+				<div class="row">
+					<div class="well">
+						<h2>{{objJourney.journey}}</h2>
+						<hr/>
+						<div class="">
+							Description: {{objJourney.description}}
+						</div>
+						<div class="">
+							Expiry: {{objJourney.date_expiry_formatted}}
+						</div>
+						<div class="">
+							Status: <span ng-show="objJourney.active == 1" class="text-success glyphicon glyphicon-ok">(Active)</span><span ng-show="objJourney.active == 0" class="text-danger glyphicon glyphicon-remove">(Inactive)</span>
+						</div>
+						<div class="">
+							Priority: {{objJourney.priority}}
+						</div>					
+					</div>
+				</div>	
+				
+				<div class="row">
+					<h3>Episodes</h3>
+					<hr/>
+					<div ng-show="loadJourneyEpisodes.active()" ng-bind-html="global_wait_image | sanitize"></div>
+					
+					<div class="col-xs-4 pull-left" ng-repeat="objEpisode in objJourneyEpisodes track by objEpisode.id" style="height: 630px; overflow: auto; margin-bottom: 15px;">
+						<div class="panel panel-primary journey_episode_{{objEpisode.id}}">
+							<div class="panel-heading">
+								<div class="pull-left">Episode {{objEpisode.comm_num}} ({{objEpisode.comm_via_data_comm_via}})</div>
+								<div class="pull-right"><a href="/utils/comms/view?cid={{objEpisode.id_encoded}}" target="_blank" title="Preview episode"><span class="glyphicon glyphicon-zoom-in"></span>&nbsp;</a></div>
+								<div class="clearboth"></div>
+							</div>
+							<div class="panel-body">
+								<ul class="list-group">
+									<li class="list-group-item text-danger bg-danger" ng-show="objEpisode.__status_reason != ''"><strong>This episode is not sending currently</strong><br/>{{objEpisode.__status_reason}}</li>
+									<li class="list-group-item"><strong>Episode Number:</strong> {{objEpisode.comm_num}}</li>
+									<li class="list-group-item"><strong>Episode Status:</strong> <span ng-show="objEpisode.active == 1" class="text-success bg-success" style="padding: 5px;">Active</span><span ng-show="objEpisode.active == 0" class="text-danger bg-danger" style="padding: 5px;">Inactive</span></li>
+									<li class="list-group-item"><strong>Timing:</strong> {{objEpisode.__timing_delay}}</li>
+									<li class="list-group-item"><strong>Description:</strong> {{objEpisode.description}}</li>
+									<li class="list-group-item"><strong>Start Date:</strong> {{objEpisode.date_start}}</li>
+									<li class="list-group-item"><strong>Expiry Date:</strong> {{objEpisode.date_expiry}}</li>
+									<li class="list-group-item"><strong>Delivery Channel:</strong> {{objEpisode.comm_via_data_comm_via}}</li>
+									<li class="list-group-item"><strong>Subject:</strong> {{objEpisode.subject}}</li>
+									<li class="list-group-item"><strong>From:</strong> {{objEpisode.comm_from_name}} &lt;{{objEpisode.comm_from}}&gt;</li>
+									<li class="list-group-item"><strong>Reply to:</strong> {{objEpisode.reply_to}}</li>
+								</ul>							
+							</div>
+						</div>
+					</div>
+					
+					<div class="clearboth"></div>
+				</div>
+				
+				<div class="row">
+					<h3>Journey Behaviours</h3>
+					<hr/>
+					<div ng-show="loadJourneyBehavioursProgress.active()" ng-bind-html="global_wait_image | sanitize"></div>
+					<div ng-show="!loadJourneyBehavioursProgress.active() && objJourneyBehaviours.length == 0">
+						<p>Journey does not have any behaviours attached</p>
+					</div>
+					
+					<table class="table table-striped table-hover" ng-show="objJourneyBehaviours.length > 0">
+						<thead>
+							<tr>
+								<th>Action</th>
+								<th>Description</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objBeh in objJourneyBehaviours track by objBeh.id">
+								<td>{{objBeh.action_title}}</td>
+								<td>{{objBeh.description}}</td>
+								<td>
+									<span ng-show="objBeh.active == 1" class="text-success glyphicon glyphicon-ok"></span>
+									<span ng-show="objBeh.active == 0" class="text-danger glyphicon glyphicon-remove"></span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				<div class="row">
+					<h3>Related Behaviours</h3>
+					<hr/>
+					<div ng-show="loadJourneyRelatedBehavioursProgress.active()" ng-bind-html="global_wait_image | sanitize"></div>
+					<div ng-show="!loadJourneyRelatedBehavioursProgress.active() && objJourneyRelatedBehaviours.length == 0">
+						<p>Journey does not have any behaviours attached</p>
+					</div>
+					
+					<table class="table table-striped table-hover" ng-show="objJourneyRelatedBehaviours.length > 0">
+						<thead>
+							<tr>
+								<th>Behaviour</th>
+								<th>Action</th>
+								<th>Description</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objBeh in objJourneyRelatedBehaviours track by objBeh.id">
+								<td>{{objBeh.behaviour_title}}</td>
+								<td>{{objBeh.action_title}}</td>
+								<td>{{objBeh.description}}</td>
+								<td>
+									<span ng-show="objBeh.active == 1" class="text-success glyphicon glyphicon-ok"></span>
+									<span ng-show="objBeh.active == 0" class="text-danger glyphicon glyphicon-remove"></span>
+								</td>
+							</tr>
+						</tbody>
+					</table>					
+				</div>
+				
+				<div class="row">
+					<h3>Diagram</h3>
+					<hr/>
+					
+					<div id="d3-data-area"></div>
+					<canvas id="canvas" width="1000px" height="400px"></canvas>
+					<!--<button class="btn btn-default" id="savesvg">Export to Image</button>-->
+					<div id="svgdataurl"></div>
+				</div>
+			</div>
+	</div>
+</div>

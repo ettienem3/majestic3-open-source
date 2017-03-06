@@ -45,9 +45,25 @@ class FrontCommAdminEntity extends AbstractEntityAdapter
 	{
 		$arr_data = parent::getDataForSubmit();
 
+		if ($arr_data["date_expiry"] == '0000-00-00')
+		{
+			$arr_data["date_expiry"] = '';
+		}//end if
+		
+		if ($arr_data["date_start"] == '0000-00-00')
+		{
+			$arr_data["date_start"] = '';
+		}//end if
+		
 		//manipulate dates for compatible api restrictions
 		if ($arr_data["date_expiry"] != "")
 		{
+			$t = strtotime($arr_data["date_expiry"]);
+			if (is_numeric($r))
+			{
+				$arr_data["date_expiry"] = date($this->format_date, $t);
+			}//end if
+			
 			$objDate = \DateTime::createFromFormat($this->format_date, $arr_data["date_expiry"]);
 			if (!$objDate)
 			{
@@ -58,6 +74,12 @@ class FrontCommAdminEntity extends AbstractEntityAdapter
 
 		if ($arr_data["date_start"] != "")
 		{
+			$t = strtotime($arr_data["date_start"]);
+			if (is_numeric($r))
+			{
+				$arr_data["date_start"] = date($this->format_date, $t);
+			}//end if
+			
 			$objDate = \DateTime::createFromFormat($this->format_date, $arr_data["date_start"]);
 			if (!$objDate)
 			{

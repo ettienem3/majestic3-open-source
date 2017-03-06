@@ -1,118 +1,145 @@
 <?php
 /**
  * Make sure requested domain has a config file attached to it
- */
+*/
 if (!is_file("./config/autoload/domains/" . $_SERVER["HTTP_HOST"] . ".php"))
 {
-	die("Configuration file does not exist");
+	//check for command line access
+	if (php_sapi_name() != "cli" && php_sapi_name() != 'cli-server')
+	{
+		die("Configuration file does not exist");
+	}//end if
+
+	//this is a console request
+	$host = '__';
+	foreach ($argv as $item)
+	{
+		if (substr($item, 0, strlen('--host=')) == '--host=')
+		{
+			$host = str_replace('--host=', '', $item);
+			break;
+		}//end if
+
+		if (substr($item, 0, strlen('--argument1=')) == '--argument1=')
+		{
+			$json = str_replace('--argument1=', '', $item);
+			$objData = json_decode($json);
+			if (is_object($objData) && isset($objData->host) && $objData->host != '')
+			{
+				$host = $objData->host;
+				break;
+			}//end if
+		}//end if
+	}//end foreach
+
+	if (!is_file("./config/autoload/domains/" . $host. ".php"))
+	{
+		die("Configuration file does not exist");
+	}//end if
+	$_SERVER['HTTP_HOST'] = $host;
 }//end if
 
 $arr_app_config = array(
-    // This should be an array of module namespaces used in the application.
-    'modules' => array(
-    	/**
-    	 * General Modules
-    	 */
-    	//'EdpSuperluminal',
+		//This should be an array of module namespaces used in the application.
+		'modules' => array(
+				/**
+				 * Majestic FrontEnd
+				 */
+				'FrontCore',
+				'FrontBehavioursConfig',
+				'FrontCommsTemplates',
+				'FrontCommsAdmin',
+				'FrontCommsBulkSend',
+				'FrontCommsSmsCampaigns',
+				'FrontContacts',
+				'FrontFormAdmin',
+				'FrontFormsTemplates',
+				'FrontInboxManager',
+				'FrontLinks',
+				'FrontLocations',
+				'FrontPanels',
+				'FrontPowerTools',
+				'FrontProfileFileManager',
+				'FrontProfileSettings',
+				'FrontReports',
+				'FrontSalesFunnels',
+				'FrontSmsAccountsAdmin',
+				'FrontStatuses',
+				'FrontUsers',
+				'FrontUserLogin',
 
-    	/**
-    	 * Majestic FrontEnd
-    	 */
-    	'FrontCore',
-    	'FrontBehavioursConfig',
-    	'FrontCommsTemplates',
-    	'FrontCommsAdmin',
-    	'FrontCommsBulkSend',
-    	'FrontCommsSmsCampaigns',
-    	'FrontContacts',
-    	'FrontFormAdmin',
-    	'FrontFormsTemplates',
-    	'FrontInboxManager',
-    	'FrontLinks',
-    	'FrontLocations',
-    	'FrontPanels',
-    	'FrontPowerTools',
-    	'FrontProfileFileManager',
-    	'FrontProfileSettings',
-    	'FrontReports',
-    	'FrontSalesFunnels',
-    	'FrontSmsAccountsAdmin',
-    	'FrontStatuses',
-    	'FrontUsers',
-    	'FrontUserLogin',
+				/**
+				 * Majestic External Components
+				 */
+				'MajesticExternalContacts',
+				'MajesticExternalForms',
+				'MajesticExternalUtilities',
 
-    	/**
-    	* Majestic External Components
-    	*/
-    	'MajesticExternalContacts',
-    	'MajesticExternalForms',
-    	'MajesticExternalUtilities',
+				/**
+				 * Custom Modules
+				 */
+				//custom modules are loaded at the end of this array
+		),
 
-    	/**
-    	 * Custom Modules
-    	 */
-    	//autoload at the end of this page
-    ),
+		// These are various options for the listeners attached to the ModuleManager
+		'module_listener_options' => array(
+				// This should be an array of paths in which modules reside.
+				// If a string key is provided, the listener will consider that a module
+				// namespace, the value of that key the specific path to that module's
+				// Module class.
+				'module_paths' => array(
+						'./vendor',
+						'./MajesticExternal',			//Modules that face the external world not governed by frontend rules
+						'./MajesticFront',				//Front end modules
+						'./CustomModules',				//contains any locally developed modules
+				),
 
-    // These are various options for the listeners attached to the ModuleManager
-    'module_listener_options' => array(
-        // This should be an array of paths in which modules reside.
-        // If a string key is provided, the listener will consider that a module
-        // namespace, the value of that key the specific path to that module's
-        // Module class.
-        'module_paths' => array(
-            './vendor',
-        	'./MajesticExternal',			//Modules that face the external world not governed by frontend rules
-        	'./MajesticFront',				//Front end modules
-        	'./CustomModules',				//contains any locally developed modules
-        ),
+				// An array of paths from which to glob configuration files after
+				// modules are loaded. These effectively override configuration
+				// provided by modules themselves. Paths may use GLOB_BRACE notation.
+				'config_glob_paths' => array(
+						'config/autoload/{,*.}{global,local}.php',
+						'config/autoload/domains/' . strtolower($_SERVER["HTTP_HOST"]) . '.php', //load config file for the specific domain request is received from
+				),
 
-        // An array of paths from which to glob configuration files after
-        // modules are loaded. These effectively override configuration
-        // provided by modules themselves. Paths may use GLOB_BRACE notation.
-        'config_glob_paths' => array(
-        	'config/autoload/{,*.}{global,local}.php',
-        	'config/autoload/domains/' . strtolower($_SERVER["HTTP_HOST"]) . '.php', //load config file for the specific domain request is received from
-        ),
+				// Whether or not to enable a configuration cache.
+				// If enabled, the merged configuration will be cached and used in
+				// subsequent requests.
+				'config_cache_enabled' => FALSE,
 
-        // Whether or not to enable a configuration cache.
-        // If enabled, the merged configuration will be cached and used in
-        // subsequent requests.
-        'config_cache_enabled' => FALSE,
+				// The key used to create the configuration cache file name.
+				'config_cache_key' => str_replace(".", "", $_SERVER["HTTP_HOST"]),
 
-        // The key used to create the configuration cache file name.
-        'config_cache_key' => str_replace(".", "", $_SERVER["HTTP_HOST"]),
+				// Whether or not to enable a module class map cache.
+				// If enabled, creates a module class map cache which will be used
+				// by in future requests, to reduce the autoloading process.
+				//'module_map_cache_enabled' => $booleanValue,
 
-        // Whether or not to enable a module class map cache.
-        // If enabled, creates a module class map cache which will be used
-        // by in future requests, to reduce the autoloading process.
-        //'module_map_cache_enabled' => $booleanValue,
+				// The key used to create the class map cache file name.
+				//'module_map_cache_key' => $stringKey,
 
-        // The key used to create the class map cache file name.
-        //'module_map_cache_key' => $stringKey,
+				// The path in which to cache merged configuration.
+				'cache_dir' => "data/cache/frontend_config",
 
-        // The path in which to cache merged configuration.
-        'cache_dir' => "data/cache/frontend_config",
+				// Whether or not to enable modules dependency checking.
+				// Enabled by default, prevents usage of modules that depend on other modules
+				// that weren't loaded.
+				// 'check_dependencies' => true,
+		),
 
-        // Whether or not to enable modules dependency checking.
-        // Enabled by default, prevents usage of modules that depend on other modules
-        // that weren't loaded.
-        // 'check_dependencies' => true,
-    ),
+		// Used to create an own service manager. May contain one or more child arrays.
+		//'service_listener_options' => array(
+		//     array(
+				//         'service_manager' => $stringServiceManagerName,
+				//         'config_key'      => $stringConfigKey,
+				//         'interface'       => $stringOptionalInterface,
+				//         'method'          => $stringRequiredMethodName,
+				//     ),
+				// )
 
-    // Used to create an own service manager. May contain one or more child arrays.
-    //'service_listener_options' => array(
-    //     array(
-    //         'service_manager' => $stringServiceManagerName,
-    //         'config_key'      => $stringConfigKey,
-    //         'interface'       => $stringOptionalInterface,
-    //         'method'          => $stringRequiredMethodName,
-    //     ),
-    // )
-
-   // Initial configuration with which to seed the ServiceManager.
-   // Should be compatible with Zend\ServiceManager\Config.
-   // 'service_manager' => array(),
+		// Initial configuration with which to seed the ServiceManager.
+		// Should be compatible with Zend\ServiceManager\Config.
+		// 'service_manager' => array(),
 );
 
 /**

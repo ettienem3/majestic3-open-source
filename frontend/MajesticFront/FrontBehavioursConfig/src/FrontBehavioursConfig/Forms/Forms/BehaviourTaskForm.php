@@ -14,6 +14,7 @@ class BehaviourTaskForm extends FrontCoreSystemFormBase
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'fk_user_id',
 				'content',
 				'generic2',

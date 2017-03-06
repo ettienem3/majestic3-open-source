@@ -19,6 +19,8 @@
 				continue;
 			}//end if
 
+			$arr_data = array();
+			$arr_data['id'] = $objCountry->id;
 			$arr_data["country"] = $objCountry->country;
 
 			if ($objCountry->active == 1)
@@ -38,7 +40,7 @@
 
 		$css_id = str_replace(".", "", microtime(TRUE));
 		echo $this->renderDataTableHelper(array("return_script" => TRUE), $css_id);
-		echo $this->renderSimpleHTMLTable($arr, array("Country", "Active", "Country Code", "Currency", "Currency Code", "Dialing Code"), array("id" => $css_id));
+		echo $this->renderSimpleHTMLTable($arr, array('ID', "Country", "Active", "Country Code", "Currency", "Currency Code", "Dialing Code"), array("id" => $css_id));
 
 		//insert pagination data
 		echo $this->renderPaginationHelper($this->objCountries->hypermedia->pagination, $this->url("front-locations/countries"));

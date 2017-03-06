@@ -26,7 +26,7 @@ return array(
 									'route'    => '/front/comms/bulksend/admin[/:action][/:id]',
 									'defaults' => array(
 											'controller' => 'FrontCommsBulkSend\Controller\BulkSend',
-											'action'     => 'index',
+											'action'     => 'app',
 									),
 							),
 					),

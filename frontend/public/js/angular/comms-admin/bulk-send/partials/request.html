@@ -1,0 +1,858 @@
+<div id="container" class="container-fluid" ng-controller="RequestCreateCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="pageTitle | sanitize"></div>
+					<a href="#!/" class="btn btn-primary pull-left" style="margin-left: 5px;"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;Back</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+			</div>
+			
+			<div class ="row">
+				<div class="col-xs-12" ng-show="objBulkRequest.id > 0 && request_reconstruct_message != ''">
+					<div class="text-center">
+						<span ng-bind-html="request_reconstruct_message | sanitize"></span>
+					</div>
+				</div>
+				
+				<div class="col-xs-2">
+					<div>
+						<button ng-show="!objBulkRequest.id" class="btn btn-primary select_btn_journey" ng-click="togglePanel('selectJourneyPanelState', true)">Set Journey</button>
+						
+						<div ng-show="objBulkRequest.objJourney.id && !objBulkRequest.id">
+							<br/><button class="btn btn-default select_btn_contact_status" ng-click="togglePanel('selectContactStatusPanelState', true)">Filter: Status</button>
+							<br/><button class="btn btn-default select_btn_web_form_status" ng-click="togglePanel('selectContactWebFormPanelState', true)">Filter: Web Form</button>
+							<!-- <br/><button class="btn btn-default select_btn_trackers" ng-click="togglePanel('selectContactTrackerPanelState', true)">Filter: Trackers</button>-->
+							<br/><button class="btn btn-default select_btn_users" ng-click="togglePanel('selectContactUsersPanelState', true)">Filter: Users</button>
+							<br/><button class="btn btn-default select_btn_std_fields" ng-click="togglePanel('selectContactStandardFieldsPanelState', true)">Filter: Standard Fields</button>
+							<br/><button class="btn btn-default select_btn_custom_fields" ng-click="togglePanel('selectContactCustomFieldsPanelState', true)">Filter: Custom Fields</button>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-xs-10">
+					<div class="row">
+						<div class="col-xs-6 pull-left">
+							<h6>Journey</h6>
+							<div class="">
+								<p ng-show="!objBulkRequest.objJourney.id">A journey has not been set</p>
+								<ul ng-show="objBulkRequest.objJourney.id" class="list-group">
+									<li class="list-group-item">ID: <strong>{{objBulkRequest.objJourney.id}}</strong></li>
+									<li class="list-group-item">Journey: <strong>{{objBulkRequest.objJourney.journey}}</strong><small class="text-primary"> ({{objBulkRequest.objJourney.description}})</small></li>
+									<li class="list-group-item">
+										<span ng-show="!objBulkRequest.id">
+											<h6>Options <button class="btn-small btn-primary" ng-click="togglePanel('configureSendSettingsPanelState', true)" title="Configure options"><span class="glyphicon glyphicon-cog"></span></button></h6>
+										</span>
+										
+										<div class="text-danger" ng-show="objBulkRequest.objOptions.allocate_all == 0 && (objBulkRequest.objOptions.allocate_num == 0 || objBulkRequest.objOptions.allocate_num == '')"><strong>A problem exists, required information is not set. It is advised to cancel this request!</strong><p>It appears that either all contacts or no contacts might be started on this journey.</p></div>
+										<div ng-hide="objBulkRequest.objOptions.allocate_all == 0 && (objBulkRequest.objOptions.allocate_num == 0 || objBulkRequest.objOptions.allocate_num == '')">								
+											<div class="text-primary" ng-show="objBulkRequest.objOptions.allocate_all == 1">Send to entire pool</div>
+											<div class="text-primary" ng-show="objBulkRequest.objOptions.allocate_all == 0 && objBulkRequest.objOptions.allocate_num > 0">Send to <strong>{{objBulkRequest.objOptions.allocate_num}}</strong> contacts out of <strong>{{objTargetResult.objTotals.source.total}}</strong> in sending pool</div>
+											<div class="text-primary" ng-show="objBulkRequest.objOptions.allocate_new == 1">in descending order</div>
+											<div class="text-primary" ng-show="objBulkRequest.objOptions.allocate_new == 0">in ascending order</div>
+										</div>
+									</li>
+									<li class="list-group-item">										
+										<!-- only where request has been been cancelled or released -->
+										<span ng-show="objBulkRequest.status != 2 && objBulkRequest.status != 99">
+											<div class="pull-left">
+												<button class="btn btn-primary" ng-click="togglePanel('calculateTargetGroupPanelState', true)" title="View approximation of contact pool"><span class="glyphicon glyphicon-dashboard"></span> Calculate</button>
+											</div>
+										
+											<!-- create request buttons -->
+											<div class="pull-right" ng-show="!objBulkRequest.id">
+												<button class="btn btn-success"  ng-click="submitRequestForApproval()" title="Submit request for review and approval"><span class="glyphicon glyphicon-plus-sign"></span> Create Request</button>
+											</div>
+											
+											<!-- authorize request buttons level 1 -->
+											<div class="pull-right" ng-show="objBulkRequest.id > 0 && objBulkRequest.status == 0">
+												<button class="btn btn-danger"  ng-click="cancelRequest()" title="Cancel this request"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+												&nbsp;
+												<button class="btn btn-warning"  ng-click="approveRequest()" title="Approve this request"><span class="glyphicon glyphicon-ok"></span> Approve</button>
+											</div>
+											
+											<!-- authorize request buttons level 2 -->
+											<div class="pull-right" ng-show="objBulkRequest.id > 0 && objBulkRequest.status == 1">
+												<button class="btn btn-danger"  ng-click="cancelRequest()" title="Cancel this request"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+												&nbsp;
+												<button class="btn btn-success"  ng-click="finalApproveRequest()" title="Release this request, messages will start queueing right away"><span class="glyphicon glyphicon-cloud-upload"></span> Release</button>
+											</div>	
+										</span>	
+										
+										<span ng-show="objBulkRequest.status == 2 || objBulkRequest.status == 99">
+											<div class="pull-left" ng-show="objBulkRequest.status == 2">
+												<span class="text-large text-success">Status: Released</span>
+											</div>
+											
+											<div class="pull-left" ng-show="objBulkRequest.status == 99">
+												<span class="text-large text-danger">Status: Cancelled</span>
+											</div>
+											
+											<!-- disable duplicate option for the timebeing, not ready 
+											<div class="pull-right">
+												<button class="btn btn-success" ng-click="duplicateRequest()"><span class="glyphicon glyphicon-plus-sign"></span> Duplicate Request</button>
+											</div>
+											-->
+										</span>						
+										<div class="clearboth"></div>
+									</li>
+								</ul>
+							</div>
+						</div>
+						
+						<div class="col-xs-5 pull-right" ng-show="objBulkRequest.objJourney.id">
+							<h6>Summary</h6>
+							<div ng-show="progressCalcTotals.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							
+							<div class="well">
+								<div ng-show="objTargetResult.objTotals.source">
+									<h8>Potential recipient pool size: <strong>{{objInitalTargetResult.objTotals.source.total}}</strong></h8>
+									<div>
+										<div>
+											<div class="pull-left">0</div>
+											<div class="pull-right">{{objInitalTargetResult.objTotals.source.total}}</div>
+											<div class="clearboth"></div>
+											
+											<div class="progress">											
+												<div class="progress-bar" role="progressbar"
+													aria-valuenow="{{objTargetResult.objTotals.source.total}}" aria-valuemin="0" aria-valuemax="{{objInitalTargetResult.objTotals.source.total}}"
+													style="width: {{((objTargetResult.objTotals.source.total / objInitalTargetResult.objTotals.source.total) * 100)}}%">
+													<span class="text-danger">{{((objTargetResult.objTotals.source.total / objInitalTargetResult.objTotals.source.total) * 100) | number:4}}%</span>
+												</div>
+											</div>											
+										</div>
+								</div>
+								</div>
+								
+								<div ng-show="objTargetResult.objTotals.source">
+									Source Total: <strong>{{objTargetResult.objTotals.source.total}}</strong>
+								</div>
+								
+								<div ng-show="objTargetResult.objTotals.reference">
+									Reference Total: <strong>{{objTargetResult.objTotals.reference.total}}</strong>
+								</div>	
+								
+								<div ng-show="objTargetResult.objTotals.status">
+									Status Total: <strong>{{objTargetResult.objTotals.status.total}}</strong>
+								</div>
+								
+								<div ng-show="objTargetResult.objTotals.user">
+									User Total: <strong>{{objTargetResult.objTotals.user.total}}</strong>
+								</div>	
+								
+								<hr/>
+								<div>
+									<small class="text-warning">
+										* These figures are an approximation and may change without notice due to ongoing profile maintenance.
+									</small>
+								</div>																						
+							</div>
+						</div>
+						<div class="clearboth"></div>
+					</div>	
+					
+					<div class="row" ng-show="objBulkRequest.objJourney.id">
+						<h6>Filter: Contact Status</h6>
+						
+						<div class="col-xs-5">
+							<h8>Has Status</h8>
+							<ul>
+								<li ng-repeat="objStatus in objBulkRequest.objHasStatuses track by objStatus.id">
+									<div>
+										<div class="pull-left">
+											<span title="Contact Status: {{objStatus.name}}, ID: {{objStatus.id}}">{{objStatus.name}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactHasStatus(objStatus)" title="Remove Status from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>
+						
+						<div class="col-xs-5">
+							<h8>Does not have Status</h8>
+							<ul>
+								<li ng-repeat="objStatus in objBulkRequest.objNotHaveStatuses track by objStatus.id">
+									<div>
+										<div class="pull-left">
+											<span title="Contact Status: {{objStatus.name}}, ID: {{objStatus.id}}">{{objStatus.name}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactNotHasStatus(objStatus)" title="Remove Status from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="col-xs-10">
+							<hr/>
+						</div>
+					</div>	
+					
+					
+					<div class="row" ng-show="objBulkRequest.objJourney.id">
+						<h6>Filter: Web Forms</h6>
+						
+						<div class="col-xs-5">
+							<h8>Completed Web Form</h8>
+							<ul>
+								<li ng-repeat="objForm in objBulkRequest.objHasWebForm track by objForm.id">
+									<div>
+										<div class="pull-left">
+											<span title="Web Form: {{objForm.form}}, ID: {{objForm.id}}, Description: {{objForm.description}}">{{objForm.form}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactHasWebForm(objForm)" title="Remove Form from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>	
+						
+						<div class="col-xs-5">
+							<h8>Have not completed Web Form</h8>
+							<ul>
+								<li ng-repeat="objForm in objBulkRequest.objNotHaveWebForm track by objForm.id">
+									<div>
+										<div class="pull-left">
+											<span title="Web Form: {{objForm.form}}, ID: {{objForm.id}}, Description: {{objForm.description}}">{{objForm.form}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactNotHasWebForm(objForm)" title="Remove Form from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>	
+						<div class="col-xs-10">
+							<hr/>
+						</div>									
+					</div>	 
+					
+<!-- 					
+					<div class="row" ng-show="objBulkRequest.objJourney.id">
+						<h6>Filter: Trackers</h6>
+						
+						<div class="col-xs-5">
+							<h8>Has Tracker</h8>
+							<ul>
+								<li ng-repeat="objForm in objBulkRequest.objHasTracker track by objForm.id">
+									<div>
+										<div class="pull-left">
+											<span title="Tracker: {{objForm.form}}, ID: {{objForm.id}}, Description: {{objForm.description}}">{{objForm.form}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactHasTracker(objForm)" title="Remove Tracker from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>	
+						
+						<div class="col-xs-5">
+							<h8>Does not have Tracker</h8>
+							<ul>
+								<li ng-repeat="objForm in objBulkRequest.objNotHaveTracker track by objForm.id">
+									<div>
+										<div class="pull-left">
+											<span title="Tracker: {{objForm.form}}, ID: {{objForm.id}}, Description: {{objForm.description}}">{{objForm.form}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactNotHasTracker(objForm)" title="Remove Tracker from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="col-xs-10">
+							<hr/>
+						</div>										
+					</div>						
+-->					
+					<div class="row" ng-show="objBulkRequest.objJourney.id">
+						<h6>Filter: Users</h6>
+						
+						<div class="col-xs-5">
+							<h8>Has User</h8>
+							<ul>
+								<li ng-repeat="objUser in objBulkRequest.objHasUser track by objUser.id">
+									<div>
+										<div class="pull-left">
+											<span title="User: {{objUser.uname}}, ID: {{objUser.id}}">{{objUser.uname}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactHasUser(objUser)" title="Remove User from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>	
+						
+						<div class="col-xs-5">
+							<h8>Not allocated to User</h8>
+							<ul>
+								<li ng-repeat="objUser in objBulkRequest.objNotHaveUser track by objUser.id">
+									<div>
+										<div class="pull-left">
+											<span title="User: {{objUser.uname}}, ID: {{objUser.id}}">{{objUser.uname}}</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="toggleContactNotHasUser(objUser)" title="Remove User from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="col-xs-10">
+							<hr/>
+						</div>											
+					</div>	
+					
+					<div class="row" ng-show="objBulkRequest.objJourney.id">
+						<h6>Filter: Custom Fields</h6>
+						
+						<div class="col-xs-5">
+							<ul>
+								<li ng-repeat="objField in objBulkRequest.objCustomFields track by $index">
+									<div>
+										<div class="pull-left">
+											<span title="Field: {{objField.field}}, ID: {{objField.id}}">{{objField.data.description}} ({{objField.field}})</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="deleteCustomFieldFilter(objField, $index)" title="Remove Field from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+										
+										<div class="row">
+											<h6>Values</h6>
+											<ul>
+												<li ng-repeat="(vIndex, objValue) in objField.values">											
+													<!-- checkboxes -->
+													<div ng-show="objField.data.fields_types_input_type == 'checkbox'">
+														<div class="pull-left" ng-show="objValue.value == 1">
+															<span class="text-success glyphicon glyphicon-ok-circle"></span> is checked
+														</div>
+														<div class="pull-left" ng-show="objValue.value == 0">
+															<span class="text-danger glyphicon glyphicon-ban-circle"></span> is not checked
+														</div>	
+														<div class="pull-right">
+															<button class="btn-danger btn-small" ng-click="deleteCustomFieldFilterValue(objField, $parent.$index, vIndex)" title="Remove value from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+														</div>													
+													</div>
+													
+													<!-- Select / Radios -->
+													<div ng-show="objField.data.fields_types_input_type == 'select' || objField.data.fields_types_input_type == 'radio'">
+														<div class="pull-left">
+															<div ng-show="objValue.operator == 'equal' || objValue.operator == '='">
+																equals <strong>{{objValue.value}}</strong>
+															</div>
+															<div ng-show="objValue.operator == 'notequal' || objValue.operator == '<>'">
+																not equal to <strong>{{objValue.value}}</strong>
+															</div>
+														</div>	
+														<div class="pull-right">
+															<button class="btn-warning btn-small" ng-click="deleteCustomFieldFilterValue(objField, $parent.$index, vIndex)" title="Remove value from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+														</div>
+														<div class="clearboth"></div>													
+													</div>
+												</li>
+											</ul>
+											<hr/>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>	
+
+						<div class="col-xs-10">
+							<hr/>
+						</div>											
+					</div>		
+					
+					<div class="row" ng-show="objBulkRequest.objJourney.id">
+						<h6>Filter: Standard Fields</h6>
+						<div class="col-xs-5">
+							<ul>
+								<li ng-repeat="objField in objBulkRequest.objStandardFields track by $index">
+									<div>
+										<div class="pull-left">
+											<span title="Field: {{objField.field}}, ID: {{objField.id}}">{{objField.data.description}} ({{objField.field}})</span>
+										</div>
+										
+										<div class="pull-right">
+											<button class="btn-danger btn-small" ng-click="deleteStandardFieldFilter(objField, $index)" title="Remove Field from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+										</div>
+										<div class="clearboth"></div>
+										
+										<div class="row">		
+											<h6>Values</h6>
+											<ul>
+												<li ng-repeat="(vIndex, objValue) in objField.values">
+													<!-- checkboxes -->
+													<div ng-show="objField.data.fields_types_input_type == 'checkbox'">
+														<div class="pull-left" ng-show="objValue.value == 1">
+															<span class="text-success glyphicon glyphicon-ok-circle"></span> is checked
+														</div>
+														<div class="pull-left" ng-show="objValue.value == 0">
+															<span class="text-danger glyphicon glyphicon-ban-circle"></span> is not checked
+														</div>	
+														<div class="pull-right">
+															<button class="btn-danger btn-small" ng-click="deleteStandardFieldFilterValue(objField, $parent.$index, vIndex)" title="Remove value from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+														</div>													
+													</div>
+													
+													<!-- Select / Radios -->
+													<div ng-show="objField.data.fields_types_input_type == 'select' || objField.data.fields_types_input_type == 'radio'">
+														<div class="pull-left">
+															<div ng-show="objValue.operator == 'equal' || objValue.operator == '='">
+																equals <strong><span ng-bind-html="readStandardFieldLabel(objField, objValue) | sanitize"></span></strong>
+															</div>
+															<div ng-show="objValue.operator == 'notequal' || objValue.operator == '<>'">
+																not equal to <strong><span ng-bind-html="readStandardFieldLabel(objField, objValue) | sanitize"></span></strong>
+															</div>
+														</div>	
+														<div class="pull-right">
+															<button class="btn-warning btn-small" ng-click="deleteStandardFieldFilterValue(objField, $parent.$index, vIndex)" title="Remove value from filter"><span class="glyphicon glyphicon-chevron-left"></span></button>
+														</div>
+														<div class="clearboth"></div>													
+													</div>
+												</li>
+											</ul>
+											<hr/>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>	
+
+						<div class="col-xs-10">
+							<hr/>
+						</div>											
+					</div>										
+				</div>
+			</div>
+	</div>
+	
+	<!-- Select journey panel -->
+	<div ng-show="selectJourneyPanelState" id="selectJourneyPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Select Journey<button ng-click="togglePanel('selectJourneyPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+			 			<h5>Active Journeys</h5>
+			 			<select ng-change="setSelectedJourney()" ng-model="selectJourneyModelActive">
+			 				<option value=''>--select--</option>
+			 				<option ng-repeat="objJourney in objJourneys" ng-show="objJourney.active == 1" value="{{objJourney.id}}">{{objJourney.id}} - {{objJourney.journey}}</option>
+			 			</select>
+			 			<hr/>
+			 			
+			 			<h5>Inactive Journeys</h5>
+			 			<select ng-change="setSelectedJourney()" ng-model="selectJourneyModelInactive">
+			 				<option value=''>--select--</option>
+			 				<option ng-repeat="objJourney in objJourneys" ng-show="objJourney.active == 0" value="{{objJourney.id}}">{{objJourney.id}} - {{objJourney.journey}}</option>
+			 			</select>
+			 			<hr/>
+			 			
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectJourneyPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- configure send options panel -->
+	<div ng-show="configureSendSettingsPanelState" id="configureSendSettingsPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Send Options<button ng-click="togglePanel('configureSendSettingsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<label for="allocate_all">Send to entire pool</label>
+					<div class="input-group">
+						<input type="checkbox" name="allocate_all" ng-model="objBulkRequest.objOptions.allocate_all" ng-true-value="1" ng-false-value="0"/>
+					</div>
+					
+					<div ng-show="objBulkRequest.objOptions.allocate_all == 0">
+						<label for="allocate_num">Limit sending pool to</label>
+						<div class="input-group">
+							<input type="text" name="allocate_num" ng-model="objBulkRequest.objOptions.allocate_num"/>
+						</div>
+					</div>
+					
+					<label for="allocate_new" ng-show="objBulkRequest.objOptions.allocate_new == 0">Sending in ascending order</label>
+					<label for="allocate_new" ng-show="objBulkRequest.objOptions.allocate_new == 1">Sending in descending order</label>
+					<div class="input-group">
+						<input type="checkbox" name="allocate_new" ng-model="objBulkRequest.objOptions.allocate_new" ng-true-value="1" ng-false-value="0"/>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('configureSendSettingsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Select contact status panel -->
+	<div ng-show="selectContactStatusPanelState" id="selectContactStatusPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Select Contact Status<button ng-click="togglePanel('selectContactStatusPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="objStatus in objContactStatuses track by objStatus.id">
+							<div class="pull-left">
+								{{objStatus.name}} (ID: {{objStatus.id}})
+							</div>
+							<div class="pull-right">
+								<button class="btn btn-success" ng-click="toggleContactHasStatus(objStatus)" title="Add to Contact has Status filter"><span class="glyphicon glyphicon-chevron-right"></span></button>&nbsp;
+								<button class="btn btn-warning" ng-click="toggleContactNotHasStatus(objStatus)" title="Add to Contact does not have Status filter"><span class="glyphicon glyphicon-chevron-right"></span></button>
+							</div>
+							<div class="clearboth"></div>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactStatusPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Select Web Forms -->
+	<div ng-show="selectContactWebFormPanelState" id="selectContactWebFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Select Web Forms completed<button ng-click="togglePanel('selectContactWebFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="objForm in objWebForms track by objForm.id">
+							<div class="pull-left">
+								{{objForm.form}} (ID: {{objForm.id}})
+							</div>
+							<div class="pull-right">
+								<button class="btn btn-success" ng-click="toggleContactHasWebForm(objForm)" title="Add to Contact has completed Web form filter"><span class="glyphicon glyphicon-chevron-right"></span></button>&nbsp;
+								<button class="btn btn-warning" ng-click="toggleContactNotHasWebForm(objForm)" title="Add to Contact did not complete Web Form filter"><span class="glyphicon glyphicon-chevron-right"></span></button>
+							</div>
+							<div class="clearboth"></div>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactWebFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Select Trackers -->
+	<div ng-show="selectContactTrackerPanelState" id="selectContactTrackerPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Select Contact Trackers<button ng-click="togglePanel('selectContactTrackerPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="objForm in objTrackers track by objForm.id">
+							<div class="pull-left">
+								{{objForm.form}} (ID: {{objForm.id}})
+							</div>
+							<div class="pull-right">
+								<button class="btn btn-success" ng-click="toggleContactHasTracker(objForm)" title="Add to Contact has Tracker filter"><span class="glyphicon glyphicon-chevron-right"></span></button>&nbsp;
+								<button class="btn btn-warning" ng-click="toggleContactNotHasTracker(objForm)" title="Add to Contact does not have Tracker filter"><span class="glyphicon glyphicon-chevron-right"></span></button>
+							</div>
+							<div class="clearboth"></div>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactTrackerPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+		
+	<!-- Select Users -->
+	<div ng-show="selectContactUsersPanelState" id="selectContactUsersPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Select Web Forms completed<button ng-click="togglePanel('selectContactUsersPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="objUser in objUsers track by objUser.id">
+							<div class="pull-left">
+								{{objUser.uname}} (ID: {{objUser.id}})
+							</div>
+							<div class="pull-right">
+								<button class="btn btn-success" ng-click="toggleContactHasUser(objUser)" title="Add to Contact has User filter"><span class="glyphicon glyphicon-chevron-right"></span></button>&nbsp;
+								<button class="btn btn-warning" ng-click="toggleContactNotHasUser(objUser)" title="Add to Contact does not have User filter"><span class="glyphicon glyphicon-chevron-right"></span></button>
+							</div>
+							<div class="clearboth"></div>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactUsersPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<!-- Select Standard Fields -->
+	<div ng-show="selectContactStandardFieldsPanelState" id="selectContactStandardFieldsPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Filter on Standard Fields<button ng-click="togglePanel('selectContactStandardFieldsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="objField in objStandardFields track by objField.id">
+							<div class="pull-left">
+								{{objField.description}} <br/>(Name: {{objField.field}}, Type: {{objField.fields_types_field_type}})
+							</div>
+							<div class="pull-right">
+								<button class="btn btn-primary" ng-click="toggleContactStandardFieldConfigPanel(objField)" title="Add to Contact Standard Fields filter"><span class="glyphicon glyphicon-chevron-right"></span></button>&nbsp;
+							</div>
+							<div class="clearboth"></div>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactStandardFieldsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Configure Standard Field -->
+	<div ng-show="selectContactStandardFieldConfigPanelState" id="selectContactStandardFieldConfigPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Configure Standard Field<button ng-click="togglePanel('selectContactStandardFieldConfigPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					<h4>Configure {{objStandardFieldConfig.description}}</h4>
+					
+					<!-- Select / Radio-->
+					<div ng-show="(objStandardFieldConfig.objFieldData.fields_types_input_type == 'select' || objStandardFieldConfig.objFieldData.fields_types_input_type == 'radio') && !progress.active()">
+						<div class="">
+							Where {{objStandardFieldConfig.description}} is :
+						</div>
+						<br/>
+						
+						<div class="">
+							<label>Select match</label>
+							<select ng-model="objTempOperatorModel">
+								<option value="equal">equal to</option>
+								<option value="notequal">not equal to</option>
+							</select>						
+						</div>
+						<br/>
+												
+						<div class="">											
+							<label>Select value</label>
+							<select ng-model="objTempValueModel">
+								<option value="{{objValue.id}}" ng-repeat="objValue in objStandardFieldConfig.objFieldData.field_values_data">{{objValue.name}}</option>
+							</select>						
+						</div>
+						<br/>
+						
+						<div class="">
+							<button class="btn btn-primary" ng-click="setStandardFieldFilterValue(objStandardFieldConfig.objFieldData)" title="Click button to add filter"><span class="glyphicon glyphicon-chevron-right"></span> Add to filter</button>&nbsp;
+						</div>					
+					</div>
+					
+					<!-- Checkbox-->
+					<div ng-show="(objStandardFieldConfig.objFieldData.fields_types_input_type == 'checkbox') && !progress.active()">
+						<div class="">
+							Where {{objStandardFieldConfig.description}} is: 
+						</div>
+						<br/>
+						
+						<div class="">
+							<button class="btn btn-success" ng-click="setStandardFieldFilterValue(objStandardFieldConfig.objFieldData, 1)" title="Click button to add filter"><span class="glyphicon glyphicon-ok-circle"></span> Field is checked</button>&nbsp;
+							<button class="btn btn-danger" ng-click="setStandardFieldFilterValue(objStandardFieldConfig.objFieldData, 0)" title="Click button to add filter"><span class="glyphicon glyphicon-ban-circle"></span> Field is not checked</button>
+						</div>
+					</div>		
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactStandardFieldConfigPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+		
+	<!-- Select Custom Fields -->
+	<div ng-show="selectContactCustomFieldsPanelState" id="selectContactCustomFieldsPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Filter on Custom Fields<button ng-click="togglePanel('selectContactCustomFieldsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					
+					<ul class="list-group">
+						<li class="list-group-item" ng-repeat="objField in objCustomFields track by objField.id">
+							<div class="pull-left">
+								{{objField.description}} <br/>(Name: {{objField.field}}, Type: {{objField.fields_types_field_type}})
+							</div>
+							<div class="pull-right">
+								<button class="btn btn-primary" ng-click="toggleContactCustomFieldConfigPanel(objField)" title="Add to Contact Custom Fields filter"><span class="glyphicon glyphicon-chevron-right"></span></button>&nbsp;
+							</div>
+							<div class="clearboth"></div>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactCustomFieldsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Configure Custom Field -->
+	<div ng-show="selectContactCustomFieldConfigPanelState" id="selectContactCustomFieldConfigPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Configure Custom Field<button ng-click="togglePanel('selectContactCustomFieldConfigPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+					<h4>Configure <strong>{{objCustomFieldConfig.description}}</strong></h4>
+					
+					<!-- Select / Radio-->
+					<div ng-show="(objCustomFieldConfig.objFieldData.fields_types_input_type == 'select' || objCustomFieldConfig.objFieldData.fields_types_input_type == 'radio') && !progress.active()">
+						<div class="">
+							Where {{objCustomFieldConfig.description}} is :
+						</div>
+						<br/>
+						
+						<div class="">
+							<label>Select match</label>
+							<select ng-model="objTempOperatorModel">
+								<option value="equal">equal to</option>
+								<option value="notequal">not equal to</option>
+							</select>						
+						</div>
+						<br/>
+												
+						<div class="">
+							<label>Select value</label>
+							<select ng-model="objTempValueModel">
+								<option value="{{objValue}}" ng-repeat="objValue in objCustomFieldConfig.objFieldData.field_values_data">{{objValue}}</option>
+							</select>						
+						</div>
+						<br/>
+						
+						<div class="">
+							<button class="btn btn-primary" ng-click="setCustomFieldFilterValue(objCustomFieldConfig.objFieldData)" title="Click button to add filter"><span class="glyphicon glyphicon-chevron-right"></span> Add to filter</button>&nbsp;
+						</div>					
+					</div>
+					
+					<!-- Checkbox-->
+					<div ng-show="(objCustomFieldConfig.objFieldData.fields_types_input_type == 'checkbox') && !progress.active()">
+						<div class="">
+							Where {{objCustomFieldConfig.description}} is: 
+						</div>
+						<br/>
+						
+						<div class="">
+							<button class="btn btn-success" ng-click="setCustomFieldFilterValue(objCustomFieldConfig.objFieldData, 1, 'equal')" title="Click button to add filter"><span class="glyphicon glyphicon-ok-circle"></span> Field is checked</button>&nbsp;
+							<button class="btn btn-danger" ng-click="setCustomFieldFilterValue(objCustomFieldConfig.objFieldData, 0, 'notequal')" title="Click button to add filter"><span class="glyphicon glyphicon-ban-circle"></span> Field is not checked</button>
+						</div>
+					</div>					
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('selectContactCustomFieldConfigPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>			
+		
+	<!-- Calculate Target Group -->
+	<div ng-show="calculateTargetGroupPanelState" id="calculateTargetGroupPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Target Group Estimation<button ng-click="togglePanel('calculateTargetGroupPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+
+					<div ng-hide="progress.active()">
+						<div class="row">
+							<div class="col-xs-5">
+								<div id="target_by_source"></div>
+							</div>
+							<div class="col-xs-5">
+								<div id="target_by_reference"></div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-5">
+								<div id="target_by_status"></div>
+							</div>
+							<div class="col-xs-5">
+								<div id="target_by_user"></div>
+							</div>	
+						</div>					
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('calculateTargetGroupPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>		
+</div>

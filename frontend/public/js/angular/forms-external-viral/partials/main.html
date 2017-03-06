@@ -1,0 +1,25 @@
+<div id="container" class="container-fluid" ng-controller="ViralHomeCtrl">
+	<div class="row">
+		<div class="container-body">
+			<div id="form_submit_message_container" class="alert alert-info" ng-show="form_message != ''">
+				<span ng-bind-html="form_message | sanitize"></span>
+			</div>
+			<div>
+				<form ng-submit="vm.submit()" name="vm.form" novalidate id="viral_form_original">
+					<formly-form model="vm.model" fields="vm.fields" form="vm.form">
+						
+						<div>
+							<div class="pull-right">
+								<button type="submit" class="btn btn-primary" ng-disabled="vm.form.$invalid" ng-click="submitForm()">Submit</button>	
+							</div>
+							<div class="pull-left">
+								<button ng-click="addFieldGroup()" class="btn btn-success" ng-disabled="max_form_referrals_allowed <= form_referral_groups" type="button"><span class="glyphicon glyphicon-plus-sign"></span></button>		
+							</div>
+							<div style="clear:both"></div>
+						</div>
+					</formly-form>
+				</form>			
+			</div>
+		</div>
+	</div>
+</div>

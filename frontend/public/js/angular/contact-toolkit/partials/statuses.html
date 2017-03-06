@@ -1,0 +1,104 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="StatusesCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<div class="pull-right">
+						<button ng-show="contact_unsubscribed == 0" ng-click="togglePanel('unsubscribeContactPanel', true)" class="btn btn-danger pull-right" type="button"><span class="glyphicon glyphicon-minus"></span>&nbsp;Unsubscribe Contact</button>
+						<button ng-click="togglePanel('updateStatusPanel', true)" class="btn btn-success pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-plus"></span>&nbsp;Update Status</button>
+						<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Status</th>
+							<th>Date</th>
+							<th>Behaviour</th>
+							<th>User</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.registration_status_status}}</td>
+							<td>{{objRecord.tstamp}}</td>
+							<td>{{objRecord.behaviour_label}}</td>
+							<td>{{objRecord.users_uname}}</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<div ng-show="updateStatusPanel" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Update Status<button ng-click="togglePanel('updateStatusPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div>
+								<form ng-submit="vm.submit()" name="vm.form" novalidate>
+									<formly-form model="vm.status" fields="vm.statusFields" form="vm.form">
+										<button type="submit" class="btn btn-primary" ng-disabled="vm.form.$invalid"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+									</formly-form>
+								</form>
+							</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('updateStatusPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<div ng-show="unsubscribeContactPanel" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">Unsubscribe Contact<button ng-click="togglePanel('unsubscribeContactPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						<h4>Are you sure you want to unsubscribe this contact?</h4>
+						<div>
+							<button ng-click="unsubscribeContact()" class="btn btn-danger" type="button">Unsubscribe Contact</button>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('unsubscribeContactPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>		
+</div>

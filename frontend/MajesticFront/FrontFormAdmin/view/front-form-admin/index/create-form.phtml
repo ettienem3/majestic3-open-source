@@ -1,4 +1,4 @@
-<?php 
+<?php
 //add editor js
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/tinymce.min.js');
 echo $this->headScript()->appendFile($this->layout()->cdn_url . '/js/vendor/tinymce/jquery.tinymce.min.js');
@@ -11,6 +11,17 @@ echo $this->partial("layout-comm-data-additions");
 		jQuery("#populate_form").attr("checked", "checked");
 		//check the active form checkbox
 		jQuery("#active").attr("checked", "checked");
+
+		//remove tracker and viral form options from form type box
+		jQuery('#fk_form_type_id option[value="2"]').remove();
+		jQuery('#fk_form_type_id option[value="3"]').remove();
+		jQuery('#fk_form_type_id option[value="1"]').attr('selected', true);
+
+		//hide viral
+		jQuery('.form-element-viral_duplicates').hide();
+		jQuery('.form-element-viral_referrals').hide();
+		jQuery('.form-element-viral_hide_referrals').hide();
+		jQuery('.form-element-viral_populate').hide();
 
 		//dock replace fields
 		<?php
@@ -39,7 +50,7 @@ echo $this->partial("layout-comm-data-additions");
 			element: jQuery("#copy"),
 			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
 			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
-		});	
+		});
 
 		jQuery.mj_text_editor({
 			element: jQuery("#terms") //terms and conditions
@@ -48,13 +59,13 @@ echo $this->partial("layout-comm-data-additions");
 		jQuery.mj_text_editor({
 			element: jQuery("#copy2"), //content below form
 			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
-			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>			
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
 		});
 
 		jQuery.mj_text_editor({
 			element: jQuery("#submit_copy"), //post submit content
 			enable_replace_fields: <?php if (in_array("replace_fields", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>,
-			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>	
+			enable_uploaded_images: <?php if (in_array("file_library", $objUser->profile->plugins_enabled)) { echo "true";} else { echo "false";}?>
 		});
 
 		jQuery.mj_text_editor({

@@ -37,11 +37,11 @@ class FrontFormAdminFormFieldEntity extends AbstractEntityAdapter
 	}//end function
 
 	private function setStandardFieldDefaultContent($arr_params)
-	{
-		switch ($this->get('field_std_field'))
+	{	
+		switch ($this->get('fields_std_field'))
 		{
 			case 'country_id':
-				if ($this->get('field_std_input_type') == 'select' || $this->get('field_std_input_type') == 'radio')
+				if ($this->get('fields_std_input_type') == 'select' || $this->get('fields_std_input_type') == 'radio')
 				{
 					//check if data is cached
 					$cache_id = 'form-field-default-content-countries';
@@ -62,17 +62,17 @@ class FrontFormAdminFormFieldEntity extends AbstractEntityAdapter
 								$arr_countries[$objCountry->id] = str_replace("'", "", utf8_encode($objCountry->country));
 							}//end if
 						}//end foreach
+						
+						//cache the dataset.
+						$this->getCacheModel()->setCacheItem($cache_id, $arr_countries, array('ttl' => 86400));
 					}//end if
-
-					//cache the dataset.
-					$this->getCacheModel()->setCacheItem($cache_id, $arr_countries, array('ttl' => 86400));
 				}//end if
 
 				$this->set('default_content_replacement', $arr_countries);
 				break;
 
 				case 'province_id':
-					if ($this->get('field_std_input_type') == 'select' || $this->get('field_std_input_type') == 'radio')
+					if ($this->get('fields_std_input_type') == 'select' || $this->get('fields_std_input_type') == 'radio')
 					{
 						//check if data is cached
 						$cache_id = 'form-field-default-content-regions';
@@ -94,19 +94,18 @@ class FrontFormAdminFormFieldEntity extends AbstractEntityAdapter
 									$arr_data[$objData->id] = str_replace("'", "", utf8_encode($objData->city));
 								}//end if
 							}//end foreach
+						
+							//cache the dataset.
+							$this->getCacheModel()->setCacheItem($cache_id, $arr_data, array('ttl' => 86400));
 						}//end if
-
-						//cache the dataset.
-						$this->getCacheModel()->setCacheItem($cache_id, $arr_data, array('ttl' => 86400));
 					}//end if
 
 					$this->set('default_content_replacement', $arr_data);
 					break;
 
 				case 'city_id':
-					if ($this->get('field_std_input_type') == 'select' || $this->get('field_std_input_type') == 'radio')
+					if ($this->get('fields_std_input_type') == 'select' || $this->get('fields_std_input_type') == 'radio')
 					{
-
 						//check if data is cached
 						$cache_id = 'form-field-default-content-cities';
 						$arr_data = $this->getCacheModel()->readCacheItem($cache_id, FALSE);
@@ -128,12 +127,41 @@ class FrontFormAdminFormFieldEntity extends AbstractEntityAdapter
 									$arr_data[$objData->id] = str_replace("'", "", utf8_encode($objData->city));
 								}//end if
 							}//end foreach
+							
+							//cache the dataset.
+							$this->getCacheModel()->setCacheItem($cache_id, $arr_data, array('ttl' => 86400));
 						}//end if
-
-						//cache the dataset.
-						$this->getCacheModel()->setCacheItem($cache_id, $arr_data, array('ttl' => 86400));
 					}//end if
 
+					$this->set('default_content_replacement', $arr_data);
+					break;
+					
+				case 'user_id':
+					//check if data is cached
+					$cache_id = 'form-field-default-content-users';
+					$arr_data = $this->getCacheModel()->readCacheItem($cache_id, FALSE);
+					if (!$arr_data)
+					{
+						//load users
+						$objUsers = $this->getUsersModel()->fetchUsers(array(
+								'qp_limit' => 'all',
+								'qp_disable_hypermedia' => 1,
+								'qp_export_fields' => 'id,uname,fname,sname,active',
+						));
+					
+						$arr_data = array();
+						foreach ($objUsers as $objData)
+						{
+							if ($objData->active == 1)
+							{
+								$arr_data[$objData->id] = str_replace("'", "", utf8_encode($objData->uname));
+							}//end if
+						}//end foreach
+						
+						//cache the dataset.
+						$this->getCacheModel()->setCacheItem($cache_id, $arr_data, array('ttl' => 3600));
+					}//end if
+					
 					$this->set('default_content_replacement', $arr_data);
 					break;
 		}//end switch
@@ -157,6 +185,15 @@ class FrontFormAdminFormFieldEntity extends AbstractEntityAdapter
 		}//end if
 
 		return $this->model_locations;
+	}//end function
+	
+	/**
+	 * Create an instance of the Users Model
+	 * @return \FrontUsers\Models\FrontUsersModel
+	 */
+	private function getUsersModel()
+	{
+		return $this->getServiceLocator()->get('FrontUsers\Models\FrontUsersModel');
 	}//end function
 
 	/**

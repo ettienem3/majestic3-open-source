@@ -5,6 +5,7 @@ use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use FrontReports\Models\FrontReportsModel;
 use FrontReports\Models\FrontReportParametersModel;
+use FrontReports\Models\FrontReportSettingsModel;
 
 class Module
 {
@@ -59,6 +60,11 @@ class Module
     					'FrontReports\Models\FrontReportParametersModel' => function ($sm) {
     						$model_report_params = new FrontReportParametersModel();
     						return $model_report_params;
+    					}, //end function
+    					
+    					'FrontReports\Models\FrontReportSettingsModel' => function ($sm) {
+    						$model = new FrontReportSettingsModel();
+    						return $model;
     					}, //end function
     			),
 

@@ -14,6 +14,7 @@ class BehaviourReferenceChangeForm extends FrontCoreSystemFormBase
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'reference',
 				'content',
 				'loggedin',

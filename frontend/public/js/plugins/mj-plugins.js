@@ -570,3 +570,53 @@
 		});
 	};
 })(jQuery);
+
+function angularTinymceConfig(objParams)
+{	
+	var mj_replace_fields_buttons = '';
+	if (typeof global_tinymce_replace_fields_container != 'undefined')
+	{
+		jQuery.each(global_tinymce_replace_fields_container, function (name, objFields) {
+//			if (objFields.length > 0)
+//			{
+				mj_replace_fields_buttons = mj_replace_fields_buttons + ' ' + 'angular_mj_replace_fields_' + name;
+//			}//end if
+		});
+	}//end if
+	
+	var mj_images_button = '';
+	if (typeof global_tinymce_profile_images != 'undefined')
+	{
+		mj_images_button = ' angular_mj_images_btn';
+	}//end if
+	
+	var objConfig = {
+			 		menubar: "format view edit"
+				    ,plugins: [
+						        "autolink paste code link textcolor colorpicker image imagetools visualblocks visualchars nonbreaking contextmenu advlist table fullscreen colorpicker angular_mj_replace_fields angular_mj_images"
+						    ]
+				    ,toolbar1: "undo redo | styleselect fontselect fontsizeselect | bold italic | alignleft aligncenter alignright alignjustify table | bullist numlist outdent indent | link image | print preview code | forecolor backcolor "
+				    //majestic plugins
+				    ,toolbar2: mj_replace_fields_buttons + mj_images_button
+				    //add the advanced tab in the native image box
+				    ,image_advtab: true	
+				    ,allow_html_in_named_anchor: true
+					,paste_auto_cleanup_on_paste : true
+					,paste_data_images: false //prevent images from being dragged into editor
+					,paste_strip_class_attributes : "all"
+					,paste_remove_spans : "all"
+					,paste_remove_styles : true
+					,theme_advanced_font_sizes : "8pt=1,10pt=2,12pt=3,14pt=4,18pt=5,24pt=6,36pt=7"
+					,font_size_style_values : "8pt,10pt,12pt,14pt,18pt,24pt,36pt"
+					,relative_urls : false
+					,remove_script_host : false
+					,forced_root_block : false
+				    //manage the images browse icon click
+//				    file_browser_callback: function(field_name, url, type, win) {
+	//
+//				    }			
+	};
+	
+	return objConfig;
+}//end function
+

@@ -24,6 +24,7 @@ class BehaviourJourneyNoStartTimeForm extends FrontCoreSystemFormBase
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'content',
 				'active',
 				

@@ -1,0 +1,50 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="JourneysCtrl">
+	<div class="row">
+			<div class="container-body">
+				<h4>Journey History for: <span ng-bind-html="objContactJourneyHistory.objJourney.journey"></span> (<span ng-bind-html="objContactJourneyHistory.objJourney.description"></span>)</h4>
+				<a href="#!/toolkit/journeys" title="Back"><span class="glyphicon glyphicon-arrow-left"></span></a>	
+				
+				<!-- home page content is injected -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadJourneyRecords()"></div>
+				<hr/>
+				<table st-table="journeyCommHistoryCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Episode</th>
+							<th>Destination</th>
+							<th>Channel</th>
+							<th>Status</th>
+							<th>Date</th>
+							<th>Journey Status</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objContactJourneyHistory.objHistoryData track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.comm_num}} <small>(Group: {{objRecord.fk_registration_comms_id}})</small></td>
+							<td>{{objRecord.destination}}</td>
+							<td>{{objRecord.comm_vias_comm_via}}</td>
+							<td>{{objRecord.comm_codes_code_description}} <small>({{objRecord.comm_codes_code}})</small></td>
+							<td><span ng-bind="objRecord.tstamp | date:'dd MMM yyyy'" title="{{objRecord.tstamp}}"></span></td>
+							<td>{{objRecord.journey_status_status}}</td>
+							<td>
+								<a href="{{objRecord.view_url}}" title="View communication" target="_blank"><span class="glyphicon glyphicon-eye-open"></span></a>
+							</td>
+				    	</tr>
+					</tbody>
+				</table>				
+			</div>
+	</div>
+</div>

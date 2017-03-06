@@ -3,7 +3,8 @@ return array(
 	'di' => array(),
     'controllers' => array(
         'invokables' => array(
-            //'FrontCore\Controller\Index' => 'FrontCore\Controller\IndexController',
+            'FrontCore\Controller\Index' => 'FrontCore\Controller\IndexController',
+        	'FrontCore\Controller\ManageCache' => 'FrontCore\Controller\ManageCacheController',
         	'MajesticExternalForms\Controller\Index' => 'MajesticExternalForms\Controller\IndexController',//the external controller
         ),
     ),
@@ -37,6 +38,17 @@ return array(
 											'controller' => 'FrontCore\Controller\Index',
 											'action'     => 'index',
 									),
+							),
+					),
+					
+					'frontcore-cache-manager' => array(
+							'type' => 'segment',
+							'options' => array(
+								'route' => '/front/core/manage-cache[/:action]',
+								'defaults' => array(
+									'controller' => 'FrontCore\Controller\ManageCache',
+									'action' => 'flush-profile-cache'
+								),
 							),
 					),
 
@@ -82,6 +94,12 @@ return array(
         		'layout/toolkit-parent'					=> __DIR__ . '/../view/layout/layout-toolkit-parent.phtml',
         		'layout/toolkit-body'					=> __DIR__ . '/../view/layout/layout-toolkit-body.phtml',
         		'layout/toolkit-section-standard' 		=> __DIR__ . '/../view/layout/layout-toolkit-sections-standard.phtml',
+        		'layout/angular/app'			 		=> __DIR__ . '/../view/layout/layout-angular-app.phtml',
+        		'layout/angular/basic'			 		=> __DIR__ . '/../view/layout/layout-angular-basic.phtml',
+        		'layout/angular/notices'				=> __DIR__ . '/../view/layout/layout-angular-notices.phtml',
+        		'layout/angular/notice/error' 	 		=> __DIR__ . '/../view/layout/layout-angular-notice-error.phtml',
+        		'layout/angular/notice/message'	 		=> __DIR__ . '/../view/layout/layout-angular-notice-message.phtml',
+        		'layout/angular/notice/info' 	 		=> __DIR__ . '/../view/layout/layout-angular-notice-info.phtml',
         ),
 
         'template_path_stack' => array(

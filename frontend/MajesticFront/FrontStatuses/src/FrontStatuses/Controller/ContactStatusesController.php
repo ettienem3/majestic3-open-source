@@ -3,6 +3,7 @@ namespace FrontStatuses\Controller;
 
 use Zend\View\Model\ViewModel;
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class ContactStatusesController extends AbstractCoreActionController
 {
@@ -28,6 +29,23 @@ class ContactStatusesController extends AbstractCoreActionController
         return array("objContactStatuses" => $objContactStatuses);
     }//end function
 
+    public function ajaxIndexAction()
+    {
+    	$objContactStatuses = $this->getContactStatusesModel()->fetchContactStatuses(array());
+    	$arr_data = array();
+
+    	foreach ($objContactStatuses as $objStatus)
+    	{
+    		$arr_data[] = array(
+    			'id' => $objStatus->id * 1,
+    			'status' => $objStatus->status,
+    		);
+    	}//end foreach
+
+    	return new JsonModel(array(
+    		'objData' => (object) $arr_data,
+    	));
+    }//end function
 
     /**
      * Create a new Contact Status

@@ -2,6 +2,7 @@
 namespace FrontBehavioursConfig\Controller;
 
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class IndexController extends AbstractCoreActionController
 {
@@ -194,6 +195,59 @@ class IndexController extends AbstractCoreActionController
 		$this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
 
 		return $this->redirect()->toUrl($this->getRequest()->getServer('HTTP_REFERER'));
+	}//end function
+
+	public function ajaxRequestAction()
+	{
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
+
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
+			{
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+		}//end if
+
+		switch (strtolower($acrq))
+		{
+			case 'update-behaviour-status':
+				try {
+					//load behaviour details
+					$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_params['behaviour_id']);
+				} catch (\Exception $e) {
+
+					$objResult = new JsonModel(array(
+						'error' => 1,
+						'response' => array('exception' => $e->getMessage()),
+					));
+					return $objResult;
+				}//end catch
+
+				//update the behaviour
+				$objBehaviour->set("active", (1 - $objBehaviour->get("active")));
+				$objBehaviour->set("beh_action", $objBehaviour->get("action")); //add values to the object to make form validation work
+				$this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
+
+				$objResult = new JsonModel(array(
+					'objData' => $objBehaviour->getArrayCopy(),
+				));
+				return $objResult;
+				break;
+		}//end switch
+
+		$objResult = new JsonModel(array(
+				'error' => 1,
+				'response' => 'An invalid request has been received',
+		));
+		return $objResult;
 	}//end function
 
 	/**

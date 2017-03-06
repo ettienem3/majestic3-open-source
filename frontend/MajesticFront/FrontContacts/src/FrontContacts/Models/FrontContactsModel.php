@@ -6,6 +6,7 @@ use FrontContacts\Entities\FrontContactsContactEntity;
 use FrontCore\Forms\FrontCoreSystemFormBase;
 use Zend\Stdlib\ArrayObject;
 use FrontUserLogin\Models\FrontUserSession;
+use Zend\Form\Form;
 
 class FrontContactsModel extends AbstractCoreAdapter
 {
@@ -14,6 +15,12 @@ class FrontContactsModel extends AbstractCoreAdapter
 	 * @var \FrontUsers\Models\FrontUsersModel
 	 */
 	private $model_front_users;
+
+	/**
+	 * Contianer for the Statuses Model
+	 * @var \FrontStatuses\Models\FrontContactStatusesModel
+	 */
+	private $model_front_statuses;
 
 	/**
 	 * Container for the Front Contacts System Fields Model
@@ -68,6 +75,159 @@ class FrontContactsModel extends AbstractCoreAdapter
 			$objForm = self::constructForm($arr_data["objFormRawData"]);
 			return $objForm;
 		}//end if
+	}//end function
+
+	/**
+	 * Create a form catering for filtering contacts
+	 * @return \Zend\Form\Form
+	 */
+	public function getContactFilterForm()
+	{
+		//load contact statuses
+		$objStatuses = $this->getFrontContactStatusesModel()->fetchContactStatuses();
+		$arr_statuses = array();
+		foreach ($objStatuses as $objStatus)
+		{
+			if (isset($objStatus->id) && is_numeric($objStatus->id) && $objStatus->active == 1)
+			{
+				$arr_statuses[$objStatus->id] = $objStatus->status;
+			}//end if
+		}//end foreach
+
+		//load users
+		$objUsers = $this->getFrontUsersModel()->fetchUsers();
+		$arr_users = array();
+		foreach ($objUsers as $objUser)
+		{
+			if (isset($objUser->id) && is_numeric($objUser->id) && $objUser->active == 1)
+			{
+				$arr_users[$objUser->id] = $objUser->uname . ' (' . $objUser->fname . ' ' . $objUser->sname . ')';
+			}//end if
+		}//end foreach
+
+		//load source values
+		$objSources = $this->getFrontContactsSystemFieldsModel()->fetchDistinctContactSources();
+		$arr_sources = array();
+		foreach ($objSources as $objSource)
+		{
+			if (isset($objSource->source) && $objSource->source != '')
+			{
+				$arr_sources[$objSource->source] = $objSource->source;
+			}//end if
+		}//end foreach
+
+		//load reference values
+		$objReferences = $this->getFrontContactsSystemFieldsModel()->fetchDistinctContactReferences();
+		$arr_references = array();
+		foreach ($objReferences as $objReference)
+		{
+			if (isset($objReference->reference) && $objReference->reference != '')
+			{
+				$arr_references[$objReference->reference] = $objReference->reference;
+			}//end if
+		}//end foreach
+
+		$objForm = new Form();
+		$objForm->add(array(
+				'name' => 'keyword',
+				'type' => 'text',
+				'attributes' => array(
+					'id' => 'keyword',
+					'title' => 'Enter a keyword. This value is use to search over a combination of different values',
+					'placeholder' => 'e.g. First Name / Email'
+				),
+				'options' => array(
+					'label' => 'Keyword',
+				),
+		));
+
+		$objForm->add(array(
+				'name' => 'regtbl_date_created_start',
+				'type' => 'text',
+				'attributes' => array(
+						'id' => 'regtbl_date_created_start',
+						'title' => 'Enter a start date to limit data from',
+						'placeholder' => 'from date'
+				),
+				'options' => array(
+						'label' => 'From date',
+				),
+		));
+
+		$objForm->add(array(
+				'name' => 'regtbl_date_created_end',
+				'type' => 'text',
+				'attributes' => array(
+						'id' => 'regtbl_date_created_end',
+						'title' => 'Enter an end date to limit data to',
+						'placeholder' => 'to date'
+				),
+				'options' => array(
+						'label' => 'To date',
+				),
+		));
+
+		$objForm->add(array(
+				'name' => 'regtbl_source',
+				'type' => 'select',
+				'attributes' => array(
+						'id' => 'regtbl_source',
+						'title' => 'Limit data to a specific source',
+						'placeholder' => 'Select a source to use as filter'
+				),
+				'options' => array(
+						'label' => 'Source',
+						'empty_option' => '--select--',
+						'value_options' => $arr_sources,
+				),
+		));
+
+		$objForm->add(array(
+				'name' => 'regtbl_ref',
+				'type' => 'select',
+				'attributes' => array(
+						'id' => 'regtbl_ref',
+						'title' => 'Limit data to a specific reference',
+						'placeholder' => 'Select a reference to use as filter'
+				),
+				'options' => array(
+						'label' => 'Reference',
+						'empty_option' => '--select--',
+						'value_options' => $arr_references,
+				),
+		));
+
+		$objForm->add(array(
+				'name' => 'regtbl_status',
+				'type' => 'select',
+				'attributes' => array(
+						'id' => 'regtbl_status',
+						'title' => 'Limit data to a specific status',
+						'placeholder' => 'Select a status to use as filter'
+				),
+				'options' => array(
+						'label' => 'Contact Status',
+						'empty_option' => '--select--',
+						'value_options' => $arr_statuses,
+				),
+		));
+
+		$objForm->add(array(
+				'name' => 'regtbl_user',
+				'type' => 'select',
+				'attributes' => array(
+						'id' => 'regtbl_user',
+						'title' => 'Limit data to a specific user',
+						'placeholder' => 'Select a user to use as filter'
+				),
+				'options' => array(
+						'label' => 'User',
+						'empty_option' => '--select--',
+						'value_options' => $arr_users
+				),
+		));
+
+		return $objForm;
 	}//end function
 
 	/**
@@ -171,6 +331,11 @@ class FrontContactsModel extends AbstractCoreAdapter
 				continue;
 			}//end if
 
+			if ($objUser->active != 1)
+			{
+				continue;
+			}//end if
+
 			$arr_users[$objUser->id] = $objUser->uname;
 		}//end foreach
 		$form->get("user_id")->setValueOptions($arr_users);
@@ -218,7 +383,10 @@ class FrontContactsModel extends AbstractCoreAdapter
 			$arr_where = new ArrayObject($arr_where);
 		}//end if
 
-		unset($arr_where["fid"]);
+		if (isset($arr_where["fid"]))
+		{
+			unset($arr_where["fid"]);
+		}//end if
 
 		//limit results to 20 where not specified otherwise
 		if (!isset($arr_where['qp_limit']))
@@ -436,6 +604,25 @@ class FrontContactsModel extends AbstractCoreAdapter
 	}//end function
 
 	/**
+	 * Requst contact statistics
+	 * @param int $id
+	 * @param array $arr_params
+	 */
+	public function fetchContactStatistics($id, array $arr_params)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("contacts");
+
+		//execute
+		$arr_params['id'] = $id;
+		$objResult = $objApiRequest->performGETRequest($arr_params)->getBody();
+		return $objResult->data;
+	}//end function
+
+	/**
 	 * Create a contact within a profile
 	 * @trigger : createContact.pre, createContact.post
 	 * @param array $arr_data
@@ -506,6 +693,29 @@ class FrontContactsModel extends AbstractCoreAdapter
 	}//end function
 
 	/**
+	 * Unsubscribe a contact
+	 * @param FrontContactsContactEntity $objContact
+	 * @param array $arr_data - Optional
+	 * @return unknown
+	 */
+	public function unsubscribeContact(FrontContactsContactEntity $objContact, $arr_data = array())
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("contacts/data/" . $objContact->get('reg_id_encoded') . "/unsubscribe");
+
+		//@TODO, for now, unsubscribe contact from all channels
+		$arr_data['comm_via_id_all'] = 1;
+
+		//request data
+		$objContactChannels = $objApiRequest->performPUTRequest($arr_data)->getBody()->data;
+var_dump($objContactChannels); exit;
+		return $objContactChannels;
+	}//end function
+
+	/**
 	 * Delete a contact from a profile
 	 * @trigger: deleteContact.pre, deleteContact.post
 	 * @param mixed $id
@@ -540,7 +750,7 @@ class FrontContactsModel extends AbstractCoreAdapter
 	 * Load Comments for a contact
 	 * @param mixed $contact_id
 	 */
-	public function fetchContactComments($contact_id)
+	public function fetchContactComments($contact_id, $arr_params = array())
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -548,27 +758,31 @@ class FrontContactsModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("contacts/data/$contact_id/comments");
 
-		//excute the request
-		$objContactComments = $objApiRequest->performGETRequest(array())->getBody();
+		if (isset($arr_params['cid']))
+		{
+			unset($arr_params['cid']);
+		}//end if
 
+		//excute the request
+		$objContactComments = $objApiRequest->performGETRequest($arr_params)->getBody();
 		return $objContactComments->data;
 	}//end function
 
 	/**
 	 * Load Contact Comm History data
 	 * @param mixed $contact_id
+	 * @param array $arr_params - Optional
 	 */
-	public function fetchContactCommHistory($contact_id)
+	public function fetchContactCommHistory($contact_id, $arr_params = array())
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
 
 		//setup the object and specify the action
-		$objApiRequest->setApiAction("contacts/data/$contact_id/comm-history?debug_display_errors=1");
+		$objApiRequest->setApiAction("contacts/data/$contact_id/comm-history");
 
 		//excute the request
-		$objContactCommData = $objApiRequest->performGETRequest(array())->getBody();
-
+		$objContactCommData = $objApiRequest->performGETRequest($arr_params)->getBody();
 		return $objContactCommData->data;
 	}//end function
 
@@ -599,6 +813,23 @@ class FrontContactsModel extends AbstractCoreAdapter
 		//trigger post event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("arr_data" => $arr_data, "objContact" => $objContact));
 
+		return $objResult->data;
+	}//end function
+
+	/**
+	 * Remove a comment for a contact
+	 * This only flags a comment as deleted and keeps the record in the background
+	 * @param integer $contact_id
+	 * @param integer $comment_id
+	 */
+	public function deleteContactComment($contact_id, $comment_id)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("contacts/data/$contact_id/comments/$comment_id");
+		$objResult = $objApiRequest->performDELETERequest(array());
 		return $objResult->data;
 	}//end function
 
@@ -686,5 +917,19 @@ class FrontContactsModel extends AbstractCoreAdapter
 		}//end if
 
 		return $this->model_front_contact_system_fields;
+	}//end function
+
+	/**
+	 * Create an instance of the Statuses Model
+	 * @return \FrontStatuses\Models\FrontContactStatusesModel
+	 */
+	private function getFrontContactStatusesModel()
+	{
+		if (!$this->model_front_statuses)
+		{
+			$this->model_front_statuses = $this->getServiceLocator()->get('FrontStatuses\Models\FrontContactStatusesModel');
+		}//end if
+
+		return $this->model_front_statuses;
 	}//end function
 }//end class

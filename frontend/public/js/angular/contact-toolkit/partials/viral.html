@@ -1,0 +1,106 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="ContactViralCtrl">
+	<div class="row">
+		<div class="container-body">
+			<!-- home page content is injectec -->
+			<div ng-bind-html="pageContent | sanitize"></div>
+			<!-- end of home page content -->
+			
+			<!-- indicate if contact is unsuscribed -->
+			<h4 ng-show="contact_unsubscribed > 0">
+				<div>
+					<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+				</div>
+			</h4>
+				
+			<!-- initiate data loding process -->
+			<div data-ng-init="loadRecords()"></div>
+			<div>
+				<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>					
+				<div class="pull-right">
+					<button ng-click="togglePanel('completeFormPanel', true)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus"></span>&nbsp;Complete Form</button>
+					<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+				</div>
+			</div>
+			<div style="clear:both;"></div>
+			<hr/>
+			<div>
+				<span ng-show="objLinkedContactsCount.linked > 0">Linked Contacts: {{objLinkedContactsCount.linked}}</span><br/>
+				<span ng-show="objLinkedContactsCount.linked_to > 0">Linked To Contacts: {{objLinkedContactsCount.linked_to}}</span>	
+			</div>
+			
+			<table class="table table-striped table-hover">
+				<thead>
+					<th>ID</th>
+					<th>Name</th>
+					<th>Date</th>
+					<th>&nbsp;</th>
+				</thead>
+				<tbody>
+					<tr ng-repeat="objLinkedContact in objRecords track by objLinkedContact.fk_reg_id">
+						<td>{{objLinkedContact.contact_id}}</td>
+						<td>{{objLinkedContact.fname}} {{objLinkedContact.sname}}</td>
+						<td>{{objLinkedContact.datetime_created}}</td>
+						<td>
+							<a href="/front/contacts/app#!/view/{{objLinkedContact.contact_id}}" target="_blank" title="View Contact"><span class="glyphicon glyphicon-eye-open"></span></a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div ng-show="objLinkedToContactRecords.length > 0" id="section-linked-to-contacts">
+				<hr/>
+				<h5>Contact Linked To (Referrals)</h5>
+				<table class="table table-striped table-hover">
+					<thead>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Date</th>
+						<th>&nbsp;</th>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objLinkedToContact in objLinkedToContactRecords track by objLinkedToContact.linked_reg_id">
+							<td>{{objLinkedToContact.linked_reg_id}}</td>
+							<td>{{objLinkedToContact.fname}} {{objLinkedToContact.sname}}</td>
+							<td>{{objLinkedToContact.datetime_created}}</td>
+							<td>
+								<a href="/front/contacts/app#!/view/{{objLinkedToContact.contact_id}}" target="_blank" title="View Contact"><span class="glyphicon glyphicon-eye-open"></span></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<div ng-show="completeFormPanel" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Complete a form (Referral)<button ng-click="togglePanel('completeFormPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div>
+								<ul>
+									<li ng-repeat="objForm in objAvailableForms"><span ng-bind-html="generateFormLink(objForm)"></span></li>
+								</ul>
+							</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('completeFormPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

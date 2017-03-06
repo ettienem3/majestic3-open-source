@@ -1,5 +1,5 @@
 {
     "require": {
-	"zendframework/zendframework": "^2.5",
+	"zendframework/zendframework": "^2.5"
     }
 }

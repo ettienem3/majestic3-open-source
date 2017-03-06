@@ -38,6 +38,8 @@
 			$delete_url = $this->url("front-profile-file-manager", array("action" => "delete-file", "location" => $objFile->location));
 
 			$arr_data = array(
+						'id' => $objFile->id,
+						'active' => $objFile->active,
 						"url" => $objFile->url,
 						"location" => $objFile->location,
 						"delete_url" => $delete_url,
@@ -118,6 +120,18 @@
 					<div class="<?php echo $class; ?> file-type clearfix">
 						<div class="filename"><?php echo $filename; ?></div>
 						<div class="file_options" data-file-location="<?php echo $location; ?>">
+							<?php 
+								if (isset($arr_document['id']) && is_numeric($arr_document['id']))
+								{
+									if ($arr_document['active'] == 1)
+									{
+										echo '<a href="' . $this->url("front-profile-file-manager", array("action" => "toggle-status")) . '?id=' . $arr_document['id'] . '" title="Deactivate the file">' . ICON_MEDIUM_ACTIVE_HTML . '</a>';
+									} else {
+										echo '<a href="' . $this->url("front-profile-file-manager", array("action" => "toggle-status")) . '?id=' . $arr_document['id'] . '" title="Activate the file">' . ICON_MEDIUM_INACTIVE_HTML . '</a>';
+									}//end if
+								}//end if
+							?>
+						
 							<a href="<?php echo $arr_document["url"]; ?>" class="open " target="_blank"  title="Open <?php echo $filename; ?>" data-toggle="tooltip">
 								<?php echo ICON_MEDIUM_DUPLICATE_HTML; ?>
 							</a>
@@ -142,13 +156,26 @@
 		{
 			echo "<div class=\"files-container-images\">";
 			echo 	"<h4>Images</h4>";
-			foreach ($arr_images as $arr_image) { ?>
+			foreach ($arr_images as $arr_image) { 
+			?>
 
 				<div class="image-container mj3-image-manager clearfix" style="background-image: url(<?php echo $arr_image["url"]; ?>)">
 					<a href="<?php echo $arr_image["url"]; ?>" target="_blank" title="<?php echo $arr_image["location"]; ?>">
 
 					</a>
 					<div class="file_options" data-file-location="<?php echo $arr_image["location"]; ?>" data-file-url="<?php echo $arr_image["url"]; ?>">
+						<?php 
+							if (isset($arr_image['id']) && is_numeric($arr_image['id']))
+							{
+								if ($arr_image['active'] == 1)
+								{
+									echo '<a href="' . $this->url("front-profile-file-manager", array("action" => "toggle-status")) . '?id=' . $arr_image['id'] . '" title="Deactivate the file">' . ICON_MEDIUM_ACTIVE_HTML . '</a>';
+								} else {
+									echo '<a href="' . $this->url("front-profile-file-manager", array("action" => "toggle-status")) . '?id=' . $arr_image['id'] . '" title="Activate the file">' . ICON_MEDIUM_INACTIVE_HTML . '</a>';
+								}//end if
+							}//end if
+						?>
+						
 						<a href="<?php echo $arr_image["url"]; ?>" target="_blank" title="<?php echo $arr_image["location"]; ?>" data-toggle="tooltip">
 							<?php echo ICON_MEDIUM_DUPLICATE_HTML; ?>
 						</a>

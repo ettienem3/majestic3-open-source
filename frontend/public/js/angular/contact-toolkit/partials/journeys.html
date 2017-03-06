@@ -1,0 +1,96 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="JourneysCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<div class="pull-right">
+						<button ng-click="listJourneysAvailableToStart(true)" class="btn btn-success pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-plus"></span>&nbsp;Start Journey</button>
+					</div>
+					<div class="pull-right">
+						<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>					
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<!-- List journeys available to start -->
+				<div ng-show="listJourneysAvailable">
+					<h4>Journeys Available</h4>
+					<div ng-bind-html="journeySectionContent | sanitize"></div>
+					<table st-table="journeysAvailableCollection" st-safe-src="rowCollection" class="table table-striped">
+						<thead>
+							<tr>
+								<th>Journey</th>
+								<th>Description</th>
+								<th>&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objJourneyAvailable in objJourneysStartAvailable track by objJourneyAvailable.id" data-record-id="{{objJourneyAvailable.id}}">
+								<td>{{objJourneyAvailable.journey}}</td>
+								<td>{{objJourneyAvailable.description}}</td>
+								<td>
+									<span ng-show="objJourneyAvailable.flag_behaviours_prevent_manual_start == 0">
+										<a href="" title="Start Journey" ng-click="contactStartJourney(objJourneyAvailable.id)"><span class="glyphicon glyphicon-volume-up" style="color: green;"></span></a>
+									</span>
+								</td>
+					    	</tr>
+						</tbody>
+					</table>
+					<button ng-click="listJourneysAvailableToStart(false)" class="btn btn-success pull-right" type="button" style="margin-right: 5px;">Close</button>
+					<div style="clear: both;"></div>
+					<hr/>
+				</div>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Journey</th>
+							<th>Started</th>
+							<th>Status</th>
+							<th>Next Episode</th>
+							<th>Last Episode Date</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.journey}}</td>
+							<td>{{objRecord.tstamp}}</td>
+							<td>{{objRecord.comm_status_data_status}}</td>
+							<td>{{objRecord.next_comm}}</td>
+							<td>{{objRecord.datetime_last}}</td>
+							<td>
+								<span ng-hide="objRecord.comm_status_id == 5 || objRecord.flag_behaviours_prevent_manual_start > 0"><a href="" title="Restart Journey" ng-click="contactRestartJourney(objRecord)"><span class="glyphicon glyphicon-repeat" style="color: green;"></span></a>&nbsp;</span>
+								<span ng-hide="objRecord.comm_status_id == 4 || objRecord.comm_status_id == 5"><a href="" title="Stop Journey" ng-click="contactStopJourney(objRecord)"><span class="glyphicon glyphicon-volume-off" style="color: red;"></span></a>&nbsp;</span>
+								<a href="#!/toolkit/journey-history/{{objRecord.reg_id}}/{{objRecord.journey_id}}" title="Journey History"><span class="glyphicon glyphicon-book"></span></a>&nbsp;
+								<a ng-hide="true" href="#!/toolkit/journey-episode-history/{{objRecord.reg_id}}/{{objRecord.journey_id}}" title="Journey Episode History"><span class="glyphicon glyphicon-book" style="color: aqua;"></span></a>
+							</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+</div>

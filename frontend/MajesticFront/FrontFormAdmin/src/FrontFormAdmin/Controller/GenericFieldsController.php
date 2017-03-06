@@ -14,7 +14,12 @@ class GenericFieldsController extends AbstractCoreActionController
 	public function indexAction()
 	{
 		//load the fields
-		$objFields = $this->getGenericFieldsModel()->fetchGenericFields($this->params()->fromQuery());
+		try {
+			$objFields = $this->getGenericFieldsModel()->fetchGenericFields($this->params()->fromQuery());
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+			return $this->redirect()->toRoute('home');
+		}//end catch
 
 		return array(
 					"objFields" => $objFields,
@@ -28,6 +33,12 @@ class GenericFieldsController extends AbstractCoreActionController
 		//load the fields
 		$objFields = $this->getGenericFieldsModel()->fetchGenericFields();
 
+		if ($this->params()->fromQuery("json", 0) == 1)
+		{
+			echo json_encode(array("fields" => $objFields), JSON_FORCE_OBJECT); exit;
+			return new JsonModel(array("fields" => $objFields));
+		}//end if
+		
 		return array(
 				"objFields" => $objFields,
 		);
@@ -81,7 +92,12 @@ class GenericFieldsController extends AbstractCoreActionController
 		}//end if
 
 		//load the field data
-		$objField = $this->getGenericFieldsModel()->fetchGenericField($id);
+		try {
+			$objField = $this->getGenericFieldsModel()->fetchGenericField($id);
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+			return $this->redirect()->toRoute('home');
+		}//end catch
 
 		//load the form
 		$form = $this->getGenericFieldsModel()->getGenericFieldSystemForm();

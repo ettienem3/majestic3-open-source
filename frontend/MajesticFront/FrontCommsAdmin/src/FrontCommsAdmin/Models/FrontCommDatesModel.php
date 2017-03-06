@@ -85,7 +85,7 @@ class FrontCommDatesModel extends AbstractCoreAdapter
 		$objCommDate = $objApiRequest->performPOSTRequest($objCommDate->getArrayCopy())->getBody();
 		
 		//recreate the commdate entity
-		$objCommDate = $this->createCommDateEntity($objCommDate);
+		$objCommDate = $this->createCommDateEntity($objCommDate->data);
 		
 		//trigger the post event
 		$this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objCommDate" => $objCommDate));
@@ -108,8 +108,7 @@ class FrontCommDatesModel extends AbstractCoreAdapter
 		$objApiRequest = $this->getApiRequestModel();
 		
 		//setup the object and specify the action
-		$objApiRequest->setApiAction($objCommDate->getHyperMedia("edit-comm-date")->url);
-		$objApiRequest->setApiModule(NUll);
+		$objApiRequest->setApiAction('comms/admin/dates/' . $objCommDate->get('id'));
 		
 		//execute 
 		$objCommDate = $objApiRequest->performPUTRequest($objCommDate->getArrayCopy())->getBody();

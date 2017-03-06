@@ -14,6 +14,7 @@ class BehaviourJourneyStopForm extends FrontCoreSystemFormBase
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'fk_journey_id',
 				'loggedin',
 				'active',

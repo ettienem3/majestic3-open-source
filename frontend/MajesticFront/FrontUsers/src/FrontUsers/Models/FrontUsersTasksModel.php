@@ -75,8 +75,13 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 	 */
 	public function createUserTask($arr_data)
 	{
-		$arr_data["datetime_reminder"] = str_replace(" 00:00", "", $arr_data["datetime_reminder"]);
+		if (substr($arr_data["datetime_reminder"], -6) == ' 00:00')
+		{
+			$arr_data["datetime_reminder"] = substr($arr_data["datetime_reminder"], 0, -6);
+		}//end if
+		
 		$objDate = \DateTime::createFromFormat("d M Y H:i:s", $arr_data["datetime_reminder"]);
+
 		if (!is_object($objDate))
 		{
 			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : Task could not be created. Reminder date is not in valid format", 500); 	
@@ -92,7 +97,7 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 			}//end if
 			$arr_data["date_email_reminder"] = $objDate->format(\DateTime::RFC3339);
 		}//end if
-		
+	
 		//create entity
 		$objUserTask = $this->createUserTaskEntity($arr_data);
 		
@@ -104,7 +109,7 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 		
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("user/tasks/manager");
-		
+
 		//execute
 		$objResult = $objApiRequest->performPOSTRequest($arr_data)->getBody();
 		
@@ -126,7 +131,11 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 	public function updateUserTask(FrontUsersUserTaskEntity $objUserTask, $complete = 0)
 	{
 		$arr_data = $objUserTask->getArrayCopy();
-		$arr_data["datetime_reminder"] = str_replace(" 00:00", "", $arr_data["datetime_reminder"]);
+		if (substr($arr_data["datetime_reminder"], -6) == ' 00:00')
+		{
+			$arr_data["datetime_reminder"] = substr($arr_data["datetime_reminder"], 0, -6);
+		}//end if
+	
 		$objDate = \DateTime::createFromFormat("d M Y H:i:s", $arr_data["datetime_reminder"]);
 		if (!is_object($objDate))
 		{
@@ -134,7 +143,7 @@ class FrontUsersTasksModel extends AbstractCoreAdapter
 		}//end if
 		$arr_data["datetime_reminder"] = $objDate->format(\DateTime::RFC3339);
 		
-		if ($arr_data["date_email_reminder"] != "")
+		if ($arr_data["date_email_reminder"] != "" && $arr_data['date_email_reminder'] != '0000-00-00')
 		{
 			$objDate = \DateTime::createFromFormat("d M Y", $arr_data["date_email_reminder"]);
 			if (!is_object($objDate))

@@ -1,0 +1,15 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_COMMS_HTML .'&nbsp; Test Journey Settings'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+		pagination: {qp_limit: 20}
+	};
+</script>
+
+<script src="/js/angular/comms-admin/test-journeys/app.js"></script>
+<script src="/js/angular/comms-admin/test-journeys/controllers.js"></script>
+<script src="/js/angular/comms-admin/test-journeys/services.js"></script>	
+
+<?php
+echo '<div ng-app="frontEndApp"><div ng-view></div></div>';
+return;

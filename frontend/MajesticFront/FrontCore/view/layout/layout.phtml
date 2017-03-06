@@ -205,6 +205,20 @@ $objUserPreferences = FrontUserSession::getUserLocalStorageObject();
 			<?php
 				// Generate any scripts that might be needed
 				echo $this->inlineScript();
+				
+				//add any additional javascript files set
+				if (isset($this->layout()->arr_additional_js_files) && is_array($this->layout()->arr_additional_js_files))
+				{
+					echo '<!-- Additional Javascript files specified -->';
+					echo implode(' ', $this->layout()->arr_additional_js_files);
+				}//end if
+				
+				//add any additional css files set
+				if (isset($this->layout()->arr_additional_css_files) && is_array($this->layout()->arr_additional_css_files))
+				{
+					echo '<!-- Additional CSS files specified -->';
+					echo implode(' ', $this->layout()->arr_additional_css_files);
+				}//end if
 			?>
 
 		</div>

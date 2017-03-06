@@ -39,6 +39,10 @@
 		<li role="presentation"><a href="<?php echo $this->url("front-contacts", array("id" => $this->objContact->get("id"), "action" => "edit-contact")); ?>" title="Edit Contact" data-toggle="tooltip"><?php echo ICON_MEDIUM_MODIFY_HTML; ?></a></li>
 		<li role="presentation"><a href="#" <?php echo $this->objContact->get("id"); ?> class="contact_comms" data-contact-id="<?php echo $this->objContact->get("id"); ?>" title="Send a Journey" data-toggle="tooltip"><?php echo ICON_MEDIUM_COMMS_HTML; ?></a></li>
 		<li class="mj3_btnchangeform"><a class="btn btn-success" href="<?php echo $this->url("front-contacts", array("action" => "select-profile-form")); ?>?redirect=<?php echo $this->url("front-contacts", array("action" => "view-contact", "id" => $this->objContact->get("reg_id_encoded"))); ?>" title="Change Contact Profile Form" data-toggle="tooltip"><?php echo ICON_MEDIUM_LAYOUT_HTML . "&nbsp; Change layout"; ?></a></li>
+		
+		<?php if (isset($this->layout()->app_config['frontend_views_config']) && $this->layout()->app_config['frontend_views_config']['enabled'] == true && $this->layout()->app_config['frontend_views_config']['angular-views-enabled']['contact-specific'] == true) : ?>
+			<li role="presentation" class="mj3_btnchangeform"><a href="<?php echo $this->url("front-contacts", array("action" => "app")); ?>#!/view/<?php echo $this->objContact->get("id"); ?>" class="btn" title="Use new view" data-toggle="tooltip"><?php echo 'Switch to New View'; ?></a></li>
+		<?php endif;?>
 	</ul>
 
 
@@ -75,7 +79,7 @@
 				</tr>
 				<tr>
 					<th>Last Updated</th>
-					<td><?php 
+					<td><?php
 							echo $this->renderFormatUserDate(array("date" => $this->objContact->get("datetime_updated"), "options" => array(
 								"output_format" => "d M Y H:i",
 							)));
@@ -84,13 +88,22 @@
 				</tr>
 				<tr>
 					<th>In Profile Since</th>
-					<td><?php 
+					<td><?php
 							echo $this->renderFormatUserDate(array("date" => $this->objContact->get("datetime_created"), "options" => array(
 								"output_format" => "d M Y H:i",
 							)));
 							?>
 					</td>
 				</tr>
+				<?php
+					if ($this->objContact->get("unsub") > 0)
+					{
+						echo '<tr>';
+						echo 	'<th>&nbsp;</th>';
+						echo 	'<td><strong>Contact is unsubscribed</strong></td>';
+						echo '</tr>';
+					}//end if
+				?>
 			</table>
 			<button type="button" id="contact-system-fields-update" class="btn btn-primary">Update</button>
 		</fieldset>

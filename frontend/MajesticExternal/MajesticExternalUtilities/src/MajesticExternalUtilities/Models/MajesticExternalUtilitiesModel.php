@@ -69,7 +69,8 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("utils/comms/view");
-		$objCommContent = $objApiRequest->performGETRequest($arr_data)->getBody()->data;
+		$objResult = $objApiRequest->performGETRequest($arr_data)->getBody();
+		$objCommContent = $objResult->data;
 
 		return $objCommContent;
 	}//end function
@@ -96,8 +97,10 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 			case "countries":
 			case "default":
 				//setup the object and specify the action
-				$objApiRequest->setApiAction("locations/countries");
-				$arr_request = array();
+				$objApiRequest->setApiAction("locations/countries?qp_export_fields=id,code,country,active&qp_limit=all&qp_disable_hypermedia=1");
+				$arr_request = array(
+
+				);
 				break;
 
 			case "province":
@@ -124,7 +127,6 @@ class MajesticExternalUtilitiesModel extends AbstractCoreAdapter
 		}//end switch
 
 		//check if cached data is available
-//@TODO cache data
 		$objData = $objApiRequest->performGETRequest($arr_request)->getBody();
 		return $objData->data;
 	}//end function

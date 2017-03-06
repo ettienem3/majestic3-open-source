@@ -35,5 +35,11 @@ return array(
         'template_path_stack' => array(
             __DIR__ . '/../view',
         ),
+    	'template_map' => array(
+    		'links/layout-app' 		=> __DIR__ . '/../view/layout/angular-app.phtml',
+    	),
+    	'strategies' => array(
+    			'ViewJsonStrategy',
+    	),    		
     ),
 );

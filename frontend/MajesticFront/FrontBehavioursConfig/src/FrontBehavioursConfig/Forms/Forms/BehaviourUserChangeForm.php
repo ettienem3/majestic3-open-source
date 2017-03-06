@@ -14,6 +14,7 @@ class BehaviourUserChangeForm extends FrontCoreSystemFormBase
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'fk_user_id',
 				'loggedin',
 				'active',

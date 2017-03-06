@@ -5,7 +5,7 @@ return array(
             'FrontInboxManager\Controller\InboxManager' => 'FrontInboxManager\Controller\InboxManagerController',
         ),
     ),
-		
+
 	'router' => array(
 			'routes' => array(
 					'front-inbox-manager' => array(
@@ -20,7 +20,7 @@ return array(
 					),
 			),
 	),
-		
+
 	'navigation' => array(
 			'default' => array(
 					array(
@@ -29,10 +29,13 @@ return array(
 					),
 			),
 	),
-		
+
     'view_manager' => array(
-        'template_path_stack' => array(
-            __DIR__ . '/../view',
-        ),
+	        'template_path_stack' => array(
+	            __DIR__ . '/../view',
+	        ),
+    		'strategies' => array(
+    				'ViewJsonStrategy',
+    		),
     ),
 );

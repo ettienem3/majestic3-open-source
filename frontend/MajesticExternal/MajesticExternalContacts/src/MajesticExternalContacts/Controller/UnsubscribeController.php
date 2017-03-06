@@ -48,8 +48,11 @@ class UnsubscribeController extends AbstractCoreActionController
         	$arr_t = explode("||", $e->getMessage());
 			$objError = json_decode(array_pop($arr_t));
 			$arr_t = explode(":", $objError->HTTP_RESPONSE_MESSAGE);
-			$this->flashMessenger()->addErrorMessage(array_pop($arr_t));
-
+			$m = array_pop($arr_t);
+			$this->flashMessenger()->addErrorMessage($m);
+			echo '<!-- ' . $e->getMessage() . ' -->';
+			echo 'An unexpected error occurred, we are busy investigating. Please retry in a while. Thank you for understanding.';
+			exit;
         	return $this->redirect()->toRoute("majestic-external-contacts-unsub", array("reg_id" => $reg_id));
         }//end catch
 

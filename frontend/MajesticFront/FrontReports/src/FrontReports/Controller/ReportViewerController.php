@@ -1,8 +1,8 @@
 <?php
 namespace FrontReports\Controller;
 
-use Zend\View\Model\ViewModel;
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class ReportViewerController extends AbstractCoreActionController
 {
@@ -21,17 +21,713 @@ class ReportViewerController extends AbstractCoreActionController
 	public function indexAction()
 	{
 		//load reports
-		$objReports = $this->getReportsModel()->fetchReports();
+		try {
+			$objReports = $this->getReportsModel()->fetchReports();
+		} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch
 
 		return array(
 			"objReports" => $objReports,
 		);
 	}//end function
 
+	public function basicReportsAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['reports-basic'] != true)
+		{
+			$this->flashMessenger()->addInfoMessage('The requested view is not available');
+			return $this->redirect()->toRoute('front-report-viewer');
+		}//end if
+
+		$this->layout('layout/angular/app');
+
+		return array();
+	}//end function
+
+	public function ajaxRequestAction()
+	{
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
+
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
+			{
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+		}//end if
+
+		try {
+			switch ($acrq)
+			{
+				case 'list-basic-reports':
+					$objReports = $this->getReportsModel()->fetchReports();
+					$arr_reports = array();
+					foreach ($objReports as $objReport)
+					{
+						if (isset($objReport->classification) && strtolower($objReport->classification) == 'basic')
+						{
+							$arr_reports[] = $objReport;
+						}//end if
+					}//end foreach
+
+					$objData = new JsonModel(array(
+						'objReports' => (object) $arr_reports,
+					));
+					break;
+
+				case 'delete-cached-report':
+					$objResponse = $this->getReportsModel()->deleteCachedReport($arr_params['id'], $arr_params['reference']);
+
+					$objData = new JsonModel(array(
+							'objResponse' => $objResponse,
+					));
+					break;
+
+				case 'load-report-params-form':
+					$arr_report_params = (array) json_decode($arr_params['report_params']);
+					if (!is_array($arr_report_params))
+					{
+						$arr_report_params = array('type' => 'report');
+					}//end if
+
+					//load the report requirements
+					$arr_report_params['auto_populate_form'] = 1;
+					$arr_report_params['ds_id'] = 17;
+					$objReportParams = $this->getReportsModel()->fetchReportParameters($arr_params['report_id'], $arr_report_params);
+
+					//generate the form
+					$form = $this->getReportsModel()->generateReportParametersForm($objReportParams->data->form);
+
+					//populate form where fields are available
+					foreach($objReportParams->data->report->form_data as $field => $objField)
+					{
+						if (!$form->has('#' . $field))
+						{
+							continue;
+						}//end if
+
+						if (!is_object($objField) || !isset($objField->data_element))
+						{
+							continue;
+						}//end if
+
+						$arr_data = array();
+						foreach ($objField->data_element as $objValue)
+						{
+							$arr_data[$objValue->id] = $objValue->value;
+						}//end foreach
+
+						$form->get('#' . $field)->setOption('value_options', $arr_data);
+					}//end foreach
+
+					$objForm = $this->renderSystemAngularFormHelper($form, NULL);
+
+					$objData = new JsonModel(array(
+						'objForm' => $objForm,
+						'objReportParams' => $objReportParams,
+					));
+					break;
+			}//end function
+
+			if (isset($objData))
+			{
+				return $objData;
+			}//end if
+		} catch (\Exception $e) {
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => $e->getMessage(),
+			));
+		}//end catch
+
+		return new JsonModel(array(
+			'error' => 1,
+			'response' => 'An invalid request has been received',
+		));
+	}//end function
+
+	public function ajaxRequestBasicReportsAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['reports-basic'] != true)
+		{
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => 'Requested functionality is not available',
+			));
+		}//end if
+
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
+
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
+			{
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+		}//end if
+
+		try {
+			switch ($acrq)
+			{
+				case 'list-cached-reports':
+					$objCachedReports = $this->getReportsModel()->fetchCachedReports();
+					$arr_reports = array();
+					foreach($objCachedReports as $objReport)
+					{
+						$arr_reports[] = $objReport;
+					}//end foreach
+
+					$objData = new JsonModel(array(
+							'objReports' => (object) $arr_reports,
+					));
+					break;
+
+				case 'generate-cached-report':
+					$report_id = $arr_post_data['report_id'];
+					unset($arr_post_data['report_id']);
+
+					$report_type = $arr_post_data['report_type'];
+					unset($arr_post_data['report_type']);
+
+					if (isset($arr_post_data['download_option']))
+					{
+						$download = $arr_post_data['download_option'];
+						unset($arr_post_data['download_option']);
+					} else {
+						$download = 0;
+					}//end if
+
+					if ($download > 0)
+					{
+						$this->getReportsModel()->setDownloadFlag($download);
+					}//end if
+
+					$objResponse = $this->getReportsModel()->generateCachedReport($report_id, $report_type, $arr_post_data);
+					$objData = new JsonModel(array(
+							'objResponse' => $objResponse,
+					));
+					break;
+
+				case 'load-cached-report-content':
+					$objResponse = $this->getReportsModel()->fetchCachedReport($arr_params['id'], $arr_params['reference']);
+
+					$objData = new JsonModel(array(
+							'objResponse' => $objResponse,
+					));
+					break;
+			}//end function
+
+			if (isset($objData))
+			{
+				return $objData;
+			}//end if
+		} catch (\Exception $e) {
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => $e->getMessage(),
+			));
+		}//end catch
+
+		return new JsonModel(array(
+				'error' => 1,
+				'response' => 'An invalid request has been received',
+		));
+	}//end function
+
+	public function dashboardReportsAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['reports-dashboards'] != true)
+		{
+			$this->flashMessenger()->addInfoMessage('The requested view is not available');
+			return $this->redirect()->toRoute('home');
+		}//end if
+
+		$this->layout('layout/angular/app');
+
+		return array();
+	}//end function
+
+	public function ajaxDashboardsRequestAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['reports-dashboards'] != true)
+		{
+			$this->flashMessenger()->addInfoMessage('The requested view is not available');
+			return $this->redirect()->toRoute('home');
+		}//end if
+
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
+
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
+			{
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+		}//end if
+
+		try {
+			switch ($acrq)
+			{
+				case 'load-dashboard-combined-data':
+					$objSourceData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactSourcesSummary'));
+
+					//format source data output
+					$arr_source_data = array();
+					foreach ($objSourceData->sources_breakdown as $objEntry)
+					{
+						if (!isset($arr_source_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_source_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Source: ' . $objEntry->datetime_created_formatted_month,
+									'name_series' => $objEntry->datetime_created_formatted_month,
+									'stack' => 'sources' . strtolower(str_replace(' ', '', $objEntry->datetime_created_formatted_month)),
+							);
+						}//end if
+
+						if ($objEntry->source == '')
+						{
+							$objEntry->source = 'Blank';
+						}//end if
+
+						$arr_source_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_source * 1,
+								'label' => $objEntry->source,
+						);
+					}//end foreach
+
+					$objReferenceData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactReferencesSummary'));
+
+					//format reference data output
+					$arr_reference_data = array();
+					foreach ($objReferenceData->reference_breakdown as $objEntry)
+					{
+						if (!isset($arr_reference_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_reference_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Reference: ' . $objEntry->datetime_created_formatted_month,
+									'name_series' => $objEntry->datetime_created_formatted_month,
+									'stack' => 'references',
+							);
+						}//end if
+
+						if ($objEntry->reference == '')
+						{
+							$objEntry->reference = 'Blank';
+						}//end if
+
+						$arr_reference_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_reference * 1,
+								'label' => $objEntry->reference,
+						);
+					}//end foreach
+
+					$objStatusData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactStatusesHistorySummary'));
+
+					//format status data output
+					$arr_status_data = array();
+					foreach ($objStatusData->status_history_breakdown as $objEntry)
+					{
+						if (!isset($arr_status_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_status_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Statuses: ' . $objEntry->datetime_created_formatted_month,
+									'stack' => 'statuses',
+									'name_series' => $objEntry->datetime_created_formatted_month,
+							);
+						}//end if
+
+						$arr_status_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_status * 1,
+								'label' => $objEntry->registration_status_status,
+						);
+					}//end foreach
+
+					$objGrowthData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadProfileGrowthSummary'));
+
+					//format status data output
+					$arr_growth_data = array();
+					foreach ($objGrowthData->profile_growth_breakdown as $objEntry)
+					{
+						if (!isset($arr_growth_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_growth_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Growth: ' . $objEntry->datetime_created_formatted_month,
+									'stack' => 'growth',
+									'name_series' => $objEntry->datetime_created_formatted_month,
+							);
+						}//end if
+
+						$arr_growth_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_contacts * 1,
+								'label' => 'New Contacts',
+						);
+					}//end foreach
+
+					$objUnsubscribeData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactUnsubscribeSummary'));
+
+					//format status data output
+					$arr_unsub_data = array();
+					foreach ($objUnsubscribeData->unsubscribe_breakdown as $objEntry)
+					{
+						if (!isset($arr_unsub_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_unsub_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Unsubscribed: ' . $objEntry->datetime_created_formatted_month,
+									'stack' => 'unsubscribe',
+									'name_series' => $objEntry->datetime_created_formatted_month,
+							);
+						}//end if
+
+						$arr_unsub_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_contacts * 1,
+								'label' => 'Unsubscribed Contacts',
+						);
+					}//end foreach
+
+					$objResponse = new JsonModel(array(
+							'objData' => (object) array(
+									'sources' => $arr_source_data,
+									'references' => $arr_reference_data,
+									'contact_statuses' => $arr_status_data,
+									'profile_growth' => $arr_growth_data,
+									'contacts_unsubscribed' => $arr_unsub_data,
+							)
+					));
+					break;
+
+				case 'load-dashboard-source-data':
+					$objSourceData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactSourcesSummary'));
+
+					//format source data output
+					$arr_source_data = array();
+					foreach ($objSourceData->sources_breakdown as $objEntry)
+					{
+						if (!isset($arr_source_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_source_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Source: ' . $objEntry->datetime_created_formatted_month,
+									'name_series' => $objEntry->datetime_created_formatted_month,
+									//'stack' => 'sources' . strtolower(str_replace(' ', '', $objEntry->datetime_created_formatted_month)),
+							);
+						}//end if
+
+						if ($objEntry->source == '')
+						{
+							$objEntry->source = 'Blank';
+						}//end if
+
+						$arr_source_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_source * 1,
+								'label' => $objEntry->source,
+						);
+					}//end foreach
+
+					$objResponse = new JsonModel(array(
+							'objData' => (object) array(
+									'sources' => $arr_source_data,
+							)
+					));
+					break;
+
+				case 'load-dashboard-reference-data':
+					$objReferenceData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactReferencesSummary'));
+
+					//format reference data output
+					$arr_reference_data = array();
+					foreach ($objReferenceData->reference_breakdown as $objEntry)
+					{
+						if (!isset($arr_reference_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_reference_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Reference: ' . $objEntry->datetime_created_formatted_month,
+									'name_series' => $objEntry->datetime_created_formatted_month,
+									'stack' => 'references',
+							);
+						}//end if
+
+						if ($objEntry->reference == '')
+						{
+							$objEntry->reference = 'Blank';
+						}//end if
+
+						$arr_reference_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_reference * 1,
+								'label' => $objEntry->reference,
+						);
+					}//end foreach
+
+					$objResponse = new JsonModel(array(
+							'objData' => (object) array(
+									'references' => $arr_reference_data,
+							)
+					));
+					break;
+
+				case 'load-dashboard-user-data':
+
+					break;
+
+				case 'load-dashboard-status-data':
+					$objStatusData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactStatusesHistorySummary'));
+
+					//format status data output
+					$arr_status_data = array();
+					foreach ($objStatusData->status_history_breakdown as $objEntry)
+					{
+						if (!isset($arr_status_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_status_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Statuses: ' . $objEntry->datetime_created_formatted_month,
+									'stack' => 'statuses',
+									'name_series' => $objEntry->datetime_created_formatted_month,
+							);
+						}//end if
+
+						$arr_status_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_status * 1,
+								'label' => $objEntry->registration_status_status,
+						);
+					}//end foreach
+
+					$objResponse = new JsonModel(array(
+							'objData' => (object) array(
+									'contact_statuses' => $arr_status_data
+							)
+					));
+					break;
+
+				case 'load-dashboard-unsubscribe-data':
+					$objUnsubscribeData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadContactUnsubscribeSummary'));
+
+					//format status data output
+					$arr_unsub_data = array();
+					foreach ($objUnsubscribeData->unsubscribe_breakdown as $objEntry)
+					{
+						if (!isset($arr_unsub_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_unsub_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Unsubscribed: ' . $objEntry->datetime_created_formatted_month,
+									'stack' => 'unsubscribe',
+									'name_series' => $objEntry->datetime_created_formatted_month,
+							);
+						}//end if
+
+						$arr_unsub_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_contacts * 1,
+								'label' => 'Unsubscribed Contacts',
+						);
+					}//end foreach
+
+					$objResponse = new JsonModel(array(
+							'objData' => (object) array(
+									'contacts_unsubscribed' => $arr_unsub_data
+							)
+					));
+					break;
+
+				case 'load-dashboard-dbgrowth-data':
+					$objGrowthData = $this->getReportsModel()->loadDashboardData(array('callback' => 'loadProfileGrowthSummary'));
+
+					//format status data output
+					$arr_growth_data = array();
+					foreach ($objGrowthData->profile_growth_breakdown as $objEntry)
+					{
+						if (!isset($arr_growth_data[$objEntry->datetime_created_formatted_month]))
+						{
+							$arr_growth_data[$objEntry->datetime_created_formatted_month] = array(
+									'name' => 'Growth: ' . $objEntry->datetime_created_formatted_month,
+									'stack' => 'growth',
+									'name_series' => $objEntry->datetime_created_formatted_month,
+							);
+						}//end if
+
+						$arr_growth_data[$objEntry->datetime_created_formatted_month]['data_temp'][] = array(
+								'time' => strtotime('10 ' . $objEntry->datetime_created_formatted_month) * 1000,
+								'value' => $objEntry->count_contacts * 1,
+								'label' => 'New Contacts',
+						);
+					}//end foreach
+
+					$objResponse = new JsonModel(array(
+							'objData' => (object) array(
+									'profile_growth' => $arr_growth_data
+							)
+					));
+					break;
+			}//end switch
+
+			if (isset($objResponse))
+			{
+				return $objResponse;
+			}//end if
+		} catch (\Exception $e) {
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => $e->getMessage(),
+			));
+		}//end catch
+
+		return new JsonModel(array(
+				'error' => 1,
+				'response' => 'An invalid request has been received',
+		));
+	}//end function
+
+	public function ajaxAngRequestBasicReportsAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['reports-basic'] != true)
+		{
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => 'Requested functionality is not available',
+			));
+		}//end if
+
+		$arr_params = $this->params()->fromQuery();
+		if (isset($arr_params['acrq']))
+		{
+			$acrq = $arr_params['acrq'];
+		}//end if
+
+		$request = $this->getRequest();
+		if ($request->isPost())
+		{
+			$arr_post_data = json_decode(file_get_contents('php://input'), true);
+			if (isset($arr_post_data['acrq']))
+			{
+				$acrq = $arr_post_data['acrq'];
+				unset($arr_post_data['acrq']);
+			}//end if
+		}//end if
+
+		try {
+			switch ($acrq)
+			{
+				case 'list-cached-reports':
+					$objCachedReports = $this->getReportsModel()->fetchCachedReports();
+					$arr_reports = array();
+					foreach($objCachedReports as $objReport)
+					{
+						$arr_reports[] = $objReport;
+					}//end foreach
+
+					$objData = new JsonModel(array(
+						'objReports' => (object) $arr_reports,
+					));
+					break;
+
+				case 'generate-cached-report':
+					$report_id = $arr_post_data['report_id'];
+					unset($arr_post_data['report_id']);
+
+					$report_type = $arr_post_data['report_type'];
+					unset($arr_post_data['report_type']);
+
+					if (isset($arr_post_data['download_option']))
+					{
+						$download = $arr_post_data['download_option'];
+						unset($arr_post_data['download_option']);
+					} else {
+						$download = 0;
+					}//end if
+
+					if ($download > 0)
+					{
+						$this->getReportsModel()->setDownloadFlag($download);
+					}//end if
+
+					$objResponse = $this->getReportsModel()->generateCachedReport($report_id, $report_type, $arr_post_data);
+					$objData = new JsonModel(array(
+						'objResponse' => $objResponse,
+					));
+					break;
+
+				case 'load-cached-report-content':
+					$objResponse = $this->getReportsModel()->fetchCachedReport($arr_params['id'], $arr_params['reference']);
+
+					$objData = new JsonModel(array(
+						'objResponse' => $objResponse,
+					));
+					break;
+			}//end function
+
+			if (isset($objData))
+			{
+				return $objData;
+			}//end if
+		} catch (\Exception $e) {
+			return new JsonModel(array(
+					'error' => 1,
+					'response' => $e->getMessage(),
+			));
+		}//end catch
+
+		return new JsonModel(array(
+				'error' => 1,
+				'response' => 'An invalid request has been received',
+		));
+	}//end function
+
+	public function compositeReportsAction()
+	{
+		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['reports-advanced'] != true)
+		{
+			$this->flashMessenger()->addInfoMessage('The requested view is not available');
+			return $this->redirect()->toRoute('front-report-viewer');
+		}//end if
+
+		$this->layout('layout/angular/app');
+
+		return array();
+	}//end function
+
 	public function indexDashboardsAction()
 	{
 		//load reports
-		$objReports = $this->getReportsModel()->fetchDashboards();
+		try {
+			$objReports = $this->getReportsModel()->fetchDashboards();
+		} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch
 
 		return array(
 				"objReports" => $objReports,
@@ -167,7 +863,12 @@ class ReportViewerController extends AbstractCoreActionController
 
 
 		//load the report requirements
-		$objReport = $this->getReportsModel()->fetchReportParameters($id, (array) $this->params()->fromQuery());
+		try {
+			$objReport = $this->getReportsModel()->fetchReportParameters($id, (array) $this->params()->fromQuery());
+		} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch
 
 		//generate the form
 		$form = $this->getReportsModel()->generateReportParametersForm($objReport->data->form);

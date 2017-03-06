@@ -15,7 +15,12 @@ class ReplaceFieldsController extends AbstractCoreActionController
 	public function indexAction()
 	{
 		//load the fields
-		$objFields = $this->getReplaceFieldsModel()->fetchReplaceFields($this->params()->fromQuery());
+		try {
+			$objFields = $this->getReplaceFieldsModel()->fetchReplaceFields($this->params()->fromQuery());
+		} catch (\Exception $e) {
+			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+			return $this->redirect()->toRoute('home');
+		}//end catch
 
 		return array(
 					"objFields" => $objFields,

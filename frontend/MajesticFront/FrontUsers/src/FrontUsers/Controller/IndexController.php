@@ -30,13 +30,13 @@ class IndexController extends AbstractCoreActionController
 
 		foreach ($objUsers as $objUser)
 		{
-			if ($objUser->active != 1)
+			if ($objUser->active != 1 || !isset($objUser->uname))
 			{
 				continue;
 			}//end if
 
 			$arr_data[] = (object) array(
-				'id' => $objUser->id,
+				'id' => $objUser->id * 1,
 				'uname' => $objUser->uname,
 			);
 		}//end foreach

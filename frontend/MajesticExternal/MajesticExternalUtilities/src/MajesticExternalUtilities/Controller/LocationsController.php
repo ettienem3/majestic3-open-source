@@ -16,17 +16,17 @@ class LocationsController extends AbstractCoreActionController
 		//request data
 		try {
 			$objData = $this->getExternalUtilitiesModel()->loadLocations("countries");
-			foreach ($objData as $k => $objCity)
+			foreach ($objData as $k => $objCountry)
 			{
-				if ($objCity->active != 1)
+				if ($objCountry->active != 1)
 				{
 					continue;
 				}//end if
 
 				$arr_data[] = array(
-					"id" 			=> $objCity->id,
-					"country" 		=> $objCity->country,
-					"code" 			=> $objCity->code,
+					"id" 			=> $objCountry->id,
+					"country" 		=> $objCountry->country,
+					"code" 			=> $objCountry->code,
 				);
 			}//end foreach
 

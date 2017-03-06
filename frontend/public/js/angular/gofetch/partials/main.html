@@ -1,0 +1,11 @@
+<div ng-include src="'/js/angular/gofetch/partials/menu.html'" class="container-menu"></div>
+
+<div class="row content main-page-container" ng-controller="HomeCtrl">
+	<div class="col-sm-9">
+		<!-- page activity indicator -->
+		<div ng-bind-html="pageActivity | sanitize"></div>
+			
+		<!-- initiate data loding process -->
+		<div data-ng-init="loadMainPageContent()"></div>
+	</div>
+</div>

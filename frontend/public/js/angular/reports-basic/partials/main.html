@@ -1,0 +1,184 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+		<div class="container-body">
+			<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+			
+			<!-- initiate data loding process -->
+			<div data-ng-init="loadInitData()"></div>
+			
+			<div class="">
+				<!-- select report to be generated seciont -->
+				<div class="pull-left col-md-3">
+					<div ng-show="load_reports_available"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+				
+					<div class="">
+						<div class="">
+							<div class="page-header"><h4>Generate Report</h4></div>
+							<div class="btn-group-vertical" role="group">
+								<!-- HTML Tables -->
+								<div class="btn-group" role="group" ng-show="objAvailableReportsGrouped.HTMLTable.reports.length > 0">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<div class="pull-left">HTML Tables <span class="caret"></span></div>
+										<div class="pull-right"><span class="badge">{{objAvailableReportsGrouped.HTMLTable.reports.length}}</span></div>
+										<div style="clear:both"></div>
+									</button>
+									<ul class="dropdown-menu">
+									  <li ng-repeat="objHtmlTableReport in objAvailableReportsGrouped.HTMLTable.reports track by objHtmlTableReport.id"><a href="" ng-click="requestReportForm(objHtmlTableReport)"><span title="{{objHtmlTableReport.description}}">{{objHtmlTableReport.display_title}}</span></a></li>
+									</ul>
+								</div>
+								
+								<!-- HTML Pages -->
+								<div class="btn-group" role="group" ng-show="objAvailableReportsGrouped.HTMLPage.reports.length > 0">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<div class="pull-left">HTML Pages <span class="caret"></span></div>
+										<div class="pull-right"><span class="badge">{{objAvailableReportsGrouped.HTMLPage.reports.length}}</span></div>
+										<div style="clear:both;"></div>
+									</button>
+									<ul class="dropdown-menu">
+									  <li ng-repeat="objHtmlPageReport in objAvailableReportsGrouped.HTMLPage.reports track by objHtmlPageReport.id"><a href="" ng-click="requestReportForm(objHtmlPageReport)"><span title="{{objHtmlPageReport.description}}">{{objHtmlPageReport.display_title}}</span></a></li>
+									</ul>
+								</div>
+								
+								<!-- Simple Charts -->
+								<div class="btn-group" role="group" ng-show="objAvailableReportsGrouped.SimpleChart.reports.length > 0">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<div class="pull-left">Simple Charts <span class="caret"></span></div>
+										<div class="pull-right"><span class="badge">{{objAvailableReportsGrouped.SimpleChart.reports.length}}</span></div>
+										<div style="clear:both;"></div>
+									</button>
+									<ul class="dropdown-menu">
+									  <li ng-repeat="objSimpleChartReport in objAvailableReportsGrouped.SimpleChart.reports track by objSimpleChartReport.id"><a href="" ng-click="requestReportForm(objSimpleChartReport)"><span title="{{objSimpleChartReport.description}}">{{objSimpleChartReport.display_title}}</span></a></li>
+									</ul>
+								</div>								
+								
+								<!-- CSV Files -->
+								<div class="btn-group" role="group" ng-show="objAvailableReportsGrouped.CSVFile.reports.length > 0">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<div class="pull-left">CSV Files <span class="caret"></span></div>
+										<div class="pull-right"><span class="badge">{{objAvailableReportsGrouped.CSVFile.reports.length}}</span></div>
+										<div style="clear:both;"></div>
+									</button>
+									<ul class="dropdown-menu">
+									  <li ng-repeat="objCSVFileReport in objAvailableReportsGrouped.CSVFile.reports track by objCSVFileReport.id"><a href="" ng-click="requestReportForm(objCSVFileReport)"><span title="{{objCSVFileReport.description}}">{{objCSVFileReport.display_title}}</span></a></li>
+									</ul>
+								</div>
+								
+								<!-- Coded Models -->
+								<div class="btn-group" role="group" ng-show="objAvailableReportsGrouped.CodedModel.reports.length > 0">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<div class="pull-left">Coded Models (CSV) <span class="caret"></span></div>
+										<div class="pull-right"><span class="badge">{{objAvailableReportsGrouped.CodedModel.reports.length}}</span></div>
+										<div style="clear:both;"></div>
+									</button>
+									<ul class="dropdown-menu">
+									  <li ng-repeat="objCodedModelReport in objAvailableReportsGrouped.CodedModel.reports track by objCodedModelReport.id"><a href="" ng-click="requestReportForm(objCodedModelReport)"><span title="{{objCodedModelReport.description}}">{{objCodedModelReport.display_title}}</span></a></li>
+									</ul>
+								</div>
+								
+								<!-- JSON -->
+								<div class="btn-group" role="group" ng-show="objAvailableReportsGrouped.JSON.reports.length > 0">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<div class="pull-left">JSON <span class="caret"></span></div>
+										<div class="pull-right"><span class="badge">{{objAvailableReportsGrouped.JSON.reports.length}}</span></div>
+										<div style="clear:both;"></div>
+									</button>
+									<ul class="dropdown-menu">
+									  <li ng-repeat="objJSONReport in objAvailableReportsGrouped.JSON.reports track by objJSONReport.id"><a href="" ng-click="requestReportForm(objJSONReport)"><span title="{{objJSONReport.description}}">{{objJSONReport.display_title}}</span></a></li>
+									</ul>
+								</div>										
+							</div>
+						</div>
+					</div>
+					<hr/>
+					<div class="">
+						 <div class="dropdown" id="select_report_id">
+							 <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">All Reports <span class="caret"></span></button>
+							 <ul class="dropdown-menu">
+								 <li ng-repeat="objReport in objAvailableReports track by objReport.id"><a href="" ng-click="requestReportForm(objReport)">{{objReport.display_title}}</a></li>
+							 </ul>
+						 </div>
+					</div>
+				</div>
+				
+				<!-- cached reports available -->
+				<div class="pull-right col-md-6">
+					<div ng-show="load_cached_reports_available"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+					<h4>Available Reports</h4>
+					
+					<div ng-show="cache_counter_active">
+						<div class="progress">
+							<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{cache_refresh_countdown}}" aria-valuemin="0" aria-valuemax="120" style="width: {{(cache_refresh_countdown / 120)  * 100}}%">
+								<span ng-show="cache_refresh_countdown > 10">Refresh in <span>{{cache_refresh_countdown}}</span> seconds</span>
+							</div> 
+						</div>
+						<div class="" ng-hide="load_cached_reports_available">
+							<button class="btn btn-primary" ng-click="listAvailableCachedReports()"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+						</div>
+					</div>
+													
+					<div class="" style="height: 250px; overflow: auto;">
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Report</th>
+									<th>Generated</th>
+									<th>Status</th>
+									<th>Format</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objCachedReport in objAvailableCachedReports track by objCachedReport.cache_id" ng-class="[objCachedReport.cache_status == 'complete' ? 'text-success' : '', objCachedReport.cache_status == 'failed' ? 'text-danger' : '']">
+									<td><span title="{{objCachedReport.report_description}}">{{objCachedReport.report_display_title}}</span></td>
+									<td>{{objCachedReport.cache_datetime}}</td>
+									<td><span style="text-transform: capitalize;">{{objCachedReport.cache_status}}</span></td>
+									<td>{{objCachedReport.report_generator_name}}</td>
+									<td>
+										<span ng-show="objCachedReport.cache_status == 'complete'">
+											<a href="" title="View Report Content" ng-click="loadCachedReport(objCachedReport)" ng-hide="load_cached_report_content"><span class="glyphicon glyphicon-eye-open"></span></a>
+											&nbsp;
+											<a href="" title="Remove report" ng-click="deleteCachedReport(objCachedReport)" ng-hide="load_cached_report_content"><span class="glyphicon glyphicon-trash"></span></a>
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+		
+		<!-- Report output container -->
+		<!-- <div class="col-sm-12" id="container_report_content" ng-bind-html="report_generated_content | sanitize"> -->
+		<div class="col-sm-12" id="container_report_content">
+		
+		</div>
+	</div>
+	
+	<!-- Report Parameters -->
+	<div ng-show="reportParamsFormState" id="reportParamsFormState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Set Report Parameters: <strong>{{reportParams.report_title}}</strong> <button ng-click="togglePanel('reportParamsFormState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-show="load_report_params_form"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+					
+					<!-- report params form -->
+					  <form novalidate role="form">
+						<formly-form model="reportParams.model" fields="reportParams.fields">
+						  	<button ng-show="!load_report_params_form" type="submit" class="btn btn-primary" ng-disabled="reportParams.form.$invalid" ng-click="reportParams.submitForm()">Request Report</button>
+						  	&nbsp;
+						  	<button ng-show="!load_report_params_form" type="submit" class="btn btn-success" ng-click="reportParams.clearForm()">Clear Values</button>
+						</formly-form>
+					 </form>					 				
+				</div>
+				<div class="panel-footer">
+					<button ng-click="togglePanel('reportParamsFormState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+</div>

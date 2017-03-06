@@ -2,6 +2,7 @@
 namespace FrontCommsAdmin\Controller;
 
 use FrontCore\Adapters\AbstractCoreActionController;
+use Zend\View\Model\JsonModel;
 
 class CommsController extends AbstractCoreActionController
 {
@@ -35,16 +36,306 @@ class CommsController extends AbstractCoreActionController
     	//load journey id
 		$this->setJourneyId();
 
-		//load journey details
-		$objJourney = $this->getJourneysModel()->fetchJourney($this->journey_id);
-
-        //load the comm
-        $objComms = $this->getCommsAdminModel()->fetchCommsAdmin(array("journey_id" => $this->journey_id));
+		try {
+			//load journey details
+			$objJourney = $this->getJourneysModel()->fetchJourney($this->journey_id);
+	
+	        //load the comm
+	        $objComms = $this->getCommsAdminModel()->fetchCommsAdmin(array("journey_id" => $this->journey_id));
+        } catch (\Exception $e) {
+        	$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+        	return $this->redirect()->toRoute('home');
+        }//end catch
+        
         return array(
         		"objJourney" => $objJourney,
         		"objComms" => $objComms,
         		"journey_id" => $this->journey_id
         );
+    }//end function
+    
+    public function ajaxRequestAction()
+    {
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['journeys'] != true)
+    	{
+    		return new JsonModel(array(
+    				'error' => 1,
+    				'response' => 'Requested functionality is not available',
+    		));
+    	}//end if
+
+    	$arr_params = $this->params()->fromQuery();
+    	if (isset($arr_params['acrq']))
+    	{
+    		$acrq = $arr_params['acrq'];
+    	}//end if
+    	
+    	$request = $this->getRequest();
+    	if ($request->isPost())
+    	{
+    		$arr_post_data = json_decode(file_get_contents('php://input'), true);
+  		
+    		if (isset($arr_post_data['acrq']))
+    		{
+    			$acrq = $arr_post_data['acrq'];
+    			unset($arr_post_data['acrq']);
+    		}//end if
+    		
+    		if (isset($arr_post_data['journey_id']))
+    		{
+    			$arr_params['journey_id'] = $arr_post_data['journey_id'];
+    		}//end if
+    		
+    		if (isset($arr_post_data['episode_id']))
+    		{
+    			$arr_params['episode_id'] = $arr_post_data['episode_id'];
+    		}//end if
+    	}//end if
+    	
+    	try {
+    		//validate the journey
+    		$objJourney = $this->getJourneysModel()->fetchJourney($arr_params['journey_id']);
+    		if (!is_object($objJourney) || $objJourney->get('id') != $arr_params['journey_id'])
+    		{
+    			$objResult = new JsonModel(array(
+    				'error' => 1,
+    				'response' => 'The requested Journey could not be located',
+    			));	
+    			return $objResult;
+    		}//end if
+    		
+    		switch ($acrq)
+    		{
+    			case 'load-journey-episodes':
+    				//load the comm
+    				$objComms = $this->getCommsAdminModel()->fetchCommsAdmin(array("journey_id" => $objJourney->get('id')));
+    				$arr_comms = array();
+    				foreach ($objComms as $objComm)
+    				{
+    					if (isset($objComm->id))
+    					{
+    						if ($objComm->date_expiry != '' && $objComm->date_expiry != '0000-00-00')
+    						{
+    							$t = strtotime($objComm->date_expiry);
+    							$objComm->date_expiry = date('d M Y', $t);
+    						}//end if
+    						
+    						foreach ($objComm as $k => $v)
+    						{
+    							if (is_numeric($v))
+    							{
+    								$objComm->$k = ($v * 1);
+    							}//end if
+    						}//end foreach
+    						
+    						$arr_comms[] = $objComm;
+    					}//end if
+    				}//end foreach
+    				
+    				$objResult = new JsonModel(array(
+    						'error' => 0,
+    						'objData' => (object) $arr_comms,
+    				));
+    				return $objResult;
+    				break;
+    				
+    			case 'load-journey-episode':
+    				$objEpisode = $this->getCommsAdminModel()->fecthCommAdmin($arr_params['episode_id']);
+    				
+    				if (!is_object($objEpisode) || $objEpisode->get('id') != $arr_params['episode_id'])
+    				{
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'The requested episode could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				//set some values before returning the data
+    				if ($objEpisode->get('date_expiry') != '' && $objEpisode->get('date_expiry') != '0000-00-00')
+    				{
+    					$t = strtotime($objEpisode->get('date_expiry'));
+    					$objEpisode->set('date_expiry', date('d M Y', $t));
+    				}//end if
+    				
+    				$objResult = new JsonModel(array(
+    						'error' => 0,
+    						'objData' => (object) $objEpisode->getArrayCopy(),
+    				));
+    				return $objResult;
+    				break;
+    				
+    			case 'load-episode-admin-form':
+    				//load the form
+    				$form = $this->getCommsAdminModel()->getCommsAdminForm(array("journey_id" => $arr_params['journey_id'], "comm_id" => $arr_params['episode_id']));
+    				
+    				//remove some fields from the form for existing episodes
+    				if (is_numeric($arr_params['episode_id']))
+    				{
+    					if ($form->has('comm_type_id'))
+    					{
+    						$form->remove('comm_type_id');
+    					}//end if
+    					
+    					if ($form->has('comm_via_id'))
+    					{
+    						$form->remove('comm_via_id');
+    					}//end if
+    				}//end if
+    				
+    				$objForm = $this->renderSystemAngularFormHelper($form, NULL);
+    				$objResult = new JsonModel(array(
+    						'objData' => $objForm,
+    				));
+    				return $objResult;
+    				break;
+    				
+    			case 'create-episode':
+    				$form = $this->getCommsAdminModel()->getCommsAdminForm(array("journey_id" => $arr_params['journey_id']));
+    				
+    				//add missing fields to data
+    				foreach ($form->getElements() as $objElement)
+    				{
+    					if (!isset($arr_post_data[$objElement->getName()]))
+    					{
+    						$arr_post_data[$objElement->getName()] = '';
+    					}//end if
+    				}//end foreach
+    				
+    				$form->setData($arr_post_data);
+    				if ($form->isValid())
+    				{
+    					$arr_data = (array) $form->getData();
+    					$arr_data['not_send_public_holidays'] = 1;
+    					
+    					$objEpisode = $this->getCommsAdminModel()->createCommsAdmin($arr_data);
+    					$objResult = new JsonModel(array(
+    						'error' => 0,
+    						'objData' => $objEpisode->getArrayCopy(),
+    					));
+    					return $objResult;
+    				} else {
+    					$objResult = new JsonModel(array(
+    							'error' => 0,
+    							'objData' => $objEpisode->getArrayCopy(),
+    					));
+    					return $objResult;
+    				}//end if
+    				break;
+    				
+    			case 'edit-episode':
+    				$objEpisode = $this->getCommsAdminModel()->fecthCommAdmin($arr_params['episode_id']);
+    				
+    				if (!is_object($objEpisode) || $objEpisode->get('id') != $arr_params['episode_id'])
+    				{
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'The requested episode could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$form = $this->getCommsAdminModel()->getCommsAdminForm(array("journey_id" => $arr_params['journey_id'], 'comm_id' => $arr_params['episode_id']));
+    				
+    				//add missing fields to data
+    				foreach ($form->getElements() as $objElement)
+    				{
+    					if (!isset($arr_post_data[$objElement->getName()]))
+    					{
+    						$arr_post_data[$objElement->getName()] = '';
+    					}//end if
+    				}//end foreach
+    				
+    				$arr_episode_data = $objEpisode->getArrayCopy();
+    				$form->bind($objEpisode);
+    				$form->setData($arr_post_data);
+    				if ($form->isValid())
+    				{
+    					$objEpisode = $form->getData();
+    					$objEpisode->set('not_send_public_holidays', 1);
+    					$objEpisode->set('comm_via_id', $arr_episode_data['comm_via_id']);
+    					$objEpisode->set('id', $arr_episode_data['id']);
+    					$objEpisode->set('journey_id', $arr_episode_data['journey_id']);
+					
+    					$this->getCommsAdminModel()->updateCommAdmin($objEpisode);
+    					$objResult = new JsonModel(array(
+    							'error' => 0,
+    							'objData' => $objEpisode->getArrayCopy(),
+    					));
+    					return $objResult;
+    				} else {
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'Form validation failed',
+    							'form_messages' => (object) $form->getMessages(),
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$this->getCommsAdminModel()->updateCommAdmin($objEpisode);
+    				$objResult = new JsonModel(array(
+    					'error' => 0,
+    					'objData' => (object) $objEpisode->getArrayCopy(),
+    				));
+    				return $objResult;
+    				break;
+    				
+    			case 'delete-episode':
+    				$objEpisode = $this->getCommsAdminModel()->fecthCommAdmin($arr_params['episode_id']);
+    				
+    				if (!is_object($objEpisode) || $objEpisode->get('id') != $arr_params['episode_id'])
+    				{
+    					$objResult = new JsonModel(array(
+    							'error' => 1,
+    							'response' => 'The requested episode could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$this->getCommsAdminModel()->deleteCommsAdmin($objEpisode->get('id'));
+    				
+    				$objResult = new JsonModel(array(
+    					'error' => 0,	
+    				));
+    				return $objResult;
+    				break;
+    				
+    			case 'toggle-episode-status':
+    				$objEpisode = $this->getCommsAdminModel()->fecthCommAdmin($arr_params['episode_id']);
+				
+    				if (!is_object($objEpisode) || $objEpisode->get('id') != $arr_params['episode_id'])
+    				{
+    					$objResult = new JsonModel(array(
+    						'error' => 1,
+    						'response' => 'The requested episode could not be located',
+    					));
+    					return $objResult;
+    				}//end if
+    				
+    				$objEpisode->set('active', (1 - $objEpisode->get('active')));
+    				$this->getCommsAdminModel()->updateCommStatus($objEpisode->get('id'));
+    				$objResult = new JsonModel(array(
+    					'error' => 0,
+    					'objData' => (object) $objEpisode->getArrayCopy(),
+    				));
+    				return $objResult;
+    				break;
+    		}//end switch
+    	} catch (\Exception $e) {
+    		$objResult = new JsonModel(array(
+    				'error' => 1,
+    				'response' => $this->frontControllerErrorHelper()->formatErrors($e),
+    				'raw_response' => $e->getMessage(),
+    		));
+    		return $objResult;
+    	}//end catch
+    	
+    	$objResult = new JsonModel(array(
+    			'error' => 1,
+    			'response' => 'Request type is not specified',
+    	));
+    	return $objResult;
     }//end function
 
     /**

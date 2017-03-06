@@ -1,0 +1,52 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<div ng-bind-html="global_wait_image | sanitize" ng-show="progress.active()"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="init()"></div>
+				<div>
+					<div ng-bind-html="pageTitle | sanitize"></div>
+					<a href="/front/comms/admin/journeys/app" class="btn btn-primary pull-left" title="Go to Journeys"><span class="glyphicon glyphicon-bullhorn"></span> Journeys</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+			</div>
+			
+			<div class ="row">
+				<div class="col-xs-10">
+					<div class="">
+						<h3 class="pull-left">Requests</h3>
+						<a href="#!/request" class="btn btn-success pull-right" title="Create a new request"><span class="glyphicon glyphicon-plus-sign"></span> Create Request</a>
+					</div>
+					<div class="clearboth"></div>
+					<hr/>
+					
+					<div class="">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Journey</th>
+									<th>Created</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="objRequest in objRecords track by objRequest.id">
+									<td>{{objRequest.id}}</td>
+									<td><span title="{{objRequest.journeys_description}}">{{objRequest.journeys_journey}}</span>
+									<td>{{objRequest.datetime_created}}</td>
+									<td><strong><span ng-bind-html="setRequestStatus(objRequest) | sanitize"></span></strong></td>	
+									<td>
+										<a href="#!/review/{{objRequest.id}}" title="View Request"><span class="glyphicon glyphicon-eye-open"></span></a>
+									</td>					
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+	</div>
+</div>

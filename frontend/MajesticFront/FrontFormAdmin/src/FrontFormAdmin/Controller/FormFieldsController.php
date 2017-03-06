@@ -290,6 +290,7 @@ class FormFieldsController extends AbstractCoreActionController
     		$arr_field_data["display_on_index"] 		= "0";
     		$arr_field_data["field_order"]				= "";
     		$arr_field_data["field_duplicate"]			= "";
+    		$arr_field_data["placeholder"]				= "";
 
     		$objFormField->set($arr_field_data);
     		$objFormField = $this->getFormAdminModel()->allocateFieldtoForm($objFormField, $objForm, $field_type);
@@ -363,7 +364,7 @@ class FormFieldsController extends AbstractCoreActionController
     				$objFormField = $this->getFormAdminModel()->updateFormField($objField);
 
     				//set success message
-    				$this->flashMessenger()->addSuccessMessage($objFormField->get("description") . " has been updated");
+    				$this->flashMessenger()->addSuccessMessage($objFormField->get("description") . " field has been updated");
     				//redirect to form page
     				return $this->redirect()->toRoute("front-form-admin/form", array("action" => "edit-form", "id" => $form_id));
     			} catch (\Exception $e) {

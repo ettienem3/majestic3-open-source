@@ -67,7 +67,7 @@ echo 	"</tr>";
 
 foreach ($this->objUserTasks as $objUserTask)
 {
-	if (!is_object($objUserTask) || !is_numeric($objUserTask->get("id")))
+	if (!is_object($objUserTask) || !method_exists($objUserTask, 'get') || !is_numeric($objUserTask->get("id")))
 	{
 		continue;
 	}//end if

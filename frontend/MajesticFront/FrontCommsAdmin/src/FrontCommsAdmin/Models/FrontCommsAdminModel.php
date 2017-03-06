@@ -21,22 +21,27 @@ class FrontCommsAdminModel extends AbstractCoreAdapter
 		if (is_numeric($arr_data["journey_id"]))
 		{
 			$objComms = $this->fetchCommsAdmin(array("journey_id" => $arr_data["journey_id"]));
-			$arr_comms = $objForm->get("send_after")->getOption("value_options");
-			foreach($objComms as $objComm)
+			
+			if ($objForm->has('send_after'))
 			{
-				if (!is_numeric($objComm->id))
+				$arr_comms = $objForm->get("send_after")->getOption("value_options");
+				foreach($objComms as $objComm)
 				{
-					continue;
-				}//end if
-
-				if (isset($arr_data["comm_id"]) && $arr_data["comm_id"] == $objComm->id)
-				{
-					continue;
-				}//end if
-
-				$arr_comms[$objComm->comm_num] = $objComm->comm_num . " : " . $objComm->subject;
-			}//end foreach
-			$objForm->get("send_after")->setValueOptions($arr_comms);
+					if (!is_numeric($objComm->id))
+					{
+						continue;
+					}//end if
+				
+					if (isset($arr_data["comm_id"]) && $arr_data["comm_id"] == $objComm->id)
+					{
+						continue;
+					}//end if
+				
+					$arr_comms[$objComm->comm_num] = $objComm->comm_num . " : " . $objComm->subject;
+				}//end foreach
+				
+				$objForm->get("send_after")->setValueOptions($arr_comms);
+			}//end if
 		}//end if
 
 		return $objForm;

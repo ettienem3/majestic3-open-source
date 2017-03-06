@@ -23,7 +23,7 @@ return array(
 									),
 							),
 					), //end front-contacts
-					
+
 					'front-contact-toolkit' => array(
 							'type' => 'segment',
 							'options' => array(
@@ -31,9 +31,9 @@ return array(
 									'defaults' => array(
 										'controller' => 'FrontContacts\Controller\ContactToolkit',
 									),
-							),				
+							),
 					), //end front-contact-toolkit
-					
+
 					'front-contact-comms' => array(
 							'type' => 'segment',
 							'options' => array(
@@ -57,12 +57,15 @@ return array(
 	),
 
     'view_manager' => array(
-    	'template_map' => array(
-    		"contact_send_comms_js" => __DIR__ . '/../view/front-contacts/index/contact_comms_js.phtml',
-    	),
-    		
-        'template_path_stack' => array(
-            __DIR__ . '/../view',
-        ),
+	    	'template_map' => array(
+	    		"contact_send_comms_js" => __DIR__ . '/../view/front-contacts/index/contact_comms_js.phtml',
+	    	),
+
+	        'template_path_stack' => array(
+	            __DIR__ . '/../view',
+	        ),
+    		'strategies' => array(
+    				'ViewJsonStrategy',
+    		),
     ),
 );

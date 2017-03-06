@@ -1,0 +1,121 @@
+<div id="container" class="container-fluid" ng-controller="ContactsViewCtrl">
+	<div class="row contact-row-container">
+			<div class="container-body container-contact-main">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadContact()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+				</div>
+				<div style="clear:both;"></div>
+				<h4 ng-show="objContactData.unsubscribe > 0">
+					<div>
+						<span class="alert alert-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>	
+								
+				<div>
+					<div class="pull-left">
+						<h5>Contact Details: {{objContactData.fname}} {{objContactData.sname}} (ID: {{objContactData.reg_id}})</h5>
+						<a href="/front/contacts/app#!/" title="Back to Main View"><span class="glyphicon glyphicon-arrow-left"></span></a>
+					</div>
+					<button class="btn btn-success pull-right contact-toolkit-toggle-button" ng-click="loadContactToolkit()" ng-show="objContactData.reg_id > 0" title="Additional Information" style="margin-left: 5px;"><span class="glyphicon glyphicon-list-alt"></span>&nbsp; More Info</button>
+					<button class="btn btn-warning pull-right" ng-click="togglePanel('changeFormLayoutPanel', true);" title="Change Form used to display details"><span class="glyphicon glyphicon-blackboard"></span>&nbsp; Change Layout</button>
+					<a href="#!/update/{{objContactData.reg_id}}" class="btn btn-danger pull-right" title="Update Contact Details" style="margin-right: 5px;"><span class="glyphicon glyphicon-pencil"></span>&nbsp; Edit Contact</a>
+					<button class="btn btn-primary pull-right" ng-click="loadContact()" title="Refresh" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp; Refresh</button>
+					<a href="/front/contacts/view-contact/{{objContactData.reg_id}}" title="Use old view" class="btn btn-default pull-right" style="margin-right: 5px;">Switch to old view</a>
+				</div>
+				<div style="clear: both"></div>
+				<div id="messages" class="alert alert-info" ng-show="messages" ng-bind="messages"></div>
+				<div ng-bind-html="pageContactLoadingContent | sanitize"></div>
+				<hr/>
+				
+				<div>
+					<form role="form" novalidate>
+						<formly-form model="vm.model" fields="vm.fields" form="vm.form" >
+						 
+						</formly-form>					
+					</form>
+				</div>
+				<hr/>
+				
+				<div class="mj3_systemfields clearfix">
+					<fieldset>
+						<div>
+							<legend>System Fields</legend>
+						</div>
+						<br/>
+						<table style="width: 100%;">
+							<tbody>
+								<tr>
+									<th>Source</th>
+									<td>
+										<h5>{{objContactData.source}}</h5>
+									</td>
+								</tr>
+								<tr>
+									<th>Reference</th>
+									<td>
+										<h5>{{objContactData.reference}}</h5>
+									</td>
+								</tr>
+								<tr>
+									<th>Status</th>
+									<td>
+										<span class="label" style="background-color: {{objContactData.registration_status_colour}}">{{objContactData.registration_status_status}}</span>
+									</td>
+								</tr>
+								<tr>
+									<th>User</th>
+									<td>
+										<h5>{{objContactData.user_fname}} {{objContactData.user_sname}} ({{objContactData.user_uname}})</h5>
+									</td>
+								</tr>
+								<tr>
+									<th>Last Updated</th>
+									<td><h5>{{objContactData.datetime_updated}}</h5></td>
+								</tr>
+								<tr>
+									<th>In Profile Since</th>
+									<td><h5>{{objContactData.datetime_created}}</h5></td>
+								</tr>
+								<tr ng-show="objContactData.unsubscribe > 0" style="background-color: #fce8e8;">
+									<td colspan="2"><strong>Contact is unsubscribed</strong></td>
+								</tr>		
+							</tbody>
+						</table>
+					</fieldset>
+
+				</div>
+			</div>
+			
+			<!-- Toolkit get published here -->
+			<div class="container-body container-contact-toolkit">
+
+			</div>
+	</div>
+	
+	<div ng-show="changeFormLayoutPanel" id="changeFormLayoutPanel" class="panel-show-right aside left am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Change Layout<button ng-click="togglePanel('changeFormLayoutPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body" id="change_panels_section">
+					<span class="wait-image" ng-bind-html="global_wait_image | sanitize"></span>
+					<ul>
+						<li ng-repeat="objForm in objCPPFormsList">
+							<a href="" title="Change layout to {{objForm.form}}" ng-click="loadCPPFormFields(objForm.id); togglePanel('changeFormLayoutPanel', false)">{{objForm.form}}</a>
+						</li>
+					</ul>
+				</div>
+				<div class="panel-footer">
+					<button ng-click="togglePanel('changeFormLayoutPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+</div>

@@ -22,8 +22,418 @@ class IndexController extends AbstractCoreActionController
     public function indexAction()
     {
      	//load links
-     	$objLinks = $this->getLinksModel()->fetchLinks($this->params()->fromQuery());
+     	try {
+     		$objLinks = $this->getLinksModel()->fetchLinks($this->params()->fromQuery());
+     	} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch 
+     	
      	return array("objLinks" => $objLinks);
+    }//end function
+
+    public function appAction()
+    {
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['links'] != true)
+    	{
+    		$this->flashMessenger()->addInfoMessage('The requested view is not available');
+    		return $this->redirect()->toRoute('front-links');
+    	}//end if
+
+     	$this->layout('layout/angular/app');
+
+    	//load the form
+    	$form = $this->getLinksModel()->getLinksForm();
+    	$objLinks = $this->getLinksModel()->fetchLinks();
+
+    	return array(
+    			'form' => $form,
+    			'objLinks' => $objLinks,
+    	);
+    }//end function
+
+    public function ajaxRequestAction()
+    {
+    	$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];
+    	if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['links'] != true)
+    	{
+    		return new JsonModel(array(
+    				'error' => 1,
+    				'response' => 'Requested functionality is not available',
+    		));
+    	}//end if
+
+    	$arr_params = $this->params()->fromQuery();
+    	if (isset($arr_params['acrq']))
+    	{
+    		$acrq = $arr_params['acrq'];
+    	}//end if
+
+    	$request = $this->getRequest();
+    	if ($request->isPost())
+    	{
+    		$arr_post_data = json_decode(file_get_contents('php://input'), true);
+    		if (isset($arr_post_data['acrq']))
+    		{
+    			$acrq = $arr_post_data['acrq'];
+    			unset($arr_post_data['acrq']);
+    		}//end if
+    	}//end if
+
+    	try {
+	    	switch ($acrq)
+	    	{
+	    		case 'index':
+	    			//load links
+	    			$objLinks = $this->getLinksModel()->fetchLinks($arr_params);
+	    			$objResult = new JsonModel(array(
+	    					'objData' => $objLinks,
+	    			));
+	    			return $objResult;
+	    			break;
+
+	    		case 'get':
+	    			$objLink = $this->getLinksModel()->fetchLink((int) $arr_params['id']);
+	    			$objResult = new JsonModel(array(
+	    					'error' => 0,
+	    					'response' => 'Data loaded',
+	    					'objData' => $objLink,
+	    			));
+	    			return $objResult;
+	    			break;
+
+	    		case 'toggleStatus':
+	    			$objLink = $this->getLinksModel()->fetchLink((int) $arr_params['id']);
+	    			$objLink->set("active", (1 - $objLink->get("active")));
+	    			$objLink = $this->getLinksModel()->updateLink($objLink);
+
+	    			$objResult = new JsonModel(array(
+	    					'error' => 0,
+	    					'response' => 'Data saved',
+	    					'objData' => $objLink,
+	    			));
+	    			return $objResult;
+	    			break;
+
+	    		case 'create':
+	    		case 'edit':
+	    			if ($request->isPost())
+	    			{
+	    				//load the form
+	    				$form = $this->getLinksModel()->getLinksForm();
+	    				$form->setData($arr_post_data);
+	    				if ($form->isValid())
+	    				{
+	    					if (isset($arr_post_data['id']))
+	    					{
+	    						$objLink = $this->getLinksModel()->fetchLink($arr_post_data['id']);
+								$objLink->set((array) $form->getData());
+								$objLink->set('id', $arr_post_data['id']);
+								$objLink = $this->getLinksModel()->updateLink($objLink);
+	    					} else {
+	    						//create link
+	    						$arr_data = $form->getData();
+	    						$objLink = $this->getLinksModel()->createLink($arr_data);
+	    					}//end if
+
+	    					//form is valid
+	    					$objResult = new JsonModel(array(
+	    							'error' => 0,
+	    							'response' => 'Data saved',
+	    							'objData' => $objLink,
+	    					));
+	    					return $objResult;
+	    				} else {
+	    					//form is invalid
+	    					$objResult = new JsonModel(array(
+	    							'error' => 1,
+	    							'response' => 'Data could not be validated',
+	    							'form_errors' => $form->getMessages(),
+	    					));
+	    					return $objResult;
+	    				}//end if
+	    			} else {
+	    				$objResult = new JsonModel(array(
+	    						'error' => 1,
+	    						'response' => 'Request type is invalid for operation requested',
+	    				));
+	    				return $objResult;
+	    			}//end if
+	    			break;
+
+	    		case 'delete':
+	    			$objLink = $this->getLinksModel()->fetchLink((int) $arr_params['id']);
+	    			$this->getLinksModel()->deleteLink($objLink->get('id'));
+	    			$objResult = new JsonModel(array(
+	    					'error' => 0,
+	    					'response' => 'Data removed',
+	    					'objData' => $objLink,
+	    			));
+	    			return $objResult;
+	    			break;
+	    			
+	    		case 'load-link-behaviours':
+	    			$objLink = $this->getLinksModel()->fetchLink((int) $arr_params['id']);
+	    			if ($objLink->get('id') != (int) $arr_params['id'])
+	    			{
+	    				$objResult = new JsonModel(array(
+	    					'error' => 1,
+	    					'response' => 'The requested link could not be located',
+	    				));
+	    				return $objResult;
+	    			}//end if
+	    			
+	    			//set data array to collect behaviours and pass url data to view
+	    			$arr_behaviour_params = array(
+	    					"link_id" => $arr_params['id'],
+	    					"behaviour" => "links",
+	    			);
+	    			
+	    			//load current link behaviours...
+	    			$objBehaviours = $this->getFrontBehavioursModel()->fetchBehaviourActions($arr_behaviour_params);
+	    			$arr_behaviours = array();
+	    			foreach($objBehaviours as $objBehaviour)
+	    			{
+	    				if (isset($objBehaviour->id))
+	    				{
+	    					if (isset($objBehaviour->hypermedia))
+	    					{
+	    						unset($objBehaviour->hypermedia);	
+	    					}//end if
+			
+	    					$objBehaviour->active = $objBehaviour->active * 1;
+	    					$objBehaviour->generic1 = $objBehaviour->generic1 * 1;
+	    					
+	    					$arr_behaviours[] = $objBehaviour;
+	    				}//end if
+	    			}//end foreach
+	    			
+	    			$objResult = new JsonModel(array(
+	    				'error' => 0,
+	    				'objData' => (object) $arr_behaviours,
+	    			));
+	    			return $objResult;
+	    			break;
+	    			
+	    		case 'load-link-available-behaviour-actions':
+	    			//load behaviours form
+	    			$arr_behaviour_params = array(
+	    					"link_id" => $arr_params['id'],
+	    					"behaviour" => "links",
+	    			);
+	    			$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm('links', $arr_behaviour_params);
+					$objForm = $arr_config_form_data['form'];
+					
+					$arr_actions = array();
+					foreach ($objForm->get('beh_action')->getValueOptions() as $k => $v)
+					{
+						$arr_actions[] = array('action' => $k, 'label' => $v);	
+					}//end foreach
+					
+					$objResult = new JsonModel(array(
+						'error' => 0,
+						'objData' => (object) $arr_actions,
+					));
+					return $objResult;
+	    			break;
+	    			
+	    		case 'load-link-behaviours-additional-data':
+	    			//load journeys
+	    			$objJourneys = $this->getLinksModel()->fetchAvailableJourneys();
+	    			$objStatuses = $this->getLinksModel()->fetchAvailableStatuses();
+	    			
+	    			$objResult = new JsonModel(array(
+	    				'error' => 0,
+	    				'objData' => (object) array(
+	    					'objJourneys' => $objJourneys,
+	    					'objStatuses' => $objStatuses,
+	    				),
+	    			));
+	    			return $objResult;
+	    			break;
+	    			
+	    		case 'create-link-behaviour':    	
+	    			try {
+		    			//load behaviours form
+		    			$arr_behaviour_params = array(
+		    					"behaviour" => "__links",
+		    					'beh_action' => $arr_post_data['beh_action'],
+		    			);
+						$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_behaviour_params);
+
+						//populate journeys
+						if ($form->has('fk_journey_id'))
+						{
+							$objJourneys = $this->getLinksModel()->fetchAvailableJourneys();
+							$arr_journeys = array();
+							foreach ($objJourneys as $objJourney)
+							{
+								$arr_journeys[$objJourney->id] = $objJourney->journey;
+							}//end foreach
+							$form->get('fk_journey_id')->setValueOptions($arr_journeys);
+						}//end if
+						
+						//populate statues
+						if ($form->has('fk_reg_status_id'))
+						{
+							$objStatuses = $this->getLinksModel()->fetchAvailableStatuses();
+							$arr_statuses = array();
+							foreach($objStatuses as $objStatus)
+							{
+								$arr_statuses[$objStatus->id] = $objStatus->status;	
+							}//end foreach
+							$form->get('fk_reg_status_id')->setValueOptions($arr_statuses);
+						}//end if
+						
+						$form->setData($arr_post_data);
+		    			if ($form->isValid())
+		    			{
+		    				$arr_form_data = (array) $form->getData();
+		    				$arr_form_data['fk_links_id'] = $arr_post_data['fk_links_id'];
+		    				$arr_form_data['behaviour'] = '__links';
+							$arr_form_data['event_runtime_trigger'] = 'post';
+							
+		    				$objBehaviour = $this->getFrontBehavioursModel()->createBehaviourAction($arr_form_data);
+		    				
+		    				$objResult = new JsonModel(array(
+		    					'error' => 0,
+		    					'objData' => (object) $objBehaviour->getArrayCopy(),
+		    				));
+		    				return $objResult;
+		    			} else {
+		    				$objResult = new JsonModel(array(
+		    					'error' => 1,
+		    					'response' => 'Form could not be validated, ' . print_r($form->getMessages(), TRUE),
+		    				));
+		    				return $objResult;
+		    			}//end if
+	    			} catch (\Exception $e) {
+	    				$objResult = new JsonModel(array(
+	    					'error' => 1,
+	    					'response' => $e->getMessage(),
+	    				));
+	    				return $objResult;
+	    			}//end catch
+	    			break;
+	    			
+	    		case 'update-link-behaviour':
+	    			try {
+	    				$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_post_data['id']);
+	    				
+	    				//load behaviours form
+	    				$arr_behaviour_params = array(
+	    						"behaviour" => "__links",
+	    						'beh_action' => $objBehaviour->get('action'),
+	    				);
+	    				$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_behaviour_params);
+	    			
+	    				//populate journeys
+	    				if ($form->has('fk_journey_id'))
+	    				{
+	    					$objJourneys = $this->getLinksModel()->fetchAvailableJourneys();
+	    					$arr_journeys = array();
+	    					foreach ($objJourneys as $objJourney)
+	    					{
+	    						$arr_journeys[$objJourney->id] = $objJourney->journey;
+	    					}//end foreach
+	    					$form->get('fk_journey_id')->setValueOptions($arr_journeys);
+	    				}//end if
+	    			
+	    				//populate statues
+	    				if ($form->has('fk_reg_status_id'))
+	    				{
+	    					$objStatuses = $this->getLinksModel()->fetchAvailableStatuses();
+	    					$arr_statuses = array();
+	    					foreach($objStatuses as $objStatus)
+	    					{
+	    						$arr_statuses[$objStatus->id] = $objStatus->status;
+	    					}//end foreach
+	    					$form->get('fk_reg_status_id')->setValueOptions($arr_statuses);
+	    				}//end if
+	    			
+	    				$form->setData($arr_post_data);
+	    				if ($form->isValid())
+	    				{
+	    					$arr_form_data = (array) $form->getData();
+							$objBehaviour->set($arr_form_data);
+	    						
+	    					$objBehaviour = $this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
+	    			
+	    					$objResult = new JsonModel(array(
+	    							'error' => 0,
+	    							'objData' => (object) $objBehaviour->getArrayCopy(),
+	    					));
+	    					return $objResult;
+	    				} else {
+	    					$objResult = new JsonModel(array(
+	    							'error' => 1,
+	    							'response' => 'Form could not be validated, ' . print_r($form->getMessages(), TRUE),
+	    					));
+	    					return $objResult;
+	    				}//end if
+	    			} catch (\Exception $e) {
+	    				$objResult = new JsonModel(array(
+	    						'error' => 1,
+	    						'response' => $e->getMessage(),
+	    				));
+	    				return $objResult;
+	    			}//end catch
+	    			break;
+	    			
+	    		case 'toggle-link-behaviour-status':
+	    			try {
+	    				$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_post_data['id']);
+	    				$objBehaviour->set('active', (1 - $objBehaviour->get('active')));
+	    				$this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
+	    				$objResult = new JsonModel(array(
+	    					'error' => 0,
+	    					'objData' => (object) $objBehaviour->getArrayCopy(),
+	    				));
+	    				return $objResult;
+	    			} catch (\Exception $e) {
+	    				$objResult = new JsonModel(array(
+	    						'error' => 1,
+	    						'response' => 'Behaviour could not be removed',
+	    						'raw_response' => $e->getMessage(),
+	    				));
+	    				return $objResult;
+	    			}//end catch
+	    			break;
+	    			
+	    		case 'delete-link-behaviour':
+	    			try {
+		    			$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_post_data['id']);
+		    			$this->getFrontBehavioursModel()->deleteBehaviourAction($objBehaviour);
+		    			
+		    			$objResult = new JsonModel(array(
+		    				'error' => 0,
+		    				'objData' => (object) array(),
+		    			));
+	    				return $objResult;
+	    			} catch (\Exception $e) {
+	    				$objResult = new JsonModel(array(
+	    					'error' => 1,
+	    					'response' => 'Behaviour could not be removed',
+	    					'raw_response' => $e->getMessage(),
+	    				));
+	    				return $objResult;
+	    			}//end catch
+	    			break;
+	    	}//end function
+    	} catch (\Exception $e) {
+    		$objResult = new JsonModel(array(
+    				'error' => 1,
+    				'response' => $e->getMessage(),
+    		));
+    		return $objResult;
+    	}//end catch
+
+    	$objResult = new JsonModel(array(
+    			'error' => 1,
+    			'response' => 'Request type is not specified',
+    	));
+    	return $objResult;
     }//end function
 
     /**

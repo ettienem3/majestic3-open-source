@@ -18,7 +18,13 @@ class IndexController extends AbstractCoreActionController
     public function indexAction()
     {
      	// get indexAction ViewModel
-     	$objCommsTemplates = $this->getCommsTemplatesModel()->getCommsTemplates($this->params()->fromQuery());
+     	try {
+     		$objCommsTemplates = $this->getCommsTemplatesModel()->getCommsTemplates($this->params()->fromQuery());
+     	} catch (\Exception $e) {
+     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+     		return $this->redirect()->toRoute('home');
+     	}//end catch
+     		
      	return array("objCommsTemplates" => $objCommsTemplates);
     } // end function
 
@@ -80,7 +86,12 @@ class IndexController extends AbstractCoreActionController
     	} // end if
 
     	// Get Comm Template specific row of data details
-    	$objCommTemplate = $this->getCommsTemplatesModel()->getCommTemplate($id);
+    	try {
+    		$objCommTemplate = $this->getCommsTemplatesModel()->getCommTemplate($id);
+    	} catch (\Exception $e) {
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+    		return $this->redirect()->toRoute('home');
+    	}//end catch    	
 
     	// Instantiate form
     	$form = $this->getCommsTemplatesModel()->getCommsTemplatesForm();
@@ -189,8 +200,8 @@ class IndexController extends AbstractCoreActionController
     		// Set Successful message
     		$this->flashMessenger()->addSuccessMessage("Comm Template Status updated");
     	} catch ( \Exception $e) {
-    		// Set Unsuccessfull message
-    		$this->flashMessenger()->addErrorMessage($e->getMessage());
+    		// Set unsuccessful message
+    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
     	}// end if
 
     	// Redirect to index page

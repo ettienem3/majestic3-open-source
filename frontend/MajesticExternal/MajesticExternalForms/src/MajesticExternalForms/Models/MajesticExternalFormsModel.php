@@ -22,6 +22,12 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 	 */
 	public function loadForm($form_id, $reg_id = NULL, $arr_additional_params = false)
 	{
+		ini_set('display_errors', 0);
+		if (isset($_GET['debug_display_errors']) && $_GET['debug_display_errors'] == 1)
+		{
+			ini_set('display_errors', 1);
+		}//end if
+
 		if (isset($_GET["cache_clear"]) && $_GET["cache_clear"] == 1)
 		{
 			try {
@@ -77,7 +83,10 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 			if ($objFormRawData->template_id != "0" && $objFormRawData->template_id != "")
 			{
 				$objLookAndFeel = self::loadFormLookAndFeel($objFormRawData->template_id, $form_id);
-				$arr_data["objLookAndFeel"] = $objLookAndFeel;
+				if (is_object($objLookAndFeel) && $objLookAndFeel->active == 1)
+				{
+					$arr_data["objLookAndFeel"] = $objLookAndFeel;
+				}//end if
 			}//end if
 
 			//save data to cache for reuse
@@ -87,6 +96,17 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 			} catch (\Exception $e) {
 				trigger_error($e->getMessage(), E_USER_WARNING);
 			}//end catch
+		} else {
+			//trigger call in background to record form comm history id activity where set
+			if (is_array($arr_additional_params) && isset($arr_additional_params['cid']) && $arr_additional_params['cid'] != '')
+			{
+				//set absolute path to console
+				$console_path = realpath('./MajesticExternal/MajesticExternalForms/console') . '/console.php';
+				$arr_request_data = array('form_id' => $form_id, 'reg_id' => $reg_id, 'comm_history_id' => $arr_additional_params['cid'], 'host' => $_SERVER['HTTP_HOST']);
+				$json = json_encode($arr_request_data, JSON_FORCE_OBJECT);
+				$str = 'php ' . $console_path . ' Formprocessaction execute TrackFormCommHistory --argument1=\'' . $json . '\' --host=\'' . $_SERVER['HTTP_HOST'] . '\'  > /dev/null 2>&1 &';
+				exec($str);
+			}//end if
 		}//end if
 
 		$arr_return = array();
@@ -145,6 +165,24 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 		$arr_return["objForm"] = $objForm;
 		$arr_return["objLookAndFeel"] = $arr_data["objLookAndFeel"];
 		$arr_return["objFormRawData"] = $arr_data["objFormRawData"];
+
+		//trigger pre config event for form
+		$objFormRawData = $arr_data["objFormRawData"];
+		$objLookAndFeel = $arr_data["objLookAndFeel"];
+
+		switch ($objFormRawData->form_types_behaviour)
+		{
+			case '__web':
+				//trigger event to allow external modules to set configuration where required
+				$result = $this->getEventManager()->trigger('web_form_post_config_load', $this, array('objFormRawData' => $objFormRawData, 'objLookAndFeel' => $objLookAndFeel, 'objForm' => $objForm));
+
+				//reassign data after event triggered
+				$arr_return["objForm"] = $objForm;
+				$arr_return["objFormRawData"] = $objFormRawData;
+				$arr_return["objLookAndFeel"] = $objLookAndFeel;
+				break;
+		}//end switch
+
 		return $arr_return;
 	}//end function
 
@@ -167,6 +205,19 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 
 		//execute request to load raw data
 		$objFormRawData = $objApiRequest->performGETRequest($arr_params)->getBody()->data;
+
+		//request look and feel data where set
+ 		if (isset($objFormRawData->template_id) && $objFormRawData->template_id > 0)
+ 		{
+ 			try {
+ 				$objLookAndFeel = self::loadFormLookAndFeel($objFormRawData->template_id, $form_id);
+ 				$objFormRawData->objLookAndFeel = $objLookAndFeel;
+ 			} catch (\Exception $e) {
+ 				//ignore layout errors
+ //@TODO implement error reporting here if needed
+ 			}//end catch
+ 		}//end if
+
 		return $objFormRawData;
 	}//end function
 
@@ -175,8 +226,9 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 	 * @param int $form_id
 	 * @param str $reg_id
 	 * @param str $comm_history_id
+	 * @param str $replace_content - base 64 encoded replace content
 	 */
-	public function loadContact($form_id, $reg_id, $comm_history_id = '')
+	public function loadContact($form_id, $reg_id, $comm_history_id = '', $replace_content = '')
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -185,12 +237,22 @@ class MajesticExternalFormsModel extends AbstractCoreAdapter
 		$objUserLoginDetails = $this->setUserLogin($form_id);
 		$objApiRequest->setAPIKey($objUserLoginDetails->api_key);
 
+		$replace_string = '';
+		if ($replace_content != '')
+		{
+			$arr_matches = array();
+			preg_match_all('/#(.*?)#/s', ($replace_content), $arr_matches);
+			if (count($arr_matches[0]) > 0)
+			{
+				$replace_string = '&' . http_build_query(array('replace_content' => $arr_matches[0]));
+			}//end if
+		}//end if
+
 		//request contact details from the api
-		$objApiRequest->setApiAction("contacts/$reg_id?fid=$form_id&cid=$comm_history_id");
+		$objApiRequest->setApiAction("contacts/$reg_id?fid=$form_id&cid=$comm_history_id" . $replace_string);
 
 		try {
 			$objContact = $objApiRequest->performGETRequest()->getBody()->data;
-
 			return $objContact;
 		} catch (\Exception $e) {
 			//@TODO do something with the error
@@ -229,7 +291,10 @@ var_dump($e->getMessage()); exit;
 		$objApiRequest->setApiAction("forms/external?fid=$form_id" . $add_params_str);
 
 		//remove some form values
-		unset($arr_form_data["captcha"]);
+		if (isset($arr_form_data["captcha"]))
+		{
+			unset($arr_form_data["captcha"]);
+		}//end if
 
 		//send data
 		$objResult = $objApiRequest->performPOSTRequest($arr_form_data)->getBody();
@@ -245,6 +310,38 @@ var_dump($e->getMessage()); exit;
 	public function getUserFormLogin($form_id)
 	{
 		return $this->setUserLogin($form_id);
+	}//end function
+
+	public function executeConsoleTask($objRequest)
+	{
+		//extract data
+		$objData = json_decode($objRequest->getParam("argument1"));
+		if (!is_object($objData))
+		{
+			throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : No data received", 500);
+		}//end if
+
+		switch ($objRequest->getParam("execute-task"))
+		{
+			case 'TrackFormCommHistory':
+				//create the request object
+				$objApiRequest = $this->getApiRequestModel();
+
+				//check if user is logged in
+				$objUserLoginDetails = $this->setUserLogin($objData->form_id);
+				$objApiRequest->setAPIKey($objUserLoginDetails->api_key);
+
+				//setup the object and specify the action
+				$objApiRequest->setApiAction("forms/external/" . $objData->form_id);
+				$arr_params = array('cid' => $objData->comm_history_id, 'fid' => $objData->form_id, 'reg_id' => $objData->reg_id);
+
+				//execute request to load raw data
+				$objForm = $objApiRequest->performGETRequest($arr_params)->getBody()->data;
+				return array($objForm);
+				break;
+		}//end switch
+
+		throw new \Exception(__CLASS__ . " : Line " . __LINE__ . " : An invalid console request has been received", 500);
 	}//end function
 
 	/**
@@ -274,9 +371,14 @@ var_dump($e->getMessage()); exit;
 					} else {
 						$arr_element["type"] = $arr_element["attributes"]["type"];
 					}//end if
-
 					break;
 			}//end switch
+
+			//check if field marked as a hidden field
+			if ($arr_element['hidden'] == 1)
+			{
+				$arr_element['type'] = 'hidden';
+			}//end if
 
 			//check if field is require, if not set additional options
 			if (!isset($arr_element["attributes"]["required"]))
@@ -331,7 +433,7 @@ var_dump($e->getMessage()); exit;
 
 			//check if data has been cached
 			$objData = $this->getFormsCacheModel()->readFormCache($cache_key);
-			if (!$objData || is_null($objData))
+			if (!$objData || is_null($objData) || !is_object($objData))
 			{
 				//create the request object
 				$objApiRequest = $this->getApiRequestModel();
@@ -341,6 +443,12 @@ var_dump($e->getMessage()); exit;
 
 				//load master user details
 				$arr_user = $this->getServiceLocator()->get("config")["master_user_account"];
+				//check for possible master accounts amalgamated in config array
+				if (count($arr_user['uname']) > 1)
+				{
+					echo '<h3>There is a possible problem with the configuration for this profile, please contact support to resolve.</h3>';
+					exit;
+				}//end if
 
 				//set api request authentication details
 				$objApiRequest->setAPIKey($arr_user['apikey']);
@@ -348,7 +456,7 @@ var_dump($e->getMessage()); exit;
 				$objApiRequest->setAPIUserPword(md5($arr_user['pword']));
 
 				//setup the object and specify the action
-				$objApiRequest->setApiAction("user/authenticate-form?debug_display_errors=1");
+				$objApiRequest->setApiAction("user/authenticate-form");
 
 				//set payload
 				$arr_data = array(

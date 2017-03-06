@@ -1,0 +1,936 @@
+<div id="container" class="container-fluid" ng-controller="HomeCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					
+					<div class="btn-group pull-right">
+						<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;Add <span class="caret"></button>
+						<ul class="dropdown-menu">
+							<li><a href="" ng-show="global_profile_config.plugins_enabled.forms_web == 1" ng-click="toggleFormPanel('createWebFormPanelState', '__web')" title="Create Web Form">Web Form</a></li>
+							<li><a href="" ng-show="global_profile_config.plugins_enabled.forms_cpp == 1" ng-click="toggleFormPanel('createCPPFormPanelState', '__cpp')" title="Create CPP Form">CPP Form</a></li>
+							<li><a href="" ng-show="global_profile_config.plugins_enabled.forms_trackers == 1" ng-click="toggleFormPanel('createTrackerFormPanelState', '__tracker')" title="Create Tracker Form">Tracker Form</a></li>
+							<li><a href="" ng-show="global_profile_config.plugins_enabled.forms_viral == 1" ng-click="toggleFormPanel('createViralFormPanelState', '__viral')" title="Create Referral Form">Referral Form</a></li>
+						</ul>
+					</div>
+					<button ng-click="refreshRecords()" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					<button ng-click="toggleFormPanel('filterFormsPanelState', true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-filter"></span>&nbsp;Filter</button>
+					<a href="/front/form/admin/form/index" title="Switch to old view" class="btn btn-default pull-right" style="margin-right: 5px;">Switch to old view</a>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+					<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Form</th>
+								<th>Type</th>
+								<th>Status</th>
+								<th>&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="objRecord in objRecords track by objRecord.id">
+								<td>{{objRecord.id}}</td>
+					        	<td>{{objRecord.form}}</td>
+					       	 	<td>{{objRecord.form_types_form_type}}</td>
+					       	 	<td>
+					       	 		<a href="" ng-click="submitToggleFormStatus(objRecord)" title="Toggle Status"><span ng-class="objRecord.active == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'" id="form_status_indicator_{{objRecord.id}}"></span></a>
+					       	 		<a href="" ng-show="objRecord.form_types_behaviour == '__web' || objRecord.form_types_behaviour == '__viral'" ng-click="submitClearFormCache(objRecord)" title="Clear Cache">&nbsp;<span class="glyphicon glyphicon-refresh" id="form_clear_cache_{{objRecord.id}}"></span></a>
+					       	 		<a href="" ng-show="objRecord.form_types_behaviour == '__web'" ng-click="loadFormStatistics(objRecord)" title="View Form Statistics">&nbsp;<span class="glyphicon glyphicon-dashboard"></span></a>
+					       	 	</td>
+					       	 	<td>
+									<a href="" title="Form Settings and Configuration" ng-click="setFormAdvancedConfigData(objRecord);toggleFormPanel('advancedConfigFormPanelState', objRecord.id, objRecord.form_types_behaviour)" ><span class="glyphicon glyphicon-cog"></span></a>
+									<a href="/forms/bf/{{objRecord.id}}" title="View Web Form" ng-show="objRecord.form_types_behaviour == '__web'" target="_blank"><span class="glyphicon glyphicon-eye-open"></span></a>
+									<a href="" title="Manage Form Behaviours" ng-click="toggleFormPanel('manageFormBehavioursPanelState', objRecord.id, objRecord.form_types_behaviour)" ng-show="objRecord.form_types_behaviour == '__web' || objRecord.form_types_behaviour == '__viral'" ><span class="glyphicon glyphicon-link"></span></a>
+									<a href="" title="Manage Form Fields" ng-click="toggleFormPanel('manageFormFieldsPanelState', objRecord.id, objRecord.form_types_behaviour)" ><span class="glyphicon glyphicon-th-list"></span></a>
+									<a href="" title="Form Summary" ng-click="toggleFormPanel('manageFormSummaryPanelState', objRecord.id, objRecord.form_types_behaviour)" ng-show="objRecord.form_types_behaviour == '__web' || objRecord.form_types_behaviour == '__viral'"><span class="glyphicon glyphicon-option-vertical"></span></a>
+									<a href="" title="Delete Form" ng-click="toggleFormPanel('deleteFormPanelState', objRecord.id, objRecord.form_types_behaviour)" ng-hide="{{objRecord.flag_prevent_delete}} > 0"><span class="glyphicon glyphicon-trash"></span></a>
+					       	 	</td>
+					    	</tr>
+						</tbody>
+					</table>
+		</div>	
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+	
+	<!-- Filter Forms -->
+	<div ng-show="filterFormsPanelState" id="filterFormsPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Filter Forms</span><button ng-click="toggleFormPanel('filterFormsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <form novalidate role="form">
+							<formly-form model="formFilter.model" fields="formFilter.fields" form="formFilter.form" options="formFilter.options">
+							  	<button type="submit" class="btn btn-primary" ng-disabled="progress.active() || formFilter.form.$invalid" ng-click="formFilter.submitForm()">Filter Data</button>
+							  	&nbsp;
+							  	<button type="submit" class="btn btn-success" ng-click="formFilter.clearForm()">Clear Filter</button>
+							</formly-form>
+						 </form>			 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('filterFormsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Form Statistics -->
+	<div ng-show="formStatisticsPanelState" id="formStatisticsPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Form Statistics</span><button ng-click="toggleFormPanel('formStatisticsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+			 			  <div ng-show="objFormStatistics">
+			 			  	<div class="col-md-4">
+			 			  		<table st-table="formStatsTableSummary" st-safe-src="rowCollection" class="table table-striped">
+			 			  			<tr>
+			 			  				<td>Number of times completed</td>
+			 			  				<td>{{objFormStatistics.objStats.completed_count}}</td>
+			 			  			</tr>
+			 			  			<tr>
+			 			  				<td>Number of individual Contacts</td>
+			 			  				<td>{{objFormStatistics.objStats.distinct_contacts_count}}</td>
+			 			  			</tr>
+			 			  			<tr>
+			 			  				<td>First Completed</td>
+			 			  				<td>{{objFormStatistics.objStats.first_completed}}</td>
+			 			  			</tr>		
+			 			  			<tr>
+			 			  				<td>Last Completed</td>
+			 			  				<td>{{objFormStatistics.objStats.last_completed}}</td>
+			 			  			</tr>				 			  				 			  			
+			 			  		</table>
+			 			  		<hr/>
+			 			  	</div>
+			 			  	
+			 			  	<!-- placeholder for the chart -->
+			 			  	<div id="formStatsChart" ng-show="objFormStatistics.objStats.timelapse.length > 0" style="margin: 20px;">
+
+			 			  	</div>
+			 			  	
+			 			  	<!-- toggle chart type -->
+			 			  	<div>
+								<div class="dropup">
+								  <button class="btn btn-default dropdown-toggle" type="button" id="toggleStatsChartType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								    Chart Options
+								    <span class="caret"></span>
+								  </button>
+								  <ul class="dropdown-menu" aria-labelledby="toggleStatsChartType">
+								    <li><a href="" ng-click="toggleFormStatisticsChart({chart_type: 'line'})">Show Line Chart</a></li>
+								    <li><a href="" ng-click="toggleFormStatisticsChart({chart_type: 'column'})">Show Column Chart</a></li>
+								    <li><a href="" ng-click="toggleFormStatisticsChart({chart_type: 'bar'})">Show Bar Chart</a></li>
+								    <li><a href="" ng-click="toggleFormStatisticsChart({chart_type: 'spline'})">Show Spline Chart</a></li>
+								    <li><a href="" ng-click="toggleFormStatisticsChart({chart_type: 'area'})">Show Area Chart</a></li>
+								    <li role="separator" class="divider"></li>
+								    <li><a href="" ng-click="toggleFormStatisticsChart({form_stats_show_raw_data: true})">Display / Hide Data</a></li>
+								  </ul>
+								</div>			 			  		
+			 			  	</div>
+			 			  	
+			 			  	<div ng-show="form_stats_show_raw_data" class="col-md-2">
+			 			  		<table id="formStatsChartData" st-table="formStatsTableRawData" st-safe-src="rowCollection" class="table table-striped">
+			 			  			<thead>
+								        <tr>
+								            <th></th>
+								            <th>Forms Completed</th>
+								            <th>Unique Contacts</th>
+								        </tr>
+								    </thead>
+								    <tbody>
+								    	<tr ng-repeat="objStatsData in objFormStatistics.objStats.timelapse">
+								    		<th>{{objStatsData.time_frame}}</th>
+								    		<td>{{objStatsData.count}}</td>
+								    		<td>{{objStatsData.contacts}}</td>
+								    	</tr>
+								    </tbody>
+			 			  		</table>
+			 			  	</div>
+			 			  </div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('formStatisticsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+			
+	<!-- Create web form -->
+	<div ng-show="createWebFormPanelState" id="createWebFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Create Web Form</span><button ng-click="toggleFormPanel('createWebFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-controller="WebFormCtrl">
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <form novalidate role="form">
+						  		<!-- Manage errors until these can be displayed with elements... -->
+						  		<div ng-show="vm.fields.objCustomErrors.length > 0">
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="bg-danger">
+												<div><strong>Validation Problems: </strong></div>
+												<div ng-repeat="err in vm.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+									                <i class="glyphicon glyphicon-remove"></i>
+									                <span>
+									                    {{err.message}}
+									                </span>
+									            </div>
+											</div>
+										</div>
+									</div>
+									<hr/>
+								</div>
+								
+							<formly-form model="vm.model" fields="vm.fields" form="vm.form" options="vm.options">														
+								<div>
+									<button type="submit" class="btn btn-primary pull-right" ng-disabled="progress.active() || vm.form.$invalid" ng-click="vm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+									<button type="submit" class="btn btn-danger pull-right" style="margin-right: 5px;" ng-disabled="progress.active()" ng-click="vm.clearForm()"><span class="glyphicon glyphicon-erase"></span> Reset</button>
+								</div>
+								<div style="clear: both;"></div>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('createWebFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Create tracker form -->
+	<div ng-show="createTrackerFormPanelState" id="createTrackerFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Create Tracker</span><button ng-click="toggleFormPanel('createTrackerFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-controller="TrackerFormCtrl">
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <form novalidate role="form">
+						  		<!-- Manage errors until these can be displayed with elements... -->
+						  		<div ng-show="vm.fields.objCustomErrors.length > 0">
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="bg-danger">
+												<div><strong>Validation Problems: </strong></div>
+												<div ng-repeat="err in vm.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+									                <i class="glyphicon glyphicon-remove"></i>
+									                <span>
+									                    {{err.message}}
+									                </span>
+									            </div>
+											</div>
+										</div>
+									</div>
+									<hr/>
+								</div>
+														  
+							<formly-form model="vm.model" fields="vm.fields" form="vm.form" options="vm.options">
+								<div>
+									<button type="submit" class="btn btn-primary pull-right" ng-disabled="progress.active() || vm.form.$invalid" ng-click="vm.submitForm(vm.model)"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+								</div>
+							  	<div style="clear: both;"></div>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('createTrackerFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Create cpp form -->
+	<div ng-show="createCPPFormPanelState" id="createCPPFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Create Contact Profile Form</span><button ng-click="toggleFormPanel('createCPPFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-controller="CPPFormCtrl">
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <form novalidate role="form">
+						  		<!-- Manage errors until these can be displayed with elements... -->
+						  		<div ng-show="vm.fields.objCustomErrors.length > 0">
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="bg-danger">
+												<div><strong>Validation Problems: </strong></div>
+												<div ng-repeat="err in vm.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+									                <i class="glyphicon glyphicon-remove"></i>
+									                <span>
+									                    {{err.message}}
+									                </span>
+									            </div>
+											</div>
+										</div>
+									</div>
+									<hr/>
+								</div>
+														  
+							<formly-form model="vm.model" fields="vm.fields" form="vm.form" options="vm.options">
+								<div>
+									<button type="submit" class="btn btn-primary pull-right" ng-disabled="progress.active() || vm.form.$invalid" ng-click="vm.submitForm(vm.model)"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+								</div>
+							  	<div style="clear: both;"></div>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('createCPPFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+	
+	<!-- Create viral form -->
+	<div ng-show="createViralFormPanelState" id="createViralFormPanelState" class="panel-show-left aside left am-slide-left">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Create Referral Form</span><button ng-click="toggleFormPanel('createViralFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-controller="ViralFormCtrl">
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <form novalidate role="form">
+						  		<!-- Manage errors until these can be displayed with elements... -->
+						  		<div ng-show="vm.fields.objCustomErrors.length > 0">
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="bg-danger">
+												<div><strong>Validation Problems: </strong></div>
+												<div ng-repeat="err in vm.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+									                <i class="glyphicon glyphicon-remove"></i>
+									                <span>
+									                    {{err.message}}
+									                </span>
+									            </div>
+											</div>
+										</div>
+									</div>
+									<hr/>
+								</div>
+														  
+							<formly-form model="vm.model" fields="vm.fields" form="vm.form" options="vm.options">
+								<div>
+									<button type="submit" class="btn btn-primary pull-right" ng-disabled="progress.active() || vm.form.$invalid" ng-click="vm.submitForm(vm.model)"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+								</div>
+							  	<div style="clear: both;"></div>
+							</formly-form>
+						 </form>				 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('createViralFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>		
+	
+	<!-- Advanced form config -->
+	<div ng-show="advancedConfigFormPanelState" id="advancedConfigFormPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Advanced Form Configuration - <strong>Form: {{objAdvancedFormConfig.form}}, ID: {{objAdvancedFormConfig.id}}, Type: {{objAdvancedFormConfig.form_types_form_type}}</strong></span><button ng-click="toggleFormPanel('advancedConfigFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div class="col-md-2 pull-left">
+						<div class="btn-group-vertical">
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_form_details')" 					ng-class="formAdvancedConfig.currentSection == '_form_details' ? 'btn-primary' : 'btn-default'" 		  																																			ng-disabled="formAdvancedConfig.progress.active()"	>Form Details</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_appearance_and_content')" 		ng-class="formAdvancedConfig.currentSection == '_appearance_and_content' ? 'btn-primary' : 'btn-default'" ng-show="objAdvancedFormConfig.form_types_behaviour == '__web' || objAdvancedFormConfig.form_types_behaviour == '__viral'"				ng-disabled="formAdvancedConfig.progress.active()"	>Appearance and Content</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_window_options')" 				ng-class="formAdvancedConfig.currentSection == '_window_options' ? 'btn-primary' : 'btn-default'"		  ng-show="objAdvancedFormConfig.form_types_behaviour == '__web'"																			ng-disabled="formAdvancedConfig.progress.active()"	>Window Options</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_default_values')" 				ng-class="formAdvancedConfig.currentSection == '_default_values' ? 'btn-primary' : 'btn-default'"		  ng-show="objAdvancedFormConfig.form_types_behaviour == '__web' || objAdvancedFormConfig.form_types_behaviour == '__viral'"				ng-disabled="formAdvancedConfig.progress.active()"	>Default Values</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_javascript_options')" 			ng-class="formAdvancedConfig.currentSection == '_javascript_options' ? 'btn-primary' : 'btn-default'"	  ng-show="objAdvancedFormConfig.form_types_behaviour == '__web'"																			ng-disabled="formAdvancedConfig.progress.active()"	>Javascript</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_notifications_section')" 			ng-class="formAdvancedConfig.currentSection == '_notifications_section' ? 'btn-primary' : 'btn-default'"  ng-show="objAdvancedFormConfig.form_types_behaviour == '__web'  || objAdvancedFormConfig.form_types_behaviour == '__viral'"				ng-disabled="formAdvancedConfig.progress.active()"	>Notifications</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_form_security')" 					ng-class="formAdvancedConfig.currentSection == '_form_security' ? 'btn-primary' : 'btn-default'"		  ng-show="objAdvancedFormConfig.form_types_behaviour == '__web'"																			ng-disabled="formAdvancedConfig.progress.active()"	>Security</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_viral_section')" 					ng-class="formAdvancedConfig.currentSection == '_viral_section' ? 'btn-primary' : 'btn-default'"		  ng-show="objAdvancedFormConfig.form_types_behaviour == '__viral'"																			ng-disabled="formAdvancedConfig.progress.active()"	>Referral Options</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_tracker_section')" 				ng-class="formAdvancedConfig.currentSection == '_tracker_section' ? 'btn-primary' : 'btn-default'"		  ng-show="objAdvancedFormConfig.form_types_behaviour == '__tracker' || objAdvancedFormConfig.form_types_behaviour == '__sales_funnel'"		ng-disabled="formAdvancedConfig.progress.active()"	>Tracker Options</button>
+							<button type="button" class="btn" style="margin: 5px;" ng-click="formAdvancedConfig.loadFormSection('_cpp_section')" 					ng-class="formAdvancedConfig.currentSection == '_cpp_section' ? 'btn-primary' : 'btn-default'"		  	  ng-show="objAdvancedFormConfig.form_types_behaviour == '__cpp'"																			ng-disabled="formAdvancedConfig.progress.active()"	>Contact Profile Options</button>
+						</div>
+					</div>
+					<div class="col-md-8 pull-left" style="margin-left: 10px;">					
+					    <div ng-show="formAdvancedConfig.fields.length == 0">Select section on the left</div>
+					    <div ng-show="formAdvancedConfig.fields.length > 0">				    
+					    	  <div id="advanced_form_config_indicator" ng-show="formAdvancedConfig.progress.active()"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							  <form novalidate role="form">
+								<formly-form model="formAdvancedConfig.model" fields="formAdvancedConfig.fields">
+								
+									<hr/>
+								  <button type="submit" class="btn btn-primary" ng-disabled="formAdvancedConfig.progress.active() || formAdvancedConfig.form.$invalid" ng-click="formAdvancedConfig.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+								</formly-form>
+							 </form>
+						</div>				 
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('advancedConfigFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+		
+	<!-- Manage form behaviours -->
+	<div ng-show="manageFormBehavioursPanelState" id="manageFormBehavioursPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span class="panel-title-text">Manage Form Behaviours</span><button ng-click="toggleFormPanel('manageFormBehavioursPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div class="pull-left col-md-6">
+						<div class="panel panel-success">
+							<div class="panel-heading">
+								<div class="pull-left">
+									<h3 class="panel-title">Form Behaviours</h3>
+								</div>
+								<div style="clear: both;"></div>
+							</div>
+							<div class="panel-body">
+								<div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      		<div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+								<table st-table="displayedCollection" ng-show="progress.active() == false" st-safe-src="rowCollection" class="table table-striped">
+									<thead>
+										<tr>
+											<th>Action</th>
+											<th>Status</th>
+											<th>&nbsp;</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="objBehaviour in objFormBehaviours track by objBehaviour.id">
+								        	<td><span title="{{objBehaviour.description}}">{{objBehaviour.action_title}}</span></td>
+								       	 	<td>
+								       	 		<a href="" ng-click="submitToggleFormBehaviourStatus(objBehaviour)" title="Toggle Status"><span ng-class="objBehaviour.active == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'" id="form_behaviour_status_indicator_{{objBehaviour.id}}"></span></a>
+								       	 	</td>
+								       	 	<td>
+												<a href="" title="Update Form Behaviour" ng-click='updateFormBehaviour(objBehaviour)'><span class="glyphicon glyphicon-pencil"></span></a>
+												<a href="" title="Delete Form" ng-click='deleteFormBehaviour(objBehaviour)' style='color: red;'><span class="glyphicon glyphicon-trash"></span></a>
+								       	 	</td>
+								    	</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="pull-left col-md-4" style="margin-left: 10px;">
+						<div class="" ng-show="display_behaviour_button">
+							<a href="" ng-click="loadBehaviourConfigOptions()"><button class="btn btn-primary">Add Behaviour</button></a><br/>
+							<div id="form_behaviour_config_selection_section" ng-show="display_behaviour_button_display_selection">
+								<div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+								<div class="dropdown open" ng-show="objAvailableBehaviourOptions.length > 0">
+									<button class="btn btn-secondary dropdown-toggle" type="button" id="behaviourOptionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Select Behaviour
+									</button>
+									<div class="dropdown-menu">
+										<ul class="nav">
+											<li ng-repeat="objBehaviourOption in objAvailableBehaviourOptions" class="nav-item">
+												<a href="" class="dropdown-item nav-item" title="Add Behaviour to form" ng-click="createFormBehaviourOption(objBehaviourOption.key)">{{objBehaviourOption.label}}</a>
+											</li>
+										</ul>	
+									</div>	
+								</div>
+								<br/>
+								<!-- config form -->
+								<div ng-show="form_behaviour_config_settings_form" style="position: relative; top: 0px; left: 0px; z-index:101;">
+									<!-- Dialog content -->
+									<div class="panel panel-primary">
+											<div class="panel-heading">
+												<h3 class="panel-title">Configure Behaviour<button ng-click="closeBehaviourConfigForm()" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+											</div>
+											<div class="panel-body">
+												<div ng-show="beh_config_form_loading" style="font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+												  <form novalidate role="form">
+												  		<!-- Manage errors until these can be displayed with elements... -->
+												  		<div ng-show="beh.fields.objCustomErrors.length > 0">
+															<div class="row">
+																<div class="col-xs-12">
+																	<div class="bg-danger">
+																		<div><strong>Validation Problems: </strong></div>
+																		<div ng-repeat="err in beh.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+															                <i class="glyphicon glyphicon-remove"></i>
+															                <span>
+															                    {{err.message}}
+															                </span>
+															            </div>
+																	</div>
+																</div>
+															</div>
+															<hr/>
+														</div>
+																				  
+													<formly-form model="beh.model" fields="beh.fields" form="beh.form" options="beh.options">
+													  <button type="submit" class="btn btn-primary" ng-disabled="beh_config_form_loading == true || beh.form.$invalid" ng-click="beh.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+													</formly-form>
+												 </form>
+											</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('manageFormBehavioursPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+		
+	<!-- Manage form fields -->
+	<div ng-show="manageFormFieldsPanelState" id="manageFormFieldsPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Manage Form Fields&nbsp;<span id="manageFormFieldsPanelStateTitle"></span><button ng-click="toggleFormPanel('manageFormFieldsPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div ng-controller="FormFieldsCtrl">
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+					      	<div ng-show="progress.active() == false"></div>
+					      	<div ng-show="progress.active() == false">
+					      		<div class="pull-left col-md-6" style="margin-right: 10%; margin-bottom: 10px;">
+					      			<!-- Allocate new fields -->
+					      			<!-- Standard fields -->
+									<div class="pull-left">
+								      <h6 class="heading">Allocate Standard Field</h6>
+										<ui-select ng-model="objData.selected_std_field" ng-disabled="objData.selected_std_field.disabled" on-select="selectStdFieldOnSelect($item)" append-to-body='false' reset-search-input="true" theme="bootstrap" style="min-width: 250px;" title="Search for a Standard Field">
+										    <ui-select-match placeholder="Select a field">{{$select.selected.description}}</ui-select-match>
+										    <ui-select-choices position="down" repeat="objField in objData.arr_std_fields | propsFilter: {description: $select.search, field: $select.search}">
+										      <div ng-bind-html="objField.display_name | highlight: $select.search"></div>
+										    </ui-select-choices>
+										</ui-select>									  
+									</div>
+									
+					      			<!-- Custom fields -->
+									<div class="pull-right">
+									  <h6 class="heading">Allocate Custom Field</h6>
+										<ui-select ng-model="objData.selected_custom_field" ng-disabled="objData.selected_custom_field.disabled" on-select="selectCustomFieldOnSelect($item)" append-to-body='false' reset-search-input="true" theme="bootstrap" style="min-width: 250px;" title="Search for a Custom Field">
+										    <ui-select-match placeholder="Select a field">{{$select.selected.description}}</ui-select-match>
+										    <ui-select-choices position="down" repeat="objField in objData.arr_custom_fields | propsFilter: {description: $select.search, field: $select.search}">
+										      <div ng-bind-html="objField.display_name | highlight: $select.search"></div>
+										    </ui-select-choices>
+										</ui-select>									  
+									</div>									
+					      		</div>
+					      	</div>
+					      	<div style="clear: both;"></div>
+					      	<div class="pull-left col-md-6">
+					      	<div class="panel panel-success">
+								<div class="panel-heading">
+									<h3 class="panel-title">Allocated Fields</h3>
+								</div>
+								<div class="panel-body">
+									<div>
+										<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+											<thead>
+												<tr>
+													<th>Field</th>
+													<th>Description</th>
+													<th>Type</th>
+													<th>Status</th>
+													<th>Mandatory</th>
+													<th>Populate</th>
+													<th>&nbsp;</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr ng-repeat="objField in objData.objFormFields track by objField.id">
+													<td>{{objField.fields_field}}</td>
+										        	<td>{{objField.fields_description}}</td>
+										        	<td>{{objField.fields_field_type}}</td>
+										       	 	<td>
+										       	 		<a href="" ng-click="changeFormFieldStatus(objField)" title="Toggle Status"><span ng-class="{{objField.active}} == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'" id="form_field_status_indicator_{{objField.id}}"></span></a>
+										       	 	</td>
+										       	 	<td>
+										       	 		<span ng-class="{{objField.mandatory}} == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'" id="form_field_mandatory_indicator_{{objField.id}}"></span>
+										       	 	</td>
+										       	 	<td>
+										       	 		<span ng-class="{{objField.populate}} == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'" id="form_field_populate_indicator_{{objField.id}}"></span>
+										       	 	</td>										       	 	
+										       	 	<td>
+														<a href="" title="Update Field" ng-click="updateFormField(objField)"><span class="glyphicon glyphicon-pencil"></span></a>
+														<a href="" title="Manage Field Behaviours" ng-click="manageFormFieldBehaviours(objField)"><span class="glyphicon glyphicon-link"></span></a>
+														<a href="" title="Remove Field" ng-click="removeFormField(objField)"><span class="glyphicon glyphicon-trash"></span></a>
+										       	 	</td>
+										    	</tr>
+											</tbody>
+										</table>
+									</div>
+									
+									<!-- Order Fields -->
+									<div class="" ng-show="progress.active() == false">
+										<div class="">
+											<button class="btn btn-success pull-right" ng-click="loadFormFieldOrderData(objData.objFormFields)"><span class="glyphicon glyphicon-sort-by-attributes"></span> Order Fields</button>
+										</div>							
+										<div style="clear: both;"></div>			
+										<hr/>
+										<!-- http://marceljuenemann.github.io/angular-drag-and-drop-lists/demo -->
+										<div class="simpleOrderList" ng-show="fieldOrderModel.active == true && progress.active() == false">
+											<!-- The dnd-list directive allows to drop elements into it.
+											     The dropped data will be added to the referenced list -->
+											<ul dnd-list="fieldOrderModel.list">
+											    <!-- The dnd-draggable directive makes an element draggable and will
+											         transfer the object that was assigned to it. If an element was
+											         dragged away, you have to remove it from the original list
+											         yourself using the dnd-moved attribute -->
+											    <li ng-repeat="objField in fieldOrderModel.list"
+											        dnd-draggable="objField"
+											        dnd-moved="fieldOrderModel.removeField(event, $index, objField)"
+											        dnd-effect-allowed="move"
+											        dnd-selected="fieldOrderModel.selected = objField"
+											        ng-class="{'selected': fieldOrderModel.selected === item}"
+											        >
+											        <span class="glyphicon glyphicon-resize-vertical"></span> {{objField.label}}
+											    </li>
+											</ul>
+											<br/>
+											<div class="">
+												<button class="btn btn-primary" ng-click="fieldOrderModel.submitData()"><span class="glyphicon glyphicon-cloud-upload"></span> Save Order</button>
+											</div>
+											<div style="clear: both;"></div>	
+											<hr/>									
+										</div>																		
+									</div>
+								</div>
+							</div>			 
+					</div>
+					<div style="margin-left: 10px;" class="pull-left col-md-4" ng-show="display_form_field_admin_section">
+						<div class="panel panel-primary">
+								<div class="panel-heading">
+									<h3 class="panel-title">Manage Form Field</h3>
+								</div>
+								<div class="panel-body">
+								<div ng-show="display_wait_image">Loading...</div>
+								  <form novalidate role="form">
+								  		<!-- Manage errors until these can be displayed with elements... -->
+								  		<div ng-show="vm.fields.objCustomErrors.length > 0">
+											<div class="row">
+												<div class="col-xs-12">
+													<div class="bg-danger">
+														<div><strong>Validation Problems: </strong></div>
+														<div ng-repeat="err in vm.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+											                <i class="glyphicon glyphicon-remove"></i>
+											                <span>
+											                    {{err.message}}
+											                </span>
+											            </div>
+													</div>
+												</div>
+											</div>
+											<hr/>
+										</div>	
+																	  
+									<formly-form model="vm.model" fields="vm.fields" form="vm.form" options="vm.options">
+									  <button type="submit" class="btn btn-primary" ng-disabled="progress.active() || vm.form.$invalid" ng-click="vm.submitForm(vm.model)"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+									  <button type="submit" class="btn btn-success" ng-click="vm.submitCancel()">Cancel</button>
+									</formly-form>
+								  </form>
+								</div>
+						</div>						
+					</div>	
+					
+					<!-- Form field behaviours -->
+					<div style="margin-left: 10px;" class="pull-left col-md-4" ng-show="display_form_field_behaviour_admin_section">
+						<div>
+							<div class="panel panel-primary">
+									<div class="panel-heading">
+										<h3 class="panel-title">Manage Field Behaviours&nbsp;<button ng-click="closeManageFormFieldBehaviours()" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+									</div>
+									<div class="panel-body">
+										<div ng-show="display_wait_image_field_behaviours"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+										<div>
+											<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+												<thead>
+													<tr>
+														<th>Behaviour</th>
+														<th>Status</th>
+														<th>
+															<button ng-click="createFormFieldBehaviourActionSelect()" class="btn btn-success" type="button" title="Add Field Behaviour"><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Behaviour</button>
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr ng-show="display_form_field_config_form">
+														<td colspan="3">
+															<!-- Form field behaviour form -->
+															<div>
+																<div ng-show="display_wait_image_field_behaviours_form_loading"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+																<!-- Behaviour action selection -->
+																<div class="">
+															  		<div class="form-group">
+															  			<label>Select Action</label>
+															  			<select class="form-control">
+															  				<option>--select--</option>
+															  				<option ng-repeat="objAction in objFormFieldBehaviourAvailableActions" value="{{objAction.value}}" ng-click="createFormFieldBehaviour(objAction)">{{objAction.label}}</option>
+															  			</select>
+															  		</div>
+															  	</div>
+															  	
+															  	<form novalidate role="form">
+															  		<!-- Manage errors until these can be displayed with elements... -->
+															  		<div ng-show="beh.fields.objCustomErrors.length > 0">
+																		<div class="row">
+																			<div class="col-xs-12">
+																				<div class="bg-danger">
+																					<div><strong>Validation Problems: </strong></div>
+																					<div ng-repeat="err in beh.fields.objCustomErrors" class="color-error" style="padding: 5px;">
+																		                <i class="glyphicon glyphicon-remove"></i>
+																		                <span>
+																		                    {{err.message}}
+																		                </span>
+																		            </div>
+																				</div>
+																			</div>
+																		</div>
+																		<hr/>
+																	</div>
+																									  	
+																	<formly-form model="beh.model" fields="beh.fields">
+																  		<button type="submit" class="btn btn-primary" ng-disabled="display_wait_image_field_behaviours_form_loading == true || beh.form.$invalid || objFormFieldBehaviourAvailableActions.length == 0" ng-click="beh.processFormSubmit()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+																  		<button type="submit" class="btn btn-success" ng-click="beh.submitCancel()">Cancel</button>
+																	</formly-form>
+																</form>														
+															</div>
+														</td>
+													</tr>												
+													<tr ng-repeat="objBehaviour in objFormFieldBehaviours track by objBehaviour.id">
+														<td>
+															{{objBehaviour.action_title}}
+															<br/><span class="text-primary"><small>{{objBehaviour.description}}</small></span>	
+														</td>
+											       	 	<td>
+											       	 		<a href="" ng-click="changeFormFieldBehaviourStatus(objBehaviour)" title="Toggle Status"><span ng-class="{{objBehaviour.active}} == 1 ? 'text-success glyphicon glyphicon-ok' : 'text-danger glyphicon glyphicon-remove'" id="form_behaviour_status_indicator_{{objBehaviour.id}}"></span></a>
+											       	 	</td>
+											       	 	<td>
+															<a href="" title="Update Behaviour" ng-click="updateFormFieldBehaviour(objBehaviour)"><span class="glyphicon glyphicon-pencil"></span></a>
+															<a href="" title="Remove Behaviour" ng-click="removeFormFieldBehaviour(objBehaviour)"><span class="text-danger glyphicon glyphicon-trash"></span></a>
+											       	 	</td>
+											    	</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+							</div>
+						</div>					
+					</div>	
+									
+					<div style="clear: both;"></div>	
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('manageFormFieldsPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<!-- Form Summary -->
+	<div ng-show="manageFormSummaryPanelState" id="manageFormSummaryPanelState" class="panel-show-centre-full-screen aside left am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Form Summary&nbsp;<span id="manageFormSummaryPanelStateTitle"></span><button ng-click="toggleFormPanel('manageFormSummaryPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					    <div ng-show="manage_form_summary_load_in_progress" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>				      
+		 				<div class="" ng-show="!manage_form_summary_load_in_progress">
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									Form Details
+								</div>
+								<div class="panel-body">
+									<div class="form-summary-section form-details-section">
+										<table class="table table-hover">
+											<tr>
+												<td><strong>Name</strong></td>
+												<td><span ng-bind-html="form_summary.objForm.form | sanitize"></span></td>
+											</tr>
+											<tr>
+												<td><strong>Type</strong></td>
+												<td><span ng-bind-html="form_summary.objForm.form_types_form_type | sanitize"></span></td>
+											</tr>
+											<tr ng-show="form_summary.objForm.alias != ''">
+												<td><strong>Alias</strong></td>
+												<td><span ng-bind-html="form_summary.objForm.alias | sanitize"></span></td>
+											</tr>	
+											<tr>
+												<td><strong>Status</strong></td>
+												<td>
+													<span ng-show="form_summary.objForm.active == 1" class="glyphicon glyphicon-ok" style="color: green;"></span>
+													<span ng-show="form_summary.objForm.active == 0" class="glyphicon glyphicon-remove" style="color: red;"></span>
+												</td>
+											</tr>
+											<tr>
+												<td><strong>Populate</strong></td>
+												<td>
+													<span ng-show="form_summary.objForm.populate_form == 1" class="glyphicon glyphicon-ok" style="color: green;"></span>
+													<span ng-show="form_summary.objForm.populate_form == 0" class="glyphicon glyphicon-remove" style="color: red;"></span>
+												</td>
+											</tr>																					
+										</table>
+									</div>								
+								</div>
+							</div>
+							
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									Allocated Fields
+								</div>
+								<div class="panel-body">
+									<div class="form-summary-section form-fields-section">
+										<table class="table table-striped table-hover">
+											<tr>
+												<th>Field</th>
+												<th>Label</th>
+												<th>Type</th>
+												<th>Status</th>
+												<th>Populate</th>
+											</tr>
+											<tr ng-repeat="objField in form_summary.objFormFields">
+												<td>{{objField.fields_field}}</td>
+												<td>{{objField.fields_description}}</td>
+												<td>{{objField.fields_field_type}}</td>
+												<td>
+													<span ng-show="objField.active == 1" class="glyphicon glyphicon-ok" style="color: green;"></span>
+													<span ng-show="objField.active == 0" class="glyphicon glyphicon-remove" style="color: red;"></span>
+												</td>
+												<td>
+													<span ng-show="objField.populate == 1 && form_summary.objForm.populate_form == 1" class="glyphicon glyphicon-ok" style="color: green;"></span>
+													<span ng-show="objField.populate == 0 || form_summary.objForm.populate_form == 0" class="glyphicon glyphicon-remove" style="color: red;"></span>
+												</td>
+											</tr>
+										</table>
+									</div>								
+								</div>
+							</div>
+							
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									Form Behaviours
+								</div>
+								<div class="panel-body">
+									<div class="form-summary-section form-behaviours-section">
+										<table class="table table-striped table-hover">
+											<tr>
+												<th>Behaviour</th>
+												<th>Status</th>
+												<th>Description</th>
+											</tr>
+											<tr ng-repeat="objFormBehaviour in form_summary.objFormBehaviours">
+												<td>{{objFormBehaviour.action_title}}</td>
+												<td>
+													<span ng-show="objFormBehaviour.active == 1" class="glyphicon glyphicon-ok" style="color: green;"></span>
+													<span ng-show="objFormBehaviour.active == 0" class="glyphicon glyphicon-remove" style="color: red;"></span>
+												</td>
+												<td>
+													<span ng-bind-html="objFormBehaviour.description | sanitize"></span>
+												</td>
+											</tr>
+										</table>
+									</div>								
+								</div>
+							</div>
+							
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									Field Behaviours
+								</div>
+								<div class="panel-body">
+									<div class="form-summary-section form-field-behaviours-section">
+										<table class="table table-striped table-hover">
+											<tr>
+												<th>Field</th>
+												<th>Behaviour</th>
+												<th>Status</th>
+												<th>Description</th>
+											</tr>
+											<tr ng-repeat="objFieldBehaviour in form_summary.objFormFieldBehaviours">
+												<td>{{objFieldBehaviour.objField.fields_description}} ({{objFieldBehaviour.objField.fields_field}})</td>
+												<td>{{objFieldBehaviour.objBehaviour.action_title}}</td>
+												<td>
+													<span ng-show="objFieldBehaviour.objBehaviour.active == 1" class="glyphicon glyphicon-ok" style="color: green;"></span>
+													<span ng-show="objFieldBehaviour.objBehaviour.active == 0" class="glyphicon glyphicon-remove" style="color: red;"></span>												
+												</td>
+												<td>{{objFieldBehaviour.objBehaviour.description}}</td>
+											</tr>
+										</table>
+									</div>								
+								</div>
+							</div> 				
+		 				</div>
+					</div>				
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('manageFormSummaryPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+		
+	<!-- Delete Form -->
+	<div ng-show="deleteFormPanelState" id="deleteFormPanelState" class="panel-show-centre aside am-fade-and-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-danger">
+				<div class="panel-heading">
+					<h3 class="panel-title">Delete Form<button ng-click="toggleFormPanel('deleteFormPanelState', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+						  <div ng-show="progress.active()">
+						  	<p>Please be patient, this could take a while...</p>
+						  </div>			 
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="toggleFormPanel('deleteFormPanelState', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>				
+</div>
+
+
+<script type="text/ng-template" id="textarea-tinymce.html">
+	<textarea ui-tinymce="options.data.tinymceOption"  ng-model="model[options.key]" class="form-control"></textarea>
+</script>

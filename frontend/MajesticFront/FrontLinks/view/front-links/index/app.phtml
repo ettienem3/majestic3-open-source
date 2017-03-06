@@ -1,0 +1,12 @@
+<script type="text/javascript">
+	var global_form_fields = JSON.parse('<?php echo json_encode($this->renderSystemAngularFormHelper($this->form));?>');
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_LINK_HTML .'&nbsp; Manage Tracking Links'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+		pagination: JSON.parse('<?php echo json_encode($this->objLinks->hypermedia->pagination, JSON_FORCE_OBJECT);?>')
+	};
+</script>
+<?php
+echo $this->partial('links/layout-app');
+echo '<div ng-app="frontEndApp"><div ng-view></div></div>';
+return;

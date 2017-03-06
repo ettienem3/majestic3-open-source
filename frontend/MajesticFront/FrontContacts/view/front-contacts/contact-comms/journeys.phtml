@@ -96,6 +96,11 @@
 $arr_contact_journeys = array();
 foreach ($this->objContactJourneys as $objContactJourney)
 {
+	if (!is_object($objContactJourney) || !method_exists($objContactJourney, 'get'))
+	{
+		continue;
+	}//end if
+
 	$arr_contact_journeys[$objContactJourney->get("journey_id")][] = $objContactJourney;
 }//end foreach
 
@@ -117,7 +122,7 @@ foreach ($this->objJourneys as $objJourney)
 
 	//add start link to every journey
 	echo "<td>";
-	if (!array_key_exists($objJourney->id, $arr_contact_journeys))
+	if (!array_key_exists($objJourney->id, $arr_contact_journeys) && $objJourney->flag_behaviours_prevent_manual_start == 0)
 	{
 		echo 	"<a class=\"span-journey-start\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-start-journey", "comms_id" => $objJourney->id )) . "\" alt=\"Start " . $objJourney->journey . "\">Start</a>";
 	}//end if
@@ -147,7 +152,7 @@ foreach ($this->objJourneys as $objJourney)
 				echo 	"<a class=\"span-journey-stop\" title=\"Stop this journey\" alt=\"Are you sure you want to stop " . $objJourney->journey . "\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-stop-journey", "comms_id" => $objContactJourney->get("id"))) . "\">Stop</a>&nbsp;";
 
 				//check if journey is not already in a restarted state
-				if ($objContactJourney->restarted != 1)
+				if ($objContactJourney->restarted != 1 && $objJourney->flag_behaviours_prevent_manual_start == 0)
 				{
 					echo 	"<a class=\"span-journey-restart\" title=\"Restart this journey\" alt=\"Are you sure you want to restart " . $objJourney->journey . "\" href=\"" . $this->url("front-contact-comms", array("id" => $this->contact_id, "action" => "ajax-restart-journey", "comms_id" => $objContactJourney->get("id"))) . "\">Restart</a>";
 				}//end if

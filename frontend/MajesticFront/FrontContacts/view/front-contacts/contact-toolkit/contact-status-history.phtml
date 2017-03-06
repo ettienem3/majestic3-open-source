@@ -62,7 +62,7 @@ echo 	"</tr>";
 
 foreach ($this->objContactStatusData as $objStatus)
 {
-	if (!is_numeric($objStatus->get("id")))
+	if (!method_exists($objStatus, 'get') || !is_numeric($objStatus->get("id")))
 	{
 		continue;
 	}//end if

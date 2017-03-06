@@ -14,6 +14,7 @@ class BehaviourRejectFormOverrideOnFormTimestampForm extends FrontCoreSystemForm
 	
 		//set field elements in correct order
 		$arr_fields = array(
+				'description',
 				'fk_form_id2',
 				'content',
 				'active',

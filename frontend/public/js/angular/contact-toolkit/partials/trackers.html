@@ -1,0 +1,119 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="TrackersCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-bind-html="pageContent | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-left small text-default">Page: {{currentPage}}</div>
+					<div class="pull-right">
+						<button ng-click="togglePanel('createTrackerPanel', true)" class="btn btn-success pull-right" type="button"><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Tracker</button>
+						<button ng-click="refreshData(true)" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Tracker</th>
+							<th>Created</th>
+							<th>Updated</th>
+							<th>Status</th>
+							<th>Reference</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.forms_form}}</td>
+							<td>{{objRecord.tstamp}}</td>
+							<td>{{objRecord.tstamp_updated}}</td>
+							<td>{{objRecord.tracker_status}}<span ng-show="objRecord.tracker_status == '' || !objRecord.tracker_status">NA</span></td>
+							<td>{{objRecord.tracker_deal_number}}<span ng-show="objRecord.tracker_deal_number == '' || !objRecord.tracker_deal_number">NA</span></td>
+							<td>
+								<span ng-bind-html="injectFormHyperLink(objRecord) | sanitize"></span>
+							</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+		
+		<!-- paginator -->
+		<ul ng-hide="true">
+			<li dir-paginate="item in objPageConfig.pagination.tpages | itemsPerPage: 1" current-page="currentPage">{{item}}</li>
+		</ul>
+		<dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/js/angular/helpers/partials/dirPagination.tpl.html"></dir-pagination-controls>
+	</div>
+
+	<div ng-show="createTrackerPanel" id="createTrackerPanelContainer" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Select a Tracker<button ng-click="togglePanel('createTrackerPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+					      <div id="messages" class="alert alert-success" ng-show="messages" ng-bind="messages"></div>
+					      <div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+							<div>
+								<ul>
+									<li ng-repeat="objForm in objAvailableForms">
+										<a href="" title="Create {{objForm.form}} tracker" ng-click="setLoadTrackerId(objForm.id); togglePanel('completeTrackerPanel', true)">{{objForm.form}}</a>
+									</li>
+								</ul>
+							</div>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('createTrackerPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>
+	
+	<div ng-show="completeTrackerPanel" id="completeTrackerPanelContainer" class="panel-show-centre aside right am-slide-top">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Create a Tracker
+						<button ng-click="togglePanel('completeTrackerPanel', false)" class="close pull-right" type="button" title="Close"><span class="glyphicon glyphicon-off"></span></button>
+						<!-- <button title="View Fullscreen" class="pull-right close btn-resize-target btn-resize-target-fullscreen" data-resize-target="#completeTrackerPanelContainer"><span class="glyphicon glyphicon-fullscreen"></span></button>
+						<button title="Fill Vertical" class="pull-right close btn-resize-target btn-resize-target-height" data-resize-target="#completeTrackerPanelContainer"><span class="glyphicon glyphicon-resize-vertical"></span></button>
+						<button title="Fill Horizontal" class="pull-right close btn-resize-target btn-resize-target-width" data-resize-target="#completeTrackerPanelContainer"><span class="glyphicon glyphicon-resize-horizontal"></span></button>-->
+					</h3>
+				</div>
+				<div class="panel-body">
+					<div>
+				      	<div ng-show="progress.active()" style="color: red; font-size: 14px;"><span ng-bind-html="global_wait_image | sanitize"></span></div>
+				      	<div id="tracker_panel_messages" ng-show="tracker_load_messages" ng-bind="tracker_load_messages"></div>
+						<div ng-show="objTrackerForm.tracker_form_loaded">
+							<form ng-submit="objTrackerForm.submit()" name="objTrackerForm.form" novalidate>
+								<formly-form model="objTrackerForm.model" fields="objTrackerForm.fields" form="objTrackerForm.form">
+									<button type="submit" class="btn btn-primary" ng-disabled="objTrackerForm.form.$invalid" ng-click="objTrackerForm.submitForm()"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+								</formly-form>
+							</form>
+						</div>											
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('completeTrackerPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

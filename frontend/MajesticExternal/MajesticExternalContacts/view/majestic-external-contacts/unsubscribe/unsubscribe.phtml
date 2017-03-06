@@ -1,7 +1,12 @@
-<h2>Unsubscribe</h2>
-<?php
-$form = $this->form;
-$form->prepare();
-
-echo "<h3>Channels currently subscribed to:</h3>";
-echo $this->renderSystemFormHelper($form, $this);
+<div style="margin: 20px;">	
+	<h2>Unsubscribe</h2>
+	<?php
+	$form = $this->form;
+	$form->prepare();
+	
+	echo "<h6>Unsubscribe from the following channels: </h6>";
+	echo $this->renderSystemFormHelper($form, $this);
+	?>
+	<div style="clear: both;"></div>
+	<hr/><small>Check the boxes for the channels / mailing lists you wish to be removed from.</small>
+</div>

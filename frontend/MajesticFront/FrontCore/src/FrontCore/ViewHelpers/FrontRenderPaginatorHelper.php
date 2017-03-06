@@ -16,15 +16,32 @@ class FrontRenderPaginatorHelper extends AbstractHelper
 			$string .= "<nav>";
 			$string .=		"<ul class=\"pagination pull-left\">";
 
+			if (isset($objData->additional_link_data) && is_array($objData->additional_link_data))
+			{
+				if (isset($objData->additional_link_data['qp_start']))
+				{
+					unset($objData->additional_link_data['qp_start']);
+				}//end if
+
+				if (isset($objData->additional_link_data['qp_limit']))
+				{
+					unset($objData->additional_link_data['qp_limit']);
+				}//end if
+
+				$append_string = '&' . http_build_query($objData->additional_link_data);
+			} else {
+				$append_string = '';
+			}//end if
+
 			foreach ($objData->page_urls as $key => $objPage)
 			{
 				if ($objPage->next == 0)
 				{
-					$string .= "<li><a href=\"$url_route?qp_limit=" . $objData->qp_limit . "&qp_start=" . $objPage->next . "\" aria-label=\"First\" title=\"First\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+					$string .= "<li><a href=\"$url_route?qp_limit=" . $objData->qp_limit . "&qp_start=" . $objPage->next . "$append_string\" aria-label=\"First\" title=\"First\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
 					continue;
 				}//end if
 
-				$string2 .= "<li><a  href=\"$url_route?qp_limit=" . $objData->qp_limit . "&qp_start=" . $objPage->next . "\">" . $key . "</a></li>";
+				$string2 .= "<li><a  href=\"$url_route?qp_limit=" . $objData->qp_limit . "&qp_start=" . $objPage->next . "$append_string\">" . $key . "</a></li>";
 			}//end foreach
 
 			if ($objData->pages_total > 20)
@@ -40,7 +57,7 @@ class FrontRenderPaginatorHelper extends AbstractHelper
 				$string .=	$string2;
 			}//end if
 
-			$string .= 		"<li><a  href=\"$url_route?qp_limit=" . $objData->qp_limit . "&qp_start=" . $objPage->next . "\" aria-label=\"Last\" title=\"Last\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+			$string .= 		"<li><a  href=\"$url_route?qp_limit=" . $objData->qp_limit . "&qp_start=" . $objPage->next . "$append_string\" aria-label=\"Last\" title=\"Last\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
 			$string .=   "</ul>";
 			$string .=	"</nav>";
 

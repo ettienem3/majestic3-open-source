@@ -8,6 +8,7 @@ use Zend\EventManager\EventManager;
 
 use FrontUserLogin\Models\FrontUserSession;
 use FrontCore\Adapters\AbstractCoreAdapter;
+use Zend\Stdlib\ArrayObject;
 
 final class ApiRequestModel extends AbstractCoreAdapter
 {
@@ -136,7 +137,7 @@ require("./config/helpers/ob2.php");
  			$result = $event->trigger("apiCallExecuted.pre", $this, array("objClient" => $client, "objRequest" => $request, 'url' => self::buildURI()));
 
 			//set timeout
-			$client->setOptions(array("timeout" => 60, "sslverifypeer" => FALSE));
+			$client->setOptions(array("timeout" => 600, "sslverifypeer" => FALSE));
 
 			if ($request instanceof Request)
 			{
@@ -157,7 +158,6 @@ require("./config/helpers/ob2.php");
 			$result = $event->trigger("apiCallExecuted.pre", $this, array("objApiData" => (object) $arr_api_data, "objResponse" => $response, "objClient" => $client, "objRequest" => $request, 'url' => self::buildURI()));
 			$event->trigger("apiCallExecuted", $this, array("objApiData" => (object) $arr_api_data, "objResponse" => $response));
 
-
 			//resest the module indicator where set to null
 			if (is_null($this->api_module))
 			{
@@ -172,7 +172,7 @@ require("./config/helpers/ob2.php");
 
 	/**
 	 * Process the successfull request performed.
-	 * Throws exceptions where the request was unsuccessful from the server.
+	 * Throws exceptions where the request waas unsuccessful from the server.
 	 * @param object $response
 	 * @throws \Exception
 	 * @return \FrontCore\Models\ApiRequestModel
@@ -362,6 +362,11 @@ require("./config/helpers/ob2.php");
 		//set GET params if any
 		if (is_array($arr_request_params))
 		{
+			if (isset($arr_request_params['acrq']))
+			{
+				unset($arr_request_params['acrq']);
+			}//end if
+
 			$client->setParameterGet($arr_request_params);
 		}//end if
 
@@ -393,6 +398,11 @@ require("./config/helpers/ob2.php");
 		//set GET params if any
 		if (is_array($arr_request_params))
 		{
+			if (isset($arr_request_params['acrq']))
+			{
+				unset($arr_request_params['acrq']);
+			}//end if
+
 			$client->setParameterGet($arr_request_params);
 		}//end if
 
@@ -424,6 +434,11 @@ require("./config/helpers/ob2.php");
 		//set GET params if any
 		if (is_array($arr_request_params))
 		{
+			if (isset($arr_request_params['acrq']))
+			{
+				unset($arr_request_params['acrq']);
+			}//end if
+
 			$client->setParameterGet($arr_request_params);
 		}//end if
 
@@ -451,6 +466,11 @@ require("./config/helpers/ob2.php");
 		//set GET params if any
 		if (is_array($arr_request_params))
 		{
+			if (isset($arr_request_params['acrq']))
+			{
+				unset($arr_request_params['acrq']);
+			}//end if
+
 			$client->setParameterGet($arr_request_params);
 		}//end if
 

@@ -1,0 +1,88 @@
+<div ng-include src="'/js/angular/contact-toolkit/partials/toolkit-menu.html'" class="container-menu"></div>
+
+<div id="container" class="container-fluid" ng-controller="TasksCtrl">
+	<div class="row">
+			<div class="container-body">
+				<!-- home page content is injectec -->
+				<div ng-show="load_contact_data_indicator" ng-bind-html="global_wait_image | sanitize"></div>
+				<!-- end of home page content -->
+				
+				<!-- indicate if contact is unsuscribed -->
+				<h4 ng-show="contact_unsubscribed > 0">
+					<div>
+						<span class="label label-danger"><span class="glyphicon glyphicon-flash"></span>&nbsp;Contact is unsubscribed</span>
+					</div>
+				</h4>
+								
+				<!-- initiate data loding process -->
+				<div data-ng-init="loadRecords()"></div>
+				<div>
+					<div ng-bind-html="objPageConfig.pageTitle | sanitize"></div>
+					<div class="pull-right">
+						<button ng-click="togglePanel('createItemFormPanel', true)" class="btn btn-success pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Item</button>
+					</div>
+					<div class="pull-right">
+						<button ng-click="filterUserItems()" class="btn btn-warning" type="button" style="margin-right: 5px;" title="Only display items allocated to me"><span class="glyphicon glyphicon-filter"></span> My Items</button>
+					</div>
+					<div class="pull-right">
+						<button ng-click="refreshData()" class="btn btn-primary pull-right" type="button" style="margin-right: 5px;"><span class="glyphicon glyphicon-refresh"></span>&nbsp;Refresh</button>
+					</div>					
+				</div>
+				<div style="clear:both;"></div>
+				<hr/>
+				
+				<table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Content</th>
+							<th>Created</th>
+							<th>Due</th>
+							<th>Completed</th>
+							<th>User</th>
+							<th>Status</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRecord in objRecords track by objRecord.id" data-record-id="{{objRecord.id}}">
+							<td>{{objRecord.content}}</td>
+							<td>{{objRecord.datetime_created_pretty}}</td>
+							<td>{{objRecord.datetime_reminder_pretty}}</td>
+							<td>{{objRecord.datetime_complete_pretty}}</td>
+							<td>{{objRecord.users_uname}}</td>
+							<td><span class="glyphicon glyphicon-ok-circle" style="color: green;" ng-show="objRecord.complete == 1" title="Item marked as complete"></span><span class="glyphicon glyphicon-remove-circle" style="color:red;" ng-show="objRecord.complete == 0" title="Item has not been actioned"></span></td>
+							<td>{{objRecord.datetime_last}}</td>
+							<td>
+								<a href="" ng-click="completeItem(objRecord)" ng-show="objRecord.complete == 0" title="Mark item as completed"><span class="glyphicon glyphicon-thumbs-up"></span></a>
+								<a href="" ng-click="deleteItem(objRecord)" ng-show="objRecord.complete == 1" title="Delete item"><span class="glyphicon glyphicon-trash"></span></a>
+							</td>
+				    	</tr>
+					</tbody>
+				</table>
+		</div>
+	</div>
+	
+	<div ng-show="createItemFormPanel" id="createItemFormPanel" class="panel-show-right aside right am-slide-right">
+		<!-- Dialog content -->
+		<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">Add an item<button ng-click="togglePanel('createItemFormPanel', false)" class="close pull-right" type="button"><span class="glyphicon glyphicon-off"></span></button></h3>
+				</div>
+				<div class="panel-body">
+					<div>
+						<div ng-show="load_admin_form_indicator" ng-bind-html="global_wait_image | sanitize"></div>
+						<!-- form -->
+						<form ng-submit="objTaskForm.submitForm()" novalidate>
+							<formly-form model="objTaskForm.model" fields="objTaskForm.fields">
+								<button type="submit" class="btn btn-primary" ng-disabled="load_admin_form_indicator"><span class="glyphicon glyphicon-cloud-upload"></span> Save</button>
+							</formly-form>
+						</form>
+					</div>
+				</div>
+				<div class="panel-footer">					
+					<button ng-click="togglePanel('createItemFormPanel', false)" class="btn btn-success pull-right" type="button">Close</button>
+					<div style="clear: both;"></div>
+				</div>
+		</div>
+	</div>	
+</div>

@@ -31,4 +31,27 @@ jQuery(document).ready(function() {
 		e.preventDefault();
 		window.parent.location.href = jQuery(this).attr("href");
 	});
+	
+	//listen to menu clear cache link
+	jQuery('.global_profile_cache_clear').click(function (e) {
+		e.preventDefault();
+		
+		//display popup
+		
+		jQuery.ajax({
+			'url': jQuery(this).attr('href'),
+		})
+		.done(function (data) {
+			if (data.error == 0)
+			{
+				location.reload();
+				return true;
+			}//end if
+			
+			alert(data.response);
+		})
+		.fail(function () {
+			alert('A problem has occured and cache could not be cleared. Please try again');
+		});
+	});
 });

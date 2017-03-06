@@ -30,8 +30,16 @@ class FrontFormAdminModel extends AbstractCoreAdapter
 
 			case "__tracker":
 			case "tracker":
+			case '__sales_funnel':
+			case 'sales_funnel':
 				$objForm = $this->getServiceLocator()->get("FrontCore\Models\SystemFormsModel")
 								->getSystemForm("Core\Forms\SystemForms\Forms\FormsTrackerForm");
+				break;
+
+			case '__viral':
+			case 'viral':
+				$objForm = $this->getServiceLocator()->get("FrontCore\Models\SystemFormsModel")
+								->getSystemForm("Core\Forms\SystemForms\Forms\FormsViralForm");
 				break;
 
 			default:
@@ -48,6 +56,10 @@ class FrontFormAdminModel extends AbstractCoreAdapter
 			{
 				case "salesfunnel":
 					$arr_form_types[$k] = "Tracker";
+					break;
+
+				case "viral":
+					$arr_form_types[$k] = "Referral";
 					break;
 			}//end switch
 		}//end foreach
@@ -120,6 +132,22 @@ return $this->fetchForm($id);
 	}//end function
 
 	/**
+	 * Load statistics about the form
+	 * @param int $id
+	 */
+	public function fetchFormStatistics($id)
+	{
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction("forms/info/$id");
+
+		$objRequest = $objApiRequest->performGETRequest(array('callback' => 'loadFormStatistics'))->getBody();
+		return $objRequest->data;
+	}//end function
+
+	/**
 	 * Create a new form
 	 * @param array $arr_data
 	 * @return \FrontFormAdmin\Entities\FrontFormAdminFormEntity
@@ -166,6 +194,33 @@ return $this->fetchForm($id);
 		//setup the object and specify the action
 		$objApiRequest->setApiAction($objForm->getHyperMedia("edit-form")->url);
 		$objApiRequest->setApiModule(NULL);
+
+		//execute
+		$objForm = $objApiRequest->performPUTRequest($objForm->getArrayCopy())->getBody();
+
+		//recreate link entity
+		$objForm = $this->createFormEntity($objForm->data);
+
+		//trigger post event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objForm" => $objForm, "form_id" => $objForm->get("id")));
+
+		return $objForm;
+	}//end function
+
+	/**
+	 * Udpate form status only
+	 * @param FrontFormAdminFormEntity $objForm
+	 */
+	public function updateFormStatus(FrontFormAdminFormEntity $objForm)
+	{
+		//trigger pre event
+		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".pre", $this, array("objForm" => $objForm));
+
+		//create the request object
+		$objApiRequest = $this->getApiRequestModel();
+
+		//setup the object and specify the action
+		$objApiRequest->setApiAction('forms/form/' . $objForm->get('id') . '/status');
 
 		//execute
 		$objForm = $objApiRequest->performPUTRequest($objForm->getArrayCopy())->getBody();
@@ -234,6 +289,7 @@ return $this->fetchForm($id);
 		//trigger post event
 		$result = $this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objField" => $objField, "form_id" => $objForm->get("id"), "objForm" => $objForm));
 
+		$objField->set('response_data', $objResult->getBody()->data);
 		return $objField;
 	}//end function
 

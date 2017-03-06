@@ -124,6 +124,14 @@ class SystemFormsModel extends AbstractCoreAdapter
 
 		foreach ($objFormData as $key => $objElement)
 		{
+			//@TODO find better way to fix this issue
+			switch ($objElement->attributes->type)
+			{
+				case 'multi_checkbox':
+					$objElement->attributes->type = 'Zend\Form\Element\MultiCheckbox';
+					break;
+			}//end switch
+			
 			//create the element
 			$element_type = strtolower($objElement->attributes->type);
 			$arr_element = (json_decode(json_encode($objElement), true));

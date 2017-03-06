@@ -7,6 +7,18 @@ use FrontLinks\Entities\LinkEntity;
 class FrontLinksModel extends AbstractCoreAdapter
 {
 	/**
+	 * Container for the Journeys Model
+	 * @var \FrontCommsAdmin\Models\FrontJourneysModel
+	 */
+	private $model_journeys;
+	
+	/**
+	 * Container for the Statuses Model
+	 * @var \FrontStatuses\Models\FrontContactStatusesModel
+	 */
+	private $model_statuses;
+	
+	/**
 	 * Load the admin form for links from Core System Forms
 	 * @return \Zend\Form\Form
 	 */
@@ -206,6 +218,36 @@ class FrontLinksModel extends AbstractCoreAdapter
 	}//end function
 
 	/**
+	 * Load available journeys for the profile
+	 * Used in configuring behaviours
+	 */
+	public function fetchAvailableJourneys()
+	{
+		$objJourneys = $this->getJourneysModel()->fetchJourneys(array(
+			'qp_limit' => 'all',
+			'qp_export_fields' => 'id,journey',
+			'qp_disable_hypermedia' => 1
+		), FALSE);
+		
+		return $objJourneys;
+	}//end function
+	
+	/**
+	 * Load available statuses for the Profile
+	 * Used in configuring behaviours
+	 */
+	public function fetchAvailableStatuses()
+	{
+		$objStatuses = $this->getStatusesModel()->fetchContactStatuses(array(
+			'qp_limit' => 'all',
+			'qp_export_fields' => 'id,status',
+			'qp_disable_hypermedia' => 1
+		));
+		
+		return $objStatuses;
+	}//end function
+	
+	/**
 	 * Create a link entity object
 	 * @param object $objData
 	 * @return \FrontLinks\Entities\LinkEntity
@@ -218,5 +260,33 @@ class FrontLinksModel extends AbstractCoreAdapter
 		$entity_link->set($objData);
 
 		return $entity_link;
+	}//end function
+	
+	/**
+	 * Create an instance of the Journeys Model
+	 * @return \FrontCommsAdmin\Models\FrontJourneysModel
+	 */
+	private function getJourneysModel()
+	{
+		if (!$this->model_journeys)
+		{
+			$this->model_journeys = $this->getServiceLocator()->get('FrontCommsAdmin\Models\FrontJourneysModel');
+		}//end if
+		
+		return $this->model_journeys;
+	}//end function
+	
+	/**
+	 * Create an instance of the Statuses Model
+	 * @return \FrontStatuses\Models\FrontContactStatusesModel
+	 */
+	private function getStatusesModel()
+	{
+		if (!$this->model_statuses)
+		{
+			$this->model_statuses = $this->getServiceLocator()->get('FrontStatuses\Models\FrontContactStatusesModel');
+		}//end if
+		
+		return $this->model_statuses;
 	}//end function
 }//end class

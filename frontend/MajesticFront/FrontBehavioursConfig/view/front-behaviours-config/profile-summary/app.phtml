@@ -1,0 +1,16 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_LIST_HTML .'&nbsp; Profile Wide Behaviours Summary'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+
+	var global_arr_action_descriptors = JSON.parse('<?php echo str_replace("'", '', json_encode($this->obj_action_descriptors));?>');
+console.log(global_arr_action_descriptors);
+</script>
+<script src="/js/angular/profile/behaviour-summary/app.js"></script>
+<script src="/js/angular/profile/behaviour-summary/controller.js"></script>
+<script src="/js/angular/profile/behaviour-summary/services.js"></script>
+
+<?php
+echo '<div ng-app="frontEndBehaviourSummaryApp"><div ng-view></div></div>';
+return;

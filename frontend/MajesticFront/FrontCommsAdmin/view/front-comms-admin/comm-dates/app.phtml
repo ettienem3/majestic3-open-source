@@ -1,0 +1,13 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_SYNC_HTML .'&nbsp; Date Triggered Journeys'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+</script>
+<script src="/js/angular/comms-admin/dates/app.js"></script>
+<script src="/js/angular/comms-admin/dates/controllers.js"></script>
+<script src="/js/angular/comms-admin/dates/services.js"></script>
+
+<?php
+echo '<div ng-app="frontJourneyDatesApp"><div ng-view></div></div>';
+return;

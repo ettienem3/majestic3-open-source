@@ -1,0 +1,41 @@
+<div ng-include src="'/js/angular/gofetch/partials/menu.html'" class="container-menu"></div>
+
+<div class="row content main-page-container" ng-controller="ChannelCtrl">
+	<div class="col-sm-9">
+		<!-- page activity indicator -->
+		<div ng-bind-html="pageActivity | sanitize"></div>
+			
+		<!-- initiate data loding process -->
+		<div data-ng-init="loadChannelPageContent()"></div>
+		
+		<!-- list requests -->
+		<div class="">
+			<div class="">
+				<table class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>Journey</th>
+							<th>Created</th>							
+							<th>Status</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="objRequest in objBulkRequests">
+							<td>{{objRequest.journeys_journey}}</td>
+							<td>{{objRequest.datetime_created}}</td>
+							<td>{{objRequest.request_approval_status}}</td>
+							<td>
+								<a href="" title="Explore" ng-click="viewCommsReport(objRequest.id)"><span class="glyphicon glyphicon-eye-open"></span></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="" ng-hide="!objRequestReport.objReport">
+				<h5>{{objRequestReport.objReport.display_title}}</h5>
+				<div ng-bind-html="objRequestReport.objReport.report_output | sanitize"></div>
+			</div>
+		</div>
+	</div>
+</div>

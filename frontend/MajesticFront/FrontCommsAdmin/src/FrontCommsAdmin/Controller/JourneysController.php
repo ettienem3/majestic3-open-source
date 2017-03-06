@@ -1,418 +1,1 @@
-<?php
-namespace FrontCommsAdmin\Controller;
-
-use Zend\View\Model\ViewModel;
-use FrontCore\Adapters\AbstractCoreActionController;
-
-/**
- * @description this is test description
- * @author lodi
- *
- */
-class JourneysController extends AbstractCoreActionController
-{
-	/**
-	 * Container for the Journeys Model instance
-	 * @var \FrontCommsAdmin\Models\FrontJourneysModel
-	 */
-	private $model_journeys;
-
-	/**
-	 * Container for the Front Behaviours Config Model
-	 * @var \FrontBehavioursConfig\Models\FrontBehavioursConfigModel
-	 */
-	private $model_front_behaviours_config;
-
-	/**
-	 * List the Journeys
-	 * @see \Zend\Mvc\Controller\AbstractActionController::indexAction()
-	 */
-	public function indexAction()
-	{
-		$arr_params = (array) $this->params()->fromQuery();
-		$request = $this->getRequest();
-		if ($request->isPost())
-		{
-			$arr_params = array_merge($arr_params, (array) $request->getPost());
-			//load the journeys
-			$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params,FALSE);
-		} else {
-			//load the journeys
-			$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params, TRUE);
-		}//end foreach
-
-		return array(
-				"objJourneys" => $objJourneys,
-				"arr_params" => $arr_params,
-		);
-	}//end function
-
-	/**
-	 * Create a new Journey
-	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\RsponseInteface>|multitype:\Zend\Form\Form
-	 */
-	public function createAction()
-	{
-		$form = $this->getJourneysModel()->getJourneysForm();
-
-		$request = $this->getRequest();
-		if ($request->isPost())
-		{
-			//set the form data
-			$form->setData($request->getPost());
-
-			if ($form->isValid())
-			{
-				try {
-					//create the journey
-					$objJourney = $this->getJourneysModel()->createJourney($form->getData());
-
-					//set the success message
-					$this->flashMessenger()->addSuccessMessage("Journey created successfully");
-
-					//redirect to the index page
-					return $this->redirect()->toRoute("front-comms-admin/journeys");
-				} catch (\Exception $e) {
-					//set error message
-					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
-				}//end catch
-			}//end if
-		} else {
-			//set some default values
-			$form->get("user_journey")->setValue(0);
-		}//end if
-
-		return array(
-				"form" => $form
-		);
-	}//end function
-
-	/**
-	 * Update a Journey
-	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>
-	 */
-	public function editAction()
-	{
-		//get the ID
-		$id = $this->params()->fromRoute("id", "");
-
-		if ($id == "")
-		{
-			//set error message and return to the index page.
-			$this->flashMessenger()->addErrorMessage("Journey could not be loaded. Id not set.");
-
-			//redirect to the index page
-			return $this->redirect()->toRoute("front-comm-admin/journeys");
-		}//end if
-
-		//load the journey details
-		$objJourney = $this->getJourneysModel()->fetchJourney($id);
-
-		//load the form
-		$form = $this->getJourneysModel()->getJourneysForm();
-
-		//bind the data
-		$form->bind($objJourney);
-
-		/**
-		 * Perform some data checks
-		 */
-		if ($form->has("date_expiry"))
-		{
-			if ($objJourney->get("date_expiry") == "0000-00-00" || $objJourney->get("date_expiry") == "00-00-0000" || $objJourney->get("date_expiry") == "")
-			{
-				$date = "";
-			} else {
-				$date = $objJourney->get("date_expiry");
-			}//end if
-
-			$form->get("date_expiry")->setValue($date);
-		}//end if
-
-		$request = $this->getRequest();
-		if ($request->isPost()) {
-			//set the form data
-			$form->setData($request->getPost());
-
-			if ($form->isValid())
-			{
-				try {
-					$objJourney = $form->getData();
-					//set id from route
-					$objJourney->set("id", $id);
-					$objJourney = $this->getJourneysModel()->updateJourney($objJourney);
-
-					//set the success message
-					$this->flashMessenger()->addSuccessMessage("Journey updated successfully");
-
-					//redirect to the index page
-					return $this->redirect()->toRoute("front-comms-admin/journeys");
-				} catch (\Exception $e) {
-					//set error message
-					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());
-				}//end catch
-			}//end if
-		}//end if
-
-		return array(
-				"form" => $form,
-				"objJourney" => $objJourney,
-		);
-	}//end function
-
-	/**
-	 * Delete a Journey
-	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>
-	 */
-	public function deleteAction()
-	{
-		$id = $this->params()->fromRoute("id", "");
-
-		if ($id == "")
-		{
-			//set error message
-			$this->flashMessenger()->addErrorMessage("Journey could not be deleted. ID not set.");
-			//return to the index page
-			return $this->redirect()->toRoute("front-comms-admin/journeys");
-		}//end if
-
-		//load data
-		try {
-			$objJourney = $this->getJourneysModel()->fetchJourney($id);
-		} catch (\Exception $e) {
-    		//set error message
-    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-
-			//redirect to index page
-			return  $this->redirect()->toRoute("front-comms-admin/journeys");
-		}//end catch
-
-		$request = $this->getRequest();
-		if ($request->isPost())
-		{
-			if (strtolower($request->getPost("delete")) == "yes")
-			{
-				//delete the Journey
-				try {
-					$objJourney = $this->getJourneysModel()->deleteJourney($id);
-
-					//set the message
-					$this->flashMessenger()->addSuccessMessage("Journey deleted successfully");
-				} catch (\Exception $e) {
-    				//set error message
-    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-				}//end catch
-			}//end if
-
-			//redirect to index page
-			return  $this->redirect()->toRoute("front-comms-admin/journeys");
-		}//end if
-
-		return array(
-			"objJourney" => $objJourney,
-		);
-	}//end function
-
-	/**
-	 * Activate or deactivate a Journey
-	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>
-	 */
-	public function statusAction()
-	{
-		$id = $this->params()->fromRoute("id", "");
-
-		if ($id == "")
-		{
-			//set the error message
-			$this->flashMessenger()->addErrorMessage("Journey active status could not be set. Id not set.");
-
-			//return to index page
-			return $this->redirect()->toRoute("front-comms-admin/journeys");
-		}//end if
-
-		try {
-			//load the Jouney details
-			$objJourney = $this->getJourneysModel()->fetchJourney($id);
-			$objJourney->set("active", (1 - $objJourney->get("active")));
-
-			//update the Journey
-			$objJourney = $this->getJourneysModel()->updateJourney($objJourney);
-
-			//set the success message
-			$this->flashMessenger()->addSuccessMessage("Journey active status updated");
-		} catch (\Exception $e) {
-    		//set error message
-    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
-		}//end if
-
-		//redirect to the index page
-		return $this->redirect()->toRoute("front-comms-admin/journeys");
-	}//end function
-
-	public function journeyBehavioursAction()
-	{
-		//set layout
-    	$this->layout("layout/behaviours-view");
-
-		//set data array to collect behaviours and pass url data to view
-		$arr_behaviour_params = array(
-				"journey_id" => $this->params()->fromRoute("id"),
-				"behaviour" => "journey",
-		);
-
-		//load behaviours form
-		$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("journey", $arr_behaviour_params);
-
-		$form = $arr_config_form_data["form"];
-
-		$arr_descriptors = $arr_config_form_data["arr_descriptors"];
-
-		//load current journey behaviours...
-		$objBehaviours = $this->getFrontBehavioursModel()->fetchBehaviourActions($arr_behaviour_params);
-
-		//check if behaviour is being reconfigured
-		if (is_numeric($this->params()->fromQuery("behaviour_id", "")))
-		{
-			$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviour($this->params()->fromQuery("behaviour_id"));
-		} else {
-			$objBehaviour = FALSE;
-		}//end if
-
-		$request = $this->getRequest();
-		if ($request->isPost())
-		{
-			$form->setData($request->getPost());
-
-			if ($form->isValid())
-			{
-				//reload the form
-				$arr_params = $form->getData();
-				$arr_params["behaviour"] = "journey";
-				$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);
-
-				//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly
-				$class = "\\FrontBehavioursConfig\\Forms\\Journeys\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";
-
-				if (class_exists($class))
-				{
-					$form = new $class($form);
-				}//end if
-
-				//set journey id
-				if ($form->has("fk_journey_id"))
-				{
-					$form->get("fk_journey_id")->setValue($this->params()->fromRoute("id"));
-				}//end if
-
-				//set behaviour action param for view
-				$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];
-
-				//assign data to form is behaviour is being reconfigured
-				if ($objBehaviour instanceof \FrontBehaviours\Entities\FrontBehavioursBehaviourConfigEntity)
-				{
-					$form->bind($objBehaviour);
-				}//end if
-
-				//check if submitted form is the complete behaviour config
-				if ($this->params()->fromPost("setup_complete", 0) == 1)
-				{
-					//revalidate the form
-					$form->setData($request->getPost());
-					if ($form->isValid())
-					{
-						if ($objBehaviour === FALSE)
-						{
-							//set additional params
-							$arr_form_data = $form->getData();
-							$arr_form_data["journey_id"] = $this->params()->fromRoute("id");
-
-							//create/update the behaviour
-							$objBehaviour = $this->getFrontBehavioursModel()->createBehaviourAction($arr_form_data);
-
-							//redirect back to the "index" view
-							return $this->redirect()->toUrl($this->url()->fromRoute("front-comms-admin/journeys", array("action" => "journey-behaviours", "id" => $this->params()->fromRoute("id"))));
-						} else {
-							//set additional params
-							$objBehaviour = $form->getData();
-							$objBehaviour->set("journey_id", $this->params()->fromRoute("id"));
-
-							//update the behaviour
-							$objBehaviour = $this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);
-
-							//redirect back to the "index" view
-							return $this->redirect()->toUrl($this->url()->fromRoute("front-comms-admin/journeys", array("action" => "journey-behaviours", "id" => $this->params()->fromRoute("id"))));
-						}//end if
-					}//end if
-				}//end if
-			}//end if
-		}//end if
-
-		$viewModel = new ViewModel(array(
-				//form to add behavours
-				"form"      			=> $form,
-				//existing behaviours
-				"objBehaviours" 		=> $objBehaviours,
-				//behaviour params
-				"arr_behaviour_params" 	=> $arr_behaviour_params,
-				//action descriptions
-				"arr_descriptors" 		=> $arr_descriptors,
-				//set header
-				"behaviours_header" 	=> "Behaviours configured for <span class=\"text-info\">Journey</span>",
-		));
-		$viewModel->setTemplate('front-behaviours-config/index/configure-behaviours.phtml');
-
-		return $viewModel;
-	}//end function
-
-	public function journeyFlowAction()
-	{
-		$this->layout("layout/dashboard");
-
-		//get the ID
-		$id = $this->params()->fromRoute("id", "");
-
-		if ($id == "")
-		{
-			//set error message and return to the index page.
-			$this->flashMessenger()->addErrorMessage("Journey could not be loaded. Id not set.");
-
-			//redirect to the index page
-			return $this->redirect()->toRoute("front-comm-admin/journeys");
-		}//end if
-
-		$objData = $this->getJourneysModel()->createJourneyFlowDiagram($id);
-
-		return array(
-			"objData" => $objData,
-			"journey_id" => $id,
-		);
-	}//end function
-
-	/**
-	 * Create an instance of the Journeys model using the service manager.
-	 * @return \FrontCommsAdmin\Models\FrontJourneysModel
-	 */
-	private function getJourneysModel()
-	{
-		if (!$this->model_journeys)
-		{
-			$this->model_journeys = $this->getServiceLocator()->get("FrontCommsAdmin\Models\FrontJourneysModel");
-		}//end if
-
-		return $this->model_journeys;
-	}//end function
-
-	/**
-	 * Create an instance of the Front Behaviours Config Model using the Service Manager
-	 * @return \FrontBehavioursConfig\Models\FrontBehavioursConfigModel
-	 */
-	private function getFrontBehavioursModel()
-	{
-		if (!$this->model_front_behaviours_config)
-		{
-			$this->model_front_behaviours_config = $this->getServiceLocator()->get("FrontBehavioursConfig\Models\FrontBehavioursConfigModel");
-		}//end if
-
-		return $this->model_front_behaviours_config;
-	}//end function
-}//end class
+<?phpnamespace FrontCommsAdmin\Controller;use Zend\View\Model\ViewModel;use Zend\View\Model\JsonModel;use FrontCore\Adapters\AbstractCoreActionController;/** * @description this is test description * @author lodi * */class JourneysController extends AbstractCoreActionController{	/**	 * Container for the Journeys Model instance	 * @var \FrontCommsAdmin\Models\FrontJourneysModel	 */	private $model_journeys;	/**	 * Container for the Front Behaviours Config Model	 * @var \FrontBehavioursConfig\Models\FrontBehavioursConfigModel	 */	private $model_front_behaviours_config;	/**	 * Container for the Profilr File Manager	 * @var \FrontProfileFileManager\Models\FrontProfileFileManagerModel	 */	private $model_profile_file_manager;		/**	 * Container for the Profile Cache Manager (Default is Redis)	 * @var \FrontCore\Caches\FrontCachesRedis $model_profile_cache_manager	 */	private $model_profile_cache_manager;		/**	 * Container for the Front Replace Fields Model	 * @var \FrontFormAdmin\Models\FrontReplaceFieldsAdminModel	 */	private $model_replace_fields;		/**	 * Container for the Front Generic Fields Model	 * @var \FrontFormAdmin\Models\FrontGenericFieldsAdminModel	 */	private $model_generic_fields;		/**	 * List the Journeys	 * @see \Zend\Mvc\Controller\AbstractActionController::indexAction()	 */	public function indexAction()	{		$arr_params = (array) $this->params()->fromQuery();		$request = $this->getRequest();		try {			if ($request->isPost())			{				$arr_params = array_merge($arr_params, (array) $request->getPost());				//load the journeys				$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params,FALSE);			} else {				//load the journeys				$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_params, TRUE);			}//end foreach		} catch (\Exception $e) {     		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));     		return $this->redirect()->toRoute('home');     	}//end catch		return array(				"objJourneys" => $objJourneys,				"arr_params" => $arr_params,		);	}//end function	public function appAction()	{		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['journeys'] != true)		{			$this->flashMessenger()->addInfoMessage('The requested view is not available');			return $this->redirect()->toRoute('front-comms-admin/journeys');		}//end if		$this->layout('layout/angular/app');		try {			//check if data is cached			$cache_key = __CLASS__ . '-' . __FUNCTION__ . '-data';			$arr_data = $this->getProfileCacheManager()->readCacheItem($cache_key, false);			if (is_array($arr_data))			{//@TODO allow cache to be cleared from events where changes are made to journey or its episodes, see FrontCommsAdmin Events file				// 				return $arr_data;			}//end if			//request replace fields			$objFields = $this->getReplaceFieldsModel()->fetchReplaceFields(array(), FALSE);			if (isset($objFields->hypermedia))			{				unset($objFields->hypermedia);			}//end if						//request generic fields			$objGenericFields = $this->getGenericFieldsModel()->fetchGenericFields();						//categorize the data			$arr_replace_fields = array();			foreach ($objFields as $objReplaceField)			{				if (!isset($objReplaceField->category))				{					continue;				}//end if							$arr_replace_fields[str_replace(' ', '_', $objReplaceField->category)][] = $objReplaceField;			}//end if						foreach ($objGenericFields as $objField)			{				if (!isset($objField->id))				{					continue;				}//end if							$arr_replace_fields['Generic_Fields'][] = $objField;			}//end foreach						//load profile images			$objImages = $this->getProfileFileManagerModel()->fetchFiles('images');			$arr_images_list = array();			foreach ($objImages as $k => $objImage)			{				if (!isset($objImage->active) || $objImage->active != '1')				{					continue;				}//end if							$arr_images_list[] = $objImage;			}//end foreach						//cache data			$arr_data = array(					'arr_replace_fields' => json_encode($arr_replace_fields, JSON_FORCE_OBJECT),					'arr_profile_images' => json_encode((object) $arr_images_list, JSON_FORCE_OBJECT),			);						$this->getProfileCacheManager()->setCacheItem($cache_key, $arr_data, array('ttl' => (60 * 10)));						return $arr_data;		} catch (\Exception $e) {			$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));			return $this->redirect()->toRoute('home');		}//end catch				return array();	}//end function		public function ajaxRequestAction()	{		$arr_config = $this->getServiceLocator()->get('config')['frontend_views_config'];		if ($arr_config['enabled'] != true || $arr_config['angular-views-enabled']['journeys'] != true)		{			return new JsonModel(array(					'error' => 1,					'response' => 'Requested functionality is not available',			));		}//end if				$arr_params = $this->params()->fromQuery();		if (isset($arr_params['acrq']))		{			$acrq = $arr_params['acrq'];		}//end if				$request = $this->getRequest();		if ($request->isPost())		{			$arr_post_data = json_decode(file_get_contents('php://input'), true);			if (isset($arr_post_data['acrq']))			{				$acrq = $arr_post_data['acrq'];				unset($arr_post_data['acrq']);			}//end if						if (isset($arr_post_data['journey_id']))			{				$arr_params['journey_id'] = $arr_post_data['journey_id'];			}//end if		}//end if			try {			switch ($acrq)			{				case 'load-journey-data':					//load the requested journey					$objJourney = $this->getJourneysModel()->fetchJourney($arr_params['journey_id']);											if (is_object($objJourney) && $objJourney->get('id') == $arr_params['journey_id'])					{						$objResult = new JsonModel(array(								'objData' => (object) $objJourney->getArrayCopy(),								'error' => 0,						));					} else {						$objResult = new JsonModel(array(								'error' => 1,								'response' => 'The requested journey could not be located'						));					}//end if											return $objResult;					break;									case 'load-journeys':					$arr_search_params = array();										if (isset($arr_params['qp_limit']) && is_numeric($arr_params['qp_limit']))					{						$arr_search_params['qp_limit'] = $arr_params['qp_limit'];					}//end if										if (isset($arr_params['qp_start']) && is_numeric($arr_params['qp_start']))					{						$arr_search_params['qp_start'] = $arr_params['qp_start'];					}//end if										if (isset($arr_params['journeys_journey']) && is_string($arr_params['journeys_journey']))					{						$arr_search_params['journeys_journey'] = $arr_params['journeys_journey'];					}//end if										if (isset($arr_params['journeys_status']) && is_numeric($arr_params['journeys_status']))					{						$arr_search_params['journeys_status'] = $arr_params['journeys_status'];					}//end if										$objJourneys = $this->getJourneysModel()->fetchJourneys($arr_search_params, FALSE);					$arr_journeys = array();					foreach ($objJourneys as $objJourney)					{						if (isset($objJourney->id))						{							//format expiry date							if ($objJourney->date_expiry != "0000-00-00" && $objJourney->date_expiry != "")							{								$t = strtotime($objJourney->date_expiry);								if (is_numeric($t))								{									$objDate = \DateTime::createFromFormat("d M Y", date('d M Y', $t));									if (is_object($objDate))									{										$objJourney->date_expiry = date('d M Y', $t);									} else {										$objJourney->date_expiry = "";									}//end if								} else {									$objJourney->date_expiry = "";								}//end if							} else {								$objJourney->date_expiry = "";							}//end if														$arr_journeys[] = $objJourney;						}//end if					}//end foreach										//add hypermedia					$arr_journeys['hypermedia'] = $objJourneys->hypermedia;					$objResult = new JsonModel(array(						'objData' => (object) $arr_journeys,						'error' => 0,					));					return $objResult;					break;									case 'load-journey-admin-form':					//load administration form					$form = $this->getJourneysModel()->getJourneysForm();					if ($form->has('fk_campaign_id'))					{						$form->remove('fk_campaign_id');					}//end if										$objForm = $this->renderSystemAngularFormHelper($form, NULL);										$objResult = new JsonModel(array(						'error' => 0,						'objData' => $objForm,					));					return $objResult;					break;									case 'toggle-journey-status':					//load the requested journey					$objJourney = $this->getJourneysModel()->fetchJourney($arr_params['journey_id']);										if (is_object($objJourney) && $objJourney->get('id') == $arr_params['journey_id'])					{						$objJourney->set('active', (1 - $objJourney->get('active')));						$this->getJourneysModel()->updateJourney($objJourney);						$objResult = new JsonModel(array(							'objData' => (object) $objJourney->getArrayCopy(),							'error' => 0,						));					} else {						$objResult = new JsonModel(array(							'error' => 1,							'response' => 'The requested journey could not be located'						));					}//end if										return $objResult;					break;									case 'create-journey':					//load administration form					$form = $this->getJourneysModel()->getJourneysForm();										try {						//validate form						$arr_form_data = $arr_post_data;						$arr_form_data['fk_campaign_id'] = '';						$arr_form_data['user_journey'] = 0;						$arr_form_data['monitor'] = 0;						$form->setData($arr_form_data);												if ($form->isValid())						{							$arr_data = (array) $form->getData();							$objJourney = $this->getJourneysModel()->createJourney($arr_data);							$objResult = new JsonModel(array(								'error' => 0,								'objData' => (object) $objJourney->get('data'),							));						} else {							//form is invalid							return new JsonModel($this->formatAngularFormErrors($form));						}//end if					} catch (\Exception $e) {						$objResult = new JsonModel(array(								'error' => 1,								'response' => $this->frontControllerErrorHelper()->formatErrors($e),								'raw_response' => $e->getMessage(),						));					}//end catch										return $objResult;					break;									case 'update-journey':					//load administration form					$form = $this->getJourneysModel()->getJourneysForm();										try {						//load the journey						$objJourney = $this->getJourneysModel()->fetchJourney($arr_post_data['journey_id']);						$form->bind($objJourney);						$form->setData($arr_post_data);												if ($form->isValid())						{							$objJourney = $form->getData();							$objJourney = $this->getJourneysModel()->updateJourney($objJourney);														$objResult = new JsonModel(array(								'error' => 0,								'objData' => (object) $objJourney->getArrayCopy(),							));						} else {							//form is invalid							return new JsonModel($this->formatAngularFormErrors($form));						}//end if					} catch (\Exception $e) {						$objResult = new JsonModel(array(								'error' => 1,								'response' => $this->frontControllerErrorHelper()->formatErrors($e),								'raw_response' => $e->getMessage(),						));					}//end catch										return $objResult;					break;									case 'delete-journey':					try {						//load the journey						$objJourney = $this->getJourneysModel()->fetchJourney($arr_post_data['journey_id']);						$this->getJourneysModel()->deleteJourney($objJourney->get('id'));												$objResult = new JsonModel(array(							'error' => 0,							'objData' => (object) $objJourney->getArrayCopy(),						));					} catch (\Exception $e) {						$objResult = new JsonModel(array(								'error' => 1,								'response' => $this->frontControllerErrorHelper()->formatErrors($e),								'raw_response' => $e->getMessage(),						));					}//end catch										return $objResult;					break;									case 'load-journey-behaviours':					//load the requested journey					$objJourney = $this->getJourneysModel()->fetchJourney($arr_params['journey_id']);										if (!is_object($objJourney) || $objJourney->get('id') != $arr_params['journey_id'])					{						$objResult = new JsonModel(array(								'error' => 1,								'response' => 'The requested journey could not be located'						));						return $objResult;					}//end if										//set data array to collect behaviours and pass url data to view					$arr_behaviour_params = array(							"journey_id" => $objJourney->get('id'),							"behaviour" => "journey",					);										//load current journey behaviours...					$objBehaviours = $this->getFrontBehavioursModel()->fetchBehaviourActions($arr_behaviour_params);					$arr_behaviours = array();					foreach ($objBehaviours as $objB)					{						if (isset($objB->id))						{							$arr_behaviours[] = $objB;						}//end if					}//end foreach										$objResult = new JsonModel(array(							'objData' => (object) $arr_behaviours,							'error' => 0,					));										return $objResult;					break;									case 'load-journey-behaviour':					//load the requested journey					$objJourney = $this->getJourneysModel()->fetchJourney($arr_params['journey_id']);											if (!is_object($objJourney) || $objJourney->get('id') != $arr_params['journey_id'])					{						$objResult = new JsonModel(array(								'error' => 1,								'response' => 'The requested journey could not be located'						));						return $objResult;					}//end if											//set data array to collect behaviours and pass url data to view					$arr_behaviour_params = array(							"journey_id" => $objJourney->get('id'),							"behaviour" => "journey",					);											//load current journey behaviours...					$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_params['behaviour_id']);											$objResult = new JsonModel(array(							'objData' => (object) $objBehaviour->getArrayCopy(),							'error' => 0,					));											return $objResult;					break;									case 'load-journey-related-behaviours':					//load the requested journey					$objData = $this->getJourneysModel()->fetchJourney($arr_params['journey_id'], array('callback' => 'loadJourneyRelatedBehaviours'));					$objBehaviours = $objData->getArrayCopy();										$objResult = new JsonModel(array(							'objData' => $objBehaviours,							'error' => 0,					));											return $objResult;					break;									case 'load-available-journey-behaviours':					//load current journey behaviours...					//load behaviours form					$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("journey", array('behaviour' => 'journey', 'journey_id' => $arr_params['journey_id']));					$arr_actions = $arr_config_form_data['form']->get('beh_action')->getValueOptions();					$arr_behaviour_actions = array();					foreach ($arr_actions as $action => $label)					{						$arr_behaviour_actions[] = array('action' => $action, 'label' => $label);						}//end foreach										$objResult = new JsonModel(array(						'error' => 0,						'objData' => (object) $arr_behaviour_actions,					));					return $objResult;					break;									case 'load-journey-create-behaviour-form':					//set data array to collect behaviours and pass url data to view					$arr_behaviour_params = array(							"journey_id" => $arr_params['journey_id'],							"behaviour" => 'journey',							'beh_action' => $arr_params['beh_action'],					);										if ($arr_behaviour_params['behaviour'] == '')					{						$arr_behaviour_params['behaviour'] = 'journey';					}//end if										//load behaviours form					$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_behaviour_params);								$objForm = $this->renderSystemAngularFormHelper($form, NULL);										$objResult = new JsonModel(array(							'objData' => $objForm,							'error' => 0,					));					return $objResult;					break;									case 'create-journey-behaviour-action':					//set some default values					$arr_post_data['fk_journey_id'] = $arr_params['journey_id'];					$arr_post_data['journey_id'] = $arr_params['journey_id'];					$arr_post_data['event_runtime_trigger'] = 'post';					$arr_post_data['behaviour'] = 'journey';										//fix some values based on action					switch ($arr_post_data['beh_action'])					{						case '__journey_no_start_time':							//multiply days by seconds							$arr_post_data['content'] = (int) $arr_post_data['content'] * 86400;							break;					}//end switch										//load behaviours form					$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm(array(							'behaviour' => $arr_post_data['behaviour'],							'beh_action' => $arr_post_data['beh_action'],							'journey_id' => $arr_post_data['journey_id'],					));										//add missing fields to dataset					foreach ($form->getElements() as $objElement)					{						if (!isset($arr_post_data[$objElement->getName()]))						{							$arr_post_data[$objElement->getName()] = '';						}//end if					}//end foreach										//remove some fields from the form that would cause failures due to changes based on behaviours					if ($form->has('field_value'))					{						$form->remove('field_value');						}//end if										if ($form->has('field_operator'))					{						$form->remove('field_operator');					}//end if										try {						$form->setData($arr_post_data);						if ($form->isValid())						{							$objBehaviour = $this->getFrontBehavioursModel()->createBehaviourAction($arr_post_data);							$objResult = new JsonModel(array(								'error' => 0,								'objData' => $objBehaviour->getArrayCopy(),							));							return $objResult;						} else {							//set error message							$objResult = new JsonModel(array(									'error' => 1,									'response' => 'Local form validation failed',									'form_messages' => (object) $form->getMessages(),							));							return $objResult;						}//end if					} catch (\Exception $e) {												//set error message						$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());						$objResult = new JsonModel(array(								'error' => 1,								'response' => $e->getMessage(),								'form_messages' => (object) $form->getMessages(),						));					}//end catch					break;									case 'edit-journey-behaviour-action':					$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_post_data['id']);					//set some default values					$arr_post_data['fk_journey_id'] = $objBehaviour->get('journey_id');					$arr_post_data['journey_id'] = $objBehaviour->get('journey_id');					$arr_post_data['event_runtime_trigger'] = 'post';					$arr_post_data['behaviour'] = $objBehaviour->get('behaviour');											//fix some values based on action					switch ($arr_post_data['action'])					{						case '__journey_no_start_time':							//multiply days by seconds							$arr_post_data['content'] = (int) $arr_post_data['content'] * 86400;							break;					}//end switch										$arr_form_params = array("behaviour" => "journey", 'beh_action' => $objBehaviour->get('action'));					$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_form_params);										//set journey id					if ($form->has("fk_journey_id"))					{						$form->get("fk_journey_id")->setValue($arr_post_data['fk_journey_id']);					}//end if										//assign data to form is behaviour is being reconfigured					if ($objBehaviour instanceof \FrontBehavioursConfig\Entities\FrontBehavioursBehaviourConfigEntity)					{						$form->bind($objBehaviour);					}//end if					$form->setData($arr_post_data);								if ($form->isValid())					{						//update the behaviour						$objData = $form->getData();						if ($objData instanceof \FrontBehavioursConfig\Entities\FrontBehavioursBehaviourConfigEntity)						{							$objData->set('id', $arr_post_data['id']);							$objData->set('action', $objBehaviour->get('action'));							$objData->set('behaviour', '__journey');											$objBehaviour = $this->getFrontBehavioursModel()->editBehaviourAction($objData);							$objResult = new JsonModel(array(								'error' => 0,								'objData' => (object) $objBehaviour->getArrayCopy(),							));							return $objResult;						} else {							$objResult = new JsonModel(array(									'error' => 1,									'response' => 'The specified behaviour could not be located',							));							return $objResult;						}//end if					} else {						$objResult = new JsonModel(array(							'error' => 1,							'response' => 'Form validation failed',							'form_messages' => $form->getMessages(),						));						return $objResult;					}//end if										$objResult = new JsonModel(array(							'error' => 0,							'objData' => (object) array(),					));					return $objResult;					break;										case 'toggle-journey-behaviour-action-status':					$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_post_data['id']);					if ($objBehaviour->get('active') == '')					{						$objBehaviour->set('active', 0);						}//end if										$objBehaviour->set('active', (1 - $objBehaviour->get('active')));					$this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);					sleep(1);					$objResult = new JsonModel(array(							'error' => 0,							'objData' => (object) $objBehaviour->getArrayCopy(),					));					return $objResult;					break;										case 'delete-journey-behaviour-action':					$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviourAction($arr_post_data['id']);					$this->getFrontBehavioursModel()->deleteBehaviourAction($objBehaviour);					sleep(2);					$objResult = new JsonModel(array(						'error' => 0,						'objData' => (object) array(),					));					return $objResult;					break;									case 'build-flow-journey-diagram':					//load the requested journey					$objData = $this->getJourneysModel()->createJourneyFlowDiagram($arr_params['journey_id']);									$objResult = new JsonModel(array(							'objData' => $objData,							'error' => 0,					));										return $objResult;					break;									case 'load-journey-statistics':					//load the requested journey statistics					$objData = $this->getJourneysModel()->fetchJourney($arr_params['journey_id'], array('callback' => 'loadJourneyContactsStarted'));										$objResult = new JsonModel(array(							'objData' => $objData->getArrayCopy(),							'error' => 0,					));											return $objResult;					break;			}//end switch		} catch (\Exception $e) {			$objResult = new JsonModel(array(					'error' => 1,					'response' => $e->getMessage(),			));			return $objResult;		}//end catch					$objResult = new JsonModel(array(				'error' => 1,				'response' => 'Request type is not specified',		));		return $objResult;	}//end function		/**	 * Create a new Journey	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\RsponseInteface>|multitype:\Zend\Form\Form	 */	public function createAction()	{		$form = $this->getJourneysModel()->getJourneysForm();		$request = $this->getRequest();		if ($request->isPost())		{			//set the form data			$form->setData($request->getPost());			if ($form->isValid())			{				try {					//create the journey					$objJourney = $this->getJourneysModel()->createJourney($form->getData());					//set the success message					$this->flashMessenger()->addSuccessMessage("Journey created successfully");					//redirect to the index page					return $this->redirect()->toRoute("front-comms-admin/journeys");				} catch (\Exception $e) {					//set error message					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());				}//end catch			}//end if		} else {			//set some default values			$form->get("user_journey")->setValue(0);		}//end if		return array(				"form" => $form		);	}//end function	/**	 * Update a Journey	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>	 */	public function editAction()	{		//get the ID		$id = $this->params()->fromRoute("id", "");		if ($id == "")		{			//set error message and return to the index page.			$this->flashMessenger()->addErrorMessage("Journey could not be loaded. Id not set.");			//redirect to the index page			return $this->redirect()->toRoute("front-comm-admin/journeys");		}//end if		//load the journey details		$objJourney = $this->getJourneysModel()->fetchJourney($id);		//load the form		$form = $this->getJourneysModel()->getJourneysForm();		//bind the data		$form->bind($objJourney);		/**		 * Perform some data checks		 */		if ($form->has("date_expiry"))		{			if ($objJourney->get("date_expiry") == "0000-00-00" || $objJourney->get("date_expiry") == "00-00-0000" || $objJourney->get("date_expiry") == "")			{				$date = "";			} else {				$date = $objJourney->get("date_expiry");			}//end if			$form->get("date_expiry")->setValue($date);		}//end if		$request = $this->getRequest();		if ($request->isPost()) {			//set the form data			$form->setData($request->getPost());			if ($form->isValid())			{				try {					$objJourney = $form->getData();					//set id from route					$objJourney->set("id", $id);					$objJourney = $this->getJourneysModel()->updateJourney($objJourney);					//set the success message					$this->flashMessenger()->addSuccessMessage("Journey updated successfully");					//redirect to the index page					return $this->redirect()->toRoute("front-comms-admin/journeys");				} catch (\Exception $e) {					//set error message					$form = $this->frontFormHelper()->formatFormErrors($form, $e->getMessage());				}//end catch			}//end if		}//end if		return array(				"form" => $form,				"objJourney" => $objJourney,		);	}//end function	/**	 * Delete a Journey	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>	 */	public function deleteAction()	{		$id = $this->params()->fromRoute("id", "");		if ($id == "")		{			//set error message			$this->flashMessenger()->addErrorMessage("Journey could not be deleted. ID not set.");			//return to the index page			return $this->redirect()->toRoute("front-comms-admin/journeys");		}//end if		//load data		try {			$objJourney = $this->getJourneysModel()->fetchJourney($id);		} catch (\Exception $e) {    		//set error message    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));			//redirect to index page			return  $this->redirect()->toRoute("front-comms-admin/journeys");		}//end catch		$request = $this->getRequest();		if ($request->isPost())		{			if (strtolower($request->getPost("delete")) == "yes")			{				//delete the Journey				try {					$objJourney = $this->getJourneysModel()->deleteJourney($id);					//set the message					$this->flashMessenger()->addSuccessMessage("Journey deleted successfully");				} catch (\Exception $e) {    				//set error message    				$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));				}//end catch			}//end if			//redirect to index page			return  $this->redirect()->toRoute("front-comms-admin/journeys");		}//end if		return array(			"objJourney" => $objJourney,		);	}//end function	/**	 * Activate or deactivate a Journey	 * @return Ambigous <\Zend\Http\Response, \Zend\Stdlib\ResponseInterface>	 */	public function statusAction()	{		$id = $this->params()->fromRoute("id", "");		if ($id == "")		{			//set the error message			$this->flashMessenger()->addErrorMessage("Journey active status could not be set. Id not set.");			//return to index page			return $this->redirect()->toRoute("front-comms-admin/journeys");		}//end if		try {			//load the Jouney details			$objJourney = $this->getJourneysModel()->fetchJourney($id);			$objJourney->set("active", (1 - $objJourney->get("active")));			//update the Journey			$objJourney = $this->getJourneysModel()->updateJourney($objJourney);			//set the success message			$this->flashMessenger()->addSuccessMessage("Journey active status updated");		} catch (\Exception $e) {    		//set error message    		$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));		}//end if		//redirect to the index page		return $this->redirect()->toRoute("front-comms-admin/journeys");	}//end function	public function journeyBehavioursAction()	{		//set layout    	$this->layout("layout/behaviours-view");		//set data array to collect behaviours and pass url data to view		$arr_behaviour_params = array(				"journey_id" => $this->params()->fromRoute("id"),				"behaviour" => "journey",		);		//load behaviours form		$arr_config_form_data = $this->getFrontBehavioursModel()->getBehaviourActionsForm("journey", $arr_behaviour_params);		$form = $arr_config_form_data["form"];		$arr_descriptors = $arr_config_form_data["arr_descriptors"];		//load current journey behaviours...		$objBehaviours = $this->getFrontBehavioursModel()->fetchBehaviourActions($arr_behaviour_params);		//check if behaviour is being reconfigured		if (is_numeric($this->params()->fromQuery("behaviour_id", "")))		{			$objBehaviour = $this->getFrontBehavioursModel()->fetchBehaviour($this->params()->fromQuery("behaviour_id"));		} else {			$objBehaviour = FALSE;		}//end if		$request = $this->getRequest();		if ($request->isPost())		{			$form->setData($request->getPost());			if ($form->isValid())			{				//reload the form				$arr_params = $form->getData();				$arr_params["behaviour"] = "journey";				$form = $this->getFrontBehavioursModel()->getBehaviourConfigForm($arr_params);				//check if a local defined form exists for the behaviour, sometime needed since the api wont render the form correctly				$class = "\\FrontBehavioursConfig\\Forms\\Journeys\\Behaviour" . str_replace(" ", "", ucwords(str_replace("_", " ", $arr_params['beh_action']))) . "Form";				if (class_exists($class))				{					$form = new $class($form);				}//end if				//set journey id				if ($form->has("fk_journey_id"))				{					$form->get("fk_journey_id")->setValue($this->params()->fromRoute("id"));				}//end if				//set behaviour action param for view				$arr_behaviour_params["beh_action"] = $arr_params["beh_action"];				//assign data to form is behaviour is being reconfigured				if ($objBehaviour instanceof \FrontBehaviours\Entities\FrontBehavioursBehaviourConfigEntity)				{					$form->bind($objBehaviour);				}//end if				//check if submitted form is the complete behaviour config				if ($this->params()->fromPost("setup_complete", 0) == 1)				{					//revalidate the form					$form->setData($request->getPost());					if ($form->isValid())					{						if ($objBehaviour === FALSE)						{							//set additional params							$arr_form_data = $form->getData();							$arr_form_data["journey_id"] = $this->params()->fromRoute("id");							$arr_form_data["fk_journey_id"] = $this->params()->fromRoute("id");							//create/update the behaviour							$objBehaviour = $this->getFrontBehavioursModel()->createBehaviourAction($arr_form_data);							//redirect back to the "index" view							return $this->redirect()->toUrl($this->url()->fromRoute("front-comms-admin/journeys", array("action" => "journey-behaviours", "id" => $this->params()->fromRoute("id"))));						} else {							//set additional params							$objBehaviour = $form->getData();							$objBehaviour->set("journey_id", $this->params()->fromRoute("id"));							$objBehaviour->set("fk_journey_id", $this->params()->fromRoute("id"));							//update the behaviour							$objBehaviour = $this->getFrontBehavioursModel()->editBehaviourAction($objBehaviour);							//redirect back to the "index" view							return $this->redirect()->toUrl($this->url()->fromRoute("front-comms-admin/journeys", array("action" => "journey-behaviours", "id" => $this->params()->fromRoute("id"))));						}//end if					}//end if				}//end if			}//end if		}//end if		$viewModel = new ViewModel(array(				//form to add behavours				"form"      			=> $form,				//existing behaviours				"objBehaviours" 		=> $objBehaviours,				//behaviour params				"arr_behaviour_params" 	=> $arr_behaviour_params,				//action descriptions				"arr_descriptors" 		=> $arr_descriptors,				//set header				"behaviours_header" 	=> "Behaviours configured for <span class=\"text-info\">Journey</span>",		));		$viewModel->setTemplate('front-behaviours-config/index/configure-behaviours.phtml');		return $viewModel;	}//end function	public function journeyFlowAction()	{		$this->layout("layout/dashboard");		//get the ID		$id = $this->params()->fromRoute("id", "");		if ($id == "")		{			//set error message and return to the index page.			$this->flashMessenger()->addErrorMessage("Journey could not be loaded. Id not set.");			//redirect to the index page			return $this->redirect()->toRoute("front-comm-admin/journeys");		}//end if		$objData = $this->getJourneysModel()->createJourneyFlowDiagram($id);		return array(			"objData" => $objData,			"journey_id" => $id,		);	}//end function	/**	 * Handler for anuglar forms to return local form validation failures in same format structure as API	 * @param \Zend\Form\Form $objForm	 */	private function formatAngularFormErrors(\Zend\Form\Form $objForm)	{		$arr_response = array(				'error' => 1,				'response' => 'Frontend Form Validation failed',				'form_messages' => $objForm->getMessages()		);			return $arr_response;	}//end function		/**	 * Create an instance of the Journeys model using the service manager.	 * @return \FrontCommsAdmin\Models\FrontJourneysModel	 */	private function getJourneysModel()	{		if (!$this->model_journeys)		{			$this->model_journeys = $this->getServiceLocator()->get("FrontCommsAdmin\Models\FrontJourneysModel");		}//end if		return $this->model_journeys;	}//end function	/**	 * Create an instance of the Front Behaviours Config Model using the Service Manager	 * @return \FrontBehavioursConfig\Models\FrontBehavioursConfigModel	 */	private function getFrontBehavioursModel()	{		if (!$this->model_front_behaviours_config)		{			$this->model_front_behaviours_config = $this->getServiceLocator()->get("FrontBehavioursConfig\Models\FrontBehavioursConfigModel");		}//end if		return $this->model_front_behaviours_config;	}//end function		/**	 * Create an instance of the Profile's cache manager	 * @return \FrontCore\Caches\FrontCachesRedis	 */	private function getProfileCacheManager()	{		if (!$this->model_profile_cache_manager)		{			$this->model_profile_cache_manager = $this->getServiceLocator()->get('FrontCore\Caches\FrontCachesRedis');		}//end if			return $this->model_profile_cache_manager;	}//end function		/**	 * Create an instance of the Profile File Manager using the Service Manager	 * @return \FrontProfileFileManager\Models\FrontProfileFileManagerModel	 */	private function getProfileFileManagerModel()	{		if (!$this->model_profile_file_manager)		{			$this->model_profile_file_manager = $this->getServiceLocator()->get('FrontProfileFileManager\Models\FrontProfileFileManagerModel');		}//end if			return $this->model_profile_file_manager;	}//end function		/**	 * Create an instance of the Replace Fields Model using the Service Manager	 * @return \FrontFormAdmin\Models\FrontReplaceFieldsAdminModel	 */	private function getReplaceFieldsModel()	{		if (!$this->model_replace_fields)		{			$this->model_replace_fields = $this->getServiceLocator()->get("FrontFormAdmin\Models\FrontReplaceFieldsAdminModel");		}//end if			return $this->model_replace_fields;	}//end if		/**	 * Create an instance of the Generic Fields Model using the Service Manager	 * @return \FrontFormAdmin\Models\FrontGenericFieldsAdminModel	 */	private function getGenericFieldsModel()	{		if (!$this->model_generic_fields)		{			$this->model_generic_fields = $this->getServiceLocator()->get("FrontFormAdmin\Models\FrontGenericFieldsAdminModel");		}//end if			return $this->model_generic_fields;	}//end if}//end class

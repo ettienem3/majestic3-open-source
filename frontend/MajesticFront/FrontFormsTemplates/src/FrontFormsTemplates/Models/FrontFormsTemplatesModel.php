@@ -13,7 +13,6 @@ class FrontFormsTemplatesModel extends AbstractCoreAdapter
 		 */
 		public function getAdminFormsTemplates()
 		{
-
 			$objFormsTemplates = $this->getServiceLocator()->get("FrontCore\Models\SystemFormsModel")
 					->getSystemForm("Core\Forms\SystemForms\Templates\FormTemplatesForm");
 
@@ -83,7 +82,7 @@ class FrontFormsTemplatesModel extends AbstractCoreAdapter
 			$objFormTemplate = $objApiRequest->performPOSTRequest($objFormTemplate->getArrayCopy())->getBody();
 
 			//recreate the Form Template entity.
-			$objFormTemplate = $this->createFormTemplateEntity($objFormTemplate);
+			$objFormTemplate = $this->createFormTemplateEntity($objFormTemplate->data);
 
 			//trigger post event
 			$this->getEventManager()->trigger(__FUNCTION__ . ".post", $this, array("objFormTemplate" => $objFormTemplate));
@@ -151,6 +150,132 @@ class FrontFormsTemplatesModel extends AbstractCoreAdapter
 			return $objFormTemplate;
 		}// end function
 
+		/**
+		 * Request a list of files available for attaching to templates
+		 * @return stdClass
+		 */
+		public function fetchAvailableTemplateFiles() 
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+				
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files");
+				
+			//execute
+			$objFormTemplateFiles = $objApiRequest->performGETRequest(array('callback' => 'loadAvailableTemplateFiles'))->getBody();
+			return $objFormTemplateFiles->data;
+		}//end function
+		
+		/**
+		 * Load files attached to Template
+		 * @param integer $id
+		 * @return stdClass
+		 */
+		public function fetchTemplateAttachedFiles($id)
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+			
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files");
+			
+			//execute
+			$objFormTemplateFiles = $objApiRequest->performGETRequest(array('template_id' => $id))->getBody();
+			return $objFormTemplateFiles->data;
+		}//end function
+		
+		/**
+		 * Load a specific file attached to Template
+		 * @param integer $id
+		 * @return stdClass
+		 */
+		public function fetchTemplateAttachedFile($id)
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+				
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files/" . $id);
+				
+			//execute
+			$objFormTemplateFiles = $objApiRequest->performGETRequest(array())->getBody();
+			return $objFormTemplateFiles->data;
+		}//end function
+		
+		/**
+		 * Attach a file to a template
+		 * @param array $arr_data
+		 * @return stdClass
+		 */
+		public function attachTemplateFile($arr_data)
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+				
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files");
+				
+			//execute
+			$objFormTemplateFile = $objApiRequest->performPOSTRequest($arr_data)->getBody();
+			return $objFormTemplateFile->data;
+		}//end function
+		
+		/**
+		 * Update attached file
+		 * @param int $id
+		 * @param array $arr_data
+		 * @return stdClass
+		 */
+		public function updateAttachedFile($id, $arr_data)
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+			
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files/" . $id);
+			
+			//execute
+			$objFormTemplateFile = $objApiRequest->performPUTRequest($arr_data)->getBody();
+
+			return $objFormTemplateFile->data;
+		}//end function
+		
+		/**
+		 * Attach a file to a template
+		 * @param array $arr_data
+		 * @return stdClass
+		 */
+		public function detachTemplateFile($id)
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+		
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files/" . $id);
+		
+			//execute
+			$objFormTemplateFile = $objApiRequest->performDELETERequest(array())->getBody();
+			return $objFormTemplateFile->data;
+		}//end function
+		
+		/**
+		 * Detach all files attached to a template
+		 * @param int $id - Pass the template id and not the file id
+		 * @return stdClass
+		 */
+		public function detachAllTemplateFiles($id)
+		{
+			//create the request object
+			$objApiRequest = $this->getApiRequestModel();
+		
+			//setup the object and specify the action
+			$objApiRequest->setApiAction("html/templates/forms/files/" . $id);
+		
+			//execute
+			$objFormTemplateFile = $objApiRequest->performDELETERequest(array('template_id' => $id))->getBody();
+			return $objFormTemplateFile->data;
+		}//end function
 
 		/**
 		 * Create the FormTemplateEntity

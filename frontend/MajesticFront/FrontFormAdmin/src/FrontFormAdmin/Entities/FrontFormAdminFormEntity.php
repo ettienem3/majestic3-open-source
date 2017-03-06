@@ -100,6 +100,8 @@ class FrontFormAdminFormEntity extends AbstractEntityAdapter
 			} else {
 				parent::set($key);
 			}//end if
+		} else {
+			parent::set($key, $value);
 		}//end if
 	}//end function
 }//end class

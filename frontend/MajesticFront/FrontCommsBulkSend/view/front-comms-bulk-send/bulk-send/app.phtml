@@ -1,0 +1,25 @@
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_BULK_HTML . '&nbsp; Bulk Send Requests'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+		pagination: {qp_limit: 20}
+	};
+</script>
+
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/angular-slider/rzslider.js"></script>
+<link href="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/angular-slider/rzslider.css" media="screen" rel="stylesheet" type="text/css">
+
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/angular/plugins/ui-multiselect/multiselect.js"></script>
+<link href="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/ui-multiselect/multiselect.css" media="screen" rel="stylesheet" type="text/css">
+
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/highcharts.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/data.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/drilldown.js"></script>
+
+<script src="/js/angular/comms-admin/bulk-send/app.js"></script>
+<script src="/js/angular/comms-admin/bulk-send/controllers.js"></script>
+<script src="/js/angular/comms-admin/bulk-send/services.js"></script>	
+
+<?php
+echo '<div ng-app="frontEndApp"><div ng-view></div></div>';
+return;

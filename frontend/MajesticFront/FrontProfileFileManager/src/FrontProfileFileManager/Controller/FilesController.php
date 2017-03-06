@@ -23,7 +23,12 @@ class FilesController extends AbstractCoreActionController
     	}//end if
 
         //load files
-        $objFiles = $this->getFrontProfileFileManagerModel()->fetchFiles($mode);
+        try {
+        	$objFiles = $this->getFrontProfileFileManagerModel()->fetchFiles($mode);
+        } catch (\Exception $e) {
+        	$this->flashMessenger()->addErrorMessage($this->frontControllerErrorHelper()->formatErrors($e));
+        	return $this->redirect()->toRoute('home');
+        }//end catch        	
 
         return array(
         	"mode" => strtolower($mode),
@@ -36,7 +41,7 @@ class FilesController extends AbstractCoreActionController
     {
     	//load files
     	try {
-	    	$objFiles = $this->getFrontProfileFileManagerModel()->fetchFiles("", (array) $this->params()->fromQuery());
+	    	$objFiles = $this->getFrontProfileFileManagerModel()->fetchFiles("", (array) $this->params()->fromQuery());    	
 	    	echo json_encode(array("error" => 0, "files" => $objFiles), JSON_FORCE_OBJECT); exit;
     	} catch (\Exception $e) {
     		echo json_encode(array("error" => 1, "response" => $e->getMessage()), JSON_FORCE_OBJECT); exit;
@@ -301,6 +306,17 @@ class FilesController extends AbstractCoreActionController
 		return array(
 			"location" => $location,
 		);
+    }//end function
+    
+    public function toggleStatusAction()
+    {
+    	$id = $this->params()->fromQuery('id', '');
+    	if ($id != '')
+    	{
+    		$this->getFrontProfileFileManagerModel()->toggleFileStatus($id);
+    	}//end if
+    	
+    	return $this->redirect()->toRoute("front-profile-file-manager");
     }//end function
 
     /**

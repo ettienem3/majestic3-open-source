@@ -2,7 +2,8 @@
 return array(
     'controllers' => array(
         'invokables' => array(
-            'MajesticExternalForms\Controller\Index' => 'MajesticExternalForms\Controller\IndexController',
+            'MajesticExternalForms\Controller\Index' 		=> 'MajesticExternalForms\Controller\IndexController',
+        	'MajesticExternalForms\Controller\Console' 		=> 'MajesticExternalForms\Controller\ConsoleController',
         ),
     ),
 
@@ -78,6 +79,19 @@ return array(
 												'defaults' => array(
 														'controller' => 'MajesticExternalForms\Controller\Index',
 														'action' => 'vf',
+														"user-bypass-login" => TRUE,
+												),
+										),
+								),
+
+								'vf-ajax-request' => array(
+										'type' => 'segment',
+										'options' => array(
+												'route' => '/vf-ajax-request',
+												'defaults' => array(
+														'controller' => 'MajesticExternalForms\Controller\Index',
+														'action' => 'vf-ajax-request',
+														"user-bypass-login" => TRUE,
 												),
 										),
 								),
@@ -90,6 +104,7 @@ return array(
 												'defaults' => array(
 														'controller' => 'MajesticExternalForms\Controller\Index',
 														'action' => 'vfs',
+														"user-bypass-login" => TRUE,
 												),
 										),
 								),
@@ -111,6 +126,22 @@ return array(
 			),
 	),
 
+	'console' => array(
+			'router' => array(
+					'routes' => array(
+							'console-external-forms-plugin' => array(
+									'options' => array(
+											'route' => 'Formprocessaction execute <execute-task> --argument1= --host=',
+											'defaults' => array(
+													'controller' => 'MajesticExternalForms\Controller\Console',
+													'action' => 'execute'
+											),
+									),
+							),
+					)
+			)
+	),
+
     'view_manager' => array(
 //         'display_not_found_reason' => true,
 //         'display_exceptions'       => false,
@@ -121,6 +152,7 @@ return array(
             'layout/external/forms'         => __DIR__ . '/../view/forms-layout/layout.phtml',
         	'layout/external/forms/json'    => __DIR__ . '/../view/forms-layout/layout-json.phtml',
         	'layout/forms/header'			=> __DIR__ . '/../view/forms-layout/layout-forms-header.phtml',
+        	'layout/external/angular'		=> __DIR__ . '/../view/forms-layout/layout-form-angular.phtml',
         ),
 
         'template_path_stack' => array(

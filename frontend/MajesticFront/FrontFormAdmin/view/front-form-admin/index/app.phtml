@@ -1,0 +1,54 @@
+<?php
+//load user
+$objUser = \FrontUserLogin\Models\FrontUserSession::isLoggedIn();
+
+//amend menu items based on enabled core plugins
+if (isset($objUser->profile->plugins_enabled) && is_array($objUser->profile->plugins_enabled))
+{
+	$arr_plugins = $objUser->profile->plugins_enabled;
+} else {
+	$arr_plugins = array();
+}//end if
+?>
+<script type="text/javascript">
+	var global_page_config = {
+		pageTitle: '<?php echo $this->renderStandardViewHeader(ICON_LARGE_FORMS_HTML .'&nbsp; Manage Forms'); ?>',
+		cdnLocation: '<?php echo $this->layout()->cdn_url; ?>',
+	};
+
+	/* Set which form plugins are available, this should be read from profile settings */
+	var global_profile_config = {
+		plugins_enabled : {
+					'forms_web': <?php if (in_array('forms_web_form_type', $arr_plugins)) { echo 1; } else { echo 0; }?>,
+					'forms_cpp': <?php if (in_array('forms_cpp_form_type', $arr_plugins)) { echo 1; } else { echo 0; }?>,
+					'forms_viral': <?php if (in_array('forms_viral_form_type', $arr_plugins)) { echo 1; } else { echo 0; }?>,
+					'forms_trackers': <?php if (in_array('forms_tracker_form_type', $arr_plugins)) { echo 1; } else { echo 0; }?>
+
+			}
+	};
+
+	var global_tinymce_replace_fields_container = jQuery.parseJSON('<?php echo $this->arr_replace_fields;?>');
+	var global_tinymce_profile_images = jQuery.parseJSON('<?php echo $this->arr_profile_images;?>');
+</script>
+<script src="/js/plugins/mj-plugins.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/tinymce/tinymce.min.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/tinymce/jquery.tinymce.min.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/tinymce/tinymceui.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js"></script>
+<script src="<?php echo $this->layout()->cdn_url;?>/js/vendor/angular/plugins/ui-select/dist/select.min.js"></script>
+
+<script src="/js/angular/forms-admin/app.js"></script>
+<script src="/js/angular/forms-admin/controller.js"></script>
+<script src="/js/angular/forms-admin/controller-cpp.js"></script>
+<script src="/js/angular/forms-admin/controller-web.js"></script>
+<script src="/js/angular/forms-admin/controller-tracker.js"></script>
+<script src="/js/angular/forms-admin/controller-viral.js"></script>
+<script src="/js/angular/forms-admin/controller-form-fields.js"></script>
+<script src="/js/angular/forms-admin/services.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/highcharts.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/data.js"></script>
+<script src="<?php echo $this->layout()->cdn_url; ?>/js/vendor/highcharts/drilldown.js"></script>
+
+<?php
+echo '<div ng-app="frontEndFormAdminApp"><div ng-view></div></div>';
+return;

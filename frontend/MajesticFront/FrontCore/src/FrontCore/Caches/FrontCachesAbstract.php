@@ -13,6 +13,41 @@ abstract class FrontCachesAbstract extends AbstractCoreAdapter
 	protected $storageFactory;
 
 	/**
+	 * Return a list of all cached items
+	 * @return boolean
+	 */
+	public function listCachedItems($arr_params = array("Front*"))
+	{
+		//check if caching is enabled
+		$arr_config = $this->getServiceLocator()->get("config");
+		if ($arr_config["front_end_application_config"]["cache_enabled"] == FALSE)
+		{
+			return FALSE;
+		}//end if
+
+		$objAdapter = $this->storageFactory->getCapabilities()->getAdapter();
+		
+		//redis
+		if ($objAdapter instanceof \Zend\Cache\Storage\Adapter\Redis)
+		{
+			$objRedis = $objAdapter->getOptions();
+			//get resource id
+			$id = $objRedis->getResourceId();
+			
+			//create direct instance of redis client
+			$redis = $objRedis->getResourceManager()->getResource($id);
+			$arr_keys = $redis->keys("*");
+			return $arr_keys;
+		}//end if
+		
+		//file system
+		if ($objAdapter instanceof \Zend\Cache\Storage\Adapter\Filesystem)
+		{
+			return $objAdapter;
+		}//end if
+	}//end function
+	
+	/**
 	 * Read an item from the cache
 	 * @param string $key
 	 * @param string $default_value
@@ -87,9 +122,10 @@ abstract class FrontCachesAbstract extends AbstractCoreAdapter
 	/**
 	 * Remove an item from the cache
 	 * @param string $key
+	 * @param boolean $set_identifier - Used in some cases to prepend values to key. Defualts to TRUE
 	 * @return boolean
 	 */
-	public function clearItem($key)
+	public function clearItem($key, $set_identifier = TRUE)
 	{
 		//check if caching is enabled
 		$arr_config = $this->getServiceLocator()->get("config");
@@ -99,8 +135,13 @@ abstract class FrontCachesAbstract extends AbstractCoreAdapter
 		}//end if
 		
 		//adjust key
-		$key = $this->setIdentifier($key);
-		$this->storageFactory->removeItem($key);
+		if ($set_identifier === TRUE)
+		{
+			$key = $this->setIdentifier($key);
+		}//end if
+
+		$r = $this->storageFactory->removeItem($key);
+		return $r;
 	}//end function
 	
 	/**

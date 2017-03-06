@@ -72,7 +72,7 @@ class FrontJourneysModel extends AbstractCoreAdapter
 	 * @param array $arr_where - Optional
 	 * @return Object
 	 */
-	public function fetchTemplates($arr_where = NULL)
+	public function fetchTemplates($arr_where = array())
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -81,7 +81,7 @@ class FrontJourneysModel extends AbstractCoreAdapter
 		$objApiRequest->setApiAction("comms/admin/templates");
 
 		//@TODO apply the search vars
-		if (is_array($arr_where))
+		if (is_array($arr_where) && count($arr_where) > 0)
 		{
 			//...
 		}//end if
@@ -97,7 +97,7 @@ class FrontJourneysModel extends AbstractCoreAdapter
 	 * @param mixed $id
 	 * @return \FrontCommsAdmin\Entities\FrontJourneysEntity
 	 */
-	public function fetchJourney($id)
+	public function fetchJourney($id, $arr_params = array())
 	{
 		//create the request object
 		$objApiRequest = $this->getApiRequestModel();
@@ -105,8 +105,15 @@ class FrontJourneysModel extends AbstractCoreAdapter
 		//setup the object and specify the action
 		$objApiRequest->setApiAction("comms/admin/journeys/$id");
 
+		if (is_array($arr_params))
+		{
+			$arr_params['id'] = $id;
+		} else {
+			$arr_params = array('id' => $id);	
+		}//end if
+		
 		//execute
-		$objJourney = $objApiRequest->performGETRequest(array("id" => $id))->getBody();
+		$objJourney = $objApiRequest->performGETRequest($arr_params)->getBody();
 
 		//create the journey entity
 		$entity_journey = $this->createJourneyEntity($objJourney->data);
@@ -181,6 +188,12 @@ class FrontJourneysModel extends AbstractCoreAdapter
 		//manipulate date to valid format
 		if ($arr_data["date_expiry"] != "")
 		{
+			$t = strtotime($arr_data["date_expiry"]);
+			if (is_numeric($t) && $t > 0)
+			{
+				$arr_data["date_expiry"] = date('d M Y', $t);
+			}//end if
+			
 			$objDate = \DateTime::createFromFormat('d M Y', $arr_data["date_expiry"]);
 			if (!$objDate || !is_object($objDate))
 			{
@@ -251,7 +264,7 @@ if (!isset($arr_data['fk_campaign_id']))
 		$objApiRequest->setApiAction("comms/admin/journeys/$id");
 
 		//execute
-		$objJourney = $objApiRequest->performGETRequest(array("id" => $id, "flow_diagram" => 1))->getBody();
+		$objJourney = $objApiRequest->performGETRequest(array("id" => $id, 'callback' => 'loadJourneyFlowDiagram'))->getBody();
 		return $objJourney->data;
 	}//end function
 
